@@ -33,17 +33,6 @@ class ConsecutivoDocumento(models.Model):
 
     class Meta:
         db_table = 'cfg_consecutivodocumento'
-        unique_together = (('numero', 'idtipodocumento', 'iddepartamento', 'idueb'),)
-
-class ConsecutivoDocumento(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idnumeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT, related_name='consecutivodocumento_numeracion')
-    numero = models.IntegerField()
-    prefijo = models.CharField(max_length=3, blank=True, null=True)
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='consecutivo_ueb')
-
-    class Meta:
-        db_table = 'cfg_consecutivodocumento'
 
 class ConsecutivoDocumentoDepartamento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
