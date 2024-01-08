@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.functions import Now
 
 
+# todas las unidades contables de la empresa
 class UnidadContable(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=10)
@@ -15,6 +16,7 @@ class UnidadContable(models.Model):
         db_table = 'cla_unidadcontable'
         ordering = ['codigo']
 
+
 class Medida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clave = models.CharField(unique=True, max_length=6)
@@ -23,6 +25,7 @@ class Medida(models.Model):
     class Meta:
         db_table = 'cla_medida'
         ordering = ['descripcion']
+
 
 class MedidaConversion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -36,6 +39,35 @@ class MedidaConversion(models.Model):
         db_table = 'cla_medidaconversion'
         unique_together = (('medidao', 'medidad'),)
         ordering = ['medidao__descripcion']
+
+
+# clasificador de cuentas
+class Cuenta(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    long_niv = models.IntegerField()
+    posicion = models.IntegerField()
+    clave = models.CharField(unique=True, max_length=50)
+    descripcion = models.CharField(max_length=255)
+    naturaleza = models.IntegerField()
+    clave_nat = models.CharField(max_length=50)
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'cla_cuenta'
+        ordering = ['clave', 'posicion']
+
+
+class CentroCosto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    clave = models.CharField(unique=True, max_length=25)
+    clavenivel = models.CharField(max_length=50)
+    descripcion = models.CharField(unique=True, max_length=255)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'cla_centrocosto'
+        ordering = ['descripcion']
+
 
 class TipoProducto(models.Model):
     CHOICE_TIPOS_PROD = {
@@ -54,6 +86,7 @@ class TipoProducto(models.Model):
     class Meta:
         db_table = 'cla_tipoproducto'
 
+
 class EstadoProducto(models.Model):
     CHOICE_ESTADOS = {
         1: 'Bueno',
@@ -65,6 +98,7 @@ class EstadoProducto(models.Model):
 
     class Meta:
         db_table = 'cla_estadoproducto'
+
 
 class ClaseMateriaPrima(models.Model):
     CHOICE_CLASES = {
@@ -84,25 +118,48 @@ class ClaseMateriaPrima(models.Model):
         db_table = 'cla_clasemateriaprima'
         ordering = ['descripcion']
 
+
 class ProductoFlujo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=125)
     descripcion = models.CharField(unique=True, max_length=125)
     activo = models.BooleanField(default=True)
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT)
+    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida')
     idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo')
 
     class Meta:
         db_table = 'cla_productoflujo'
         ordering = ['idtipoproducto', 'descripcion']
 
+
 class ProductoFlujoClase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idclasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT)
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujo_clase')
+    idclasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
+                                            related_name='productoflujoclase_clasemateriaprima')
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujoclase_producto')
 
     class Meta:
         db_table = 'cla_productoflujoclase'
+
+
+class ProductoFlujoDestino(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'})
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE,
+                                   related_name='productoflujodestino_producto')
+
+    class Meta:
+        db_table = 'cla_productoflujodestino'
+
+
+class ProductoFlujoCuenta(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    idcuenta = models.ForeignKey(Cuenta, on_delete=models.PROTECT, related_name='productoflujocuenta_cuenta')
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujocuenta_producto')
+
+    class Meta:
+        db_table = 'cla_productoflujocuenta'
+
 
 class CategoriaVitola(models.Model):
     CHOICE_CATEGORIAS = {
@@ -122,6 +179,7 @@ class CategoriaVitola(models.Model):
         db_table = 'cla_categoriavitola'
         ordering = ['orden']
 
+
 class TipoVitola(models.Model):
     CHOICE_TIPOS_VITOLA = {
         1: 'Picadura',
@@ -134,18 +192,20 @@ class TipoVitola(models.Model):
     class Meta:
         db_table = 'cla_tipovitola'
 
+
 class Vitola(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     diametro = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     longitud = models.IntegerField(default=0)
-    destino = models.CharField(max_length=1, choices={'C':'Consumo Nacional', 'E':'Exportación'})
+    destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'})
     cepo = models.IntegerField(default=0)
     idcategoriavitola = models.ForeignKey(CategoriaVitola, on_delete=models.PROTECT, related_name='vitola_categotia')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE)
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_producto')
     idtipovitola = models.ForeignKey(TipoVitola, on_delete=models.PROTECT, related_name='vitola_tipo')
 
     class Meta:
         db_table = 'cla_vitola'
+
 
 class MarcaSalida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -155,6 +215,7 @@ class MarcaSalida(models.Model):
     class Meta:
         db_table = 'cla_marcasalida'
         ordering = ['descripcion']
+
 
 class LineaSalida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -171,27 +232,6 @@ class LineaSalida(models.Model):
     class Meta:
         db_table = 'cla_lineasalida'
 
-class CentroCosto(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clave = models.CharField(unique=True, max_length=25)
-    clavenivel = models.CharField(max_length=50)
-    descripcion = models.CharField(unique=True, max_length=255)
-    activo = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'cla_centrocosto'
-        ordering = ['descripcion']
-
-class CuentaProceso(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clave = models.CharField(unique=True, max_length=25)
-    clavenivel = models.CharField(max_length=50)
-    descripcion = models.CharField(unique=True, max_length=255)
-    activo = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'cla_cuentaproceso'
-        ordering = ['descripcion']
 
 class Departamento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -204,22 +244,29 @@ class Departamento(models.Model):
     class Meta:
         db_table = 'cla_departamento'
 
+
 class DepartamentoProductoSalida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.CASCADE)
-    idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT)
+    iddepartamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+                                       related_name='departamentoproductosalida_departamento')
+    idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
+                                       related_name='departamentoproductosalida_producto')
 
     class Meta:
         db_table = 'cla_departamentoproductosalida'
 
+
 class DepartamentoRelacion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddepartamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name='departamento_origen')
-    iddepartamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name='departamento_destino')
+    iddepartamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+                                        related_name='departamentorelacion_origen')
+    iddepartamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+                                        related_name='departamentorelacion_destino')
 
     class Meta:
         db_table = 'cla_departamentorelacion'
         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
+
 
 class MotivoAjuste(models.Model):
     CHOICE_MOTIVOS = {
@@ -236,6 +283,7 @@ class MotivoAjuste(models.Model):
         db_table = 'cla_motivoajuste'
         ordering = ['aumento', 'descripcion']
 
+
 class NormaConsumo(models.Model):
     CHOICE_TIPOS_NORMAS = {
         1: 'Pesada',
@@ -245,29 +293,32 @@ class NormaConsumo(models.Model):
         7: 'Habilitados'
     }
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo = models.IntegerField(choices=CHOICE_TIPOS_NORMAS, editable=False,)
+    tipo = models.IntegerField(choices=CHOICE_TIPOS_NORMAS, editable=False, )
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00)
     activa = models.BooleanField(default=True)
     fecha_creada = models.DateTimeField(db_default=Now())
     fecha = models.DateField()
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT)
-    idproducto = models.ForeignKey(ProductoFlujo, models.PROTECT)
+    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida')
+    idproducto = models.ForeignKey(ProductoFlujo, models.PROTECT, related_name='normaconsumo_producto')
 
     class Meta:
         db_table = 'cla_normaconsumo'
         ordering = ['tipo', 'idproducto__descripcion']
+
 
 class NormaconsumoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     norma_ramal = models.DecimalField(max_digits=18, decimal_places=6, default=0.00)
     norma_empresarial = models.DecimalField(max_digits=18, decimal_places=6, default=0.00)
     operativo = models.BooleanField(default=False, db_comment='Si el producto es operativo o no')
-    idnormaconsumo = models.ForeignKey(NormaConsumo, on_delete=models.CASCADE)
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT)
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT)
+    idnormaconsumo = models.ForeignKey(NormaConsumo, on_delete=models.CASCADE,
+                                       related_name='normaconsumodetalle_normaconsumo')
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='normaconsumodetalle_producto')
+    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumodetalle_medida')
 
     class Meta:
         db_table = 'cla_normaconsumodetalle'
+
 
 class TipoDocumento(models.Model):
     CHOICE_TIPOS_DOC = {
@@ -277,6 +328,7 @@ class TipoDocumento(models.Model):
         4: 'Transferencia Desde Departamento',
         5: 'Ajuste de Aumento',
         6: 'Ajuste de Disminución',
+        7: 'Recepción de Producción de Reproceso',
         8: 'Recepción de Producción',
         9: 'Devolución',
         10: 'Sobrante Sujeto a Investigación',
@@ -298,8 +350,14 @@ class TipoDocumento(models.Model):
         db_table = 'cla_tipodocumento'
         ordering = ['operacion', 'descripcion']
 
+
 class NumeracionDocumentos(models.Model):
-    tiponumeracion = models.CharField(unique=True, max_length=150)
+    CHOICE_TIPO_NUMERO = {
+        1: 'Número Consecutivo',
+        2: 'Número de Control',
+    }
+
+    tiponumeracion = models.CharField(unique=True, max_length=150, choices=CHOICE_TIPO_NUMERO)
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema')
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento')
     tipo_documento = models.BooleanField(default=False, db_comment='Si el número es por tipo de documento')
@@ -307,12 +365,63 @@ class NumeracionDocumentos(models.Model):
     class Meta:
         db_table = 'cla_numeraciondocumentos'
 
+
+#Documento que se va a configurar la cuenta para su contabilizacion
+class TipoDocumentoCuentaAbstract(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    iddocumento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+#Se configura la cuenta de los documentos que la llevan,
+#Venta a Trabajadores
+#Ajuste de Disminución
+#Tranf entre departamentos
+class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
+    idcuenta = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta')
+
+    class Meta:
+        db_table = 'cla_tipodocumentocuenta'
+
+#Se va a configurar por unidad contable y los departamentos de la unidad contable
+class TipoDocumentoCuentaTransfExterna(TipoDocumentoCuentaAbstract):
+    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                                         related_name='tipodocumentocuentatransfexterna_unidadcontable',
+                                         db_comment='Esta es la unidad contable para la que se va a configurar el documento')
+    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                       db_comment='Dpto de la unidad contable para la que se va a configurar el documento',
+                                       related_name='tipodocumentocuentatransfexterna_departamento')
+
+    class Meta:
+        db_table = 'cla_tipodocumentocuentatransfexterna'
+        # unique_together = (('iddocumento__id', 'idunidadcontable', 'iddepartamentod'),)
+
+#se configura la cuenta por unidad contable que realiza o recibe la transf.
+#en dependencia del tipo de documento
+class TipoDocumentoCuentaTransfExternaDpto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    idtipodocumentocuentatransfexterna = models.ForeignKey(TipoDocumentoCuentaTransfExterna, on_delete=models.CASCADE,
+                                                           related_name='tipodocumentocuentatransfexternadpto_ipodocumentocuentatransfexterna')
+    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                                         related_name='tipodocumentocuentatransfexternadpto_unidadcontable',
+                                         db_comment='Unidad contab que recibe o envía la transf, según el tipo de documento')
+    idcuenta = models.ForeignKey(Cuenta, on_delete=models.PROTECT,
+                                       related_name='tipodocumentocuentatransfexternadpto_cuenta')
+
+    class Meta:
+        db_table = 'cla_tipodocumentocuentatransfexternadpto'
+
+
 class FormatoCuentaProducto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre = models.CharField(max_length=30)
     separador = models.CharField(max_length=1)
     posicion = models.IntegerField()
     longitud = models.IntegerField()
+    enuso = models.BooleanField(default=True)
 
-    class Meta:
-        db_table = 'cla_formatocuentaproducto'
+
+class Meta:
+    db_table = 'cla_formatocuentaproducto'
+    ordering = ['nombre', 'posicion']

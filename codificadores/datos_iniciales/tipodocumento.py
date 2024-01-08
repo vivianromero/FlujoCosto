@@ -13,6 +13,7 @@ def init_data(apps, schema_editor):
         TipoDocumento(id=4, descripcion='Transferencia Desde Departamento', operacion='E'),
         TipoDocumento(id=5, descripcion='Ajuste de Aumento', operacion='E'),
         TipoDocumento(id=6, descripcion='Ajuste de Disminución', operacion='S'),
+        TipoDocumento(id=7, descripcion='Recepción de Producción de Reproceso', operacion='E'),
         TipoDocumento(id=8, descripcion='Recepción de Producción', operacion='E'),
         TipoDocumento(id=9, descripcion='Devolución', operacion='S'),
         TipoDocumento(id=10, descripcion='Sobrante Sujeto a Investigación', operacion='E'),

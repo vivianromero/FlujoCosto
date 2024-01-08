@@ -76,22 +76,36 @@ class DocumentoTransfExterna(models.Model):
     class Meta:
         db_table = 'fp_documentotransfexterna'
 
-#TODO OJO Cómo tratar estas transf externas si se trabaja con una BD única para todas las uebs
-#que se pueda crear el doc en la otra ueb para recibir transf externa
-#pero no se sabe hacia donde va dirigida dentro de la ueb
-#ESTE MODELO CONTIENE EL ID DE LA UNIDAD CONTABLE QUE ORIGINO LA TRANSF Y EL ID DEL DOC QUE ORIGINO LA TRANSF
-#PORQUE SI LA BD NO ES UNICA EL DATO DEL ID DOCUMENTO NO EXISTE Y NO SE PUEDE DEFINIR LA UNIDAD CONTABLE ORIGEN.
-#es lo mismo transf externas qie operaciones entre dependencias?
+class DocumentoTransfExternaDptoDestino(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    iddocumentotransfext = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentotransfextdptodest_documento')
+    iddptodestino = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documentotransfextdptodest_dptodest')
+
+    class Meta:
+        db_table = 'fp_documentotransfexternadptodestino'
+
+#transf hacia recibida desde otra unidad contable
 class DocumentoTransfExternaRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentotransfextrecibida_documento')
     idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='documentotransfextrecibida_unidadcontable')
-    iddocumentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT, blank=True, null=True,
-                                         related_name='documentotransfextrecibida_documentoorigen')
 
     class Meta:
         db_table = 'fp_documentotransfexternarecibida'
+
+#ID DEL DOC QUE ORIGINO LA TRANSF
+#SI LA BD NO ES UNICA EL DATO DEL ID DOCUMENTO NO EXISTE Y NO SE PUEDE DEFINIR LA UNIDAD CONTABLE ORIGEN.
+class DocumentoTransfExternaRecibidaDocOrigen(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    iddocumentoorigen = models.ForeignKey(DocumentoTransfExternaRecibida, on_delete=models.CASCADE,
+                                    related_name='documentotransfextrecibidadocorigen_documento')
+    iddocumentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
+                                          related_name='documentotransfextrecibida_documentoorigen')
+
+    class Meta:
+        db_table = 'fp_documentotransfexternarecibidadocorigen'
+
 
 # Venta a trabajadores
 class DocumentoDetalleVenta(models.Model):
@@ -137,6 +151,7 @@ class DocumentoDevolucion(models.Model):
     class Meta:
         db_table = 'fp_documentodevolucion'
 
+#Devolución recibida desde otro dpto
 class DocumentoDevolucionRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentodevolucionrecibida_documento')
