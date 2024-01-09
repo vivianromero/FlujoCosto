@@ -1,0 +1,9 @@
+{% load crud_tags %}
+{% if field == 'dias_atraso_ocurrencia' %}
+    {{ object.dias_atraso_ocurr }}
+{% elif field == 'dias_atraso_informa' %}
+    {{ object.dias_atraso_inform }}
+{% else %}
+    {{ object|format_value:field }}
+{% endif %}
+

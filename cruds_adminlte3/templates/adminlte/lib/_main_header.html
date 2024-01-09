@@ -1,0 +1,406 @@
+{% load adminlte_helpers i18n %}
+{% load static notifications_tags notifications_menu_tags %}
+{% load crud_tags hecho_extraordinario_range_tags %}
+{% load export_url from django_tables2 %}
+{% register_notify_callbacks callbacks='fill_notification_dropdown_list,fill_notification_badge' fetch=20 refresh_period=300 nonce='{{nonce}}' %}
+<!-- Navbar -->
+{% block navbar %}
+<nav class="main-header navbar navbar-expand navbar-white navbar-light"
+    style="padding-bottom: 0; padding-top: 0; height: 35px;">
+<!-- Left navbar links -->
+{% block left_navbar_links %}
+<ul class="navbar-nav">
+    {% block left_navbar_links_toggle_menu %}
+    <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+    </li>
+    {% endblock left_navbar_links_toggle_menu %}
+    {% block left_navbar_links_home %}
+    <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Home</a>
+    </li>
+    {% endblock left_navbar_links_home %}
+    {% block left_navbar_links_contacts %}
+    <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Contact</a>
+    </li>
+    {% endblock left_navbar_links_contacts %}
+    {% block left_navbar_links_user %}
+    <li class="nav-item dropdown d-none d-sm-inline-block" style="padding: 0;display: flex; align-items: center">
+        <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown">
+            <img src="{% static 'dist/img/icons8-user-24i.png' %}"
+                class="img-circle" style="align-items: center;width: 20px; height: 20px" alt="User Image"
+            >
+            <span class="hidden-xs">
+                {% if request.user.is_authenticated  %}
+                    {% firstof request.user.get_short_name request.user.get_username %}
+
+                {% else %}
+                    Guest
+                {% endif %}
+            </span>
+        </a>
+        <ul class="dropdown-menu" style="padding: 0%; border: 0; margin: 0">
+            <div class="card" style="width: 22rem; margin: 0%">
+                {% block user_menu_header %}
+                    <div class="card-header text-center" style="background-color: lightblue">
+                        <span class="hidden-xs">
+                            {% firstof request.user.get_short_name request.user.get_username %}
+                        </span>
+                    </div>
+                {% endblock user_menu_header %}
+                {% block user_menu_body %}
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            {% trans 'Member since ' %} {{ request.user.date_joined }}
+                        </h6>
+                        <hr />
+                        {% block user_menu_buttons %}
+                        <a href="{% block change_password_url %}{% url 'he_index:usuario:password' %}{% endblock %}"
+                                class="btn btn-primary btn-flat">{% trans 'Change password' %}
+                        </a>
+                        <a href="{% block logout_url %}{% logout_url %}{% endblock %}"
+                                class="btn btn-primary btn-flat">{% trans 'Log out' %}
+                        </a>
+                        {% endblock user_menu_buttons %}
+                    </div>
+                {% endblock user_menu_body %}
+                {% block user_menu_footer %}{% endblock user_menu_footer %}
+
+            </div>
+        </ul>
+    </li>
+    {% endblock left_navbar_links_user %}
+    {% block left_navbar_links_others %}
+        <div id="form_length_change_div" style="display: flex; align-items: center">
+            {% if object_list %}
+                {% crud_url object "list" namespace as url %}
+                {% if url and 'list' in views_available and crud_perms.list %}
+                    <div class="my-auto">
+                        <form id="form_length_change" class="form-inline" method="GET">
+                            <span style="padding-right: 5px">{% translate 'Show' %}</span>
+                            <select name='length_change' id='length_change' style="height: fit-content;"
+                                hx-get="{{ url_list }}{{getparams}}"
+                                hx-trigger="change"
+                                hx-target="#main_content_swap"
+                                hx-swap="outerHTML"
+                            >
+                                {% for option in page_length_menu %}
+                                    <option value="{{ option|stringformat:"i" }}" {% if option == paginator.per_page %} selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                            <span style="padding-left: 5px">{% translate 'Entries' %}</span>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% block left_navbar_links_others_period %}{% endblock left_navbar_links_others_period %}
+    {% endblock left_navbar_links_others %}
+</ul>
+{% endblock left_navbar_links %}
+<!-- Right navbar links -->
+{% block right_navbar_links %}
+<ul class="navbar-nav ml-auto">
+{#    {% block period %}#}
+{#        <input type="text" name="period" value="" style="height: 25px; margin-top: 8px;" />#}
+{#    {% endblock period %}#}
+      <!-- Navbar Search -->
+{#    {% if search %}#}
+{#        {% block right_navbar_links_search %}#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" data-widget="navbar-search" href="#" role="button">#}
+{#                    <i class="fas fa-search" title="{% translate 'Search' %}"></i>#}
+{#                </a>#}
+{#                <div class=my-auto>#}
+{#                    <form class="form-inline form-group col-md-12 mb-0" action="" method="get" id="navbar_search_form">#}
+{#                        {% csrf_token %}#}
+{#                        <div class="input-group input-group-sm">#}
+{#                            <input class="form-control form-control-navbar"#}
+{#                                   type="search" name="q" value="{{ q }}"#}
+{#                                   placeholder="{% trans 'Search...' %}"#}
+{#                                   aria-label="{% trans 'Search' %}" id="search_main_header"#}
+{#                            >#}
+{#                            {{ filter.form.query }}#}
+{#                            <div class="input-group-append">#}
+{#                                <button class="btn btn-navbar" onclick="filterFormSubmit()" title="{% translate 'Search' %}">#}
+{#                                    <i class="fas fa-search" title="{% translate 'Search' %}"></i>#}
+{#                                </button>#}
+{#                                <button class="btn btn-navbar" type="reset" id="button_search_reset">#}
+{#                                    <i class="fas fa-refresh" title="{% translate 'Reset' %}"></i>#}
+{#                                </button>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </form>#}
+{#                </div>#}
+{#            </li>#}
+{#        {% endblock right_navbar_links_search %}#}
+{#    {% endif %}#}
+    <div id="create_link_url_div" style="display: flex; align-items: center">
+        {% if url_create %}
+            {% block list_create_main_header %}
+                {% crud_url object "create" namespace as url %}
+                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+                    <a id="id_create_url"
+                       href="{{ url }}{{ getparams }}"
+                       class="nav-link"
+                       hx-get="{{ url }}{{ getparams }}"
+                       hx-trigger="click"
+                       hx-target="#main_content_swap"
+                       hx-swap="outerHTML"
+                       hx-replace-url="true"
+                       role="button">
+                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
+                    </a>
+                {% endif %}
+            {% endblock list_create_main_header %}
+        {% endif %}
+    </div>
+    {% if table.shift_table_column %}
+        <div id="visibility_link_dropdown_menu" class="btn-group">
+            {% block button_group_head %}
+                <a id="visibility_columns_link" class="nav-link" data-toggle="dropdown" href="#">
+                    <i class="fa fa-eye-slash" title="{% translate 'Visibility columns' %}"></i>
+                </a>
+            {% endblock button_group_head %}
+            {% block button_group_dropdown_menu %}
+                <ul id="vibility_menu" role="listbox" tabindex="0" aria-label="visibility_menu" class="dropdown-menu" style="min-width:250px; padding:5px; cursor:pointer;">
+                    {% for column in table.columns %}
+                        {% if column.attrs.td.class not in table.get_column_excluded %}
+                            {% if column.name in table.get_column_default_show %}
+                                <li tabindex="-1" role="option" aria-checked="false" class="btn-shift-column-visivility"
+                                    {% if not forloop.last %} style="border-bottom:1px solid #ccc;" {%endif %}
+                                >
+                                        <input tabindex="-1" type="checkbox" style="margin-left: 2px;"
+                                            class="form-check-input"
+                                            {% if column.name not in table.col_vis %}
+                                               checked
+                                            {% endif %}
+                                            name="set_visibility_value"
+                                            id="set_{{ column.name }}_visibility_value"
+                                            hx-get="{{ url_list }}{{ getparams }}vis={{ column.name }}"
+                                            hx-trigger="click"
+                                            hx-target="#main_content_swap"
+                                            hx-swap="outerHTML"
+                                            hx-replace-url="true">
+                                        <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>
+                                        <input type="hidden" name="visibility" value={{ column.name }}>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endblock button_group_dropdown_menu %}
+        </div>
+        <a id="export_url" class="nav-link" href="{% export_url "xlsx" %}&excluded_columns={{ col_vis }}" role="button">
+            <i class="fa fa-file-excel" title="{% translate 'Export to excel' %}"></i>
+        </a>
+    {% endif %}
+
+    <div class="my-auto" id="dataTableButtons">
+    </div>
+
+
+  <!-- Messages Dropdown Menu -->
+    {% block right_navbar_links_messages %}
+{#    <li class="nav-item dropdown">#}
+{#        <a class="nav-link" data-toggle="dropdown" href="#">#}
+{#            <i class="far fa-comments"></i>#}
+{#            <span class="badge badge-danger navbar-badge">3</span>#}
+{#        </a>#}
+{#        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">#}
+{#            <a href="#" class="dropdown-item">#}
+{#                <!-- Message Start -->#}
+{#                <div class="media">#}
+{#                    <img src="{% static 'dist/img/user1-128x128.jpg' %}"#}
+{#                         alt="User Avatar" class="img-size-50 mr-3 img-circle"#}
+{#                    >#}
+{#                    <div class="media-body">#}
+{#                        <h3 class="dropdown-item-title">#}
+{#                            Brad Diesel#}
+{#                            <span class="float-right text-sm text-danger">#}
+{#                                <i class="fas fa-star"></i>#}
+{#                            </span>#}
+{#                        </h3>#}
+{#                        <p class="text-sm">Call me whenever you can...</p>#}
+{#                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#            <!-- Message End -->#}
+{#            </a>#}
+{#            <div class="dropdown-divider"></div>#}
+{#            <a href="#" class="dropdown-item">#}
+{#                <!-- Message Start -->#}
+{#                <div class="media">#}
+{#                    <img src="{% static 'dist/img/user8-128x128.jpg' %}"#}
+{#                         alt="User Avatar" class="img-size-50 img-circle mr-3"#}
+{#                    >#}
+{#                    <div class="media-body">#}
+{#                        <h3 class="dropdown-item-title">#}
+{#                            John Pierce#}
+{#                            <span class="float-right text-sm text-muted">#}
+{#                                <i class="fas fa-star"></i>#}
+{#                            </span>#}
+{#                        </h3>#}
+{#                        <p class="text-sm">I got your message bro</p>#}
+{#                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#            <!-- Message End -->#}
+{#            </a>#}
+{#            <div class="dropdown-divider"></div>#}
+{#            <a href="#" class="dropdown-item">#}
+{#                <!-- Message Start -->#}
+{#                <div class="media">#}
+{#                    <img src="{% static 'dist/img/user3-128x128.jpg' %}"#}
+{#                         alt="User Avatar" class="img-size-50 img-circle mr-3"#}
+{#                    >#}
+{#                    <div class="media-body">#}
+{#                        <h3 class="dropdown-item-title">#}
+{#                            Nora Silvester#}
+{#                            <span class="float-right text-sm text-warning">#}
+{#                                <i class="fas fa-star"></i>#}
+{#                            </span>#}
+{#                        </h3>#}
+{#                        <p class="text-sm">The subject goes here</p>#}
+{#                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#            <!-- Message End -->#}
+{#            </a>#}
+{#            <div class="dropdown-divider"></div>#}
+{#            <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>#}
+{#        </div>#}
+{#    </li>#}
+    {% endblock right_navbar_links_messages %}
+
+  <!-- Notifications Dropdown Menu -->
+    {% block right_navbar_links_notifications %}
+        {% if request.user.is_superuser  %}
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#">
+                    <i class="far fa-bell" title={% translate 'Notifications' %}></i>
+                    <span class="badge badge-danger navbar-badge"></span>
+                    {% notifications_unread as unread_count %}
+                    {% live_notify_badge badge_class="live_notify_badge badge badge-danger navbar-badge" %}
+
+                </a>
+                <div id="notifications_dropdown_menu"
+                     class="notify_menu_class dropdown-menu dropdown-menu-lg dropdown-menu-right"
+                     style="max-width: 500px; min-width: 400px"
+                >
+                    <span class="dropdown-header"> {% translate 'Notifications' %}</span>
+
+                    <div class="dropdown-divider"></div>
+                    {% live_notify_dropdown_list %}
+                    <a class="dropdown-footer"
+                       id="a_notifications_dropdown_footer"
+                       href="#"
+                       hx-get="{% url 'notifications:mark_all_as_read' %}"
+                       hx-trigger="click"
+                       hx-target="#notifications_dropdown_menu"
+                       hx-swap="none"
+                    >
+                        {% translate 'Mark all notifications as read' %}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                </div>
+            </li>
+        {% endif %}
+    {% endblock right_navbar_links_notifications %}
+    <div id="search_header_div" style="display: flex; align-items: center">
+        {% if search %}
+            {% block right_navbar_links_toggle_right_search_menu %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       data-widget="control-sidebar"
+                       data-slide="true"
+                       data-target="#search-sidebar"
+                       href="#"
+                       role="button"
+                    >
+                        <i class="fas fa-search" title={% translate 'Search' %}></i>
+                    </a>
+                </li>
+            {% endblock right_navbar_links_toggle_right_search_menu %}
+        {% endif %}
+    </div>
+    <div id="filter_header_div" style="display: flex; align-items: center">
+        {% if filter %}
+            {% block right_navbar_links_toggle_right_filter_menu %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       data-widget="control-sidebar"
+                       data-slide="true"
+                       data-target="#filter-sidebar"
+                       href="#"
+                       role="button">
+                        <i class="fas fa-filter" title={% translate 'Filter' %}></i>
+                    </a>
+                </li>
+            {% endblock right_navbar_links_toggle_right_filter_menu %}
+        {% endif %}
+    </div>
+    {% block right_navbar_links_fullscreen %}
+    <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+            <i class="fas fa-expand-arrows-alt" title="{% translate 'Full screen' %}"></i>
+        </a>
+    </li>
+    {% endblock right_navbar_links_fullscreen %}
+
+    {% block languages %}
+    <div class="my-auto">
+
+        <form id="set_language" action="{% url 'set_language' %}" method="POST">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ redirect_to }}">
+            <select name="language" onchange="this.form.submit()" id="select_language">
+                {% for language in languages %}
+                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                        {{ language.name_translated }} ({{ language.code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endblock languages %}
+</ul>
+{% endblock right_navbar_links %}
+
+</nav>
+{% endblock navbar %}
+<!-- /.navbar -->
+{% if object_list %}
+    <script>
+        function filterFormSubmit() {
+            document.getElementById('id-hecho_ext_form_filter').submit();
+        }
+
+        // const dropdown = document.getElementById("length_change");
+        //    dropdown.addEventListener("change", function() {
+        //        document.getElementById("form_length_change").submit();
+        //});
+
+    </script>
+{% endif %}
+<script>
+    const a_notifications_dropdown_footer = document.getElementById("a_notifications_dropdown_footer");
+        a_notifications_dropdown_footer.addEventListener("click", function() {
+            console.log(a_notifications_dropdown_footer)
+            console.log(data)
+            let badges = document.getElementsByClassName(notify_badge_class);
+            let menus = document.getElementsByClassName(notify_menu_class);
+            if (badges) {
+                for (let i = 0; i < badges.length; i++) {
+                    badges[i].innerHTML = "0";
+                    console.log(badges[i])
+                }
+            }
+            if (menus) {
+                for (let j = 0; j < menus.length; j++) {
+                    menus[j].innerHTML = "";
+                }
+            }
+        })
+</script>

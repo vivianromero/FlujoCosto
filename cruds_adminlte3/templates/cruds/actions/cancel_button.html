@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if url_list %}
+    <a href="{{ url_list }}{{ getparams }}" class="btn btn-secondary">
+        <i class="fa fa-remove"></i> {% translate "Cancel" %}
+    </a>
+{% endif %}

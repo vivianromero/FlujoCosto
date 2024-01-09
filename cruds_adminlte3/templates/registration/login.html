@@ -1,0 +1,55 @@
+{% extends "adminlte/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block body_class %}hold-transition login-page{% endblock %}
+
+{% block body %}
+    <div class="login-box">
+        <!-- /.login-logo -->
+        {% block login %}
+            <div class="card card-outline-primary">
+                <div class="card-header text-center" style="background-color: whitesmoke">
+                    <a href="{% block logo_href %}/{% endblock logo_href %}">
+                        <img src="{% static 'dist/img/logo_he-removebg-preview.png' %}"
+                            alt="Hechos Extraordinarios"
+                            class="brand-image" width="150" height="150" style="opacity: .8">
+                            {% block logo_text %}{% endblock %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <p class="login-box-msg">{% trans 'Sign in to start your session' %}</p>
+                    {% block login_form %}
+                    <form action="" method="post">{% csrf_token %}
+                        {% if message %}
+                            <p class="login-box-msg" style="color: red;">{{ message }}</p>
+                        {% endif %}
+                        <div class="form-group input-group mb-3 has-feedback">
+                            <input name="username" class="form-control" placeholder="{% trans 'User' %}">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fa fa-user"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group input-group mb-3 has-feedback">
+                            <input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+                            </div>
+                        </div>
+                    </form>
+                    {% endblock login_form %}
+                </div>
+            </div>
+        {% endblock login %}
+    </div>
+{% endblock body %}

@@ -1,0 +1,14 @@
+{% load trans from i18n %}
+{% load static %}
+<li id="visibility_icon" class="nav-item dropdown">
+    {% block button_group_head %}
+
+        {% include 'cruds/django_tables2_column_shifter/_partials/nav_link_head_block.html' %}
+
+    {% endblock button_group_head %}
+    {% block button_group_dropdown_menu %}
+
+        {% include 'cruds/django_tables2_column_shifter/_partials/nav_link_dropdown_menu_block.html' %}
+
+    {% endblock button_group_dropdown_menu %}
+</li> {# End  nav_item#}

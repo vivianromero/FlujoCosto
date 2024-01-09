@@ -1,0 +1,63 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-06-06 06:39-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<div/>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<button type=\"button\">&#215;</button>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<button type=\"button\"><span class=\""
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<button type=\"button\"></button>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<table><thead><tr><th>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<input/>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/SearchPanes-2.1.2/js/dataTables.searchPanes.min.js:4
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:255
+msgid "<button type = \"button\"/>"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:29
+#: cruds_adminlte3/static/plugins/DataTables4/pdfmake-0.1.36/pdfmake.min.js:2
+msgid "entries"
+msgstr ""
+
+#: cruds_adminlte3/static/plugins/DataTables4/datatables.min.js:29
+#: cruds_adminlte3/static/plugins/DataTables4/pdfmake-0.1.36/pdfmake.min.js:2
+msgid "keys"
+msgstr ""

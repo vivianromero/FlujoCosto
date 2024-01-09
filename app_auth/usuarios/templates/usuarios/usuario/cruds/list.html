@@ -1,0 +1,25 @@
+{% extends 'he_index/cruds/list.html' %}
+{% load i18n %}
+{% load static %}
+{% load crud_tags %}
+
+{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "List of" %}
+    {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+{% block page_name %}{% endblock page_name %}
+{% block no_description %}{% endblock no_description %}
+{% block breadcrumbs %}{% endblock %}
+{% block extra_head %}
+    <!-- DataTables -->
+    <style>
+        .th-fieldtype-decimalfield {
+            text-align: center !important;
+        }
+        table.dataTable thead tr {
+            background-color: lightgreen;
+}
+
+        div.dataTables_wrapper div.dataTables_filter input {
+            width: 400px;
+        }
+    </style>
+{% endblock %}
