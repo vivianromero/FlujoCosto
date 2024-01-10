@@ -1,0 +1,716 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-08 13:48-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cruds_adminlte3/config.py:5
+msgid "Site for the management of Extraordinary Events"
+msgstr ""
+
+#: cruds_adminlte3/config.py:7 cruds_adminlte3/config.py:8
+#: cruds_adminlte3/menus.py:92
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:11
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:13
+msgid "Extraordinary Events"
+msgstr "Hechos Extraordinarios"
+
+#: cruds_adminlte3/config.py:11
+msgid "show all"
+msgstr "mostrar todo"
+
+#: cruds_adminlte3/config.py:12
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:338
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:36
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:74
+#: cruds_adminlte3/templates/cruds/actions/common_filter_form_actions.html:3
+#: cruds_adminlte3/templates/cruds/listOK.html:62
+#: cruds_adminlte3/templates/cruds/list_OK.html:71
+#: cruds_adminlte3/templates/cruds/list_OK.html:115
+#: cruds_adminlte3/templates/cruds/partial_create.html:85
+#: cruds_adminlte3/templates/cruds/partial_update.html:85
+#: cruds_adminlte3/templates/filter/forms.html:14
+msgid "Filter"
+msgstr "Filtro"
+
+#: cruds_adminlte3/config.py:13
+msgid "Move selected"
+msgstr "Mover seleccionados"
+
+#: cruds_adminlte3/config.py:14
+msgid "Move all"
+msgstr "Mover todos"
+
+#: cruds_adminlte3/config.py:15
+msgid "Remove selected"
+msgstr "Eliminar seleccionados"
+
+#: cruds_adminlte3/config.py:16
+msgid "Remove all"
+msgstr "Eliminar todos"
+
+#: cruds_adminlte3/config.py:17
+#, python-brace-format
+msgid "Showing available elements: {0}"
+msgstr "Mostrando elementos disponibles: {0}"
+
+#: cruds_adminlte3/config.py:18
+#, python-brace-format
+msgid "Showing selected elements: {0}"
+msgstr "Mostrando elementos seleccionados: {0}"
+
+#: cruds_adminlte3/config.py:19
+msgid "Filtered"
+msgstr "Filtrado"
+
+#: cruds_adminlte3/config.py:20
+msgid "Empty list"
+msgstr "Lista vacía"
+
+#: cruds_adminlte3/config.py:23
+msgid "Go to today"
+msgstr "Hoy"
+
+#: cruds_adminlte3/config.py:24
+msgid "Clear selection"
+msgstr "Borrar selección"
+
+#: cruds_adminlte3/config.py:25
+msgid "Close the picker"
+msgstr "Cerrar selector"
+
+#: cruds_adminlte3/config.py:26
+msgid "Select Month"
+msgstr "Seleccionar Mes"
+
+#: cruds_adminlte3/config.py:27
+msgid "Previous Month"
+msgstr "Mes Anterior"
+
+#: cruds_adminlte3/config.py:28
+msgid "Next Month"
+msgstr "Próximo Mes"
+
+#: cruds_adminlte3/config.py:29
+msgid "Select Year"
+msgstr "Sleccionar Año"
+
+#: cruds_adminlte3/config.py:30
+msgid "Previous Year"
+msgstr "Año Anterior"
+
+#: cruds_adminlte3/config.py:31
+msgid "Next Year"
+msgstr "Próximo Año"
+
+#: cruds_adminlte3/config.py:32
+msgid "Select Decade"
+msgstr "Seleccionar Década"
+
+#: cruds_adminlte3/config.py:33
+msgid "Previous Decade"
+msgstr "Década Anterior"
+
+#: cruds_adminlte3/config.py:34
+msgid "Next Decade"
+msgstr "Próxima Década"
+
+#: cruds_adminlte3/config.py:35
+msgid "Previous Century"
+msgstr "Sglo Anterior"
+
+#: cruds_adminlte3/config.py:36
+msgid "Next Century"
+msgstr "Siglo Próximo"
+
+#: cruds_adminlte3/config.py:37
+msgid "Pick Hour"
+msgstr "Seleccionar Hora"
+
+#: cruds_adminlte3/config.py:38
+msgid "Increment Hour"
+msgstr "Incrementar Hora"
+
+#: cruds_adminlte3/config.py:39
+msgid "Decrement Hour"
+msgstr "Decrementar Hora"
+
+#: cruds_adminlte3/config.py:40
+msgid "Pick Minute"
+msgstr "Seleccionar Minuto"
+
+#: cruds_adminlte3/config.py:41
+msgid "Increment Minute"
+msgstr "Incrementar Minuto"
+
+#: cruds_adminlte3/config.py:42
+msgid "Decrement Minute"
+msgstr "Decrementar Minuto"
+
+#: cruds_adminlte3/config.py:43
+msgid "Pick Second"
+msgstr "Seleccionar Segundo"
+
+#: cruds_adminlte3/config.py:44
+msgid "Increment Second"
+msgstr "Incrementar Segundo"
+
+#: cruds_adminlte3/config.py:45
+msgid "Decrement Second"
+msgstr "Decrementar Segundo"
+
+#: cruds_adminlte3/config.py:46
+msgid "Toggle Period"
+msgstr "Cambiar Período"
+
+#: cruds_adminlte3/config.py:47
+msgid "Select Time"
+msgstr "Seleccionar Hora"
+
+#: cruds_adminlte3/config.py:50
+msgid "Are you sure you want to delete this item?"
+msgstr "¿Está seguro que desea eliminar este elemento?"
+
+#: cruds_adminlte3/config.py:51
+msgid "This action cannot be reversed!"
+msgstr "¡Esta acción no podrá revertirse!"
+
+#: cruds_adminlte3/config.py:52
+msgid "Confirm Remove"
+msgstr "Confirmar eliminar"
+
+#: cruds_adminlte3/config.py:53 cruds_adminlte3/templates/cruds/_form.html:30
+#: cruds_adminlte3/templates/cruds/actions/cancel_button.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_cancel_button.html:11
+#: cruds_adminlte3/templates/cruds/actions/ok_cancel_form_actions.html:8
+#: cruds_adminlte3/templates/cruds/ajax/_form.html:39
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:29
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: cruds_adminlte3/config.py:56
+msgid "Column Visibility"
+msgstr "Visibilidad de Columna"
+
+#: cruds_adminlte3/config.py:57
+msgid "Copy"
+msgstr "Copiar"
+
+#: cruds_adminlte3/config.py:58
+msgid "Export to .csv"
+msgstr "Exportar a .csv"
+
+#: cruds_adminlte3/config.py:59
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:196
+#: cruds_adminlte3/templates/cruds/partial_create.html:53
+#: cruds_adminlte3/templates/cruds/partial_update.html:53
+msgid "Export to excel"
+msgstr "Exportar a excel"
+
+#: cruds_adminlte3/config.py:60
+msgid "Export to pdf"
+msgstr "Exportar a pdf"
+
+#: cruds_adminlte3/config.py:61
+msgid "Print"
+msgstr "Imprimir"
+
+#: cruds_adminlte3/config.py:64
+#, fuzzy
+#| msgid "Close"
+msgid "Close event"
+msgstr "Cerrar"
+
+#: cruds_adminlte3/config.py:65
+msgid "Open event"
+msgstr ""
+
+#: cruds_adminlte3/crud.py:625
+msgid "Data creation was successful"
+msgstr "Los datos se crearon satisfactoriamente"
+
+#: cruds_adminlte3/crud.py:706
+msgid "Data modification was successful"
+msgstr "Los datos fueron modificados exitosamente"
+
+#: cruds_adminlte3/crud.py:1016
+msgid "The data was successfully deleted"
+msgstr "Los datos fueron eliminados de manera satisfactoria"
+
+#: cruds_adminlte3/crud.py:1153
+#, python-format
+msgid "Can see available %s"
+msgstr "Puede ver disponibilidad %s"
+
+#: cruds_adminlte3/filter.py:171
+msgid "Universal Search"
+msgstr "Buscador Universal"
+
+#: cruds_adminlte3/filter.py:174
+msgid "Search..."
+msgstr "Buscar..."
+
+#: cruds_adminlte3/menus.py:25
+msgid "Dashboard"
+msgstr "Panel de control"
+
+#: cruds_adminlte3/menus.py:30
+msgid "Balanced scorecard"
+msgstr "Cuadro de mando integral"
+
+#: cruds_adminlte3/menus.py:37
+msgid "Classifiers"
+msgstr "Clasificadores"
+
+#: cruds_adminlte3/menus.py:43
+msgid "Entreprises"
+msgstr "Empresas"
+
+#: cruds_adminlte3/menus.py:49
+msgid "Sectors"
+msgstr "Sectores"
+
+#: cruds_adminlte3/menus.py:55
+msgid "Entities"
+msgstr "Entidades"
+
+#: cruds_adminlte3/menus.py:61
+msgid "Municipalities"
+msgstr "Municipios"
+
+#: cruds_adminlte3/menus.py:67
+msgid "Provinces"
+msgstr "Provincias"
+
+#: cruds_adminlte3/menus.py:73
+msgid "Products"
+msgstr "Productos"
+
+#: cruds_adminlte3/menus.py:79
+msgid "Measurement units"
+msgstr "Unidades de medida"
+
+#: cruds_adminlte3/menus.py:87
+msgid "EVENTS"
+msgstr "HECHOS"
+
+#: cruds_adminlte3/menus.py:98
+msgid "Event Classification"
+msgstr "Clasificación de Hechos"
+
+#: cruds_adminlte3/menus.py:104
+msgid "Event Type"
+msgstr "Tipos de Hechos"
+
+#: cruds_adminlte3/menus.py:112
+msgid "REPORTS"
+msgstr "REPORTES"
+
+#: cruds_adminlte3/menus.py:117
+msgid "Events by typicality"
+msgstr "Hechos por tipicidad"
+
+#: cruds_adminlte3/menus.py:123
+msgid "Events Summary"
+msgstr "Resumen de Hechos"
+
+#: cruds_adminlte3/menus.py:129
+#, fuzzy
+#| msgid "Event Type"
+msgid "Events Report"
+msgstr "Tipos de Hechos"
+
+#: cruds_adminlte3/menus.py:137
+msgid "Administration"
+msgstr "Administración"
+
+#: cruds_adminlte3/menus.py:143
+msgid "Users"
+msgstr "Usuarios"
+
+#: cruds_adminlte3/menus.py:149
+msgid "Groups"
+msgstr "Grupos"
+
+#: cruds_adminlte3/menus.py:155
+msgid "Permissons"
+msgstr "Permisos"
+
+#: cruds_adminlte3/templates/HttpResponse/403.html:5
+#: cruds_adminlte3/templates/HttpResponse/403.html:6
+#: cruds_adminlte3/templates/cruds/403.html:6
+#: cruds_adminlte3/templates/cruds/403_OK.html:5
+#: cruds_adminlte3/templates/cruds/403_OK.html:6
+msgid "Error 403"
+msgstr "Error 403"
+
+#: cruds_adminlte3/templates/HttpResponse/403.html:11
+#: cruds_adminlte3/templates/cruds/403.html:19
+#: cruds_adminlte3/templates/cruds/403_OK.html:11
+msgid "Return to Main Page"
+msgstr "Regresar a la página principal"
+
+#: cruds_adminlte3/templates/adminlte/base.html:55
+#: cruds_adminlte3/templates/adminlte/base.html:68
+msgid "Starter Page"
+msgstr "Página de Inicio"
+
+#: cruds_adminlte3/templates/adminlte/base.html:67
+msgid "Home"
+msgstr "Inicio"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:55
+msgid "Member since "
+msgstr "Miembro desde"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:60
+#: cruds_adminlte3/templates/adminlte/lib/_main_header_OK.html:49
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:63
+msgid "Log out"
+msgstr "Salir"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:81
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:6
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:5
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:11
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:5
+#: cruds_adminlte3/templates/cruds/ajax/list.html:35
+#: cruds_adminlte3/templates/cruds/list.html:105
+#: cruds_adminlte3/templates/cruds/listOK.html:102
+#: cruds_adminlte3/templates/cruds/list_OK.html:181
+#: cruds_adminlte3/templates/cruds/partial_create.html:11
+#: cruds_adminlte3/templates/cruds/partial_list.html:84
+#: cruds_adminlte3/templates/cruds/partial_update.html:11
+msgid "Show"
+msgstr "Mostrar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:92
+#: cruds_adminlte3/templates/cruds/partial_create.html:22
+#: cruds_adminlte3/templates/cruds/partial_update.html:22
+msgid "Entries"
+msgstr "Entradas"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:153
+#: cruds_adminlte3/templates/cruds/list.html:39
+#: cruds_adminlte3/templates/cruds/listOK.html:23
+#: cruds_adminlte3/templates/cruds/list_OK.html:26
+#: cruds_adminlte3/templates/cruds/partial_create.html:42
+#: cruds_adminlte3/templates/cruds/partial_list.html:19
+#: cruds_adminlte3/templates/cruds/partial_update.html:42
+msgid "Create new "
+msgstr "Adicionar "
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:163
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/nav_link_head_block.html:4
+#: cruds_adminlte3/templates/cruds/partial_create.html:49
+#: cruds_adminlte3/templates/cruds/partial_update.html:49
+msgid "Visibility columns"
+msgstr "Visibilidad de columnas"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:282
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:292
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:304
+msgid "Mark all notifications as read"
+msgstr "Marcar todas las notificaciones como leídas"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:322
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:17
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:25
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:26
+#: cruds_adminlte3/templates/cruds/partial_create.html:68
+#: cruds_adminlte3/templates/cruds/partial_update.html:68
+msgid "Search"
+msgstr "Buscar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:347
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:17
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:49
+#: cruds_adminlte3/templates/cruds/listOK.html:48
+#: cruds_adminlte3/templates/cruds/list_OK.html:55
+#: cruds_adminlte3/templates/cruds/list_OK.html:83
+msgid "Filters"
+msgstr "Filtros"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:37
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:75
+#: cruds_adminlte3/templates/cruds/actions/common_filter_form_actions.html:7
+#: cruds_adminlte3/templates/cruds/listOK.html:63
+#: cruds_adminlte3/templates/cruds/list_OK.html:72
+#: cruds_adminlte3/templates/cruds/list_OK.html:116
+msgid "Clean filter"
+msgstr "Limpiar filtro"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:31
+msgid "Reset"
+msgstr "Reiniciar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:52
+msgid "MAIN NAVIGATION"
+msgstr "NAVEGACIÓN PRINCIPAL"
+
+#: cruds_adminlte3/templates/cruds/403.html:16
+msgid "You are not authorized to view this page"
+msgstr "Ud. no está autorizado a ver esta página"
+
+#: cruds_adminlte3/templates/cruds/403.html:17
+msgid "Please check with the site admin if you believe this is a mistake."
+msgstr "Por favor, contacte con el administrador si cree que esto es un error."
+
+#: cruds_adminlte3/templates/cruds/_form.html:26
+#: cruds_adminlte3/templates/cruds/actions/acept_button.html:3
+#: cruds_adminlte3/templates/cruds/actions/ok_cancel_form_actions.html:3
+msgid "Accept"
+msgstr "Aceptar"
+
+#: cruds_adminlte3/templates/cruds/_form.html:35
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:26
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:24
+#: cruds_adminlte3/templates/cruds/actions/delete_button.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:37
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:29
+#: cruds_adminlte3/templates/cruds/ajax/list.html:55
+#: cruds_adminlte3/templates/cruds/list.html:126
+#: cruds_adminlte3/templates/cruds/listOK.html:110
+#: cruds_adminlte3/templates/cruds/list_OK.html:197
+#: cruds_adminlte3/templates/cruds/partial_list.html:108
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:25
+msgid "Delete"
+msgstr "Eliminar"
+
+#: cruds_adminlte3/templates/cruds/actions/acept_and_add_another_button.html:4
+#: cruds_adminlte3/utils.py:243
+msgid "Accept and add another"
+msgstr "Aceptar y adicionar otro"
+
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:16
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:14
+#: cruds_adminlte3/templates/cruds/actions/common_detail_form_actions.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:26
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:19
+#: cruds_adminlte3/templates/cruds/ajax/list.html:45
+#: cruds_adminlte3/templates/cruds/ajax/update.html:8
+#: cruds_adminlte3/templates/cruds/detail.html:43
+#: cruds_adminlte3/templates/cruds/list.html:115
+#: cruds_adminlte3/templates/cruds/listOK.html:106
+#: cruds_adminlte3/templates/cruds/list_OK.html:189
+#: cruds_adminlte3/templates/cruds/partial_list.html:97
+msgid "Edit"
+msgstr "Editar"
+
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:16
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:26
+msgid "Close"
+msgstr "Cerrar"
+
+#: cruds_adminlte3/templates/cruds/ajax/_form.html:35
+msgid "Submit"
+msgstr "Enviar"
+
+#: cruds_adminlte3/templates/cruds/ajax/create.html:8
+#: cruds_adminlte3/templates/cruds/create.html:21
+msgid "New"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:7
+#: cruds_adminlte3/templates/cruds/delete.html:6
+#: cruds_adminlte3/templates/cruds/delete_OK.html:5
+msgid "Remove"
+msgstr "Eliminar"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:11
+msgid "Do you really want to remove:"
+msgstr "Seguro quiere eliminar:"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:24
+#: cruds_adminlte3/templates/cruds/delete_OK.html:11
+msgid "Confirm remove"
+msgstr "Confirmar eliminar"
+
+#: cruds_adminlte3/templates/cruds/ajax/list.html:14
+#: cruds_adminlte3/templates/cruds/list.html:83
+#: cruds_adminlte3/templates/cruds/listOK.html:83
+#: cruds_adminlte3/templates/cruds/list_OK.html:159
+#: cruds_adminlte3/templates/cruds/partial_list.html:61
+msgid "Actions"
+msgstr "Acciones"
+
+#: cruds_adminlte3/templates/cruds/ajax/list.html:64
+#: cruds_adminlte3/templates/cruds/list.html:154
+#: cruds_adminlte3/templates/cruds/listOK.html:120
+#: cruds_adminlte3/templates/cruds/list_OK.html:222
+#: cruds_adminlte3/templates/cruds/partial_list.html:136
+msgid "No items yet."
+msgstr "No hay elementos"
+
+#: cruds_adminlte3/templates/cruds/create.html:4
+#: cruds_adminlte3/templates/cruds/create.html:7
+msgid "Create new"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/create.html:15
+#: cruds_adminlte3/templates/cruds/detail.html:19
+#: cruds_adminlte3/templates/cruds/partial_create.html:104
+#: cruds_adminlte3/templates/cruds/partial_update.html:104
+#: cruds_adminlte3/templates/cruds/update.html:25
+msgid "Back to"
+msgstr "Volver a"
+
+#: cruds_adminlte3/templates/cruds/detail.html:6
+#: cruds_adminlte3/templates/cruds/detail.html:9
+#: cruds_adminlte3/templates/cruds/detail.html:25
+msgid "Detail of"
+msgstr "Detalle de"
+
+#: cruds_adminlte3/templates/cruds/detail.html:25
+msgid "Record id: "
+msgstr "Id del artículo: "
+
+#: cruds_adminlte3/templates/cruds/detail.html:32
+msgid "Label"
+msgstr "Etiqueta"
+
+#: cruds_adminlte3/templates/cruds/detail.html:32
+msgid "Value"
+msgstr "Valor"
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap4_table_block.html:23
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap5_table_block.html:20
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/button_goup_head_block.html:17
+msgid "Visible columns"
+msgstr "Columnas visibles"
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap4_table_block.html:78
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap5_table_block.html:78
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap2.html:25
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap3.html:25
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap4-responsive.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap4.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap5-responsive.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap5.html:22
+msgid "Table content is loading..."
+msgstr "El contenido de la tabla se está cargando..."
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/dj-tb2-hx-bootstrap4.html:60
+#: cruds_adminlte3/templates/cruds/tables/bootstrap_htmx_full.html:67
+#: cruds_adminlte3/templates/tables/bootstrap_col_filter.html:53
+#: cruds_adminlte3/templates/tables/bootstrap_htmx_full.html:76
+msgid "previous"
+msgstr "anterior"
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/dj-tb2-hx-bootstrap4.html:90
+#: cruds_adminlte3/templates/cruds/tables/bootstrap_htmx_full.html:87
+#: cruds_adminlte3/templates/tables/bootstrap_col_filter.html:73
+#: cruds_adminlte3/templates/tables/bootstrap_htmx_full.html:101
+msgid "next"
+msgstr "próximo"
+
+#: cruds_adminlte3/templates/cruds/list.html:6
+#: cruds_adminlte3/templates/cruds/listOK.html:5
+#: cruds_adminlte3/templates/cruds/listOK.html:8
+#: cruds_adminlte3/templates/cruds/list_OK.html:5
+#: cruds_adminlte3/templates/cruds/list_OK.html:9
+msgid "List of"
+msgstr "Listado de"
+
+#: cruds_adminlte3/templates/cruds/listOK.html:31
+#: cruds_adminlte3/templates/cruds/list_OK.html:37
+msgid "Search for..."
+msgstr "Buscar..."
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:8
+msgid "Previous"
+msgstr "Anterior"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:12
+msgid "Page"
+msgstr "Página"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:12
+msgid "of"
+msgstr "de"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:16
+msgid "Next"
+msgstr "Próximo"
+
+#: cruds_adminlte3/templates/cruds/partial_update.html:188
+#: cruds_adminlte3/templates/cruds/update.html:109
+msgid "Create"
+msgstr "Crear"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:10
+#, python-format
+msgid "Change selected %(model)s"
+msgstr "Cambiar %(model)s seleccionado"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:11
+msgid "Change"
+msgstr "Cambiar"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:17
+#, python-format
+msgid "Add another %(model)s"
+msgstr "Adicionar otro %(model)s"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:18
+msgid "Add"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:24
+#, python-format
+msgid "Delete selected %(model)s"
+msgstr "Eliminar %(model)s seleccionado"
+
+#: cruds_adminlte3/templates/registration/login.html:20
+msgid "Sign in to start your session"
+msgstr "Introduzca sus credenciales para comenzar su sesión"
+
+#: cruds_adminlte3/templates/registration/login.html:27
+msgid "User"
+msgstr "Usuario"
+
+#: cruds_adminlte3/templates/registration/login.html:35
+msgid "Password"
+msgstr "Contraseña"
+
+#: cruds_adminlte3/widgets.py:142
+msgid "Add Another"
+msgstr "Adicionar otro"
+
+#~ msgid "Period: "
+#~ msgstr "Período: "
+
+#~ msgid "User-Group Relation"
+#~ msgstr "Relación Usuario-Grupo"
+
+#~ msgid "User-Permisssons Relation"
+#~ msgstr "Relación Usuario-Permisos"
+
+#~ msgid "Group-Permissons"
+#~ msgstr "Grupo-Permisos"
+
+#~ msgid "Dashboard v1"
+#~ msgstr "Dashboard"

@@ -1,0 +1,43 @@
+{% extends 'he_index/cruds/base.html' %}
+{% load i18n %}
+{% load crud_tags %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        {% if url_list and 'list' in views_available and crud_perms.list %}
+            <a href="{{ url_list }}{{getparams}}">
+                <i class="fa fa-angle-double-left"></i>
+                {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+            </a>
+        {% endif %}
+        <br /><br />
+        <div class="card">
+            <div class="card-header with-border">
+                <h3 class="card-title">{% trans "Detail of" %} {{ object }}</h3>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <th>{% trans 'Label' %}</th><th>{% trans 'Value' %}</th>
+                        </thead>
+                        <tbody>
+                            {% crud_fields object fields %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if url_update and 'update' in views_available and crud_perms.update %}
+            <div class="card-header">
+                <a href="{{ url_update }}{{getparams}}" class="btn btn-primary" >{% trans "Edit" %}</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

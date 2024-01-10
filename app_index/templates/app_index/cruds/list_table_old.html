@@ -1,0 +1,55 @@
+{% extends 'he_index/cruds/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load crud_tags %}
+{% load render_table from django_tables2 %}
+
+
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div id="main_content_swap">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card" style="padding: 0;">
+                            <div class="card-header" style="padding: 0;">
+                                <div class="card-body" style="padding: 0;">
+                                    {% block paginate_up_both %}
+                                        {% if paginate_position == 'Up' or paginate_position == 'Both' %}
+                                            {% include paginate_template %}
+                                        {% endif %}
+                                    {% endblock paginate_up_both %}
+                                    {% block datatable %}
+                                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                            {% render_table table %}
+                                        </div>
+                                    {% endblock datatable %}
+                                </div>
+                                <div class="card-footer"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock content %}
+{% block extra_javascript %}
+    <script>
+        window.data = {
+            button_shift_class_container: '{{ table.button_shift_class_container|safe }}',
+            js_swal_title: '{{ js_swal_title|safe }}',
+            js_swal_text: '{{ js_swal_text|safe }}',
+            js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
+            js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
+        }
+    </script>
+    <!-- django_tables2_column_shifter -->
+{#    <script src="{% static 'js/django_tables2_column_shifter.js' %}"></script>#}
+    <script src="{% static 'js/list_table.js' %}"></script>
+
+{% endblock extra_javascript %}

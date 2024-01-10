@@ -1,0 +1,12 @@
+{% extends template_father %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    <h1>{% trans "Remove" %} {{ object }}?</h1>
+    <form action="{{ url_delete }}{{getparams}}" method="POST">
+    {% csrf_token %}
+        <input type="submit" value="DELETE">
+    </form>
+
+{% endblock %}
