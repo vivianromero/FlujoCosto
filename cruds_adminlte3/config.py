@@ -1,11 +1,11 @@
 from django.utils.translation import gettext as _
 
 CONFIG = {
-    'app_logo_path': '/dist/img/logo_he-removebg-preview.png',
-    'welcome_text': _('Site for the management of Extraordinary Events'),
+    'app_logo_path': '/dist/img/cubatabaco_logo.png',
+    'welcome_text': 'Sitio para la gestión de los flujos y costos del Tabaco',
     'common_background_color': 'gray',
-    'main_sidebar_title': _('Extraordinary Events'),
-    'app_logo_alt': _('Extraordinary Events'),
+    'main_sidebar_title': 'Flujo y Costo',
+    'app_logo_alt': 'Flujo y Costo',
 
     # Dual list box text
     'filterTextClear': _('show all'),

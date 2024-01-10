@@ -283,7 +283,9 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 # Session expiration
 SESSION_EXPIRE_SECONDS = 600  # 10 minutos
 
-SESSION_TIMEOUT_REDIRECT = reverse_lazy('he_index:usuario:login')
+LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
+
+SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
 
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 

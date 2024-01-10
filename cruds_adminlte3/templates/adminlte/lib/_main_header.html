@@ -1,8 +1,7 @@
+{% load crud_tags %}
 {% load adminlte_helpers i18n %}
-{% load static notifications_tags notifications_menu_tags %}
-{% load crud_tags hecho_extraordinario_range_tags %}
 {% load export_url from django_tables2 %}
-{% register_notify_callbacks callbacks='fill_notification_dropdown_list,fill_notification_badge' fetch=20 refresh_period=300 nonce='{{nonce}}' %}
+{% load static %}
 <!-- Navbar -->
 {% block navbar %}
 <nav class="main-header navbar navbar-expand navbar-white navbar-light"
@@ -56,7 +55,7 @@
                         </h6>
                         <hr />
                         {% block user_menu_buttons %}
-                        <a href="{% block change_password_url %}{% url 'he_index:usuario:password' %}{% endblock %}"
+                        <a href="{% block change_password_url %}{% url 'app_index:usuario:password' %}{% endblock %}"
                                 class="btn btn-primary btn-flat">{% trans 'Change password' %}
                         </a>
                         <a href="{% block logout_url %}{% logout_url %}{% endblock %}"
@@ -276,37 +275,7 @@
 
   <!-- Notifications Dropdown Menu -->
     {% block right_navbar_links_notifications %}
-        {% if request.user.is_superuser  %}
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-bell" title={% translate 'Notifications' %}></i>
-                    <span class="badge badge-danger navbar-badge"></span>
-                    {% notifications_unread as unread_count %}
-                    {% live_notify_badge badge_class="live_notify_badge badge badge-danger navbar-badge" %}
 
-                </a>
-                <div id="notifications_dropdown_menu"
-                     class="notify_menu_class dropdown-menu dropdown-menu-lg dropdown-menu-right"
-                     style="max-width: 500px; min-width: 400px"
-                >
-                    <span class="dropdown-header"> {% translate 'Notifications' %}</span>
-
-                    <div class="dropdown-divider"></div>
-                    {% live_notify_dropdown_list %}
-                    <a class="dropdown-footer"
-                       id="a_notifications_dropdown_footer"
-                       href="#"
-                       hx-get="{% url 'notifications:mark_all_as_read' %}"
-                       hx-trigger="click"
-                       hx-target="#notifications_dropdown_menu"
-                       hx-swap="none"
-                    >
-                        {% translate 'Mark all notifications as read' %}
-                    </a>
-                    <div class="dropdown-divider"></div>
-                </div>
-            </li>
-        {% endif %}
     {% endblock right_navbar_links_notifications %}
     <div id="search_header_div" style="display: flex; align-items: center">
         {% if search %}
@@ -350,20 +319,6 @@
     {% endblock right_navbar_links_fullscreen %}
 
     {% block languages %}
-    <div class="my-auto">
-
-        <form id="set_language" action="{% url 'set_language' %}" method="POST">
-            {% csrf_token %}
-            <input name="next" type="hidden" value="{{ redirect_to }}">
-            <select name="language" onchange="this.form.submit()" id="select_language">
-                {% for language in languages %}
-                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                        {{ language.name_translated }} ({{ language.code }})
-                    </option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
     {% endblock languages %}
 </ul>
 {% endblock right_navbar_links %}
@@ -384,23 +339,3 @@
 
     </script>
 {% endif %}
-<script>
-    const a_notifications_dropdown_footer = document.getElementById("a_notifications_dropdown_footer");
-        a_notifications_dropdown_footer.addEventListener("click", function() {
-            console.log(a_notifications_dropdown_footer)
-            console.log(data)
-            let badges = document.getElementsByClassName(notify_badge_class);
-            let menus = document.getElementsByClassName(notify_menu_class);
-            if (badges) {
-                for (let i = 0; i < badges.length; i++) {
-                    badges[i].innerHTML = "0";
-                    console.log(badges[i])
-                }
-            }
-            if (menus) {
-                for (let j = 0; j < menus.length; j++) {
-                    menus[j].innerHTML = "";
-                }
-            }
-        })
-</script>

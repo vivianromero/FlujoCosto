@@ -10,14 +10,14 @@ from cruds_adminlte3.crud import CRUDView
 from app_index.views import CommonCRUDView
 from .filters import UserUebFilter
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, PassUserChangeForm
-from .tables import UsuarioTable
+from .tables import UserTable
 
-Usuario = get_user_model()
+User = get_user_model()
 
 
 # Create your views here.
 class RegistroUsuario(SuccessMessageMixin, CreateView):
-    model = Usuario
+    model = User
     template_name = 'registration/registrar.html'
     form_class = RegistroUsuarioForm
     success_message = _('Data creation was successful')
@@ -34,7 +34,7 @@ class RegistroUsuario(SuccessMessageMixin, CreateView):
 
 
 class ListarUsuarios(ListView):
-    model = Usuario
+    model = User
     template_name = 'cruds/list.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -45,7 +45,7 @@ class ListarUsuarios(ListView):
 
 
 class EditarUsuario(UpdateView):
-    model = Usuario
+    model = User
     form_class = EditarUsuarioForm
     template_name = 'cruds/create.html'
     success_url = reverse_lazy('usuario:listar')
@@ -106,11 +106,11 @@ class MyLoginView(SuccessMessageMixin, LoginView):
 
 
 class UsuarioCRUD(CommonCRUDView):
-    model = Usuario
+    model = User
 
-    namespace = 'he_index:usuario'
+    namespace = 'app_index:usuario'
 
-    template_father = 'he_index/cruds/base.html'
+    template_father = 'app_index/cruds/base.html'
 
     template_name_base = 'usuarios/usuario/cruds'
 
@@ -124,7 +124,6 @@ class UsuarioCRUD(CommonCRUDView):
     fields = [
         'username',
         'email',
-        'empresa',
         'last_login',
     ]
 
@@ -140,21 +139,18 @@ class UsuarioCRUD(CommonCRUDView):
     list_fields = [
         'username',
         'email',
-        'empresa',
         'last_login',
     ]
 
     search_fields = [
         'username__icontains',
         'email__icontains',
-        'empresa__nombre__icontains',
         'last_login__icontains',
     ]
 
     filter_fields = [
         'username',
         'email',
-        'empresa',
         'last_login',
     ]
 
@@ -165,7 +161,7 @@ class UsuarioCRUD(CommonCRUDView):
     page_length_menu = [5, 10, 15, 20]
 
     # Table settings
-    table_class = UsuarioTable
+    table_class = UserTable
     template_name = "he_index/cruds/list_table.html"
     paginate_by = 10
     exclude_columns = ("actions",)

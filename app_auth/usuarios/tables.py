@@ -1,13 +1,14 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 from cruds_adminlte3.tables import ColumnShiftTableBootstrap4Responsive
 from cruds_adminlte3.utils import attrs_center_center
 from configuracion.models import UserUeb
-from .forms_usuario_permissions import Usuario_Permissions
+from .forms_usuario_permissions import User_Permissions
 
 
-class UsuarioTable(ColumnShiftTableBootstrap4Responsive):
+class UserTable(ColumnShiftTableBootstrap4Responsive):
     shifter_template = "cruds/django_tables2_column_shifter/my-hx-bootstrap4-responsive.html"
 
     button_above_table = False
@@ -21,7 +22,7 @@ class UsuarioTable(ColumnShiftTableBootstrap4Responsive):
     getparams = None
 
     actions = tables.TemplateColumn(
-        template_name='cruds/actions/actions_template.html',
+        template_name='cruds/actions/hx_actions_template.html',
         verbose_name=_('Actions'),
         exclude_from_export=True,
         orderable=False,
@@ -37,12 +38,11 @@ class UsuarioTable(ColumnShiftTableBootstrap4Responsive):
                 "style": 'padding: 0px;',
             },
         }
-        model = UserUeb
+        model = User
 
         fields = (
             'username',
             'email',
-            'empresa',
             'groups',
             'last_login',
         )
@@ -61,7 +61,7 @@ class UsuarioTable(ColumnShiftTableBootstrap4Responsive):
                 self.columns.hide(col)
 
 
-class UsuarioPermissionsTable(ColumnShiftTableBootstrap4Responsive):
+class UserPermissionsTable(ColumnShiftTableBootstrap4Responsive):
     shifter_template = "cruds/django_tables2_column_shifter/my-hx-bootstrap4-responsive.html"
 
     button_above_table = False
@@ -91,10 +91,10 @@ class UsuarioPermissionsTable(ColumnShiftTableBootstrap4Responsive):
                 "style": 'padding: 0px;',
             },
         }
-        model = Usuario_Permissions
+        model = User_Permissions
 
         fields = (
-            'usuario',
+            'user',
             'permission',
         )
         template_name = "django_tables2/bootstrap4.html"

@@ -12,18 +12,15 @@ from django.template.loader import get_template
 
 from cruds_adminlte3.utils import common_filter_form_actions, common_form_actions
 
-Usuario = get_user_model()
+User = get_user_model()
 
 
 # Crear nuevos usuarios. Incluye todos los campos requeridos además de las contraseñas repetidas para confirmación
 class RegistroUsuarioForm(UserCreationForm):
     email = forms.EmailInput()
-    empresa = forms.Select(
-        attrs={'style': 'width: 100%'}
-    )
 
     class Meta:
-        model = Usuario
+        model = User
         fields = [
             'username',
             'email'
@@ -61,7 +58,6 @@ class RegistroUsuarioForm(UserCreationForm):
                         # Column('first_name', css_class='form-group col-md-4 mb-0'),
                         # Column('last_name', css_class='form-group col-md-4 mb-0'),
                         Column('username', css_class='form-group col-md-4 mb-0'),
-                        # Column('empresa', css_class='form-group col-md-6 mb-0'),
                         Column('email', css_class='form-group col-md-4 mb-0'),
                         # Column('pic', css_class='form-group col-md-4 mb-0'),
                         Column('password1', css_class='form-group col-md-6 mb-0'),
@@ -131,13 +127,10 @@ class EditarUsuarioForm(UserChangeForm):
     )
 
     email = forms.EmailInput()
-    # empresa = forms.Select(
-    #     attrs={'style': 'width: 100%'},
-    # )
     user = None
 
     class Meta:
-        model = Usuario
+        model = User
         fields = "__all__"
 
         widgets = {
@@ -207,12 +200,6 @@ class EditarUsuarioForm(UserChangeForm):
                         Column(
                             PrependedText(
                                 'username', mark_safe('<i class="fa fa-user-check"></i>')
-                            ),
-                            css_class='form-group col-md-3 mb-0'
-                        ),
-                        Column(
-                            PrependedText(
-                                'empresa', mark_safe('<i class="fa fa-building-user"></i>')
                             ),
                             css_class='form-group col-md-3 mb-0'
                         ),
@@ -373,20 +360,18 @@ class GroupForm(forms.ModelForm):
 
 class UserUebFormFilter(forms.Form):
     class Meta:
-        model = Usuario
+        model = User
         fields = [
             'query',
-            'idueb',
-            'iduser'
-            'iduser__first_name',
-            'iduser__last_name',
-            'iduser__username',
-            'iduser__email',
-            'iduser__last_login',
-            'iduser__date_joined',
-            'iduser__is_superuser',
-            'iduser__is_staff',
-            'iduser__is_active',
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'last_login',
+            'date_joined',
+            'is_superuser',
+            'is_staff',
+            'is_active',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -394,10 +379,10 @@ class UserUebFormFilter(forms.Form):
         self.user = kwargs.pop('user', None)
         super(UserUebFormFilter, self).__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
-        self.fields['iduser__last_login'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
-        self.fields['iduser__last_login'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
-        self.fields['iduser__date_joined'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
-        self.fields['iduser__date_joined'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
+        self.fields['last_login'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
+        self.fields['last_login'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
+        self.fields['date_joined'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
+        self.fields['date_joined'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
         self.helper = FormHelper(self)
         self.helper.form_id = 'id-usuario-form-filter'
         self.helper.form_method = 'POST'
@@ -417,7 +402,6 @@ class UserUebFormFilter(forms.Form):
                         Column('first_name', css_class='form-group col-md-3 mb-0'),
                         Column('last_name', css_class='form-group col-md-3 mb-0'),
                         Column('username', css_class='form-group col-md-3 mb-0'),
-                        Column('empresa', css_class='form-group col-md-3 mb-0'),
                         Column('email', css_class='form-group col-md-3 mb-0'),
                         css_class='form-row',
                     ),

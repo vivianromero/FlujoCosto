@@ -130,10 +130,10 @@ class UserUebFilter(django_filters.FilterSet):
     def universal_search(queryset, name, value):
 
         search_fields = [
-            'iduser__username__icontains',
-            'iduser__email__icontains',
-            'iduser__empresa__nombre__icontains',
-            'iduser__last_login__icontains',
+            'username__icontains',
+            'email__icontains',
+            'nombre__icontains',
+            'last_login__icontains',
         ]
 
         flt = None

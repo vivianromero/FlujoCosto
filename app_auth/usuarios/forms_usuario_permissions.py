@@ -5,8 +5,8 @@ from crispy_forms.bootstrap import TabHolder, Tab, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML, Row, Column
 
-app = apps.get_app_config('usuarios')
-Usuario_Permissions = app.models['usuario_user_permissions']
+app = apps.get_app_config('auth')
+User_Permissions = app.models['user_user_permissions']
 
 
 # Crear y/o modificar nuevos grupos.
@@ -15,13 +15,13 @@ class UserPermissionsForm(forms.ModelForm):
         js = ['js/my_dual_listbox.js']
 
     class Meta:
-        model = Usuario_Permissions
+        model = User_Permissions
         fields = [
-            'usuario',
+            'user',
             'permission',
         ]
         widgets = {
-            'usuario': forms.Select(
+            'user': forms.Select(
                 attrs={
                     'style': 'width: 100%',
                 }
@@ -47,7 +47,7 @@ class UserPermissionsForm(forms.ModelForm):
                 Tab(
                     'Información de relación Usuario - Permisos',
                     Row(
-                        Column('usuario', css_class='form-group col-md-12 mb-0'),
+                        Column('user', css_class='form-group col-md-12 mb-0'),
                         Column('permission', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'),
                 ),

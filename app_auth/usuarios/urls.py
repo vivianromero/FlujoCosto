@@ -17,7 +17,6 @@ user_forms = {
     'list_usuario': [
         'username',
         'email',
-        'empresa',
         'last_login',
     ],
     'add_usuario_groups': UserGroupForm,
