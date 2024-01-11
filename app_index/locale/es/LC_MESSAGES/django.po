@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 09:01-0500\n"
+"POT-Creation-Date: 2024-01-11 14:13-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: app_index/templates/app_index/adminlte/dashboard.html:24
 #: app_index/templates/app_index/partials/partial_dashboard.html:101
 msgid "Total Events"
@@ -80,6 +81,14 @@ msgstr "Todos los derechos reservados"
 msgid "Version"
 msgstr "Versión"
 
+#: app_index/templates/app_index/adminlte/lib/_main_header.html:13
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: app_index/templates/app_index/adminlte/lib/_main_header.html:19
+msgid "Log out"
+msgstr "Salir"
+
 #: app_index/templates/app_index/cruds/403.html:6
 msgid "Error 403"
 msgstr "Error 403"
@@ -90,7 +99,9 @@ msgstr "Ud. no está autorizado a ver esta página"
 
 #: app_index/templates/app_index/cruds/403.html:17
 msgid "Please check with the site admin if you believe this is a mistake."
-msgstr "Por favor, consulte con el administrador del sitio si piensa que esto es un error"
+msgstr ""
+"Por favor, consulte con el administrador del sitio si piensa que esto es un "
+"error"
 
 #: app_index/templates/app_index/cruds/403.html:19
 msgid "Return to Main Page"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 09:01-0500\n"
+"POT-Creation-Date: 2024-01-11 14:13-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,10 +122,17 @@ msgstr "Usuario"
 
 #: app_auth/usuarios/templates/registration/login.html:37
 #: app_auth/usuarios/templates/registration/registrar_OK.html:43
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_hide.html:3
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:3
 msgid "Password"
 msgstr "Contraseña"
 
 #: app_auth/usuarios/templates/registration/login.html:48
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_hide.html:14
+msgid "show password"
+msgstr "Mostrar contraseña"
+
+#: app_auth/usuarios/templates/registration/login.html:57
 msgid "Login"
 msgstr "Entrar"
 
@@ -165,7 +172,7 @@ msgstr "Inicio"
 
 #: app_auth/usuarios/templates/registration/password_change_done.html:13
 #: app_auth/usuarios/templates/registration/password_change_form_OK.html:14
-#: app_auth/usuarios/views.py:84
+#: app_auth/usuarios/views.py:85
 msgid "Password change"
 msgstr "Cambio de contraseña"
 
@@ -217,14 +224,22 @@ msgstr " Imagen del usuario %(usuario_username)s "
 msgid "List of"
 msgstr "Listado de"
 
-#: app_auth/usuarios/views.py:23
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:14
+msgid "hide password"
+msgstr "Ocultar contraseña"
+
+#: app_auth/usuarios/views.py:24
 msgid "Data creation was successful"
 msgstr "La creación de los datos fue exitosa"
 
-#: app_auth/usuarios/views.py:99
+#: app_auth/usuarios/views.py:100
 #, python-format
 msgid "User <<%(user)s>> were successfully logged in."
 msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
+#: app_auth/usuarios/views.py:110
+msgid "User <<%(user)s>> were successfully logged out."
+msgstr "El usuario <<%(user)s>> ha salido satisfactoriamente."
 
 #~ msgid "Users"
 #~ msgstr "Usuarios"
