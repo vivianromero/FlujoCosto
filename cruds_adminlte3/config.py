@@ -2,10 +2,10 @@ from django.utils.translation import gettext as _
 
 CONFIG = {
     'app_logo_path': '/dist/img/cubatabaco_logo.png',
-    'welcome_text': 'Sitio para la gestión de los flujos y costos del Tabaco',
+    'welcome_text': _('Site for the management of tobacco flows and costs.'),
     'common_background_color': 'gray',
-    'main_sidebar_title': 'Flujo y Costo',
-    'app_logo_alt': 'Flujo y Costo',
+    'main_sidebar_title': _('Flows and costs'),
+    'app_logo_alt': _('Flows and costs'),
 
     # Dual list box text
     'filterTextClear': _('show all'),

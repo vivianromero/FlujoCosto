@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-08 13:48-0500\n"
+"POT-Creation-Date: 2024-01-11 09:01-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,34 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: he_auth/permisos/filters.py:15
+#: app_auth/permisos/filters.py:14
 msgid "Universal Search"
 msgstr "Búsqueda Universal"
 
-#: he_auth/permisos/filters.py:18
+#: app_auth/permisos/filters.py:17
 msgid "Search..."
 msgstr "Buscar..."
 
-#: he_auth/permisos/filters.py:27
+#: app_auth/permisos/filters.py:26
 msgid "Name"
 msgstr "Nombre"
 
-#: he_auth/permisos/filters.py:33
+#: app_auth/permisos/filters.py:32
 msgid "codename"
 msgstr "nombre en código"
 
-#: he_auth/permisos/forms.py:37
+#: app_auth/permisos/forms.py:36
 msgid "Permission Information"
 msgstr "Información de Permisos"
 
-#: he_auth/permisos/tables.py:26
+#: app_auth/permisos/tables.py:24
 msgid "Actions"
 msgstr "Acciones"
 
-#: he_auth/permisos/templates/auth/permission/create.html:4
+#: app_auth/permisos/templates/auth/permission/create.html:4
 msgid "Create new"
 msgstr "Adicionar"
 
-#: he_auth/permisos/templates/auth/permission/list.html:6
+#: app_auth/permisos/templates/auth/permission/list.html:6
 msgid "List of"
 msgstr "Listado de"

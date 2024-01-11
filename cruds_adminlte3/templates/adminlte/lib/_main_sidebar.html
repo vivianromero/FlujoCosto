@@ -8,9 +8,9 @@
     {% block main_sidebar_logo %}
     <a href='#' class="brand-link">
         <img src="{% static app_logo_path %}"
-             alt={% translate "Extraordinary Events" %}
+             alt="{{ app_logo_alt }}"
              class="brand-image" style="opacity: .8">
-        <span class="brand-text font-weight-lighter align-middle"><h6><small>{% translate 'Extraordinary Events' %}</small></h6></span>
+        <span class="brand-text font-weight-lighter align-middle"><h6><small>{{ main_sidebar_title }}</small></h6></span>
     </a>
     {% endblock main_sidebar_logo %}
 

@@ -17,31 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: settings.py:230
+msgid "Spanish"
+msgstr "Español"
 
-#: app_auth/grupos/filters.py:14
-msgid "Universal Search"
-msgstr "Búsqueda Universal"
-
-#: app_auth/grupos/filters.py:17
-msgid "Search..."
-msgstr "Buscar..."
-
-#: app_auth/grupos/filters.py:26
-msgid "Name"
-msgstr "Nombre"
-
-#: app_auth/grupos/forms.py:45
-msgid "Group and permissions"
-msgstr "Grupo y permisos"
-
-#: app_auth/grupos/tables.py:24
-msgid "Actions"
-msgstr "Acciones"
-
-#: app_auth/grupos/templates/auth/group/create.html:4
-msgid "Create new"
-msgstr "Adicionar"
-
-#: app_auth/grupos/templates/auth/group/list.html:6
-msgid "List of"
-msgstr "Listado de"
+#: settings.py:231
+msgid "English"
+msgstr "Inglés"
