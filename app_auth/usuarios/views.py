@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import PasswordChangeView, LoginView
+from django.contrib.auth.views import PasswordChangeView, LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -27,7 +27,7 @@ class RegistroUsuario(SuccessMessageMixin, CreateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RegistroUsuario, self).get_context_data()
         # context['pic_url'] = self.model.pic.url
-        context['model'] = 'Usuario'
+        context['model'] = 'User'
         context['previous_url'] = self.request.META.get('HTTP_REFERER')
         self.success_url = self.request.META.get('HTTP_REFERER')
         return context
@@ -40,7 +40,7 @@ class ListarUsuarios(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(ListarUsuarios, self).get_context_data()
         # context['pic_url'] = self.model.pic.url
-        context['model'] = 'Usuario'
+        context['model'] = 'User'
         return context
 
 
@@ -61,7 +61,7 @@ class EditarUsuario(UpdateView):
             context['form'] = self.form_class()
         # context['pic_url'] = self.model.pic.url
         context['id'] = pk
-        context['model'] = 'Usuario'
+        context['model'] = 'User'
         context['previous_url'] = self.request.META.get('HTTP_REFERER')
         self.success_url = self.request.META.get('HTTP_REFERER')
         return context
@@ -89,7 +89,7 @@ class PassChangeView(PasswordChangeView):
         if 'form' not in context:
             context['form'] = self.form_class()
         context['id'] = pk
-        context['model'] = 'Usuario'
+        context['model'] = 'User'
         context['previous_url'] = self.request.META.get('HTTP_REFERER')
         # self.success_url = self.request.META.get('HTTP_REFERER')
         return context
@@ -97,6 +97,16 @@ class PassChangeView(PasswordChangeView):
 
 class MyLoginView(SuccessMessageMixin, LoginView):
     success_message = _("User <<%(user)s>> were successfully logged in.")
+
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            cleaned_data,
+            user=self.request.user.username
+        )
+
+
+class MyLogoutView(SuccessMessageMixin, LogoutView):
+    success_message = _("User <<%(user)s>> were successfully logged out.")
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(
