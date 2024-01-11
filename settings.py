@@ -42,7 +42,7 @@ ALLOWED_HOSTS = ['*']
 
 
 DJANGO_APPS = [
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -290,6 +290,8 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 SESSION_EXPIRE_SECONDS = 600  # 10 minutos
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
+
+LOGOUT_REDIRECT_URL = reverse_lazy('app_index:usuario:login')
 
 SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
 
