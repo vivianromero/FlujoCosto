@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-08 13:48-0500\n"
+"POT-Creation-Date: 2024-01-11 09:01-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,22 +19,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: cruds_adminlte3/config.py:5
-msgid "Site for the management of Extraordinary Events"
-msgstr ""
+msgid "Site for the management of tobacco flows and costs."
+msgstr "Sitio para la gestión de los flujos y costos del tabaco"
 
 #: cruds_adminlte3/config.py:7 cruds_adminlte3/config.py:8
-#: cruds_adminlte3/menus.py:92
-#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:11
-#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:13
-msgid "Extraordinary Events"
-msgstr "Hechos Extraordinarios"
+msgid "Flows and costs"
+msgstr "Flujos y costos"
 
 #: cruds_adminlte3/config.py:11
 msgid "show all"
 msgstr "mostrar todo"
 
 #: cruds_adminlte3/config.py:12
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:338
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:307
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:36
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:74
 #: cruds_adminlte3/templates/cruds/actions/common_filter_form_actions.html:3
@@ -215,7 +212,7 @@ msgid "Export to .csv"
 msgstr "Exportar a .csv"
 
 #: cruds_adminlte3/config.py:59
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:196
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:195
 #: cruds_adminlte3/templates/cruds/partial_create.html:53
 #: cruds_adminlte3/templates/cruds/partial_update.html:53
 msgid "Export to excel"
@@ -230,14 +227,12 @@ msgid "Print"
 msgstr "Imprimir"
 
 #: cruds_adminlte3/config.py:64
-#, fuzzy
-#| msgid "Close"
 msgid "Close event"
-msgstr "Cerrar"
+msgstr "Cerrar evento"
 
 #: cruds_adminlte3/config.py:65
 msgid "Open event"
-msgstr ""
+msgstr "Abrir evento"
 
 #: cruds_adminlte3/crud.py:625
 msgid "Data creation was successful"
@@ -256,97 +251,35 @@ msgstr "Los datos fueron eliminados de manera satisfactoria"
 msgid "Can see available %s"
 msgstr "Puede ver disponibilidad %s"
 
-#: cruds_adminlte3/filter.py:171
+#: cruds_adminlte3/filter.py:170
 msgid "Universal Search"
 msgstr "Buscador Universal"
 
-#: cruds_adminlte3/filter.py:174
+#: cruds_adminlte3/filter.py:173
 msgid "Search..."
 msgstr "Buscar..."
 
-#: cruds_adminlte3/menus.py:25
+#: cruds_adminlte3/menus.py:13
 msgid "Dashboard"
 msgstr "Panel de control"
 
-#: cruds_adminlte3/menus.py:30
+#: cruds_adminlte3/menus.py:18
 msgid "Balanced scorecard"
 msgstr "Cuadro de mando integral"
 
-#: cruds_adminlte3/menus.py:37
-msgid "Classifiers"
-msgstr "Clasificadores"
-
-#: cruds_adminlte3/menus.py:43
-msgid "Entreprises"
-msgstr "Empresas"
-
-#: cruds_adminlte3/menus.py:49
-msgid "Sectors"
-msgstr "Sectores"
-
-#: cruds_adminlte3/menus.py:55
-msgid "Entities"
-msgstr "Entidades"
-
-#: cruds_adminlte3/menus.py:61
-msgid "Municipalities"
-msgstr "Municipios"
-
-#: cruds_adminlte3/menus.py:67
-msgid "Provinces"
-msgstr "Provincias"
-
-#: cruds_adminlte3/menus.py:73
-msgid "Products"
-msgstr "Productos"
-
-#: cruds_adminlte3/menus.py:79
-msgid "Measurement units"
-msgstr "Unidades de medida"
-
-#: cruds_adminlte3/menus.py:87
-msgid "EVENTS"
-msgstr "HECHOS"
-
-#: cruds_adminlte3/menus.py:98
-msgid "Event Classification"
-msgstr "Clasificación de Hechos"
-
-#: cruds_adminlte3/menus.py:104
-msgid "Event Type"
-msgstr "Tipos de Hechos"
-
-#: cruds_adminlte3/menus.py:112
-msgid "REPORTS"
-msgstr "REPORTES"
-
-#: cruds_adminlte3/menus.py:117
-msgid "Events by typicality"
-msgstr "Hechos por tipicidad"
-
-#: cruds_adminlte3/menus.py:123
-msgid "Events Summary"
-msgstr "Resumen de Hechos"
-
-#: cruds_adminlte3/menus.py:129
-#, fuzzy
-#| msgid "Event Type"
-msgid "Events Report"
-msgstr "Tipos de Hechos"
-
-#: cruds_adminlte3/menus.py:137
+#: cruds_adminlte3/menus.py:77
 msgid "Administration"
 msgstr "Administración"
 
-#: cruds_adminlte3/menus.py:143
+#: cruds_adminlte3/menus.py:83
 msgid "Users"
 msgstr "Usuarios"
 
-#: cruds_adminlte3/menus.py:149
+#: cruds_adminlte3/menus.py:89
 msgid "Groups"
 msgstr "Grupos"
 
-#: cruds_adminlte3/menus.py:155
+#: cruds_adminlte3/menus.py:95
 msgid "Permissons"
 msgstr "Permisos"
 
@@ -373,20 +306,20 @@ msgstr "Página de Inicio"
 msgid "Home"
 msgstr "Inicio"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:55
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:54
 msgid "Member since "
 msgstr "Miembro desde"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:60
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:59
 #: cruds_adminlte3/templates/adminlte/lib/_main_header_OK.html:49
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:63
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:62
 msgid "Log out"
 msgstr "Salir"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:81
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:80
 #: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:6
 #: cruds_adminlte3/templates/cruds/actions/actions_template.html:5
 #: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:11
@@ -401,13 +334,13 @@ msgstr "Salir"
 msgid "Show"
 msgstr "Mostrar"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:92
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:91
 #: cruds_adminlte3/templates/cruds/partial_create.html:22
 #: cruds_adminlte3/templates/cruds/partial_update.html:22
 msgid "Entries"
 msgstr "Entradas"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:153
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:152
 #: cruds_adminlte3/templates/cruds/list.html:39
 #: cruds_adminlte3/templates/cruds/listOK.html:23
 #: cruds_adminlte3/templates/cruds/list_OK.html:26
@@ -417,23 +350,14 @@ msgstr "Entradas"
 msgid "Create new "
 msgstr "Adicionar "
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:163
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:162
 #: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/nav_link_head_block.html:4
 #: cruds_adminlte3/templates/cruds/partial_create.html:49
 #: cruds_adminlte3/templates/cruds/partial_update.html:49
 msgid "Visibility columns"
 msgstr "Visibilidad de columnas"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:282
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:292
-msgid "Notifications"
-msgstr "Notificaciones"
-
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:304
-msgid "Mark all notifications as read"
-msgstr "Marcar todas las notificaciones como leídas"
-
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:322
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:291
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:17
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:25
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:26
@@ -442,7 +366,7 @@ msgstr "Marcar todas las notificaciones como leídas"
 msgid "Search"
 msgstr "Buscar"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:347
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:316
 msgid "Full screen"
 msgstr "Pantalla completa"
 
@@ -466,6 +390,11 @@ msgstr "Limpiar filtro"
 #: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:31
 msgid "Reset"
 msgstr "Reiniciar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:11
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:13
+msgid "Extraordinary Events"
+msgstr "Hechos Extraordinarios"
 
 #: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:52
 msgid "MAIN NAVIGATION"
@@ -524,6 +453,14 @@ msgstr "Editar"
 #: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:26
 msgid "Close"
 msgstr "Cerrar"
+
+#: cruds_adminlte3/templates/cruds/actions/register_and_add_another_button.html:4
+msgid "Register and add another"
+msgstr "Registrar y adicionar otro"
+
+#: cruds_adminlte3/templates/cruds/actions/register_button.html:3
+msgid "Register"
+msgstr "Registrar"
 
 #: cruds_adminlte3/templates/cruds/ajax/_form.html:35
 msgid "Submit"
@@ -699,6 +636,59 @@ msgstr "Contraseña"
 #: cruds_adminlte3/widgets.py:142
 msgid "Add Another"
 msgstr "Adicionar otro"
+
+#~ msgid "Classifiers"
+#~ msgstr "Clasificadores"
+
+#~ msgid "Entreprises"
+#~ msgstr "Empresas"
+
+#~ msgid "Sectors"
+#~ msgstr "Sectores"
+
+#~ msgid "Entities"
+#~ msgstr "Entidades"
+
+#~ msgid "Municipalities"
+#~ msgstr "Municipios"
+
+#~ msgid "Provinces"
+#~ msgstr "Provincias"
+
+#~ msgid "Products"
+#~ msgstr "Productos"
+
+#~ msgid "Measurement units"
+#~ msgstr "Unidades de medida"
+
+#~ msgid "EVENTS"
+#~ msgstr "HECHOS"
+
+#~ msgid "Event Classification"
+#~ msgstr "Clasificación de Hechos"
+
+#~ msgid "Event Type"
+#~ msgstr "Tipos de Hechos"
+
+#~ msgid "REPORTS"
+#~ msgstr "REPORTES"
+
+#~ msgid "Events by typicality"
+#~ msgstr "Hechos por tipicidad"
+
+#~ msgid "Events Summary"
+#~ msgstr "Resumen de Hechos"
+
+#, fuzzy
+#~| msgid "Event Type"
+#~ msgid "Events Report"
+#~ msgstr "Tipos de Hechos"
+
+#~ msgid "Notifications"
+#~ msgstr "Notificaciones"
+
+#~ msgid "Mark all notifications as read"
+#~ msgstr "Marcar todas las notificaciones como leídas"
 
 #~ msgid "Period: "
 #~ msgstr "Período: "

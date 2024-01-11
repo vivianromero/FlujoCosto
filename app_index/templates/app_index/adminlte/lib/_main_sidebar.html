@@ -3,10 +3,10 @@
 {% load i18n %}
 
 {% block main_sidebar_logo %}
-<a href='#' class="brand-link">
+<a href='#' class="brand-link" style="display: flex">
     <img src="{% static app_logo_path %}"
          alt={% static app_logo_alt %}
-         class="brand-image" style="opacity: .8">
+         class="brand-image" style="opacity: .8; height: 20px; width: 30px; display: flex; margin-top: 0;">
     <span class="brand-text font-weight-lighter align-middle"><h6><small>{{ main_sidebar_title }}</small></h6></span>
 </a>
 {% endblock %}

@@ -1,0 +1,239 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-11 09:01-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app_auth/usuarios/filters.py:45
+msgid "First name"
+msgstr "Nombre"
+
+#: app_auth/usuarios/filters.py:52
+msgid "Last name"
+msgstr "Apellido"
+
+#: app_auth/usuarios/filters.py:59 app_auth/usuarios/filters.py:66
+msgid "User name"
+msgstr "Usuario"
+
+#: app_auth/usuarios/filters.py:74
+msgid "Last login"
+msgstr "Última entrada"
+
+#: app_auth/usuarios/filters.py:80
+msgid "Date joined"
+msgstr "Fecha de registro"
+
+#: app_auth/usuarios/filters.py:85
+msgid "Is superuser?"
+msgstr "Es superusuario?"
+
+#: app_auth/usuarios/filters.py:90
+msgid "Is staff?"
+msgstr "Es del equipo?"
+
+#: app_auth/usuarios/filters.py:95
+msgid "Is active?"
+msgstr "Está activo?"
+
+#: app_auth/usuarios/filters.py:101
+msgid "Universal Search"
+msgstr "Buscador Universal"
+
+#: app_auth/usuarios/filters.py:104 app_auth/usuarios/forms.py:381
+msgid "Search..."
+msgstr "BUscar..."
+
+#: app_auth/usuarios/forms.py:56
+msgid "Registration information"
+msgstr "Información de Registro"
+
+#: app_auth/usuarios/forms.py:113
+msgid "The two password fields didn’t match."
+msgstr "Las dos contraseñas no coinciden."
+
+#: app_auth/usuarios/forms.py:116
+msgid "New password"
+msgstr "Nueva contraseña"
+
+#: app_auth/usuarios/forms.py:123
+msgid "New password confirmation"
+msgstr "Confirmación de nueva contraseña"
+
+#: app_auth/usuarios/forms.py:174
+msgid ""
+"Raw passwords are not stored, so there is no way to see this user’s "
+"password, but you can change the password using <a href=\"{}\">this form</a>."
+msgstr ""
+"Las contraseñas sin procesar no se almacenan, por lo que no hay forma de ver "
+"la contraseña de este usuario, pero puede cambiar la contraseña usando <a "
+"href=\"{}\">este formulario</a>."
+
+#: app_auth/usuarios/forms.py:186
+msgid "User information"
+msgstr "Información de usuario"
+
+#: app_auth/usuarios/forms.py:232
+msgid "System information"
+msgstr "Información del sistema"
+
+#: app_auth/usuarios/forms.py:253
+msgid "Groups"
+msgstr "Grupos"
+
+#: app_auth/usuarios/forms.py:260
+msgid "Permissions"
+msgstr "Permisos"
+
+#: app_auth/usuarios/forms.py:382 app_auth/usuarios/forms.py:384
+msgid "Date from..."
+msgstr "Fecha desde..."
+
+#: app_auth/usuarios/forms.py:383 app_auth/usuarios/forms.py:385
+msgid "Date to..."
+msgstr "Fecha hasta..."
+
+#: app_auth/usuarios/tables.py:26 app_auth/usuarios/tables.py:79
+msgid "Actions"
+msgstr "Acciones"
+
+#: app_auth/usuarios/templates/registration/login.html:20
+msgid "Sign in to start your session"
+msgstr "Introduzca sus datos para comenzar la sesión"
+
+#: app_auth/usuarios/templates/registration/login.html:29
+#: app_auth/usuarios/templates/registration/registrar_OK.html:27
+msgid "User"
+msgstr "Usuario"
+
+#: app_auth/usuarios/templates/registration/login.html:37
+#: app_auth/usuarios/templates/registration/registrar_OK.html:43
+msgid "Password"
+msgstr "Contraseña"
+
+#: app_auth/usuarios/templates/registration/login.html:48
+msgid "Login"
+msgstr "Entrar"
+
+#: app_auth/usuarios/templates/registration/pass_change_form.html:19
+msgid "Change your password"
+msgstr "Cambiar su contraseña"
+
+#: app_auth/usuarios/templates/registration/pass_change_form.html:24
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:29
+msgid ""
+"Please enter your old password, for security’s sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"por favor, ingrese su contraseña anterior, por razones de seguridad, y luego "
+"ingrese su nueva contraseña dos veces para que podamos verificar que la "
+"escribió  correctamente."
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:4
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:5
+msgid "Documentation"
+msgstr "Documentación"
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:4
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:5
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:7
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:8
+msgid "Log out"
+msgstr "Salir"
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:12
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:13
+msgid "Home"
+msgstr "Inicio"
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:13
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:14
+#: app_auth/usuarios/views.py:84
+msgid "Password change"
+msgstr "Cambio de contraseña"
+
+#: app_auth/usuarios/templates/registration/password_change_done.html:18
+msgid "Your password was changed."
+msgstr "Su contraseña fue modificada."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:24
+msgid "Please correct the error below."
+msgstr "Por favor, corrija el error a continuación."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:24
+msgid "Please correct the errors below."
+msgstr "Por favor, corrija los errores a continuación."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:57
+msgid "Change my password"
+msgstr "Cambiar mi contraseña"
+
+#: app_auth/usuarios/templates/registration/registrar.html:13
+#: app_auth/usuarios/templates/registration/registrar_OK.html:20
+msgid "Register a new user"
+msgstr "Registrar un nuevo usuario"
+
+#: app_auth/usuarios/templates/registration/registrar_OK.html:35
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#: app_auth/usuarios/templates/registration/registrar_OK.html:51
+msgid "Retype Password"
+msgstr "Repita la contraseña"
+
+#: app_auth/usuarios/templates/usuarios/usuario/create.html:4
+#: app_auth/usuarios/templates/usuarios/usuario_groups/create.html:4
+#: app_auth/usuarios/templates/usuarios/usuario_user_permissions/create.html:4
+msgid "Create new"
+msgstr "Adicionar"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/image_input.html:5
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/image_input.html:6
+#, python-format
+msgid " %(usuario_username)s user image "
+msgstr " Imagen del usuario %(usuario_username)s "
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario_groups/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario_user_permissions/list.html:6
+msgid "List of"
+msgstr "Listado de"
+
+#: app_auth/usuarios/views.py:23
+msgid "Data creation was successful"
+msgstr "La creación de los datos fue exitosa"
+
+#: app_auth/usuarios/views.py:99
+#, python-format
+msgid "User <<%(user)s>> were successfully logged in."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
+#~ msgid "Users"
+#~ msgstr "Usuarios"
+
+#~ msgid "Extraordinary Events"
+#~ msgstr "Hechos Extraordinarios"
+
+#~ msgid "Groups and permissions"
+#~ msgstr "Grupos y permisos"
+
+#~ msgid "User Permissions Relations"
+#~ msgstr "Relaciones Usuario Permisos"
