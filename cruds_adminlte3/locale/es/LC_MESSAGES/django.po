@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 09:01-0500\n"
+"POT-Creation-Date: 2024-01-11 14:13-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -391,11 +391,6 @@ msgstr "Limpiar filtro"
 msgid "Reset"
 msgstr "Reiniciar"
 
-#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:11
-#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:13
-msgid "Extraordinary Events"
-msgstr "Hechos Extraordinarios"
-
 #: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:52
 msgid "MAIN NAVIGATION"
 msgstr "NAVEGACIÓN PRINCIPAL"
@@ -636,6 +631,9 @@ msgstr "Contraseña"
 #: cruds_adminlte3/widgets.py:142
 msgid "Add Another"
 msgstr "Adicionar otro"
+
+#~ msgid "Extraordinary Events"
+#~ msgstr "Hechos Extraordinarios"
 
 #~ msgid "Classifiers"
 #~ msgstr "Clasificadores"

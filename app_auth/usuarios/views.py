@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.views import PasswordChangeView, LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, ListView, UpdateView
@@ -175,3 +176,15 @@ class UsuarioCRUD(CommonCRUDView):
     template_name = "he_index/cruds/list_table.html"
     paginate_by = 10
     exclude_columns = ("actions",)
+
+
+def password_show(request):
+    password = request.GET.get('password', None)
+    context = {
+        'password': password,
+    }
+    return render(request, 'usuarios/usuario/partials/password_show.html', context=context)
+
+
+def password_hide(request):
+    return render(request, 'usuarios/usuario/partials/password_hide.html')
