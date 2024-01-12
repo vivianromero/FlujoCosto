@@ -1,10 +1,11 @@
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.views import PasswordChangeView, LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView, ListView, UpdateView
 
 from cruds_adminlte3.crud import CRUDView
@@ -99,21 +100,29 @@ class PassChangeView(PasswordChangeView):
 class MyLoginView(SuccessMessageMixin, LoginView):
     success_message = _("User <<%(user)s>> were successfully logged in.")
 
-    def get_success_message(self, cleaned_data):
-        return self.success_message % dict(
-            cleaned_data,
-            user=self.request.user.username
-        )
-
-
-class MyLogoutView(SuccessMessageMixin, LogoutView):
-    success_message = _("User <<%(user)s>> were successfully logged out.")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context.update({
+            'hide_password': _('hide password'),
+            'show_password': _('show password')
+        })
+        return context
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(
             cleaned_data,
             user=self.request.user.username
         )
+
+
+class MyLogoutView(LogoutView):
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        message = _("User <<%s>> were successfully logged out.")
+        messages.add_message(request, messages.SUCCESS, message % user)
+        response = super().dispatch(request, *args, **kwargs)
+        return response
 
 
 class UsuarioCRUD(CommonCRUDView):
@@ -179,9 +188,9 @@ class UsuarioCRUD(CommonCRUDView):
 
 
 def password_show(request):
-    password = request.GET.get('password', None)
+    pass_show = request.GET.get('show', 'true') == 'true'
     context = {
-        'password': password,
+        'password_show': pass_show,
     }
     return render(request, 'usuarios/usuario/partials/password_show.html', context=context)
 
