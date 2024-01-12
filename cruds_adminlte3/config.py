@@ -63,4 +63,8 @@ CONFIG = {
     # Open and close buttons
     'close_event': _('Close event'),
     'open_event': _('Open event'),
+
+    # Show or hide password
+    'hide_password': _('hide password'),
+    'show_password': _('show password')
 }
