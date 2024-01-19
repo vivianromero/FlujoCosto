@@ -32,7 +32,6 @@ class ConsecutivoDocumento(models.Model):
     idnumeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
                                               related_name='consecutivodocumento_numeracion')
     numero = models.IntegerField()
-    prefijo = models.CharField(max_length=3, blank=True, null=True)
     idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='consecutivo_ueb')
 
     class Meta:

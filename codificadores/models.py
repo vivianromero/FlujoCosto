@@ -141,6 +141,14 @@ class ProductoFlujoClase(models.Model):
     class Meta:
         db_table = 'cla_productoflujoclase'
 
+class ProductoFlujoVitola(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
+    idvitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
+
+    class Meta:
+        db_table = 'cla_productoflujovitola'
+
 
 class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -267,23 +275,6 @@ class DepartamentoRelacion(models.Model):
         db_table = 'cla_departamentorelacion'
         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
 
-
-class MotivoAjuste(models.Model):
-    CHOICE_MOTIVOS = {
-        1: 'Merma',
-        2: 'Rotura',
-        3: 'Promoción',
-        4: 'SubProductos',
-    }
-    id = models.IntegerField(primary_key=True, choices=CHOICE_MOTIVOS, editable=False, )
-    descripcion = models.CharField(unique=True, max_length=128)
-    aumento = models.BooleanField(default=False, db_comment='Ajuste de aumento True en otro caso False')
-
-    class Meta:
-        db_table = 'cla_motivoajuste'
-        ordering = ['aumento', 'descripcion']
-
-
 class NormaConsumo(models.Model):
     CHOICE_TIPOS_NORMAS = {
         1: 'Pesada',
@@ -319,6 +310,20 @@ class NormaconsumoDetalle(models.Model):
     class Meta:
         db_table = 'cla_normaconsumodetalle'
 
+class MotivoAjuste(models.Model):
+    CHOICE_MOTIVOS = {
+        1: 'Merma',
+        2: 'Rotura',
+        3: 'Promoción',
+        4: 'SubProductos',
+    }
+    id = models.IntegerField(primary_key=True, choices=CHOICE_MOTIVOS, editable=False, )
+    descripcion = models.CharField(unique=True, max_length=128)
+    aumento = models.BooleanField(default=False, db_comment='Ajuste de aumento True en otro caso False')
+
+    class Meta:
+        db_table = 'cla_motivoajuste'
+        ordering = ['aumento', 'descripcion']
 
 class TipoDocumento(models.Model):
     CHOICE_TIPOS_DOC = {
@@ -361,6 +366,7 @@ class NumeracionDocumentos(models.Model):
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema')
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento')
     tipo_documento = models.BooleanField(default=False, db_comment='Si el número es por tipo de documento')
+    prefijo = models.CharField(max_length=3, blank=True, null=True, db_comment='Si el número de documento va a contener un prefijo')
 
     class Meta:
         db_table = 'cla_numeraciondocumentos'
@@ -379,7 +385,10 @@ class TipoDocumentoCuentaAbstract(models.Model):
 #Ajuste de Disminución
 #Tranf entre departamentos
 class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
-    idcuenta = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta')
+    idcuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta_debe_exp')
+    idcuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta_debe_cn')
+    idcuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta_haber_exp')
+    idcuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE, related_name='tipodocumentocuenta_cuenta_haber_cn')
 
     class Meta:
         db_table = 'cla_tipodocumentocuenta'
@@ -399,20 +408,26 @@ class TipoDocumentoCuentaTransfExterna(TipoDocumentoCuentaAbstract):
 
 #se configura la cuenta por unidad contable que realiza o recibe la transf.
 #en dependencia del tipo de documento
-class TipoDocumentoCuentaTransfExternaDpto(models.Model):
+class TipoDocumentoCuentaTransfExternaUEB(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     idtipodocumentocuentatransfexterna = models.ForeignKey(TipoDocumentoCuentaTransfExterna, on_delete=models.CASCADE,
                                                            related_name='tipodocumentocuentatransfexternadpto_ipodocumentocuentatransfexterna')
     idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='tipodocumentocuentatransfexternadpto_unidadcontable',
                                          db_comment='Unidad contab que recibe o envía la transf, según el tipo de documento')
-    idcuenta = models.ForeignKey(Cuenta, on_delete=models.PROTECT,
-                                       related_name='tipodocumentocuentatransfexternadpto_cuenta')
+    idcuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+                                          related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_exp')
+    idcuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+                                         related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_cn')
+    idcuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+                                           related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_exp')
+    idcuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+                                          related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_cn')
 
     class Meta:
-        db_table = 'cla_tipodocumentocuentatransfexternadpto'
+        db_table = 'cla_tipodocumentocuentatransfexternaueb'
 
-
+# Formato del versat para las cuentas y código de los productos
 class FormatoCuentaProducto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre = models.CharField(max_length=30)
