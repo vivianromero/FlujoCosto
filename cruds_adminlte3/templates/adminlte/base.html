@@ -29,7 +29,7 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="hold-transition skin-blue sidebar-mini sidebar-collapse layout-fixed {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="hold-transition skin-blue sidebar-mini sidebar-collapse layout-footer-fixed layout-navbar-fixed {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}">
 {% block body %}
 <section>
 <div class="wrapper" hx-history-elt>

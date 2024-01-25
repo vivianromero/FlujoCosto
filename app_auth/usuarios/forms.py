@@ -379,10 +379,10 @@ class UserUebFormFilter(forms.Form):
         self.user = kwargs.pop('user', None)
         super(UserUebFormFilter, self).__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
-        self.fields['last_login'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
-        self.fields['last_login'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
-        self.fields['date_joined'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
-        self.fields['date_joined'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
+        # self.fields['last_login'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
+        # self.fields['last_login'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
+        # self.fields['date_joined'].widget.widgets[0].attrs = {'placeholder': _('Date from...')}
+        # self.fields['date_joined'].widget.widgets[1].attrs = {'placeholder': _('Date to...')}
         self.helper = FormHelper(self)
         self.helper.form_id = 'id-usuario-form-filter'
         self.helper.form_method = 'POST'
@@ -397,7 +397,7 @@ class UserUebFormFilter(forms.Form):
                             AppendedText(
                                 'query', mark_safe('<i class="fas fa-search"></i>')
                             ),
-                            css_class='form-group col-md-8 mb-0'
+                            css_class='form-group col-md-6 mb-0'
                         ),
                         Column('first_name', css_class='form-group col-md-3 mb-0'),
                         Column('last_name', css_class='form-group col-md-3 mb-0'),
@@ -409,10 +409,10 @@ class UserUebFormFilter(forms.Form):
                 Tab(
                     '2',
                     Row(
-                        Column('last_login', css_class='form-group col-md-2 mb-0'),
-                        Column('date_joined', css_class='form-group col-md-2 mb-0'),
-                        Column('is_superuser', css_class='form-group col-md-3 mb-0'),
-                        Column('is_staff', css_class='form-group col-md-2 mb-0'),
+                        Column('last_login', css_class='form-group col-md-4 mb-0'),
+                        Column('date_joined', css_class='form-group col-md-4 mb-0'),
+                        Column('is_superuser', css_class='form-group col-md-4 mb-0'),
+                        Column('is_staff', css_class='form-group col-md-3 mb-0'),
                         Column('is_active', css_class='form-group col-md-3 mb-0'),
                         css_class='form-row'
                     ),
@@ -429,5 +429,5 @@ class UserUebFormFilter(forms.Form):
     def get_context(self):
         context = super().get_context()
         context['width_right_sidebar'] = '750px'
-        context['height_right_sidebar'] = '500px'
+        context['height_right_sidebar'] = '380px'
         return context

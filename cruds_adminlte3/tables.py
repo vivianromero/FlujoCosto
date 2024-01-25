@@ -1,4 +1,6 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
+from cruds_adminlte3.utils import attrs_center_center
 
 dt_version = tuple(map(int, tables.__version__.split(".")[:3]))
 
@@ -14,7 +16,8 @@ class ColumnShiftTable(tables.Table):
     nav_link = False
 
     # Class container for .btn-shift-column class to get the state 'off'.
-    # It must be set to another value if 'button_above_table' is set to false, becouse buttons will be out of '.table-container'
+    # It must be set to another value if 'button_above_table' is set to false,
+    # becouse buttons will be out of '.table-container'
     button_shift_class_container = ".table-container"
 
     # Which columns are visible by default
@@ -144,3 +147,52 @@ class ColumnShiftTableBootstrap5Responsive(ColumnShiftTableBootstrap5):
                 "your current version is {}".format(tables.__version__)
             )
         super(ColumnShiftTableBootstrap5Responsive, self).__init__(*args, **kwargs)
+
+
+class CommonColumnShiftTableBootstrap4ResponsiveActions(ColumnShiftTableBootstrap4Responsive):
+    shifter_template = "cruds/django_tables2_column_shifter/my-hx-bootstrap4-responsive.html"
+
+    button_above_table = False
+
+    nav_link = True
+
+    button_shift_class_container = "shift-container"
+
+    col_vis = []  # lista usada para gestionar el visionado de columnas de la tabla
+
+    getparams = None
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    class Meta:
+        attrs = {
+            "class": 'table display table-sm table-bordered table-striped table-hover',
+            "style": 'line-height: 1;',
+            "td": {
+                "class": "align-middle",
+                "style": 'padding: 0px;',
+            },
+        }
+        model = None  # Must be filled in descendant classes
+
+        fields = None # Must be filled in descendant classes
+
+        template_name = "django_tables2/bootstrap4.html"
+        table_pagination = {
+            "per_page": 10
+        }
+
+    def before_render(self, request):
+        """
+        Método para gestionar el visionado de columnas.
+        Si la columna aparece en la lista 'col_vis' entonces se ocultará dicha columna
+        """
+        if request.htmx:
+            for col in self.col_vis:
+                self.columns.hide(col)

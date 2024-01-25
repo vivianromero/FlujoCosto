@@ -39,6 +39,62 @@ class Dashboard(TemplateView):
 
 
 class CommonCRUDView(CRUDView):
+    model = None  # Must be filled in descendant classes
+
+    namespace = None  # Must be filled in descendant classes
+
+    template_father = 'app_index/cruds/base.html'
+
+    template_name_base = 'app_index/cruds'
+
+    partial_template_name_base = 'app_index/partials'
+
+    views_available = [
+        'create',
+        'list',
+        'delete',
+        'update',
+    ]
+
+    fields = None  # Must be filled in descendant classes
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = None  # Must be filled in descendant classes
+
+    # search_method = hecho_extraordinario_search_queryset
+
+    add_form = None  # Must be filled in descendant classes
+
+    update_form = None  # Must be filled in descendant classes
+
+    check_login = True
+    check_perms = True
+
+    list_fields = None  # Must be filled in descendant classes
+
+    filter_fields = None  # Must be filled in descendant classes
+
+    filterset_class = None  # Must be filled in descendant classes
+
+    perms = {
+        'create': [],
+        'list': [],
+        'delete': [],
+        'update': [],
+        'detail': []
+    }
+
+    page_length = 10
+
+    page_length_menu = [5, 10, 15, 20]
+
+    # Table settings
+    table_class = None  # Must be filled in descendant classes
+    template_name = "app_index/cruds/list_table.html"
+    paginate_by = 10
+    exclude_columns = ("actions",)
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
@@ -101,6 +157,16 @@ class CommonCRUDView(CRUDView):
 
                 return template_name
 
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                        "post": self.request.POST,
+                    }
+                )
+                return form_kwargs
+
         return OEditView
 
     def get_create_view(self):
@@ -115,5 +181,14 @@ class CommonCRUDView(CRUDView):
                     template_name = "app_index/cruds/create.html"
 
                 return template_name
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                    }
+                )
+                return form_kwargs
 
         return OCreateView
