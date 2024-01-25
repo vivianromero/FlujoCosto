@@ -2,7 +2,7 @@
 
 from django.db import migrations, transaction
 from codificadores.datos_iniciales import tipovitola, tipodocumento, motivoajuste, categoriavitola, \
-    estadoproducto, clasemateriaprima, tipoproducto, numeraciondocumentos
+    estadoproducto, clasemateriaprima, tipoproducto, numeraciondocumentos, gruposusuarios
 from utiles import utils
 
 
@@ -21,6 +21,7 @@ def load_data(apps, schema_editor):
         estadoproducto.init_data(apps, schema_editor)
         clasemateriaprima.init_data(apps, schema_editor)
         numeraciondocumentos.init_data(apps, schema_editor)
+        gruposusuarios.init_data(apps, schema_editor)
         utils.crear_superusuario({"username":"admin", "email": "admin@example.com", "password": "admin"})
 
 class Migration(migrations.Migration):
