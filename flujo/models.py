@@ -235,7 +235,7 @@ class ExistenciaDpto(models.Model):
     idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                    related_name='existenciadpto_producto')
     idestado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
-                                 related_name='documentodetalle_productoestado')
+                                 related_name='existenciadpto_productoestado')
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00)
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00)
 
