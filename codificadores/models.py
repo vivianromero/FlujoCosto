@@ -108,7 +108,7 @@ class ClaseMateriaPrima(models.Model):
         4: 'F3',
         5: 'Capa Clasificada',
         6: 'Capa sin Clasificar',
-        7: 'F3',
+        7: 'F4',
     }
     id = models.IntegerField(primary_key=True, choices=CHOICE_CLASES, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
@@ -287,7 +287,7 @@ class NormaConsumo(models.Model):
     tipo = models.IntegerField(choices=CHOICE_TIPOS_NORMAS, editable=False, )
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00)
     activa = models.BooleanField(default=True)
-    fecha_creada = models.DateTimeField(db_default=Now())
+    fecha_creacion = models.DateTimeField(db_default=Now())
     fecha = models.DateField()
     idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida')
     idproducto = models.ForeignKey(ProductoFlujo, models.PROTECT, related_name='normaconsumo_producto')
