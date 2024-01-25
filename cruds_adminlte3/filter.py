@@ -1,3 +1,5 @@
+import math
+
 import six
 from django import forms
 from django.core.exceptions import FieldDoesNotExist
@@ -6,11 +8,13 @@ from django.forms.models import modelform_factory
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from bootstrap_datepicker_plus.widgets import DatePickerInput
-from datetime import date, datetime
+from bootstrap_daterangepicker.fields import DateRangeField
+from datetime import date, datetime, timedelta
+from django.utils.timezone import now
 import django_filters
 from django_filters import ChoiceFilter
+from django_filters.filters import _truncate, RangeFilter
 from django_filters.widgets import SuffixedMultiWidget
-
 
 
 class FormFilter:
@@ -112,9 +116,9 @@ def get_filter_fields(cur_model, filter_fields=None):
                 models.DateField: {
                     'filter_class': django_filters.DateFromToRangeFilter,
                     # 'filter_class': django_filters.CharFilter,
-                 #    'extra': lambda f: {
-                 #     'widget': DatePickerInput(),
-                 # },
+                    #    'extra': lambda f: {
+                    #     'widget': DatePickerInput(),
+                    # },
                 },
                 models.ForeignKey: {
                     'filter_class': django_filters.ModelMultipleChoiceFilter,

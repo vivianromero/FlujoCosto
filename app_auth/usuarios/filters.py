@@ -6,6 +6,8 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django_filters.widgets import SuffixedMultiWidget
 
+from app_index.filters import CustomDateFromToRangeFilter
+from app_index.widgets import MyCustomDateRangeWidget
 from .forms import UserUebFormFilter
 from configuracion.models import UserUeb
 
@@ -40,7 +42,6 @@ class MyRangeWidget(SuffixedMultiWidget):
 
 
 class UserUebFilter(django_filters.FilterSet):
-
     first_name = django_filters.CharFilter(
         label=_('First name'),
         widget=forms.TextInput(),
@@ -63,20 +64,30 @@ class UserUebFilter(django_filters.FilterSet):
     )
 
     email = django_filters.CharFilter(
-        label=_('User name'),
+        label=_('Email'),
         widget=forms.TextInput(),
         lookup_expr='icontains',
         field_name='iduser.email',
     )
 
-    last_login = django_filters.DateFromToRangeFilter(
-        widget=MyRangeWidget(),
+    last_login = CustomDateFromToRangeFilter(
+        widget=MyCustomDateRangeWidget(
+            format='%d/%m/%Y',
+            picker_options={
+                'use_ranges': True,
+            }
+        ),
         label=_('Last login'),
         field_name='iduser.last_login',
     )
 
-    date_joined = django_filters.DateFromToRangeFilter(
-        widget=MyRangeWidget(),
+    date_joined = CustomDateFromToRangeFilter(
+        widget=MyCustomDateRangeWidget(
+            format='%d/%m/%Y',
+            picker_options={
+                'use_ranges': True,
+            }
+        ),
         label=_('Date joined'),
         field_name='iduser.date_joined',
     )

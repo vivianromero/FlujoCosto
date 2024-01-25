@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class DatePickerWidget(Widget):
-
     template_name = 'widgets/datepicker.html'
 
     def get_context(self, name, value, attrs=None):
@@ -32,7 +31,6 @@ class DatePickerWidget(Widget):
 
 
 class TimePickerWidget(Widget):
-
     template_name = 'widgets/timepicker.html'
 
     def get_context(self, name, value, attrs=None):
@@ -53,7 +51,6 @@ class TimePickerWidget(Widget):
 
 
 class DateTimePickerWidget(Widget):
-
     template_name = 'widgets/datetimepicker.html'
 
     def get_context(self, name, value, attrs=None):
@@ -76,7 +73,6 @@ class DateTimePickerWidget(Widget):
 
 
 class ColorPickerWidget(Widget):
-
     template_name = 'widgets/colorpicker.html'
 
     def get_context(self, name, value, attrs=None):
@@ -94,7 +90,6 @@ class ColorPickerWidget(Widget):
 
 
 class CKEditorWidget(Textarea):
-
     template_name = 'widgets/ckeditor.html'
 
     def get_context(self, name, value, attrs=None):
@@ -139,7 +134,7 @@ class CustomRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
                 u'<a href="%s" class="add-another" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % \
                 (self.add_url, name))
             output.append(u'<img src="%simg/admin/icon_addlink.gif" width="10" height="10" alt="%s"/></a>' % (
-            settings.ADMIN_MEDIA_PREFIX, _('Add Another')))
+                settings.ADMIN_MEDIA_PREFIX, _('Add Another')))
         return mark_safe(u''.join(output))
 
 
@@ -147,6 +142,7 @@ class SelectWidget(Select):
     """
     Subclass of Django's select widget that allows disabling options.
     """
+
     def __init__(self, *args, **kwargs):
         self._disabled_choices = []
         self._enabled_choices = []

@@ -1283,13 +1283,14 @@ class CRUDView(object):
                 self.inlines[i] = klass
                 if self.namespace:
                     dev.append(
-                        url('^inline/',
+                        re_path('^inline/',
                             include(klass.get_urls(),
-                                    namespace=self.namespace))
+                                    # namespace=self.namespace
+                                    ))
                     )
                 else:
                     dev.append(
-                        url('^inline/', include(klass.get_urls()))
+                        re_path('^inline/', include(klass.get_urls()))
 
                     )
         return dev
