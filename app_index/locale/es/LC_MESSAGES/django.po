@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 14:13-0500\n"
+"POT-Creation-Date: 2024-01-25 13:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app_index/filters.py:41
+msgid "Past 2 weeks"
+msgstr ""
+
+#: app_index/filters.py:42
+msgid "Past 30 days"
+msgstr ""
+
+#: app_index/filters.py:64
+msgid "Closed"
+msgstr ""
+
+#: app_index/filters.py:65
+msgid "Unclosed"
+msgstr ""
 
 #: app_index/templates/app_index/adminlte/dashboard.html:24
 #: app_index/templates/app_index/partials/partial_dashboard.html:101
@@ -193,3 +209,63 @@ msgstr "anterior"
 #: app_index/templates/app_index/shifter_templates/dj-tb2-bootstrap4.html:87
 msgid "next"
 msgstr "próximo"
+
+#: app_index/widgets.py:51
+msgid "Apply"
+msgstr ""
+
+#: app_index/widgets.py:52
+msgid "Clear"
+msgstr ""
+
+#: app_index/widgets.py:53
+msgid "W"
+msgstr ""
+
+#: app_index/widgets.py:54
+msgid "Custom Range"
+msgstr ""
+
+#: app_index/widgets.py:65
+msgid "Today"
+msgstr ""
+
+#: app_index/widgets.py:66
+msgid "Yesterday"
+msgstr ""
+
+#: app_index/widgets.py:68
+msgid "This week"
+msgstr ""
+
+#: app_index/widgets.py:70
+msgid "Last week"
+msgstr ""
+
+#: app_index/widgets.py:72
+msgid "Week ago"
+msgstr ""
+
+#: app_index/widgets.py:73
+msgid "This month"
+msgstr ""
+
+#: app_index/widgets.py:74
+msgid "Last month"
+msgstr ""
+
+#: app_index/widgets.py:76
+msgid "3 months ago"
+msgstr ""
+
+#: app_index/widgets.py:77
+msgid "Year ago"
+msgstr ""
+
+#: app_index/widgets.py:78
+msgid "This year"
+msgstr ""
+
+#: app_index/widgets.py:80
+msgid "Last year"
+msgstr ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 17:36-0500\n"
+"POT-Creation-Date: 2024-01-25 14:08-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -242,6 +242,15 @@ msgstr "Ocultar contraseña"
 msgid "show password"
 msgstr "Mostrar contraseña"
 
+#: cruds_adminlte3/config.py:72
+msgid "Success"
+msgstr "Satisfactorio"
+
+#: cruds_adminlte3/config.py:73
+#, python-format
+msgid "User <<%(user)s>> were successfully logged in."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
 #: cruds_adminlte3/crud.py:625
 msgid "Data creation was successful"
 msgstr "Los datos se crearon satisfactoriamente"
@@ -259,37 +268,46 @@ msgstr "Los datos fueron eliminados de manera satisfactoria"
 msgid "Can see available %s"
 msgstr "Puede ver disponibilidad %s"
 
-#: cruds_adminlte3/filter.py:170
+#: cruds_adminlte3/filter.py:174
 msgid "Universal Search"
 msgstr "Buscador Universal"
 
-#: cruds_adminlte3/filter.py:173
+#: cruds_adminlte3/filter.py:177
 msgid "Search..."
 msgstr "Buscar..."
 
-#: cruds_adminlte3/menus.py:13
+#: cruds_adminlte3/menus.py:14
 msgid "Dashboard"
 msgstr "Panel de control"
 
-#: cruds_adminlte3/menus.py:18
+#: cruds_adminlte3/menus.py:19
 msgid "Balanced scorecard"
 msgstr "Cuadro de mando integral"
 
-#: cruds_adminlte3/menus.py:77
+#: cruds_adminlte3/menus.py:162
 msgid "Administration"
 msgstr "Administración"
 
-#: cruds_adminlte3/menus.py:83
+#: cruds_adminlte3/menus.py:168
 msgid "Users"
 msgstr "Usuarios"
 
-#: cruds_adminlte3/menus.py:89
+#: cruds_adminlte3/menus.py:174
 msgid "Groups"
 msgstr "Grupos"
 
-#: cruds_adminlte3/menus.py:95
+#: cruds_adminlte3/menus.py:180
 msgid "Permissons"
 msgstr "Permisos"
+
+#: cruds_adminlte3/tables.py:167
+#: cruds_adminlte3/templates/cruds/ajax/list.html:14
+#: cruds_adminlte3/templates/cruds/list.html:83
+#: cruds_adminlte3/templates/cruds/listOK.html:83
+#: cruds_adminlte3/templates/cruds/list_OK.html:159
+#: cruds_adminlte3/templates/cruds/partial_list.html:61
+msgid "Actions"
+msgstr "Acciones"
 
 #: cruds_adminlte3/templates/HttpResponse/403.html:5
 #: cruds_adminlte3/templates/HttpResponse/403.html:6
@@ -489,14 +507,6 @@ msgstr "Seguro quiere eliminar:"
 msgid "Confirm remove"
 msgstr "Confirmar eliminar"
 
-#: cruds_adminlte3/templates/cruds/ajax/list.html:14
-#: cruds_adminlte3/templates/cruds/list.html:83
-#: cruds_adminlte3/templates/cruds/listOK.html:83
-#: cruds_adminlte3/templates/cruds/list_OK.html:159
-#: cruds_adminlte3/templates/cruds/partial_list.html:61
-msgid "Actions"
-msgstr "Acciones"
-
 #: cruds_adminlte3/templates/cruds/ajax/list.html:64
 #: cruds_adminlte3/templates/cruds/list.html:154
 #: cruds_adminlte3/templates/cruds/listOK.html:120
@@ -636,7 +646,7 @@ msgstr "Usuario"
 msgid "Password"
 msgstr "Contraseña"
 
-#: cruds_adminlte3/widgets.py:142
+#: cruds_adminlte3/widgets.py:137
 msgid "Add Another"
 msgstr "Adicionar otro"
 

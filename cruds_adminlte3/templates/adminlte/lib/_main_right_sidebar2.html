@@ -4,7 +4,7 @@
 {% block main_right_sidebar2 %}
 <!-- Control Sidebar -->
 <aside id="search-sidebar" class="control-sidebar control-sidebar-light"
-       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: 100px; flex-grow: 1;">
+       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: 100px; flex-grow: 1; top: 50px;">
 {% block main_right_sidebar_content2 %}
 <!-- Control sidebar content goes here -->
     <div class="p-1 control-sidebar-content">
@@ -15,6 +15,16 @@
                     <div class="card card-success" style="padding-top: 0">
                         <div class="card-header with-border">
                             <h3 class="card-title">{% trans 'Search' %}</h3>
+                            <div class="card-tools" style="height: 20px; display: flex; align-items: center">
+                                <a class="nav-link"
+                                   data-widget="control-sidebar"
+                                   data-slide="true"
+                                   data-target="#search-sidebar"
+                                   href="#"
+                                   role="button">
+                                    <i class="fas fa-times" title={% translate 'Close' %}></i>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body" style="padding: 0.5rem;">
                             <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">

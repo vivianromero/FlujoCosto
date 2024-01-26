@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-12 13:17-0500\n"
+"POT-Creation-Date: 2024-01-25 13:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,43 +18,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: app_auth/usuarios/filters.py:45
+#: app_auth/usuarios/filters.py:46
 msgid "First name"
 msgstr "Nombre"
 
-#: app_auth/usuarios/filters.py:52
+#: app_auth/usuarios/filters.py:53
 msgid "Last name"
 msgstr "Apellido"
 
-#: app_auth/usuarios/filters.py:59 app_auth/usuarios/filters.py:66
+#: app_auth/usuarios/filters.py:60
 msgid "User name"
 msgstr "Usuario"
 
-#: app_auth/usuarios/filters.py:74
+#: app_auth/usuarios/filters.py:67
+#: app_auth/usuarios/templates/registration/registrar_OK.html:35
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#: app_auth/usuarios/filters.py:80
 msgid "Last login"
 msgstr "Última entrada"
 
-#: app_auth/usuarios/filters.py:80
+#: app_auth/usuarios/filters.py:91
 msgid "Date joined"
 msgstr "Fecha de registro"
 
-#: app_auth/usuarios/filters.py:85
+#: app_auth/usuarios/filters.py:96
 msgid "Is superuser?"
 msgstr "Es superusuario?"
 
-#: app_auth/usuarios/filters.py:90
+#: app_auth/usuarios/filters.py:101
 msgid "Is staff?"
 msgstr "Es del equipo?"
 
-#: app_auth/usuarios/filters.py:95
+#: app_auth/usuarios/filters.py:106
 msgid "Is active?"
 msgstr "Está activo?"
 
-#: app_auth/usuarios/filters.py:101
+#: app_auth/usuarios/filters.py:112
 msgid "Universal Search"
 msgstr "Buscador Universal"
 
-#: app_auth/usuarios/filters.py:104 app_auth/usuarios/forms.py:381
+#: app_auth/usuarios/filters.py:115 app_auth/usuarios/forms.py:381
 msgid "Search..."
 msgstr "BUscar..."
 
@@ -98,14 +103,6 @@ msgstr "Grupos"
 #: app_auth/usuarios/forms.py:260
 msgid "Permissions"
 msgstr "Permisos"
-
-#: app_auth/usuarios/forms.py:382 app_auth/usuarios/forms.py:384
-msgid "Date from..."
-msgstr "Fecha desde..."
-
-#: app_auth/usuarios/forms.py:383 app_auth/usuarios/forms.py:385
-msgid "Date to..."
-msgstr "Fecha hasta..."
 
 #: app_auth/usuarios/tables.py:26 app_auth/usuarios/tables.py:79
 msgid "Actions"
@@ -199,10 +196,6 @@ msgstr "Cambiar mi contraseña"
 msgid "Register a new user"
 msgstr "Registrar un nuevo usuario"
 
-#: app_auth/usuarios/templates/registration/registrar_OK.html:35
-msgid "Email"
-msgstr "Correo Electrónico"
-
 #: app_auth/usuarios/templates/registration/registrar_OK.html:51
 msgid "Retype Password"
 msgstr "Repita la contraseña"
@@ -240,10 +233,20 @@ msgstr "La creación de los datos fue exitosa"
 msgid "User <<%(user)s>> were successfully logged in."
 msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
 
-#: app_auth/usuarios/views.py:122
+#: app_auth/usuarios/views.py:108
+msgid "Success"
+msgstr "Satisfactorio"
+
+#: app_auth/usuarios/views.py:123
 #, python-format
 msgid "User <<%s>> were successfully logged out."
 msgstr "El usuario <<%s>> ha salido satisfactoriamente."
+
+#~ msgid "Date from..."
+#~ msgstr "Fecha desde..."
+
+#~ msgid "Date to..."
+#~ msgstr "Fecha hasta..."
 
 #~ msgid "Users"
 #~ msgstr "Usuarios"
