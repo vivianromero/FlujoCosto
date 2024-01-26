@@ -66,5 +66,9 @@ CONFIG = {
 
     # Show or hide password
     'hide_password': _('hide password'),
-    'show_password': _('show password')
+    'show_password': _('show password'),
+
+    # login/logout messages
+    'title_success': _('Success'),
+    'success_message': _("User <<%(user)s>> were successfully logged in."),
 }

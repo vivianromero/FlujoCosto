@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<<< HEAD:locale/es/LC_MESSAGES/django.po
 "POT-Creation-Date: 2024-01-11 09:01-0500\n"
+========
+"POT-Creation-Date: 2024-01-25 14:08-0500\n"
+>>>>>>>> 6fcb2cd (Configurar las interfaces (7)):cruds_adminlte3/locale/es/LC_MESSAGES/django.po
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -748,6 +752,15 @@ msgid "hide password"
 msgstr "Ocultar contraseña"
 
 
+#: cruds_adminlte3/config.py:72
+msgid "Success"
+msgstr "Satisfactorio"
+
+#: cruds_adminlte3/config.py:73
+#, python-format
+msgid "User <<%(user)s>> were successfully logged in."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
 #: cruds_adminlte3/crud.py:625
 #: app_auth/usuarios/views.py:25
 msgid "Data creation was successful"
@@ -766,30 +779,55 @@ msgstr "Los datos fueron eliminados de manera satisfactoria"
 msgid "Can see available %s"
 msgstr "Puede ver disponibilidad %s"
 
+<<<<<<<< HEAD:locale/es/LC_MESSAGES/django.po
 #: cruds_adminlte3/menus.py:13
+========
+#: cruds_adminlte3/filter.py:174
+msgid "Universal Search"
+msgstr "Buscador Universal"
+
+#: cruds_adminlte3/filter.py:177
+msgid "Search..."
+msgstr "Buscar..."
+
+#: cruds_adminlte3/menus.py:14
+>>>>>>>> 6fcb2cd (Configurar las interfaces (7)):cruds_adminlte3/locale/es/LC_MESSAGES/django.po
 msgid "Dashboard"
 msgstr "Panel de control"
 
-#: cruds_adminlte3/menus.py:18
+#: cruds_adminlte3/menus.py:19
 msgid "Balanced scorecard"
 msgstr "Cuadro de mando integral"
 
-#: cruds_adminlte3/menus.py:77
+#: cruds_adminlte3/menus.py:162
 msgid "Administration"
 msgstr "Administración"
 
-#: cruds_adminlte3/menus.py:83
+#: cruds_adminlte3/menus.py:168
 msgid "Users"
 msgstr "Usuarios"
 
+<<<<<<<< HEAD:locale/es/LC_MESSAGES/django.po
 #: cruds_adminlte3/menus.py:89
 #: app_auth/usuarios/forms.py:253
+========
+#: cruds_adminlte3/menus.py:174
+>>>>>>>> 6fcb2cd (Configurar las interfaces (7)):cruds_adminlte3/locale/es/LC_MESSAGES/django.po
 msgid "Groups"
 msgstr "Grupos"
 
-#: cruds_adminlte3/menus.py:95
+#: cruds_adminlte3/menus.py:180
 msgid "Permissons"
 msgstr "Permisos"
+
+#: cruds_adminlte3/tables.py:167
+#: cruds_adminlte3/templates/cruds/ajax/list.html:14
+#: cruds_adminlte3/templates/cruds/list.html:83
+#: cruds_adminlte3/templates/cruds/listOK.html:83
+#: cruds_adminlte3/templates/cruds/list_OK.html:159
+#: cruds_adminlte3/templates/cruds/partial_list.html:61
+msgid "Actions"
+msgstr "Acciones"
 
 #: cruds_adminlte3/templates/HttpResponse/403.html:5
 #: cruds_adminlte3/templates/HttpResponse/403.html:6
@@ -901,6 +939,35 @@ msgstr "Seguro quiere eliminar:"
 msgid "Confirm remove"
 msgstr "Confirmar eliminar"
 
+<<<<<<<< HEAD:locale/es/LC_MESSAGES/django.po
+========
+#: cruds_adminlte3/templates/cruds/ajax/list.html:64
+#: cruds_adminlte3/templates/cruds/list.html:154
+#: cruds_adminlte3/templates/cruds/listOK.html:120
+#: cruds_adminlte3/templates/cruds/list_OK.html:222
+#: cruds_adminlte3/templates/cruds/partial_list.html:136
+msgid "No items yet."
+msgstr "No hay elementos"
+
+#: cruds_adminlte3/templates/cruds/create.html:4
+#: cruds_adminlte3/templates/cruds/create.html:7
+msgid "Create new"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/create.html:15
+#: cruds_adminlte3/templates/cruds/detail.html:19
+#: cruds_adminlte3/templates/cruds/partial_create.html:104
+#: cruds_adminlte3/templates/cruds/partial_update.html:104
+#: cruds_adminlte3/templates/cruds/update.html:25
+msgid "Back to"
+msgstr "Volver a"
+
+#: cruds_adminlte3/templates/cruds/detail.html:6
+#: cruds_adminlte3/templates/cruds/detail.html:9
+#: cruds_adminlte3/templates/cruds/detail.html:25
+msgid "Detail of"
+msgstr "Detalle de"
+>>>>>>>> 6fcb2cd (Configurar las interfaces (7)):cruds_adminlte3/locale/es/LC_MESSAGES/django.po
 
 #: cruds_adminlte3/templates/cruds/detail.html:25
 msgid "Record id: "
@@ -973,7 +1040,7 @@ msgid "Delete selected %(model)s"
 msgstr "Eliminar %(model)s seleccionado"
 
 
-#: cruds_adminlte3/widgets.py:142
+#: cruds_adminlte3/widgets.py:137
 msgid "Add Another"
 msgstr "Adicionar otro"
 
