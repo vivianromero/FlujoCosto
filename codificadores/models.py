@@ -1,6 +1,9 @@
 import uuid
+
 from django.db import models
 from django.db.models.functions import Now
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel
 
 
 # todas las unidades contables de la empresa
@@ -40,22 +43,27 @@ class MedidaConversion(models.Model):
         unique_together = (('medidao', 'medidad'),)
         ordering = ['medidao__descripcion']
 
-
-# clasificador de cuentas
-class Cuenta(models.Model):
+class Cuenta(MPTTModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     long_niv = models.IntegerField()
     posicion = models.IntegerField()
-    clave = models.CharField(unique=True, max_length=50)
-    descripcion = models.CharField(max_length=255)
-    naturaleza = models.IntegerField()
-    clave_nat = models.CharField(max_length=50)
+
+    clave = models.CharField(unique=True, max_length=100)
+    clavenivel = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=1000)
     activa = models.BooleanField(default=True)
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, related_name="children", on_delete=models.CASCADE
+    )
+    objects = models.Manager()
+    tree = TreeManager()
 
     class Meta:
         db_table = 'cla_cuenta'
         ordering = ['clave', 'posicion']
 
+    def __str__(self):
+        return self.descripcion
 
 class CentroCosto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -80,7 +88,7 @@ class TipoProducto(models.Model):
         7: "Línea sin Terminar",
     }
 
-    id = models.IntegerField(primary_key=True, choices=CHOICE_TIPOS_PROD, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_PROD, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
 
     class Meta:
@@ -93,7 +101,7 @@ class EstadoProducto(models.Model):
         2: 'Deficiente',
         3: 'Rechazo',
     }
-    id = models.IntegerField(primary_key=True, choices=CHOICE_ESTADOS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_ESTADOS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
 
     class Meta:
@@ -110,7 +118,7 @@ class ClaseMateriaPrima(models.Model):
         6: 'Capa sin Clasificar',
         7: 'F4',
     }
-    id = models.IntegerField(primary_key=True, choices=CHOICE_CLASES, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_CLASES, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
     capote_fortaleza = models.CharField(max_length=1)
 
@@ -179,7 +187,7 @@ class CategoriaVitola(models.Model):
         10: 'VIII',
     }
 
-    id = models.IntegerField(primary_key=True, choices=CHOICE_CATEGORIAS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_CATEGORIAS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
     orden = models.IntegerField(unique=True)
 
@@ -194,7 +202,7 @@ class TipoVitola(models.Model):
         2: 'Hoja',
     }
 
-    id = models.IntegerField(primary_key=True, choices=CHOICE_TIPOS_VITOLA, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_VITOLA, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
 
     class Meta:
@@ -317,7 +325,7 @@ class MotivoAjuste(models.Model):
         3: 'Promoción',
         4: 'SubProductos',
     }
-    id = models.IntegerField(primary_key=True, choices=CHOICE_MOTIVOS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_MOTIVOS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
     aumento = models.BooleanField(default=False, db_comment='Ajuste de aumento True en otro caso False')
 
@@ -347,7 +355,7 @@ class TipoDocumento(models.Model):
         19: 'Cambio de Producto',
     }
 
-    id = models.IntegerField(primary_key=True, choices=CHOICE_TIPOS_DOC, editable=False, )
+    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
     operacion = models.CharField(max_length=1, db_comment='Operación de Entrada (E) o Salida (S)')
 

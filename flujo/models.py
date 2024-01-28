@@ -1,9 +1,11 @@
 import uuid
+
 from django.db import models
+from django.db.models.functions import Now
+
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
     ProductoFlujo
 from configuracion.models import Ueb
-from django.db.models.functions import Now
 
 
 class Documento(models.Model):
