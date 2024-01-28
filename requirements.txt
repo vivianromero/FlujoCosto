@@ -12,6 +12,8 @@ django-filter==23.5
 django-htmx==1.17.2
 django-image-cropping==1.7
 django-menu-generator==1.1.0
+django-mptt==0.16.0
+django-mssql-backend==2.8.1
 django-select2==8.1.2
 django-session-timeout==0.1.0
 django-tables2==2.7.0

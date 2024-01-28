@@ -1,0 +1,388 @@
+[
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Pesada"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Materia Prima"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Habilitación"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 4,
+    "fields": {
+        "descripcion": "Línea de Salida"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Vitola"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Subproducto"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 7,
+    "fields": {
+        "descripcion": "Línea sin Terminar"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Bueno"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Deficiente"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Rechazo"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Capote",
+        "capote_fortaleza": "C"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 2,
+    "fields": {
+        "descripcion": "F1",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 3,
+    "fields": {
+        "descripcion": "F2",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 4,
+    "fields": {
+        "descripcion": "F3",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Capa Clasificada",
+        "capote_fortaleza": "P"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Capa sin Clasificar",
+        "capote_fortaleza": "P"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 7,
+    "fields": {
+        "descripcion": "F4",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 5,
+    "fields": {
+        "descripcion": "IX",
+        "orden": 5
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 6,
+    "fields": {
+        "descripcion": "ND",
+        "orden": 6
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 7,
+    "fields": {
+        "descripcion": "V",
+        "orden": 1
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 8,
+    "fields": {
+        "descripcion": "VI",
+        "orden": 2
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 9,
+    "fields": {
+        "descripcion": "VII",
+        "orden": 3
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 10,
+    "fields": {
+        "descripcion": "VIII",
+        "orden": 4
+    }
+},
+{
+    "model": "codificadores.tipovitola",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Picadura"
+    }
+},
+{
+    "model": "codificadores.tipovitola",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Hoja"
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Merma",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Rotura",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Promoción",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 4,
+    "fields": {
+        "descripcion": "SubProductos",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Entrada Desde Versat",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Salida Hacia Versat",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Transferencia Hacia Departamento",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 4,
+    "fields": {
+        "descripcion": "Transferencia Desde Departamento",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Ajuste de Aumento",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Ajuste de Disminución",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 7,
+    "fields": {
+        "descripcion": "Recepción de Producción de Reproceso",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 8,
+    "fields": {
+        "descripcion": "Recepción de Producción",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 9,
+    "fields": {
+        "descripcion": "Devolución",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 10,
+    "fields": {
+        "descripcion": "Sobrante Sujeto a Investigación",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 12,
+    "fields": {
+        "descripcion": "Carga Inicial",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 13,
+    "fields": {
+        "descripcion": "Devolución Recibida",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 14,
+    "fields": {
+        "descripcion": "Cambio de Estado",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 15,
+    "fields": {
+        "descripcion": "Transferencia Externa",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 16,
+    "fields": {
+        "descripcion": "Recibir Transferencia Externa",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 17,
+    "fields": {
+        "descripcion": "Venta a Trabajadores",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 18,
+    "fields": {
+        "descripcion": "Reporte de SubProductos",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 19,
+    "fields": {
+        "descripcion": "Cambio de Producto",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.numeraciondocumentos",
+    "pk": 1,
+    "fields": {
+        "tiponumeracion": "Número Consecutivo",
+        "sistema": true,
+        "departamento": true,
+        "tipo_documento": true,
+        "prefijo": null
+    }
+},
+{
+    "model": "codificadores.numeraciondocumentos",
+    "pk": 2,
+    "fields": {
+        "tiponumeracion": "Número de Control",
+        "sistema": false,
+        "departamento": true,
+        "tipo_documento": true,
+        "prefijo": null
+    }
+}
+]
