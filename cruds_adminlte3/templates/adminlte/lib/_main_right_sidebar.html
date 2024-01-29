@@ -5,7 +5,7 @@
 {% block main_right_sidebar %}
 <!-- Control Sidebar -->
 <aside id="filter-sidebar" class="control-sidebar control-sidebar-light"
-       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: {% if height_right_sidebar %}{{ height_right_sidebar }}{% else %}600px{% endif %}; flex-grow: 1;">
+       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: {% if height_right_sidebar %}{{ height_right_sidebar }}{% else %}600px{% endif %}; flex-grow: 1; top: 50px;">
 {% block main_right_sidebar_content %}
 <!-- Control sidebar content goes here -->
     <div class="p-1 control-sidebar-content">
@@ -47,6 +47,16 @@
                     <div class="card card-success" style="padding-top: 0">
                         <div class="card-header with-border">
                             <h3 class="card-title">{% trans 'Filters' %}</h3>
+                            <div class="card-tools" style="height: 20px; display: flex; align-items: center">
+                                <a class="nav-link"
+                                   data-widget="control-sidebar"
+                                   data-slide="true"
+                                   data-target="#filter-sidebar"
+                                   href="#"
+                                   role="button">
+                                    <i class="fas fa-times" title={% translate 'Close' %}></i>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body" style="padding: 0.5rem;">
                             <form class="form-horizontal" method="get" role="form">
@@ -116,165 +126,3 @@
         }
     </script>
 {% endif %}
-<script>
-    let $rs_cantidad_medidas = $("#rs_id_cantidad_medidas").ionRangeSlider();
-    $rs_cantidad_medidas.on("change", function () {
-        const $inp = $(this);
-        $("#id_cantidad_medidas_min").val( $inp.data("from") );
-        $("#id_cantidad_medidas_max").val( $inp.data("to") );
-    });
-    let $rs_area = $("#rs_id_area").ionRangeSlider({
-        postfix: ' ha',
-    });
-    $rs_area.on("change", function () {
-        const $inp = $(this);
-        $("#id_area_min").val( $inp.data("from") );
-        $("#id_area_max").val( $inp.data("to") );
-    });
-    let $rs_produccion = $("#rs_id_produccion").ionRangeSlider({
-        postfix: ' t',
-    });
-    $rs_produccion.on("change", function () {
-        const $inp = $(this);
-        $("#id_produccion_min").val( $inp.data("from") );
-        $("#id_produccion_max").val( $inp.data("to") );
-    });
-    let $rs_molida_azucar = $("#rs_id_molida_azucar").ionRangeSlider({
-        postfix: ' t',
-    });
-    $rs_molida_azucar.on("change", function () {
-        const $inp = $(this);
-        $("#id_molida_azucar_min").val( $inp.data("from") );
-        $("#id_molida_azucar_max").val( $inp.data("to") );
-    });
-    let $rs_molida_meladura = $("#rs_id_molida_meladura").ionRangeSlider({
-        postfix: ' t',
-    });
-    $rs_molida_meladura.on("change", function () {
-        const $inp = $(this);
-        $("#id_molida_meladura_min").val( $inp.data("from") );
-        $("#id_molida_meladura_max").val( $inp.data("to") );
-    });
-    let $rs_perdidas_cup = $("#rs_id_perdidas_cup").ionRangeSlider({
-        prefix  : '$ ',
-        step : 1000,
-        grid : true,
-        grid_num: 6,
-    });
-    $rs_perdidas_cup.on("change", function () {
-        const $inp = $(this);
-        $("#id_perdidas_cup_min").val( $inp.data("from") );
-        $("#id_perdidas_cup_max").val( $inp.data("to") );
-    });
-    let $rs_recuperado_cup = $("#rs_id_recuperado_cup").ionRangeSlider({
-        prefix  : '$ ',
-    });
-    $rs_recuperado_cup.on("change", function () {
-        const $inp = $(this);
-        $("#id_recuperado_cup_min").val( $inp.data("from") );
-        $("#id_recuperado_cup_max").val( $inp.data("to") );
-    });
-    let $rs_quema_de_cana = $("#rs_id_quema_de_cana").ionRangeSlider();
-    $rs_quema_de_cana.on("change", function () {
-        const $inp = $(this);
-        $("#id_quema_de_cana_min").val( $inp.data("from") );
-        $("#id_quema_de_cana_max").val( $inp.data("to") );
-    });
-    let $rs_hurto = $("#rs_id_hurto").ionRangeSlider();
-    $rs_hurto.on("change", function () {
-        const $inp = $(this);
-        $("#id_hurto_min").val( $inp.data("from") );
-        $("#id_hurto_max").val( $inp.data("to") );
-    });
-    let $rs_robo_con_fuerza = $("#rs_id_robo_con_fuerza").ionRangeSlider();
-    $rs_robo_con_fuerza.on("change", function () {
-        const $inp = $(this);
-        $("#id_robo_con_fuerza_min").val( $inp.data("from") );
-        $("#id_robo_con_fuerza_max").val( $inp.data("to") );
-    });
-    let $rs_robo_con_violencia = $("#rs_id_robo_con_violencia").ionRangeSlider();
-    $rs_robo_con_violencia.on("change", function () {
-        const $inp = $(this);
-        $("#id_robo_con_violencia_min").val( $inp.data("from") );
-        $("#id_robo_con_violencia_max").val( $inp.data("to") );
-    });
-    let $rs_de_ellos_azucar = $("#rs_id_de_ellos_azucar").ionRangeSlider();
-    $rs_de_ellos_azucar.on("change", function () {
-        const $inp = $(this);
-        $("#id_de_ellos_azucar_min").val( $inp.data("from") );
-        $("#id_de_ellos_azucar_max").val( $inp.data("to") );
-    });
-    let $rs_optei = $("#rs_id_optei").ionRangeSlider();
-    $rs_optei.on("change", function () {
-        const $inp = $(this);
-        $("#id_optei_min").val( $inp.data("from") );
-        $("#id_optei_max").val( $inp.data("to") );
-    });
-    let $rs_hgm_y_hsgm = $("#rs_id_hgm_y_hsgm").ionRangeSlider();
-    $rs_hgm_y_hsgm.on("change", function () {
-        const $inp = $(this);
-        $("#id_hgm_y_hsgm_min").val( $inp.data("from") );
-        $("#id_hgm_y_hsgm_max").val( $inp.data("to") );
-    });
-    let $rs_actos_vandalicos = $("#rs_id_actos_vandalicos").ionRangeSlider();
-    $rs_actos_vandalicos.on("change", function () {
-        const $inp = $(this);
-        $("#id_actos_vandalicos_min").val( $inp.data("from") );
-        $("#id_actos_vandalicos_max").val( $inp.data("to") );
-    });
-    let $rs_incendio_de_equipos = $("#rs_id_incendio_de_equipos").ionRangeSlider();
-    $rs_incendio_de_equipos.on("change", function () {
-        const $inp = $(this);
-        $("#id_incendio_de_equipos_min").val( $inp.data("from") );
-        $("#id_incendio_de_equipos_max").val( $inp.data("to") );
-    });
-    let $rs_otras_causas = $("#rs_id_otras_causas").ionRangeSlider();
-    $rs_otras_causas.on("change", function () {
-        const $inp = $(this);
-        $("#id_otras_causas_min").val( $inp.data("from") );
-        $("#id_otras_causas_max").val( $inp.data("to") );
-    });
-    let $rs_total_azcuba = $("#rs_id_total_azcuba").ionRangeSlider();
-    $rs_total_azcuba.on("change", function () {
-        const $inp = $(this);
-        $("#id_total_azcuba_min").val( $inp.data("from") );
-        $("#id_total_azcuba_max").val( $inp.data("to") );
-    });
-    let $rs_cantidad_he = $("#rs_id_cantidad_he").ionRangeSlider();
-    $rs_cantidad_he.on("change", function () {
-        const $inp = $(this);
-        $("#id_cantidad_he_min").val( $inp.data("from") );
-        $("#id_cantidad_he_max").val( $inp.data("to") );
-    });
-    let $rs_sin_cerrar = $("#rs_id_sin_cerrar").ionRangeSlider();
-    $rs_sin_cerrar.on("change", function () {
-        const $inp = $(this);
-        $("#id_sin_cerrar_min").val( $inp.data("from") );
-        $("#id_sin_cerrar_max").val( $inp.data("to") );
-    });
-    let $rs_total_cerrados = $("#rs_id_total_cerrados").ionRangeSlider();
-    $rs_total_cerrados.on("change", function () {
-        const $inp = $(this);
-        $("#id_total_cerrados_min").val( $inp.data("from") );
-        $("#id_total_cerrados_max").val( $inp.data("to") );
-    });
-    let $rs_mas_30_dias = $("#rs_id_mas_30_dias").ionRangeSlider();
-    $rs_mas_30_dias.on("change", function () {
-        const $inp = $(this);
-        $("#id_mas_30_dias_min").val( $inp.data("from") );
-        $("#id_mas_30_dias_max").val( $inp.data("to") );
-    });
-    let $rs_total_denuncia = $("#rs_id_total_denuncia").ionRangeSlider();
-    $rs_total_denuncia.on("change", function () {
-        const $inp = $(this);
-        $("#id_total_denuncia_min").val( $inp.data("from") );
-        $("#id_total_denuncia_max").val( $inp.data("to") );
-    });
-    let $rs_total_medidas = $("#rs_id_total_medidas").ionRangeSlider();
-    $rs_total_medidas.on("change", function () {
-        const $inp = $(this);
-        $("#id_total_medidas_min").val( $inp.data("from") );
-        $("#id_total_medidas_max").val( $inp.data("to") );
-    });
-
-</script>

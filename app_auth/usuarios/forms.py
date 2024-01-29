@@ -168,6 +168,8 @@ class EditarUsuarioForm(UserChangeForm):
 
     def __init__(self, *args, **kwargs):
         self.user_pop = kwargs.pop('user', None)
+        instance = kwargs.get('instance', None)
+        self.post = kwargs.pop('post', None)
         super(EditarUsuarioForm, self).__init__(*args, **kwargs)
         self.user = kwargs['instance']
         self.fields['password'].help_text = _(

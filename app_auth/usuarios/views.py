@@ -104,7 +104,8 @@ class MyLoginView(SuccessMessageMixin, LoginView):
         context = super().get_context_data()
         context.update({
             'hide_password': _('hide password'),
-            'show_password': _('show password')
+            'show_password': _('show password'),
+            'title_success': _('Success'),
         })
         return context
 

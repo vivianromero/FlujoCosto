@@ -12,7 +12,7 @@
                         timer: 3000
                     }).fire({
                         icon: 'success',
-                        title: 'Satisfactorio!',
+                        title: "{{ title_success|safe }}!",
                         text: "{{ message|safe }}",
                     })
             </script>

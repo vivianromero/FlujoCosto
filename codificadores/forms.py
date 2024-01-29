@@ -341,8 +341,6 @@ class CuentaForm(forms.ModelForm):
             'posicion',
             'clave',
             'descripcion',
-            'naturaleza',
-            'clave_nat',
             'activa',
         ]
 
@@ -365,8 +363,6 @@ class CuentaForm(forms.ModelForm):
                         Column('posicion', css_class='form-group col-md-2 mb-0'),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
-                        Column('naturaleza', css_class='form-group col-md-2 mb-0'),
-                        Column('clave_nat', css_class='form-group col-md-2 mb-0'),
                         Column('activa', css_class='form-group col-md-2 mb-0'),
 
                         css_class='form-row'
@@ -393,8 +389,6 @@ class CuentaFormFilter(forms.Form):
             'posicion',
             'clave',
             'descripcion',
-            'naturaleza',
-            'clave_nat',
             'activa',
         ]
 
@@ -424,8 +418,6 @@ class CuentaFormFilter(forms.Form):
                         Column('posicion', css_class='form-group col-md-2 mb-0'),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
-                        Column('naturaleza', css_class='form-group col-md-2 mb-0'),
-                        Column('clave_nat', css_class='form-group col-md-2 mb-0'),
                         Column('activa', css_class='form-group col-md-2 mb-0'),
 
                         css_class='form-row',
