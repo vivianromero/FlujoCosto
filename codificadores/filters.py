@@ -176,8 +176,6 @@ class CuentaFilter(MyGenericFilter):
         'posicion_contains',
         'clave_icontains',
         'descripcion_icontains',
-        'naturaleza_contains',
-        'clave_nat_icontains',
         'activa',
     ]
     split_space_search = ' '
@@ -189,8 +187,6 @@ class CuentaFilter(MyGenericFilter):
             'posicion',
             'clave',
             'descripcion',
-            'naturaleza',
-            'clave_nat',
             'activa',
         ]
 
