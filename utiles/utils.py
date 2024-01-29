@@ -47,3 +47,35 @@ def crear_superusuario(credentials):
 #         if created_prov:
 #             prov.save()
 #             dicc_pk_posicion[posicion]={'pk_ant':prov.pk, 'clave_ant':clave}
+
+#TODO esto se cambia a otro lugar más adelante
+#para consumir de la api versat
+# def get_api_versat(url):
+#     import requests
+#     from requests.auth import HTTPBasicAuth
+#
+#     # url = "https://example.com/api/endpoint"
+#     username = "your_username"
+#     password = "your_password"
+#     connection_token = "your_connection_token"
+#
+#     # Basic Authentication credentials
+#     auth = HTTPBasicAuth(username, password)
+#
+#     # Headers with Connection Token
+#     headers = {
+#         "Connection-Token": connection_token,
+#         "Content-Type": "application/json",  # Add other necessary headers
+#     }
+#
+#     # Make a GET request Basic Authentication, and Connection Token
+#     response = requests.get(url, auth=auth, headers=headers)
+#
+#     # Check the response
+#     if response.status_code == 200:
+#         print("Request successful")
+#         data = response.json()  # Assuming the response is in JSON format
+#         print(data)
+#     else:
+#         print(f"Request failed with status code {response.status_code}")
+#         print(response.text)
