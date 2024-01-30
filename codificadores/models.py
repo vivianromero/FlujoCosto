@@ -52,8 +52,7 @@ class Cuenta(MPTTModel):
     clavenivel = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=1000)
     activa = models.BooleanField(default=True)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children',
-                   db_column='idpadre')
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     objects = models.Manager()
     tree = TreeManager()
 

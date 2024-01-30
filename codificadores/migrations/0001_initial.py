@@ -185,7 +185,7 @@ class Migration(migrations.Migration):
                 ('rght', models.PositiveIntegerField(editable=False)),
                 ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
                 ('level', models.PositiveIntegerField(editable=False)),
-                ('parent', mptt.fields.TreeForeignKey(blank=True, db_column='idpadre', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='codificadores.cuenta')),
+                ('parent', mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='codificadores.cuenta')),
             ],
             options={
                 'db_table': 'cla_cuenta',
