@@ -5,11 +5,13 @@ from django.db import models
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, NumeracionDocumentos
 from cruds_adminlte3.utils import crud_url
+from django.utils.translation import gettext_lazy as _
 
 
 class Ueb(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT)
+    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                                         verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_ueb'
@@ -17,12 +19,12 @@ class Ueb(models.Model):
 
 class ConexionBaseDato(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    database_name = models.CharField(max_length=250)
-    database_user = models.CharField(max_length=250)
-    password = models.CharField(max_length=250)
-    host = models.CharField(max_length=250)
-    port = models.CharField(max_length=100)
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT)
+    database_name = models.CharField(max_length=250, verbose_name=_("Database Name"))
+    database_user = models.CharField(max_length=250, verbose_name=_("User Name"))
+    password = models.CharField(max_length=250, verbose_name=_("Password"))
+    host = models.CharField(max_length=250, verbose_name=_("Host"))
+    port = models.CharField(max_length=100, verbose_name=_("Port"))
+    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_conexionasedato'
@@ -32,9 +34,10 @@ class ConexionBaseDato(models.Model):
 class ConsecutivoDocumento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     idnumeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
-                                              related_name='consecutivodocumento_numeracion')
-    numero = models.IntegerField()
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='consecutivo_ueb')
+                                              related_name='consecutivodocumento_numeracion',
+                                              verbose_name=_("Enumeration Type"))
+    numero = models.IntegerField(verbose_name=_("Number"))
+    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='consecutivo_ueb', verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_consecutivodocumento'
@@ -45,7 +48,8 @@ class ConsecutivoDocumentoDepartamento(models.Model):
     idconsecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
                                                related_name='consecutivodocumentodpto_consecutivodocumento')
     iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                       related_name='consecutivodocumentodpto_departamento')
+                                       related_name='consecutivodocumentodpto_departamento',
+                                       verbose_name=_("Department"))
 
     class Meta:
         db_table = 'cfg_consecutivodocumentodepartamento'
