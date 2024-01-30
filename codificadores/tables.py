@@ -77,8 +77,6 @@ class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'posicion',
             'clave',
             'descripcion',
-            'naturaleza',
-            'clave_nat',
             'activa',
         )
 
