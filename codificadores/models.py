@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.db.models.functions import Now
 from mptt.managers import TreeManager
-from mptt.models import MPTTModel
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 # todas las unidades contables de la empresa
@@ -52,9 +52,8 @@ class Cuenta(MPTTModel):
     clavenivel = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=1000)
     activa = models.BooleanField(default=True)
-    parent = models.ForeignKey(
-        "self", null=True, blank=True, related_name="children", on_delete=models.CASCADE
-    )
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children',
+                   db_column='idpadre')
     objects = models.Manager()
     tree = TreeManager()
 
