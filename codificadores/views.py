@@ -253,8 +253,6 @@ class CuentaCRUD(CommonCRUDView):
         'posicion',
         'clave',
         'descripcion',
-        'naturaleza',
-        'clave_nat',
         'activa',
     ]
 
@@ -266,8 +264,6 @@ class CuentaCRUD(CommonCRUDView):
         'posicion_contains',
         'clave_icontains',
         'descripcion_icontains',
-        'naturaleza_contains',
-        'clave_nat_icontains',
         'activa',
     ]
 
@@ -281,8 +277,6 @@ class CuentaCRUD(CommonCRUDView):
         'posicion',
         'clave',
         'descripcion',
-        'naturaleza',
-        'clave_nat',
         'activa',
     ]
 
@@ -291,8 +285,6 @@ class CuentaCRUD(CommonCRUDView):
         'posicion',
         'clave',
         'descripcion',
-        'naturaleza',
-        'clave_nat',
         'activa',
     ]
     filterset_class = CuentaFilter
