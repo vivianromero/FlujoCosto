@@ -69,15 +69,18 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Cuenta / Table ------
 class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node.html')
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = Cuenta
 
         fields = (
-            'long_niv',
-            'posicion',
+            # 'long_niv',
+            # 'posicion',
             'clave',
             'descripcion',
-            'activa',
+            # 'activa',
+            # 'parent',
         )
 
 
@@ -109,7 +112,6 @@ class TipoProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 class EstadoProductoTable(TipoProductoTable):
     class Meta(TipoProductoTable.Meta):
         model = EstadoProducto
-
 
 
 # ------ ClaseMateriaPrima / Table ------
@@ -149,7 +151,6 @@ class ProductoFlujoClaseTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
             'idclasemateriaprima',
             'idproducto',
         )
-
 
 
 # ------ ProductoFlujoDestino / Table ------
