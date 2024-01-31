@@ -43,6 +43,7 @@ class MedidaConversion(models.Model):
         unique_together = (('medidao', 'medidad'),)
         ordering = ['medidao__descripcion']
 
+
 class Cuenta(MPTTModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     long_niv = models.IntegerField()
@@ -146,6 +147,7 @@ class ProductoFlujoClase(models.Model):
 
     class Meta:
         db_table = 'cla_productoflujoclase'
+
 
 class ProductoFlujoVitola(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -281,6 +283,7 @@ class DepartamentoRelacion(models.Model):
         db_table = 'cla_departamentorelacion'
         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
 
+
 class NormaConsumo(models.Model):
     CHOICE_TIPOS_NORMAS = {
         1: 'Pesada',
@@ -316,6 +319,7 @@ class NormaconsumoDetalle(models.Model):
     class Meta:
         db_table = 'cla_normaconsumodetalle'
 
+
 class MotivoAjuste(models.Model):
     CHOICE_MOTIVOS = {
         1: 'Merma',
@@ -330,6 +334,7 @@ class MotivoAjuste(models.Model):
     class Meta:
         db_table = 'cla_motivoajuste'
         ordering = ['aumento', 'descripcion']
+
 
 class TipoDocumento(models.Model):
     CHOICE_TIPOS_DOC = {
@@ -432,6 +437,7 @@ class TipoDocumentoCuentaTransfExternaUEB(models.Model):
 
     class Meta:
         db_table = 'cla_tipodocumentocuentatransfexternaueb'
+
 
 # Formato del versat para las cuentas y código de los productos
 class FormatoCuentaProducto(models.Model):

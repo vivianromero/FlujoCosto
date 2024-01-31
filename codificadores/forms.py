@@ -17,6 +17,7 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, crud_url_name,
 )
 from cruds_adminlte3.widgets import SelectWidget
+from mptt.forms import TreeNodeChoiceField
 
 
 # ------------ Unidad Contable / Form ------------
@@ -334,6 +335,8 @@ class MedidaConversionFormFilter(forms.Form):
 
 # ------------ Cuenta / Form ------------
 class CuentaForm(forms.ModelForm):
+    parent = TreeNodeChoiceField(queryset=Cuenta.objects.all(), level_indicator='+--')
+
     class Meta:
         model = Cuenta
         fields = [
@@ -342,6 +345,7 @@ class CuentaForm(forms.ModelForm):
             'clave',
             'descripcion',
             'activa',
+            'parent',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -364,6 +368,7 @@ class CuentaForm(forms.ModelForm):
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('parent', css_class='form-group col-md-4 mb-0'),
 
                         css_class='form-row'
                     ),
@@ -1461,7 +1466,6 @@ class TipoVitolaFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
-
 
 
 # ------------- Departamento / Form --------------
