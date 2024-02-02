@@ -170,7 +170,7 @@
     "model": "codificadores.centrocosto",
     "pk": "009bfd06-0357-4614-ba5b-c9876272a460",
     "fields": {
-       "clavenivel":"07","descripcion":"Escogida de colores"
+       "clave":"07","clavenivel":"07","descripcion":"Escogida de colores"
     }
 },
 {
