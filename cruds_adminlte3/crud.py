@@ -28,6 +28,7 @@ from django_tables2 import RequestConfig
 from django_tables2.export import ExportMixin, TableExport
 from django_tables2.views import SingleTableMixin
 from tablib import Dataset
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView
 
 # Own imports
 from cruds_adminlte3 import utils
@@ -247,8 +248,8 @@ class CRUDMixin(object):
         })
         context.update({'blocks': self.template_blocks})
 
-        if self.view_type in ['update', 'detail']:
-            context['inlines'] = self.inlines
+        if self.view_type in ['create', 'update', 'detail']:
+            context['crud_inlines'] = self.inlines
 
         if 'object' not in context:
             context['object'] = self.model
@@ -598,7 +599,10 @@ class CRUDView(object):
     #  GET GENERIC CLASS
 
     def get_create_view_class(self):
-        return CreateView
+        if self.inlines:
+            return CreateWithInlinesView
+        else:
+            return CreateView
 
     def get_create_view(self):
         CreateViewClass = self.get_create_view_class()
@@ -616,6 +620,7 @@ class CRUDView(object):
             all_perms = self.perms
             form_class = self.add_form
             view_type = 'create'
+            inlines = self.inlines
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -676,7 +681,10 @@ class CRUDView(object):
         return ODetailView
 
     def get_update_view_class(self):
-        return UpdateView
+        if self.inlines:
+            return UpdateWithInlinesView
+        else:
+            return UpdateView
 
     def get_update_view(self):
         EditViewClass = self.get_update_view_class()
@@ -1267,33 +1275,33 @@ class CRUDView(object):
                                       self.model, 'delete', prefix=self.urlprefix))
                           )
 
-        myurls += self.add_inlines(base_name)
+        # myurls += self.add_inlines(base_name)
         return myurls
 
-    def add_inlines(self, base_name):
-        dev = []
-        if self.inlines:
-            for i, inline in enumerate(self.inlines):
-                klass = inline
-                if isinstance(klass, type):
-                    # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-                    #        as those mean that inline is a type instance not a class from
-                    #        the second run onwars.
-                    klass = klass()
-                self.inlines[i] = klass
-                if self.namespace:
-                    dev.append(
-                        re_path('^inline/',
-                            include(klass.get_urls(),
-                                    # namespace=self.namespace
-                                    ))
-                    )
-                else:
-                    dev.append(
-                        re_path('^inline/', include(klass.get_urls()))
-
-                    )
-        return dev
+    # def add_inlines(self, base_name):
+    #     dev = []
+    #     if self.inlines:
+    #         for i, inline in enumerate(self.inlines):
+    #             klass = inline
+    #             if isinstance(klass, type):
+    #                 # FIXME: This is a dirty hack to act on repeated calls to get_urls()
+    #                 #        as those mean that inline is a type instance not a class from
+    #                 #        the second run onwars.
+    #                 klass = klass()
+    #             self.inlines[i] = klass
+    #             if self.namespace:
+    #                 dev.append(
+    #                     re_path('^inline/',
+    #                         include(klass.get_urls(),
+    #                                 # namespace=self.namespace
+    #                                 ))
+    #                 )
+    #             else:
+    #                 dev.append(
+    #                     re_path('^inline/', include(klass.get_urls()))
+    #
+    #                 )
+    #     return dev
 
 
 class UserCRUDView(CRUDView):

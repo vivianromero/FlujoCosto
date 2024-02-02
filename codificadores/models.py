@@ -20,6 +20,9 @@ class UnidadContable(models.Model):
         db_table = 'cla_unidadcontable'
         ordering = ['codigo']
 
+    def __str__(self):
+        return self.nombre
+
 
 class Medida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -81,6 +84,8 @@ class CentroCosto(models.Model):
         db_table = 'cla_centrocosto'
         ordering = ['descripcion']
 
+    def __str__(self):
+        return self.descripcion
 
 class TipoProducto(models.Model):
     CHOICE_TIPOS_PROD = {
@@ -281,6 +286,8 @@ class Departamento(models.Model):
     class Meta:
         db_table = 'cla_departamento'
 
+    def __str__(self):
+        return self.descripcion
 
 class DepartamentoProductoSalida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

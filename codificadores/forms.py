@@ -2,7 +2,10 @@ from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML, Field, Div
+from crispy_forms.layout import Layout, Row, Column, HTML, Field, Div, Fieldset
+from crispy_formset_modal.layout import ModalEditFormsetLayout
+from crispy_formset_modal.helper import ModalEditFormHelper
+from crispy_formset_modal.layout import ModalEditLayout
 from django import forms
 from django.contrib import messages
 from django.forms import HiddenInput
@@ -17,6 +20,7 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, crud_url_name,
 )
 from cruds_adminlte3.widgets import SelectWidget
+from mptt.forms import TreeNodeChoiceField
 
 
 # ------------ Unidad Contable / Form ------------
@@ -334,6 +338,8 @@ class MedidaConversionFormFilter(forms.Form):
 
 # ------------ Cuenta / Form ------------
 class CuentaForm(forms.ModelForm):
+    parent = TreeNodeChoiceField(queryset=Cuenta.objects.all(), level_indicator='+--')
+
     class Meta:
         model = Cuenta
         fields = [
@@ -342,6 +348,7 @@ class CuentaForm(forms.ModelForm):
             'clave',
             'descripcion',
             'activa',
+            'parent',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -364,6 +371,7 @@ class CuentaForm(forms.ModelForm):
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('parent', css_class='form-group col-md-4 mb-0'),
 
                         css_class='form-row'
                     ),
@@ -1463,7 +1471,6 @@ class TipoVitolaFormFilter(forms.Form):
         return context
 
 
-
 # ------------- Departamento / Form --------------
 
 class DepartamentoForm(forms.ModelForm):
@@ -1507,15 +1514,24 @@ class DepartamentoForm(forms.ModelForm):
                 Tab(
                     'Departamento',
                     Row(
-                        Column('codigo', css_class='form-group col-md-2 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
                         Column('idcentrocosto', css_class='form-group col-md-4 mb-0'),
                         Column('idunidadcontable', css_class='form-group col-md-12 mb-0'),
 
                         css_class='form-row'
                     ),
                 ),
-
+                Tab(
+                    'Relaciones',
+                    Fieldset(
+                        "Relación entre departamentos",
+                        ModalEditFormsetLayout(
+                            "DepartamentoRelacionInline",
+                            list_display=["iddepartamentod"],
+                        ),
+                    ),
+                ),
             ),
         )
         self.helper.layout.append(
@@ -1594,10 +1610,10 @@ class DepartamentoRelacionForm(forms.ModelForm):
         ]
 
         widgets = {
-            'iddepartamentoo': forms.SelectMultiple(
+            'iddepartamentoo': forms.Select(
                 attrs={'style': 'width: 100%'}
             ),
-            'iddepartamentod': forms.SelectMultiple(
+            'iddepartamentod': forms.Select(
                 attrs={
                     'style': 'width: 100%',
                 }
@@ -1687,3 +1703,58 @@ class DepartamentoRelacionFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+class DepartamentoRelacionModalForm(forms.ModelForm):
+    class Media:
+        js = ['js/my_dual_listbox.js']
+
+    class Meta:
+        model = DepartamentoRelacion
+        fields = [
+            'iddepartamentoo',
+            'iddepartamentod',
+        ]
+
+        widgets = {
+            'iddepartamentoo': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'iddepartamentod': SelectWidget(
+                attrs={
+                    'style': 'width: 100%',
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(DepartamentoRelacionModalForm, self).__init__(*args, **kwargs)
+        self.helper = ModalEditFormHelper()
+        self.helper.form_id = 'id_departamento_relacion_modal_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = ModalEditLayout(
+            TabHolder(
+                Tab(
+                    'Información Básica',
+                    Row(
+                        Column('iddepartamentoo', css_class='form-group col-md-6 mb-0'),
+                        Column('iddepartamentod', css_class='form-group col-md-6 mb-0'),
+
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
