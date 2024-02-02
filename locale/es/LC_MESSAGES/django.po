@@ -1374,3 +1374,11 @@ msgstr "Inglés"
 
 #~ msgid "Defective"
 #~ msgstr "Defectuosos"
+
+#: codificadores/models.py:40
+msgid "Origin Product"
+msgstr "Producto Origen"
+
+#: codificadores/models.py:43
+msgid "Destination Product"
+msgstr "Producto Destino"

@@ -25,7 +25,7 @@ class Documento(models.Model):
     observaciones = models.TextField(blank=True, null=True, verbose_name=_("Observations"))
     estado = models.IntegerField(choices=CHOICE_ESTADOS_DOCUMENTO,
                                  db_comment="Estado del documento 1:Edición, 2:Confirmado, 3:Rechazado",
-                                 verbose_name=_("Status", "Status"))
+                                 verbose_name=_("Status"))
     reproceso = models.BooleanField(default=False, verbose_name=_("Reprocessing"))
     editar_nc = models.BooleanField(default=False)
     comprob = models.CharField(max_length=150, blank=True, null=True)
