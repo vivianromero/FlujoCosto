@@ -224,7 +224,8 @@
     "pk": 1,
     "fields": {
         "descripcion": "Entrada Desde Versat",
-        "operacion": "E"
+        "operacion": "E",
+        "generado": "True"
     }
 },
 {
@@ -232,7 +233,8 @@
     "pk": 2,
     "fields": {
         "descripcion": "Salida Hacia Versat",
-        "operacion": "S"
+        "operacion": "S",
+        "generado": "True"
     }
 },
 {
@@ -248,7 +250,8 @@
     "pk": 4,
     "fields": {
         "descripcion": "Transferencia Desde Departamento",
-        "operacion": "E"
+        "operacion": "E",
+        "generado": "True"
     }
 },
 {
@@ -312,7 +315,8 @@
     "pk": 13,
     "fields": {
         "descripcion": "Devolución Recibida",
-        "operacion": "E"
+        "operacion": "E",
+        "generado": "True"
     }
 },
 {

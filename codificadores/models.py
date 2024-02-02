@@ -221,7 +221,7 @@ class TipoVitola(models.Model):
 class Vitola(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     diametro = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,
-                                   verbose_name=_("Diameter", "Diameter"))
+                                   verbose_name=_("Diameter"))
     longitud = models.IntegerField(default=0, verbose_name=_("Length"))
     destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'},
                                verbose_name=_("Destination"))
@@ -237,7 +237,7 @@ class Vitola(models.Model):
 
 class MarcaSalida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    codigo = models.CharField(unique=True, max_length=5, verbose_name=_("Code", "Code"))
+    codigo = models.CharField(unique=True, max_length=5, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=128, verbose_name=_("Description"))
 
     class Meta:
@@ -395,6 +395,8 @@ class TipoDocumento(models.Model):
     id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
     operacion = models.CharField(max_length=1, db_comment='Operación de Entrada (E) o Salida (S)')
+    generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
+                                  verbose_name=_("Generado"))
 
     class Meta:
         db_table = 'cla_tipodocumento'
@@ -506,3 +508,16 @@ class FormatoCuentaProducto(models.Model):
 class Meta:
     db_table = 'cla_formatocuentaproducto'
     ordering = ['nombre', 'posicion']
+
+
+class CambioProducto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    productoo = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujo_origen',
+                                  verbose_name=_("Origin Product"))
+    productod = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujo_destino',
+                                  verbose_name=_("Destination Product"))
+
+    class Meta:
+        db_table = 'cla_cambioproducto'
+        unique_together = (('productoo', 'productod'),)
+        ordering = ['productoo__descripcion']
