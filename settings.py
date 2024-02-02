@@ -67,6 +67,7 @@ THIRD_APPS = [
     'rest_framework.authtoken',
     'bootstrap_datepicker_plus',
     'bootstrap_daterangepicker',
+    'crispy_formset_modal',
 ]
 
 MY_APPS = [

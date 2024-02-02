@@ -3,9 +3,11 @@ from django.shortcuts import render
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
+from codificadores.inlines import DepartamentoRelacionInline
 from codificadores.models import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView
 
 
 # Create your views here.
@@ -16,7 +18,7 @@ class DepartamentoRelacionAjaxCRUD(InlineAjaxCRUD):
     inline_field = 'iddepartamentoo'
     add_form = DepartamentoRelacionForm
     update_form = DepartamentoRelacionForm
-    fields = ['iddepartamentoo', 'iddepartamentod']
+    fields = ['iddepartamentod']
     title = "Relaciones"
 
 
@@ -49,25 +51,18 @@ class DepartamentoCRUD(CommonCRUDView):
     add_form = DepartamentoForm
     update_form = DepartamentoForm
 
-    list_fields = [
-        'codigo',
-        'descripcion',
-        'idcentrocosto',
-        'idunidadcontable',
-    ]
+    list_fields = fields
 
-    filter_fields = [
-        'codigo',
-        'descripcion',
-        'idcentrocosto',
-        'idunidadcontable',
-    ]
+    filter_fields = fields
+
     filterset_class = DepartamentoFilter
 
     # Table settings
     table_class = DepartamentoTable
 
-    inlines = [DepartamentoRelacionAjaxCRUD]
+    inlines = [DepartamentoRelacionInline]
+
+    form_class = DepartamentoForm
 
 
 # ------ DepartamentoRelacion / CRUD ------
@@ -367,7 +362,7 @@ class TipoProductoCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = TipoProductoFilter
 
     # Table settings
@@ -404,7 +399,7 @@ class ClaseMateriaPrimaCRUD(CommonCRUDView):
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
         'id__contains',
-        'descripcion__icontains',        
+        'descripcion__icontains',
         'capote_fortaleza__icontains',
     ]
 
@@ -416,7 +411,7 @@ class ClaseMateriaPrimaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = ClaseMateriaPrimaFilter
 
     # Table settings
@@ -445,7 +440,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
         'id__contains',
         'codigo__icontains',
         'id__contains',
-        'descripcion__icontains', 
+        'descripcion__icontains',
         'activo',
         'idmedida__descripcion__icontains',
         'idtipoproducto__descripcion__icontains',
@@ -459,7 +454,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = ProductoFlujoFilter
 
     # Table settings
@@ -482,7 +477,7 @@ class ProductoFlujoClaseCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',     
+        'id__contains',
         'idclasemateriaprima__descripcion__icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -495,12 +490,11 @@ class ProductoFlujoClaseCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = ProductoFlujoClaseFilter
 
     # Table settings
     table_class = ProductoFlujoClaseTable
-
 
 
 # ------ ProductoFlujoDestino / CRUD ------
@@ -519,7 +513,7 @@ class ProductoFlujoDestinoCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'destino_icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -532,7 +526,7 @@ class ProductoFlujoDestinoCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = ProductoFlujoDestinoFilter
 
     # Table settings
@@ -555,7 +549,7 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'idcuenta__descripcion__icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -568,7 +562,7 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = ProductoFlujoCuentaFilter
 
     # Table settings
@@ -591,7 +585,7 @@ class CategoriaVitolaCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'descripcion__icontains',
         'orden__contains',
     ]
@@ -604,7 +598,7 @@ class CategoriaVitolaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = CategoriaVitolaFilter
 
     # Table settings
@@ -626,7 +620,7 @@ class TipoVitolaCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'descripcion__icontains',
     ]
 
@@ -638,7 +632,7 @@ class TipoVitolaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-    
+
     filterset_class = TipoVitolaFilter
 
     # Table settings
