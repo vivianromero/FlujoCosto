@@ -332,7 +332,7 @@ class CentroCostoCRUD(CommonCRUDView):
     filterset_class = CentroCostoFilter
 
     # Table settings
-    table_class = UnidadContableTable
+    table_class = CentroCostoTable
 
 
 # ------ TipoProducto / CRUD ------
