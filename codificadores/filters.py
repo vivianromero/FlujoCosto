@@ -54,30 +54,30 @@ class DepartamentoFilter(MyGenericFilter):
 
 
 # ------ DepartamentoRelacion / Filter ------
-class DepartamentoRelacionFilter(MyGenericFilter):
-    search_fields = [
-        'iddepartamentoo__descripcion__icontains',
-        'iddepartamentod__descripcion__icontains',
-    ]
-    split_space_search = ' '
-
-    class Meta:
-        model = DepartamentoRelacion
-        fields = [
-            'iddepartamentoo',
-            'iddepartamentod',
-        ]
-
-        form = DepartamentoRelacionFormFilter
-
-        filter_overrides = {
-            models.ForeignKey: {
-                'filter_class': django_filters.ModelMultipleChoiceFilter,
-                'extra': lambda f: {
-                    'queryset': django_filters.filterset.remote_queryset(f),
-                }
-            },
-        }
+# class DepartamentoRelacionFilter(MyGenericFilter):
+#     search_fields = [
+#         'iddepartamentoo__descripcion__icontains',
+#         'iddepartamentod__descripcion__icontains',
+#     ]
+#     split_space_search = ' '
+#
+#     class Meta:
+#         model = DepartamentoRelacion
+#         fields = [
+#             'iddepartamentoo',
+#             'iddepartamentod',
+#         ]
+#
+#         form = DepartamentoRelacionFormFilter
+#
+#         filter_overrides = {
+#             models.ForeignKey: {
+#                 'filter_class': django_filters.ModelMultipleChoiceFilter,
+#                 'extra': lambda f: {
+#                     'queryset': django_filters.filterset.remote_queryset(f),
+#                 }
+#             },
+#         }
 
 
 # ------ UnidadContable / Filter ------

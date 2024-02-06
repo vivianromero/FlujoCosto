@@ -283,37 +283,46 @@ class Departamento(models.Model):
     idunidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                               verbose_name="UEB")
 
+    relaciondepartamento = models.ManyToManyField('self',
+                                                  blank=True, null=True,
+                      related_name='departamentorelacion_destino',
+                      verbose_name=_("Destination Department")),
+    departamentoproducto = models.ManyToManyField(TipoProducto,
+                                                  blank=True, null=True,
+                                                  related_name='departamentoproductosalida_producto',
+                                                  verbose_name=_("Product"))
+
     class Meta:
         db_table = 'cla_departamento'
 
     def __str__(self):
         return self.descripcion
 
-class DepartamentoProductoSalida(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-                                       related_name='departamentoproductosalida_departamento',
-                                       verbose_name=_("Department"))
-    idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
-                                       related_name='departamentoproductosalida_producto',
-                                       verbose_name=_("Product"))
-
-    class Meta:
-        db_table = 'cla_departamentoproductosalida'
-
-
-class DepartamentoRelacion(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddepartamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-                                        related_name='departamentorelacion_origen',
-                                        verbose_name=_("Origin Department"))
-    iddepartamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-                                        related_name='departamentorelacion_destino',
-                                        verbose_name=_("Destination Department"))
-
-    class Meta:
-        db_table = 'cla_departamentorelacion'
-        unique_together = (('iddepartamentoo', 'iddepartamentod'),)
+# class DepartamentoProductoSalida(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     iddepartamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#                                        related_name='departamentoproductosalida_departamento',
+#                                        verbose_name=_("Department"))
+#     idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
+#                                        related_name='departamentoproductosalida_producto',
+#                                        verbose_name=_("Product"))
+#
+#     class Meta:
+#         db_table = 'cla_departamentoproductosalida'
+#
+#
+# class DepartamentoRelacion(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     iddepartamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#                                         related_name='departamentorelacion_origen',
+#                                         verbose_name=_("Origin Department"))
+#     iddepartamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#                                         related_name='departamentorelacion_destino',
+#                                         verbose_name=_("Destination Department"))
+#
+#     class Meta:
+#         db_table = 'cla_departamentorelacion'
+#         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
 
 
 class NormaConsumo(models.Model):
