@@ -34,12 +34,12 @@ MENUS = {
                     "url": crud_url_name(Departamento, 'list', 'app_index:codificadores:'),
                     "validators": ["menu_generator.validators.is_superuser"],
                 },
-                {
-                    "name": "Relación Departamentos",
-                    "icon_class": 'fa fa-university',
-                    "url": crud_url_name(DepartamentoRelacion, 'list', 'app_index:codificadores:'),
-                    "validators": ["menu_generator.validators.is_superuser"],
-                },
+                # {
+                #     "name": "Relación Departamentos",
+                #     "icon_class": 'fa fa-university',
+                #     "url": crud_url_name(DepartamentoRelacion, 'list', 'app_index:codificadores:'),
+                #     "validators": ["menu_generator.validators.is_superuser"],
+                # },
                 {
                     "name": "Unidad Contable",
                     "icon_class": 'fa fa-university',

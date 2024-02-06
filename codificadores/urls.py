@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 
 departamento_crud = views.DepartamentoCRUD()
-departamento_relacion_crud = views.DepartamentoRelacionCRUD()
+# departamento_relacion_crud = views.DepartamentoRelacionCRUD()
 unidad_contable_crud = views.UnidadContableCRUD()
 centro_costo_crud = views.CentroCostoCRUD()
 medida_crud = views.MedidaCRUD()
@@ -22,7 +22,7 @@ app_name = 'codificadores'
 
 urlpatterns = [
     path("", include(departamento_crud.get_urls())),
-    path("", include(departamento_relacion_crud.get_urls())),
+    # path("", include(departamento_relacion_crud.get_urls())),
     path("", include(unidad_contable_crud.get_urls())),
     path("", include(centro_costo_crud.get_urls())),
     path("", include(medida_crud.get_urls())),

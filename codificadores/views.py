@@ -3,7 +3,7 @@ from django.shortcuts import render
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
-from codificadores.inlines import DepartamentoRelacionInline
+# from codificadores.inlines import DepartamentoRelacionInline
 from codificadores.models import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
@@ -12,14 +12,14 @@ from extra_views import CreateWithInlinesView, UpdateWithInlinesView
 
 # Create your views here.
 # ------ DepartamentoRelacion / Ajax CRUD ------
-class DepartamentoRelacionAjaxCRUD(InlineAjaxCRUD):
-    model = DepartamentoRelacion
-    base_model = Departamento
-    inline_field = 'iddepartamentoo'
-    add_form = DepartamentoRelacionForm
-    update_form = DepartamentoRelacionForm
-    fields = ['iddepartamentod']
-    title = "Relaciones"
+# class DepartamentoRelacionAjaxCRUD(InlineAjaxCRUD):
+#     model = DepartamentoRelacion
+#     base_model = Departamento
+#     inline_field = 'iddepartamentoo'
+#     add_form = DepartamentoRelacionForm
+#     update_form = DepartamentoRelacionForm
+#     fields = ['iddepartamentod']
+#     title = "Relaciones"
 
 
 # ------ Departamento / CRUD ------
@@ -60,48 +60,48 @@ class DepartamentoCRUD(CommonCRUDView):
     # Table settings
     table_class = DepartamentoTable
 
-    inlines = [DepartamentoRelacionInline]
+    # inlines = [DepartamentoRelacionInline]
 
     form_class = DepartamentoForm
 
 
 # ------ DepartamentoRelacion / CRUD ------
-class DepartamentoRelacionCRUD(CommonCRUDView):
-    model = DepartamentoRelacion
-
-    namespace = 'app_index:codificadores'
-
-    fields = [
-        'iddepartamentoo',
-        'iddepartamentod',
-    ]
-
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'iddepartamentoo__descripcion__icontains',
-        'iddepartamentod__descripcion__icontains',
-    ]
-
-    # search_method = hecho_extraordinario_search_queryset
-
-    add_form = DepartamentoRelacionForm
-    update_form = DepartamentoRelacionForm
-
-    list_fields = [
-        'iddepartamentoo',
-        'iddepartamentod',
-    ]
-
-    filter_fields = [
-        'iddepartamentoo',
-        'iddepartamentod',
-    ]
-    filterset_class = DepartamentoRelacionFilter
-
-    # Table settings
-    table_class = DepartamentoRelacionTable
+# class DepartamentoRelacionCRUD(CommonCRUDView):
+#     model = DepartamentoRelacion
+#
+#     namespace = 'app_index:codificadores'
+#
+#     fields = [
+#         'iddepartamentoo',
+#         'iddepartamentod',
+#     ]
+#
+#     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+#     # y no distinga entre mayúsculas y minúsculas.
+#     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+#     search_fields = [
+#         'iddepartamentoo__descripcion__icontains',
+#         'iddepartamentod__descripcion__icontains',
+#     ]
+#
+#     # search_method = hecho_extraordinario_search_queryset
+#
+#     add_form = DepartamentoRelacionForm
+#     update_form = DepartamentoRelacionForm
+#
+#     list_fields = [
+#         'iddepartamentoo',
+#         'iddepartamentod',
+#     ]
+#
+#     filter_fields = [
+#         'iddepartamentoo',
+#         'iddepartamentod',
+#     ]
+#     filterset_class = DepartamentoRelacionFilter
+#
+#     # Table settings
+#     table_class = DepartamentoRelacionTable
 
 
 # ------ UnidadContable / CRUD ------

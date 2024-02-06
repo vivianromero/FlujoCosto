@@ -20,14 +20,14 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 
 # ------ DepartamentoRelacion / Table ------
-class DepartamentoRelacionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = DepartamentoRelacion
-
-        fields = (
-            'iddepartamentoo',
-            'iddepartamentod',
-        )
+# class DepartamentoRelacionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+#     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+#         model = DepartamentoRelacion
+#
+#         fields = (
+#             'iddepartamentoo',
+#             'iddepartamentod',
+#         )
 
 
 # ------ UnidadContable / Table ------
