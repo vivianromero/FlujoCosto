@@ -282,15 +282,15 @@ class Departamento(models.Model):
                                       verbose_name=_("Cost Center"))
     idunidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                               verbose_name="UEB")
-
     relaciondepartamento = models.ManyToManyField('self',
                                                   blank=True, null=True,
-                      related_name='departamentorelacion_destino',
-                      verbose_name=_("Destination Department")),
+                                                  related_name='departamentorelacion_destino',
+                                                  verbose_name=_("Destination Department"))
     departamentoproducto = models.ManyToManyField(TipoProducto,
                                                   blank=True, null=True,
                                                   related_name='departamentoproductosalida_producto',
                                                   verbose_name=_("Product"))
+
 
     class Meta:
         db_table = 'cla_departamento'
