@@ -1,5 +1,5 @@
 from django.forms.utils import flatatt
-from django.forms.widgets import Widget, Textarea
+from django.forms.widgets import Widget, Textarea, CheckboxSelectMultiple
 from django.forms import Select
 from django.template import loader
 from django.utils.safestring import mark_safe
@@ -166,6 +166,43 @@ class SelectWidget(Select):
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option_dict = super(SelectWidget, self).create_option(
+            name, value, label, selected, index, subindex=subindex, attrs=attrs
+        )
+        if (value in self.disabled_choices) or (self._enabled_choices and value not in self.enabled_choices):
+            option_dict['attrs']['disabled'] = 'disabled'
+        return option_dict
+
+
+class MyCheckboxSelectMultiple(CheckboxSelectMultiple):
+
+    def __init__(self, *args, **kwargs):
+        self._disabled_choices = []
+        self._enabled_choices = []
+        super(MyCheckboxSelectMultiple, self).__init__(*args, **kwargs)
+
+    @property
+    def disabled_choices(self):
+        return self._disabled_choices
+
+    @disabled_choices.setter
+    def disabled_choices(self, other):
+        self._disabled_choices = other
+
+    @property
+    def enabled_choices(self):
+        return self._enabled_choices
+
+    @enabled_choices.setter
+    def enabled_choices(self, other):
+        self._enabled_choices = other
+
+    def render(self, name, value, attrs=None, renderer=None):
+        return super().render(name=name, value=value)
+
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option_dict = super(MyCheckboxSelectMultiple, self).create_option(
             name, value, label, selected, index, subindex=subindex, attrs=attrs
         )
         if (value in self.disabled_choices) or (self._enabled_choices and value not in self.enabled_choices):

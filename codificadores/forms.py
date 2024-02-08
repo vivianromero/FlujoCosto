@@ -19,7 +19,7 @@ from cruds_adminlte3.utils import (
     common_form_actions,
     common_filter_form_actions, crud_url_name,
 )
-from cruds_adminlte3.widgets import SelectWidget
+from cruds_adminlte3.widgets import SelectWidget, MyCheckboxSelectMultiple
 from mptt.forms import TreeNodeChoiceField
 
 
@@ -1475,7 +1475,10 @@ class TipoVitolaFormFilter(forms.Form):
 
 class DepartamentoForm(forms.ModelForm):
     class Media:
-        js = ['js/my_dual_listbox.js']
+        js = [
+            # 'js/my_dual_listbox.js',
+            # 'js/boxed_scrolled_multiplecheckbox.js'
+        ]
 
     class Meta:
         model = Departamento
@@ -1484,19 +1487,24 @@ class DepartamentoForm(forms.ModelForm):
             'descripcion',
             'idcentrocosto',
             'idunidadcontable',
+            'relaciondepartamento',
+            'departamentoproducto'
         ]
 
         widgets = {
             'idcentrocosto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idunidadcontable': forms.SelectMultiple(
-                attrs={
-                    'class': 'duallistbox',
-                    'style': 'width: 100%',
-                    'multiple': 'multiple',
-                }
-            ),
+            # 'idunidadcontable': forms.SelectMultiple(
+            #     attrs={
+            #         'class': 'duallistbox',
+            #         'style': 'width: 100%',
+            #         'multiple': 'multiple',
+            #     }
+            # ),
+            'idunidadcontable': forms.CheckboxSelectMultiple(),
+            'relaciondepartamento': forms.CheckboxSelectMultiple(),
+            'departamentoproducto': forms.CheckboxSelectMultiple(),
         }
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1504,6 +1512,10 @@ class DepartamentoForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         super(DepartamentoForm, self).__init__(*args, **kwargs)
+        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(
+            queryset=Departamento.objects.exclude(id=instance.id),
+            widget=forms.CheckboxSelectMultiple
+        )
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_departamento_Form'
         self.helper.form_method = 'post'
@@ -1517,21 +1529,30 @@ class DepartamentoForm(forms.ModelForm):
                         Column('codigo', css_class='form-group col-md-3 mb-0'),
                         Column('descripcion', css_class='form-group col-md-5 mb-0'),
                         Column('idcentrocosto', css_class='form-group col-md-4 mb-0'),
-                        Column('idunidadcontable', css_class='form-group col-md-12 mb-0'),
-
+                        Column(
+                            Field(
+                                'idunidadcontable',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        Column(
+                            Field(
+                                'relaciondepartamento',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        Column(
+                            Field(
+                                'departamentoproducto',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
                         css_class='form-row'
                     ),
                 ),
-                # Tab(
-                #     'Relaciones',
-                #     Fieldset(
-                #         "Relación entre departamentos",
-                #         ModalEditFormsetLayout(
-                #             "DepartamentoRelacionInline",
-                #             list_display=["iddepartamentod"],
-                #         ),
-                #     ),
-                # ),
             ),
         )
         self.helper.layout.append(
@@ -1596,7 +1617,6 @@ class DepartamentoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
-
 
 # class DepartamentoRelacionForm(forms.ModelForm):
 #     class Media:
