@@ -56,20 +56,5 @@
             return true
         }
     });
-    $('#id_form_btn_close_event').click(function () {
-        let $activeTab = $('.tab-content .tab-pane.active');
-        let invalidInputs = $('input:invalid, textarea:invalid, select:invalid');
-        if(invalidInputs.length > 0){
-            $activeTab.removeClass('active')
-            let invalidInput = $(invalidInputs[0]);
-            let $closest = invalidInput.closest('.tab-pane');
-            $closest.addClass('active')
-            let id = $closest.attr('id');
-            $('.nav a[href="#' + id + '"]').tab('show').click();
-            {#return false#}
-        } else {
-            return true
-        }
-    });
 
 </script>

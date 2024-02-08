@@ -77,7 +77,7 @@ class CentroCosto(models.Model):
     clave = models.CharField(unique=True, max_length=25, verbose_name=_("Code"))
     clavenivel = models.CharField(max_length=50)
     descripcion = models.CharField(unique=True, max_length=255,
-    verbose_name = _("Description"))
+                                   verbose_name=_("Description"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
 
     class Meta:
@@ -86,6 +86,7 @@ class CentroCosto(models.Model):
 
     def __str__(self):
         return self.descripcion
+
 
 class TipoProducto(models.Model):
     CHOICE_TIPOS_PROD = {
@@ -103,6 +104,9 @@ class TipoProducto(models.Model):
 
     class Meta:
         db_table = 'cla_tipoproducto'
+
+    def __str__(self):
+        return self.CHOICE_TIPOS_PROD[self.id]
 
 
 class EstadoProducto(models.Model):
@@ -141,7 +145,7 @@ class ProductoFlujo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
-    activo = models.BooleanField(default=True, verbose_name=_("Active") )
+    activo = models.BooleanField(default=True, verbose_name=_("Active"))
     idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida',
                                  verbose_name="U.M")
     idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
@@ -282,6 +286,7 @@ class Departamento(models.Model):
                                       verbose_name=_("Cost Center"))
     idunidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                               verbose_name="UEB")
+
     relaciondepartamento = models.ManyToManyField('self',
                                                   blank=True, null=True,
                                                   related_name='departamentorelacion_destino',
@@ -291,12 +296,13 @@ class Departamento(models.Model):
                                                   related_name='departamentoproductosalida_producto',
                                                   verbose_name=_("Product"))
 
-
     class Meta:
         db_table = 'cla_departamento'
+        ordering = ('codigo',)
 
     def __str__(self):
         return self.descripcion
+
 
 # class DepartamentoProductoSalida(models.Model):
 #     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -412,7 +418,7 @@ class TipoDocumento(models.Model):
     descripcion = models.CharField(unique=True, max_length=128)
     operacion = models.CharField(max_length=1, db_comment='Operación de Entrada (E) o Salida (S)')
     generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
-                                  verbose_name=_("Generado"))
+                                   verbose_name=_("Generado"))
 
     class Meta:
         db_table = 'cla_tipodocumento'
