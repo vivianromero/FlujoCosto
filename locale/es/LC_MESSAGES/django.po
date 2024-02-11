@@ -1380,5 +1380,5 @@ msgid "Origin Product"
 msgstr "Producto Origen"
 
 #: codificadores/models.py:43
-msgid "Destination Product"
-msgstr "Producto Destino"
+msgid "Output Product"
+msgstr "Producto de Salida"
