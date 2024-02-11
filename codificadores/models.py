@@ -294,7 +294,7 @@ class Departamento(models.Model):
     departamentoproducto = models.ManyToManyField(TipoProducto,
                                                   blank=True, null=True,
                                                   related_name='departamentoproductosalida_producto',
-                                                  verbose_name=_("Product"))
+                                                  verbose_name=_("Output Product"))
 
     class Meta:
         db_table = 'cla_departamento'
