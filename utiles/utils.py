@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from codificadores.models import UnidadContable
 import json
 
 #TODO ver si se va a usar
@@ -76,3 +77,6 @@ def llena_cuenta():
 #     else:
 #         print(f"Request failed with status code {response.status_code}")
 #         print(response.text)
+
+def get_unidadescontables():
+    return UnidadContable.objects.all()
