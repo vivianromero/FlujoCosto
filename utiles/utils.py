@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from codificadores.models import UnidadContable
-from configuracion.models import ConexionBaseDato, Ueb
 import json
 
 #TODO ver si se va a usar
@@ -81,9 +80,3 @@ def llena_cuenta():
 
 def get_unidadescontables():
     return UnidadContable.objects.all()
-
-def get_conexiones():
-    return ConexionBaseDato.objects.all()
-
-def get_ueb():
-    return Ueb.objects.all()
