@@ -24,7 +24,7 @@ class ConexionBaseDato(models.Model):
     password = models.CharField(max_length=250, verbose_name=_("Password"))
     host = models.CharField(max_length=250, verbose_name=_("Host"))
     port = models.CharField(max_length=100, verbose_name=_("Port"))
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, verbose_name="UEB")
+    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_conexionasedato'

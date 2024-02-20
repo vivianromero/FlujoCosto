@@ -304,6 +304,14 @@
 },
 {
     "model": "codificadores.tipodocumento",
+    "pk": 11,
+    "fields": {
+        "descripcion": "Recepción de Rechazo",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
     "pk": 12,
     "fields": {
         "descripcion": "Carga Inicial",
