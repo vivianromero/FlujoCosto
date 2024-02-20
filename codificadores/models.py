@@ -404,6 +404,7 @@ class TipoDocumento(models.Model):
         8: 'Recepción de Producción',
         9: 'Devolución',
         10: 'Sobrante Sujeto a Investigación',
+        11: 'Recepción de Rechazo',
         12: 'Carga Inicial',
         13: 'Devolución Recibida',
         14: 'Cambio de Estado',
