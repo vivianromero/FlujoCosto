@@ -8,13 +8,13 @@ from cruds_adminlte3.utils import crud_url
 from django.utils.translation import gettext_lazy as _
 
 
-class Ueb(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
-                                         verbose_name="UEB")
-
-    class Meta:
-        db_table = 'cfg_ueb'
+# class Ueb(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+#                                          verbose_name="UEB")
+#
+#     class Meta:
+#         db_table = 'cfg_ueb'
 
 
 class ConexionBaseDato(models.Model):
@@ -35,7 +35,7 @@ class ConsecutivoDocumento(models.Model):
                                               related_name='consecutivodocumento_numeracion',
                                               verbose_name=_("Enumeration Type"))
     numero = models.IntegerField(verbose_name=_("Number"))
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='consecutivo_ueb', verbose_name="UEB")
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb', verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_consecutivodocumento'
@@ -66,7 +66,7 @@ class ConsecutivoDocumentoTipoDocumento(models.Model):
 
 class UserUeb(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='ueb_user')
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='ueb_user')
     iduser = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_ueb')
 
     def __str__(self):

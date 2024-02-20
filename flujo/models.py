@@ -5,9 +5,7 @@ from django.db.models.functions import Now
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
     ProductoFlujo
-from configuracion.models import Ueb
 from django.utils.translation import gettext_lazy as _
-
 
 class Documento(models.Model):
     CHOICE_ESTADOS_DOCUMENTO = {
@@ -31,7 +29,7 @@ class Documento(models.Model):
     comprob = models.CharField(max_length=150, blank=True, null=True)
     iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documento_departamento')
     idtipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='documento_tipodocumento')
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='documento_tipodocumento')
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_tipodocumento')
 
     class Meta:
         db_table = 'fp_documento'
@@ -243,7 +241,7 @@ class DocumentoVersatRechazado(models.Model):
     iddocumentoversat = models.IntegerField()
     fecha_doc_versat = models.DateField()
     fecha_rechazo = models.DateTimeField(db_default=Now())
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
 
     class Meta:
         db_table = 'fp_documentoversatrechazado'
@@ -252,7 +250,7 @@ class DocumentoVersatRechazado(models.Model):
 class ExistenciaDpto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='existenciadpto_departamento')
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT, related_name='existenciadpto_ueb')
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='existenciadpto_ueb')
     idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                    related_name='existenciadpto_producto')
     idestado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
@@ -272,7 +270,7 @@ class FechaPeriodo(models.Model):
     iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                        related_name='fechaperiodo_departamento',
                                        verbose_name=_("Department"))
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT,
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                               related_name='fechaperiodo_ueb',
                               verbose_name="UEB")
 
@@ -284,7 +282,7 @@ class FechaPeriodo(models.Model):
 class FechaCierreMes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
-    idueb = models.ForeignKey(Ueb, on_delete=models.PROTECT,
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                               related_name='fechacierremes_ueb',
                               verbose_name="UEB")
 
