@@ -110,11 +110,11 @@ class PassChangeView(SuccessMessageMixin, PasswordChangeView):
 class MyPasswordChangeDoneView(SuccessMessageMixin, PasswordChangeDoneView):
     template_name = "registration/pass_change_done.html"
     title = _("Password change")
-    success_message = _("User <<%(user)s>> was successfully changed password.")
+    success_message = _("User <<%(user)s>> has successfully changed password.")
 
 
 class MyLoginView(SuccessMessageMixin, LoginView):
-    success_message = _("User <<%(user)s>> was successfully logged in.")
+    success_message = _("User <<%(user)s>> has successfully logged in.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -136,7 +136,7 @@ class MyLogoutView(LogoutView):
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
-        message = _("User <<%s>> was successfully logged out.")
+        message = _("User <<%s>> has successfully logged out.")
         messages.add_message(request, messages.SUCCESS, message % user)
         response = super().dispatch(request, *args, **kwargs)
         return response

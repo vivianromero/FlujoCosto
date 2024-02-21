@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
 
 from cruds_adminlte3.utils import common_filter_form_actions, common_form_actions
+from cruds_adminlte3.widgets import SelectWidget
 
 User = get_user_model()
 
@@ -23,7 +24,8 @@ class RegistroUsuarioForm(UserCreationForm):
         model = User
         fields = [
             'username',
-            'email'
+            'email',
+            'idueb',
 
         ]
 
@@ -39,7 +41,10 @@ class RegistroUsuarioForm(UserCreationForm):
                 'readonly': True,
                 'format': 'yyyy-mm-dd',
             }
-        )
+        ),
+        'idueb': SelectWidget(
+            attrs={'style': 'width: 100%'}
+        ),
     }
 
     def __init__(self, *args, **kwargs):
@@ -59,7 +64,7 @@ class RegistroUsuarioForm(UserCreationForm):
                         # Column('last_name', css_class='form-group col-md-4 mb-0'),
                         Column('username', css_class='form-group col-md-4 mb-0'),
                         Column('email', css_class='form-group col-md-4 mb-0'),
-                        # Column('pic', css_class='form-group col-md-4 mb-0'),
+                        Column('idueb', css_class='form-group col-md-4 mb-0'),
                         Column('password1', css_class='form-group col-md-6 mb-0'),
                         Column('password2', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'),
@@ -160,6 +165,9 @@ class EditarUsuarioForm(UserChangeForm):
                     'multiple': 'multiple',
                 }
             ),
+            'idueb': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
 
         }
 
@@ -213,9 +221,15 @@ class EditarUsuarioForm(UserChangeForm):
                         ),
                         Column(
                             PrependedText(
+                                'idueb', mark_safe('<i class="fa fa-building"></i>')
+                            ),
+                            css_class='form-group col-md-4 mb-0'
+                        ),
+                        Column(
+                            PrependedText(
                                 'new_password1', mark_safe('<i class="fa fa-key"></i>')
                             ),
-                            css_class='form-group col-md-5 mb-0'
+                            css_class='form-group col-md-4 mb-0'
                         ),
                         Column(
                             PrependedText(
@@ -374,6 +388,7 @@ class UserUebFormFilter(forms.Form):
             'is_superuser',
             'is_staff',
             'is_active',
+            'idueb',
         ]
 
     def __init__(self, *args, **kwargs) -> None:

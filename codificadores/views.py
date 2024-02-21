@@ -1,13 +1,8 @@
-from django.shortcuts import render
-
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 # from codificadores.inlines import DepartamentoRelacionInline
-from codificadores.models import *
 from codificadores.tables import *
-from cruds_adminlte3.inline_crud import InlineAjaxCRUD
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView
 
 
 # Create your views here.
