@@ -218,6 +218,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'configuracion.UserUeb'
+
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
@@ -303,3 +305,17 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.AllowAllUsersModelBackend",
     # "guardian.backends.ObjectPermissionBackend",
 )
+
+# contact information if password is expired
+PASSWORD_EXPIRE_CONTACT = ""
+# expire passwords after 90 days
+PASSWORD_EXPIRE_SECONDS = 90 * 24 * 60 * 60
+# start warning 10 days before expiration
+PASSWORD_EXPIRE_WARN_SECONDS = 10 * 24 * 60 * 60
+
+#To redirect new users to the change password page
+PASSWORD_EXPIRE_FORCE = True
+
+#exclude superusers from the password expiration
+PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = False
+
