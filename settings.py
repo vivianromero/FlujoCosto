@@ -49,6 +49,7 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.forms',
+    'password_expire',
 ]
 
 THIRD_APPS = [
@@ -112,6 +113,7 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'app_auth.usuarios.middleware.OneSessionPerUserMiddleware',
+    'app_auth.usuarios.middleware.PasswordExpireMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = False
