@@ -66,7 +66,7 @@ class PasswordExpireMiddleware:
 
         # picks up flag for forcing password change
         if getattr(request, 'redirect_to_password_change', False):
-            return redirect('password_change')
+            return redirect('app_index:usuario:password_change')
 
         return response
 
