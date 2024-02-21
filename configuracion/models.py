@@ -1,6 +1,5 @@
 import uuid
-
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, NumeracionDocumentos
@@ -64,24 +63,38 @@ class ConsecutivoDocumentoTipoDocumento(models.Model):
         db_table = 'cfg_consecutivodocumentotipodocumento'
 
 
-class UserUeb(models.Model):
+class UserUeb(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='ueb_user')
-    iduser = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_ueb')
+    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, null=True,
+        blank=True,verbose_name='UEB')
+    # iduser = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_ueb')
 
     def __str__(self):
-        return self.iduser.username
+        return self.username
 
     def get_absolute_url(self):
         return crud_url(self, 'update', namespace='app_index:userueb')
 
     class Meta:
         db_table = 'cfg_userueb'
+        indexes = [
+            models.Index(
+                fields=[
+                    'username',
+                    'email',
+                    'idueb',
+                    'last_login',
+                ]
+            ),
+        ]
+        ordering = ('idueb', 'username', 'pk')
+        verbose_name_plural = _('Users')
+        verbose_name = _('User')
 
 
 # Model to store the list of logged-in users
 class LoggedInUser(models.Model):
-    user = models.OneToOneField(User, related_name='logged_in_user', on_delete=models.CASCADE)
+    user = models.OneToOneField(UserUeb, related_name='logged_in_user', on_delete=models.CASCADE)
     # Session keys are 32 characters long
     session_key = models.CharField(max_length=32, null=True, blank=True)
 

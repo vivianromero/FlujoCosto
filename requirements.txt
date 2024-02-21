@@ -41,3 +41,4 @@ six==1.16.0
 sqlparse==0.4.4
 tablib==3.5.0
 typing_extensions==4.9.0
+django-password-expire==0.2

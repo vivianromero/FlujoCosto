@@ -396,5 +396,33 @@
         "tipo_documento": true,
         "prefijo": null
     }
+},
+{
+    "model": "auth.group",
+    "pk": "1",
+    "fields": {
+        "name":"Administración"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "2",
+    "fields": {
+        "name":"Operador Flujo"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "3",
+    "fields": {
+        "name":"Operador Costo"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "4",
+    "fields": {
+        "name":"Consultor"
+    }
 }
 ]

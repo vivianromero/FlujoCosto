@@ -4,8 +4,8 @@ from crispy_forms.bootstrap import TabHolder, Tab, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML, Row, Column
 
-app = apps.get_app_config('auth')
-Usuario_Groups = app.models['user_groups']
+app = apps.get_app_config('configuracion') #TODO Vivian
+Usuario_Groups = app.models['userueb_groups'] #TODO Vivian
 
 
 # Crear y/o modificar nuevos grupos.
@@ -16,11 +16,11 @@ class UserGroupForm(forms.ModelForm):
     class Meta:
         model = Usuario_Groups
         fields = [
-            'user',
+            'userueb', #TODO Vivian
             'group',
         ]
         widgets = {
-            'user': forms.Select(
+            'userueb': forms.Select( #TODO Vivian
                 attrs={
                     'style': 'width: 100%',
                 }
@@ -46,7 +46,7 @@ class UserGroupForm(forms.ModelForm):
                 Tab(
                     'Información de relación Usuario - Grupo',
                     Row(
-                        Column('user', css_class='form-group col-md-12 mb-0'),
+                        Column('userueb', css_class='form-group col-md-12 mb-0'), #TODO Vivian
                         Column('group', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'),
                 ),

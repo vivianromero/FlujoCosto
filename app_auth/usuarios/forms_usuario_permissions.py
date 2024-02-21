@@ -5,8 +5,8 @@ from crispy_forms.bootstrap import TabHolder, Tab, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML, Row, Column
 
-app = apps.get_app_config('auth')
-User_Permissions = app.models['user_user_permissions']
+app = apps.get_app_config('configuracion') #TODO Vivian
+User_Permissions = app.models['userueb_user_permissions'] #TODO Vivian
 
 
 # Crear y/o modificar nuevos grupos.
@@ -17,11 +17,11 @@ class UserPermissionsForm(forms.ModelForm):
     class Meta:
         model = User_Permissions
         fields = [
-            'user',
+            'userueb', #TODO Vivian
             'permission',
         ]
         widgets = {
-            'user': forms.Select(
+            'userueb': forms.Select( #TODO Vivian
                 attrs={
                     'style': 'width: 100%',
                 }
