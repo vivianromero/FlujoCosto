@@ -1,12 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import PasswordChangeView, LoginView, LogoutView
+from django.contrib.auth.views import PasswordChangeView, LoginView, LogoutView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import CreateView, ListView, UpdateView
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 from cruds_adminlte3.crud import CRUDView
 from app_index.views import CommonCRUDView
@@ -79,9 +83,10 @@ class EditarUsuario(UpdateView):
             return HttpResponseRedirect(self.get_success_url())
 
 
-class PassChangeView(PasswordChangeView):
+class PassChangeView(SuccessMessageMixin, PasswordChangeView):
     form_class = PassUserChangeForm
-    success_url = reverse_lazy("password_change_done")
+    success_url = reverse_lazy("app_index:index")
+    success_message = _("User <<%(user)s>> has successfully changed password.")
     template_name = "registration/pass_change_form.html"
     title = _("Password change")
 
@@ -96,9 +101,20 @@ class PassChangeView(PasswordChangeView):
         # self.success_url = self.request.META.get('HTTP_REFERER')
         return context
 
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            cleaned_data,
+            user=self.request.user.username
+        )
+
+class MyPasswordChangeDoneView(SuccessMessageMixin, PasswordChangeDoneView):
+    template_name = "registration/pass_change_done.html"
+    title = _("Password change")
+    success_message = _("User <<%(user)s>> was successfully changed password.")
+
 
 class MyLoginView(SuccessMessageMixin, LoginView):
-    success_message = _("User <<%(user)s>> were successfully logged in.")
+    success_message = _("User <<%(user)s>> was successfully logged in.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -120,7 +136,7 @@ class MyLogoutView(LogoutView):
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
-        message = _("User <<%s>> were successfully logged out.")
+        message = _("User <<%s>> was successfully logged out.")
         messages.add_message(request, messages.SUCCESS, message % user)
         response = super().dispatch(request, *args, **kwargs)
         return response
