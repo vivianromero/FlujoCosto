@@ -1,11 +1,11 @@
 [
 {
     "model": "configuracion.userueb",
-    "pk": "809d9e9f-4064-4214-a051-a1f78ea26b65",
+    "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
     "fields": {
-        "username":"adminempresa",
+        "username":"admin03",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "809d9e9f-4064-4214-a051-a1f78ea26b65",
+        "idueb": "003dec56-d3ac-452d-a2be-9c07539be90f",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els="
     }
 }
