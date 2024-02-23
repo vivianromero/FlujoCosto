@@ -1,3 +1,4 @@
+{% load static %}
 {% load django_tables2 %}
 {% load i18n %}
 {% load crud_tags %}
@@ -36,6 +37,59 @@
 <!-- Right table navbar links -->
 {% block right_table_navbar_links %}
 <ul class="navbar-nav ml-auto">
+    <div id="act_versat_link_url_div" style="display: flex; align-items: center">
+        {% block list_act_versat_table_main_header %}
+            {# aquí se debe poner el link de importar#}
+            <a id="id_create_url"
+               href="#"
+               class="nav-link"
+{#               hx-get="{{ url }}{{ getparams }}"#}
+{#               hx-trigger="click"#}
+{#               hx-target="#main_content_swap"#}
+{#               hx-swap="outerHTML"#}
+{#               hx-replace-url="true"#}
+               role="button">
+{#                <img#}
+{#                        src="{% static 'dist/img/database-import.svg' %}"#}
+{#                        class="icon"#}
+{#                        style="height: 20px;"#}
+{#                        alt="{% translate 'Update from Versat' %}"/>#}
+                <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
+            </a>
+        {% endblock list_act_versat_table_main_header %}
+    </div>
+    <div id="export_link_url_div" style="display: flex; align-items: center">
+        {% block list_import_table_main_header %}
+            {# aquí se debe poner el link de importar#}
+            <a id="id_create_url"
+               href="#"
+               class="nav-link"
+{#               hx-get="{{ url }}{{ getparams }}"#}
+{#               hx-trigger="click"#}
+{#               hx-target="#main_content_swap"#}
+{#               hx-swap="outerHTML"#}
+{#               hx-replace-url="true"#}
+               role="button">
+                <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+            </a>
+        {% endblock list_import_table_main_header %}
+    </div>
+    <div id="export_link_url_div" style="display: flex; align-items: center">
+        {% block list_export_table_main_header %}
+            {# aquí se debe poner el link de exportar#}
+            <a id="id_create_url"
+               href="#"
+               class="nav-link"
+{#               hx-get="{{ url }}{{ getparams }}"#}
+{#               hx-trigger="click"#}
+{#               hx-target="#main_content_swap"#}
+{#               hx-swap="outerHTML"#}
+{#               hx-replace-url="true"#}
+               role="button">
+                <i class="fa fa-file-export" title="{% trans 'Export' %}"></i>
+            </a>
+        {% endblock list_export_table_main_header %}
+    </div>
     {% if table.shift_table_column %}
         <div id="table_visibility_link_dropdown_menu" class="btn-group">
             {% block table_button_group_head %}

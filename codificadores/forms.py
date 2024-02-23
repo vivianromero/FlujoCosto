@@ -1474,11 +1474,6 @@ class TipoVitolaFormFilter(forms.Form):
 # ------------- Departamento / Form --------------
 
 class DepartamentoForm(forms.ModelForm):
-    class Media:
-        js = [
-            # 'js/my_dual_listbox.js',
-            # 'js/boxed_scrolled_multiplecheckbox.js'
-        ]
 
     class Meta:
         model = Departamento
@@ -1495,13 +1490,6 @@ class DepartamentoForm(forms.ModelForm):
             'idcentrocosto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            # 'idunidadcontable': forms.SelectMultiple(
-            #     attrs={
-            #         'class': 'duallistbox',
-            #         'style': 'width: 100%',
-            #         'multiple': 'multiple',
-            #     }
-            # ),
             'idunidadcontable': forms.CheckboxSelectMultiple(),
             'relaciondepartamento': forms.CheckboxSelectMultiple(),
             'departamentoproducto': forms.CheckboxSelectMultiple(),

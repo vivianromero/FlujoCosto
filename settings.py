@@ -69,6 +69,7 @@ THIRD_APPS = [
     'bootstrap_datepicker_plus',
     'bootstrap_daterangepicker',
     'crispy_formset_modal',
+    'mptt',
 ]
 
 MY_APPS = [

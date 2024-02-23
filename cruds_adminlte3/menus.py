@@ -1,12 +1,12 @@
-from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse_lazy
-from app_auth.usuarios.forms_usuario_groups import Usuario_Groups
-from app_auth.usuarios.forms_usuario_permissions import User_Permissions
-from codificadores.models import *
 
+from codificadores.models import *
+from configuracion.models import *
 from .utils import crud_url_name
+
+User = get_user_model()
 
 MENUS = {
     'NAV_LEFT_SIDEBAR': [
@@ -34,12 +34,6 @@ MENUS = {
                     "url": crud_url_name(Departamento, 'list', 'app_index:codificadores:'),
                     "validators": ["menu_generator.validators.is_superuser"],
                 },
-                # {
-                #     "name": "Relación Departamentos",
-                #     "icon_class": 'fa fa-university',
-                #     "url": crud_url_name(DepartamentoRelacion, 'list', 'app_index:codificadores:'),
-                #     "validators": ["menu_generator.validators.is_superuser"],
-                # },
                 {
                     "name": "Unidad Contable",
                     "icon_class": 'fa fa-university',
@@ -180,6 +174,12 @@ MENUS = {
                     "name": _("Permissons"),
                     "icon_class": 'fa fa-lock',
                     "url": crud_url_name(Permission, 'list', 'app_index:permission:'),
+                    "validators": ["menu_generator.validators.is_superuser"],
+                },
+                {
+                    "name": _("UEB User"),
+                    "icon_class": 'fa fa-user',
+                    "url": crud_url_name(UserUeb, 'list', 'app_index:configuracion:'),
                     "validators": ["menu_generator.validators.is_superuser"],
                 },
             ]
