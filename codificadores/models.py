@@ -5,6 +5,7 @@ from django.db.models.functions import Now
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import gettext_lazy as _
+from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 
 
 # todas las unidades contables de la empresa
@@ -15,6 +16,7 @@ class UnidadContable(models.Model):
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     is_empresa = models.BooleanField(default=False, verbose_name=_("Is Company"))
     is_comercializadora = models.BooleanField(default=False, verbose_name=_("Is Commercial"))
+    objects = BulkUpdateOrCreateQuerySet.as_manager()
 
     class Meta:
         db_table = 'cla_unidadcontable'

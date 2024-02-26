@@ -29,6 +29,7 @@ urlpatterns = [
     path('', include('app_auth.permisos.urls')),
     path('', include('codificadores.urls')),
     path('', include('configuracion.urls')),
+    path('', include('app_apiversat.urls')),
 
     # api
     # path('api/', include(router.urls)),
