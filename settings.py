@@ -50,6 +50,8 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'django.forms',
     'password_expire',
+    'bulk_sync',
+    'bulk_update_or_create',
 ]
 
 THIRD_APPS = [
@@ -78,6 +80,8 @@ MY_APPS = [
     'flujo.apps.FlujoConfig',
     'costo.apps.CostoConfig',
     'app_index',
+    'app_versat',
+    'app_apiversat',
     'app_auth.usuarios',
     'app_auth.grupos',
     'app_auth.permisos',
@@ -309,6 +313,8 @@ AUTHENTICATION_BACKENDS = (
     # "guardian.backends.ObjectPermissionBackend",
 )
 
+DATABASE_ROUTERS = ['app_versat.routers.ApiDynamicDbRouter']
+
 # contact information if password is expired
 PASSWORD_EXPIRE_CONTACT = ""
 # expire passwords after 90 days
@@ -322,3 +328,8 @@ PASSWORD_EXPIRE_FORCE = True
 #exclude superusers from the password expiration
 PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 
+#Configuraciones de la API
+URL_API = env('URL_API')
+CONNECTION_TOKEN_API = env('CONNECTION_TOKEN_API')
+USERNAME_API = env('USERNAME_API')
+PASSWORD_API = env('PASSWORD_API')
