@@ -20,10 +20,19 @@ class UnidadContable(models.Model):
 
     class Meta:
         db_table = 'cla_unidadcontable'
+        indexes = [
+            models.Index(
+                fields=[
+                    'codigo',
+                ]
+            ),
+        ]
         ordering = ['codigo']
+        verbose_name_plural = _('UEBs')
+        verbose_name = _('UEB')
 
     def __str__(self):
-        return self.nombre
+        return "%s | %s" % (self.codigo, self.nombre)
 
 
 class Medida(models.Model):
@@ -33,7 +42,20 @@ class Medida(models.Model):
 
     class Meta:
         db_table = 'cla_medida'
-        ordering = ['descripcion']
+        indexes = [
+            models.Index(
+                fields=[
+                    'clave',
+                    'descripcion',
+                ]
+            ),
+        ]
+        ordering = ['clave', 'descripcion']
+        verbose_name_plural = _('Measurement units')
+        verbose_name = _('Unit of measurement')
+
+    def __str__(self):
+        return "%s | %s" % (self.clave, self.descripcion)
 
 
 class MedidaConversion(models.Model):
@@ -49,15 +71,27 @@ class MedidaConversion(models.Model):
 
     class Meta:
         db_table = 'cla_medidaconversion'
+        indexes = [
+            models.Index(
+                fields=[
+                    'medidao',
+                    'medidad',
+                ]
+            ),
+        ]
         unique_together = (('medidao', 'medidad'),)
         ordering = ['medidao__descripcion']
+        verbose_name_plural = _('Convert measurement units')
+        verbose_name = _('Convert unit of measurement')
+
+    def __str__(self):
+        return "%s | %s" % (self.medidao, self.medidad)
 
 
 class Cuenta(MPTTModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     long_niv = models.IntegerField()
     posicion = models.IntegerField()
-
     clave = models.CharField(unique=True, max_length=100)
     clavenivel = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=1000, verbose_name=_("Description"))
@@ -68,7 +102,16 @@ class Cuenta(MPTTModel):
 
     class Meta:
         db_table = 'cla_cuenta'
+        indexes = [
+            models.Index(
+                fields=[
+                    'clave',
+                ]
+            ),
+        ]
         ordering = ['clave', 'posicion']
+        verbose_name_plural = _('Accounts')
+        verbose_name = _('Account')
 
     def __str__(self):
         return self.descripcion
@@ -84,10 +127,19 @@ class CentroCosto(models.Model):
 
     class Meta:
         db_table = 'cla_centrocosto'
-        ordering = ['descripcion']
+        indexes = [
+            models.Index(
+                fields=[
+                    'clave',
+                ]
+            ),
+        ]
+        ordering = ['descripcion', 'clave']
+        verbose_name_plural = _('Centers of cost')
+        verbose_name = _('Cost center')
 
     def __str__(self):
-        return self.descripcion
+        return "%s | %s" % (self.clave, self.descipcion)
 
 
 class TipoProducto(models.Model):

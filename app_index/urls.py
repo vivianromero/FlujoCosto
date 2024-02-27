@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('codificadores.urls')),
     path('', include('configuracion.urls')),
     path('', include('app_apiversat.urls')),
+    path('', include('app_versat.urls')),
 
     # api
     # path('api/', include(router.urls)),
