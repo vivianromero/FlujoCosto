@@ -33,6 +33,7 @@ class GroupForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user_pop = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
         super(GroupForm, self).__init__(*args, **kwargs)
         instance = kwargs['instance']  # Ver que guarda esto en el caso de group
         self.helper = FormHelper(self)

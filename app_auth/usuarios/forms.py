@@ -49,6 +49,7 @@ class RegistroUsuarioForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         self.user_pop = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
         super(RegistroUsuarioForm, self).__init__(*args, **kwargs)
         self.user = kwargs['instance']
         self.helper = FormHelper(self)
