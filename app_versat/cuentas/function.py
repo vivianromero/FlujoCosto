@@ -9,8 +9,8 @@ def get_ucontables(request):
     #     cursor.execute("SELECT * FROM gen_unidadcontable")
     try:
         DatabaseConectionMiddleware.header_name
-        external_db = getattr(THREAD_LOCAL, 'DB_FOR_WRITE_OVERRIDE', ['default'])[-1]
-        unidades = GenUnidadcontable.objects.all()
+        # external_db = getattr(THREAD_LOCAL, 'DB_FOR_WRITE_OVERRIDE', ['default'])[-1]
+        # unidades = GenUnidadcontable.objects.all()
     except e:
         return Response({"error": "El sevicio no existe"},
                         status=status.HTTP_404_NOT_FOUND)
