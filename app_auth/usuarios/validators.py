@@ -5,7 +5,7 @@ def is_admin(request):
     """
     Retorna verdadero si el usuario es 'Administrator', si no devuelve falso
     """
-    return is_authenticated(request) and request.user.is_admin
+    return is_authenticated(request) and (request.user.is_admin or request.user.is_superuser)
 
 
 def is_operflujo(request):
