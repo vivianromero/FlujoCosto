@@ -24,7 +24,7 @@ class DatabaseConectionMiddleware:
 
             token_conection = request.META[self.header]
             try:
-                conection = ConectionDatabase.objects.get(id=token_conection)
+                conection = ConexionBaseDato.objects.get(idunidadcontable=request.user.idueb, sistema='VersatSarasola')
 
                 external_db = {
                     'ENGINE': 'mssql',
@@ -32,14 +32,12 @@ class DatabaseConectionMiddleware:
                     'USER': conection.database_user,
                     'PASSWORD': conection.password,
                     'HOST': conection.host,
-                    'PORT': '',
+                    'PORT': conection.host,
                     'OPTIONS': {
                         'driver': 'ODBC Driver 17 for SQL Server',
-                        'extra_params': "app=Versat - API;",
                         'connect_timeout': 5,
                     },
                 }
-
                 with in_database(external_db, read=True, write=True):
                     response = self.get_response(request)
                     # Code to be executed for each request/response after
@@ -55,4 +53,3 @@ class DatabaseConectionMiddleware:
             res = HttpResponse("Header %s is  required." % self.header_name, status=401)
             res["CONNECTION_TOKEN"] = "Header %s is  required." % self.header_name
             return res
-
