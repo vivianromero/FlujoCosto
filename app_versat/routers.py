@@ -1,7 +1,6 @@
 from dynamic_db_router import DynamicDbRouter
 from dynamic_db_router.router import THREAD_LOCAL
 
-
 class ApiRouter(object):
     """
     A router to control all database operations on models in the
@@ -35,14 +34,14 @@ class ApiDynamicDbRouter(DynamicDbRouter):
     """
 
     def db_for_read(self, model, **hints):
-        if model._meta.app_label == 'versat':
+        if model._meta.app_label == 'app_versat':
             return getattr(THREAD_LOCAL, 'DB_FOR_READ_OVERRIDE', ['default'])[-1]
         else:
             return 'default'
 
 
     def db_for_write(self, model, **hints):
-        if model._meta.app_label == 'versat':
+        if model._meta.app_label == 'app_versat':
             return getattr(THREAD_LOCAL, 'DB_FOR_WRITE_OVERRIDE', ['default'])[-1]
         else:
             return 'default'
@@ -54,7 +53,7 @@ class ApiDynamicDbRouter(DynamicDbRouter):
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if app_label == 'versat':
+        if app_label == 'app_versat':
             return False
         else:
             return True

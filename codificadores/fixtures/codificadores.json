@@ -401,28 +401,28 @@
     "model": "auth.group",
     "pk": "1",
     "fields": {
-        "name":"Administración"
+        "name":"Administrator"
     }
 },
 {
     "model": "auth.group",
     "pk": "2",
     "fields": {
-        "name":"Operador Flujo"
+        "name":"Flow Operator"
     }
 },
 {
     "model": "auth.group",
     "pk": "3",
     "fields": {
-        "name":"Operador Costo"
+        "name":"Cost Operator"
     }
 },
 {
     "model": "auth.group",
     "pk": "4",
     "fields": {
-        "name":"Consultor"
+        "name":"Consultant"
     }
 },
 {
@@ -523,6 +523,14 @@
 },
 {
     "model": "codificadores.unidadcontable",
+    "pk": "26915d79-cf24-4374-b053-4fbeca66c96e",
+    "fields": {
+        "codigo":"16",
+        "nombre":"UEB CENTRO PROCESO DE CAPA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
     "pk": "409d9e9f-4064-4214-a051-a1f78ea36b65",
     "fields": {
         "codigo":"19",
@@ -553,6 +561,14 @@
     "fields": {
         "codigo":"23",
         "nombre":"UEB JICOTEA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "57042ce6-b154-4663-88dd-507d79701504",
+    "fields": {
+        "codigo":"24",
+        "nombre":"UEB SERVICIOS"
     }
 }
 ]

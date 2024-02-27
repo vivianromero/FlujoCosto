@@ -6,7 +6,8 @@
         "username":"admin01",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
         "idueb": "000603fa-af2d-4713-b0e5-c2991a289f4b",
-        "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els="
+        "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
+        "groups": [1]
     }
 }
 ]

@@ -1334,6 +1334,10 @@ msgstr "Inglés"
 #~ msgid "Event Classification"
 #~ msgstr "Clasificación de Hechos"
 
+#: codificadores/models.py:35
+msgid "Unit of measurement"
+msgstr "Unidad de medida"
+
 #~ msgid "Event Type"
 #~ msgstr "Tipos de Hechos"
 
@@ -1382,3 +1386,36 @@ msgstr "Producto Origen"
 #: codificadores/models.py:43
 msgid "Output Product"
 msgstr "Producto de Salida"
+
+#: codificadores/models.py:43
+msgid "Convert measurement of unit"
+msgstr "Convertir unidad de medida"
+
+#: codificadores/models.py:43
+msgid "Convert measurement units"
+msgstr "Convertir unidades de medida"
+
+#: codificadores/models.py:43
+msgid "Account"
+msgstr "Cuenta"
+
+#: codificadores/models.py:43
+msgid "Accounts"
+msgstr "Cuentas"
+
+#: codificadores/models.py:43
+msgid "Cost center"
+msgstr "Centro de Costo"
+
+#: codificadores/models.py:43
+msgid "Centers of cost"
+msgstr "Centros de costo"
+
+#: codificadores/models.py:43
+msgid "Conexions of data bases"
+msgstr "Conexiones a base de datos"
+
+#: codificadores/models.py:43
+msgid "Database conexion"
+msgstr "Conexión a base de datos"
+

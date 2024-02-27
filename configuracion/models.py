@@ -24,9 +24,22 @@ class ConexionBaseDato(models.Model):
     host = models.CharField(max_length=250, verbose_name=_("Host"))
     port = models.CharField(max_length=100, verbose_name=_("Port"))
     idunidadcontable = models.OneToOneField(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
+    sistema = models.CharField(max_length=50, verbose_name=_("System"), default='VersatSarasola')
 
     class Meta:
         db_table = 'cfg_conexionasedato'
+        indexes = [
+            models.Index(
+                fields=[
+                    'idunidadcontable',
+                    'sistema',
+                ]
+            ),
+        ]
+        ordering = ['idunidadcontable__codigo', 'sistema']
+        verbose_name_plural = _('Conexions of data bases')
+        verbose_name = _('Database conexion')
+
 
 
 class ConsecutivoDocumento(models.Model):
@@ -93,6 +106,30 @@ class UserUeb(AbstractUser):
         ordering = ('idueb', 'username', 'pk')
         verbose_name_plural = _('Users')
         verbose_name = _('User')
+
+    @property
+    def is_admin(self):
+        return self.groups.filter(name="Administrator").exists()
+
+    @property
+    def is_operflujo(self):
+        return self.groups.filter(name="Flow Operator").exists()
+
+    @property
+    def is_opercosto(self):
+        return self.groups.filter(name="Cost Operator").exists()
+
+    @property
+    def is_consultor(self):
+        return self.groups.filter(name="Consultant").exists()
+
+    @property
+    def is_adminemp(self):
+        return self.groups.filter(name="Administrator").exists() and self.idueb and self.idueb.is_empresa
+
+    @property
+    def is_consultoremp(self):
+        return self.groups.filter(name="Consultant").exists() and self.idueb and self.idueb.is_empresa
 
 
 # Model to store the list of logged-in users
