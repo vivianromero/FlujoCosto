@@ -52,7 +52,6 @@ DJANGO_APPS = [
     'password_expire',
     'bulk_sync',
     'bulk_update_or_create',
-    'dynamic_db_router',
 ]
 
 THIRD_APPS = [
@@ -120,7 +119,7 @@ MIDDLEWARE = [
     'django_htmx.middleware.HtmxMiddleware',
     'app_auth.usuarios.middleware.OneSessionPerUserMiddleware',
     'app_auth.usuarios.middleware.PasswordExpireMiddleware',
-    # 'app_versat.middleware.DatabaseConectionMiddleware',
+    'app_versat.middleware.DatabaseConectionMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = False

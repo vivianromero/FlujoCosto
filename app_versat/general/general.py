@@ -16,6 +16,7 @@ class GenUnidadcontable(models.Model):
     class Meta:
         managed = True
         db_table = 'gen_unidadcontable'
+        ordering = ['codigo']
 
 class GenMascara(models.Model):
     idmascara = models.AutoField(primary_key=True)
