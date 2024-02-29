@@ -53,33 +53,6 @@ class DepartamentoFilter(MyGenericFilter):
         }
 
 
-# ------ DepartamentoRelacion / Filter ------
-# class DepartamentoRelacionFilter(MyGenericFilter):
-#     search_fields = [
-#         'iddepartamentoo__descripcion__icontains',
-#         'iddepartamentod__descripcion__icontains',
-#     ]
-#     split_space_search = ' '
-#
-#     class Meta:
-#         model = DepartamentoRelacion
-#         fields = [
-#             'iddepartamentoo',
-#             'iddepartamentod',
-#         ]
-#
-#         form = DepartamentoRelacionFormFilter
-#
-#         filter_overrides = {
-#             models.ForeignKey: {
-#                 'filter_class': django_filters.ModelMultipleChoiceFilter,
-#                 'extra': lambda f: {
-#                     'queryset': django_filters.filterset.remote_queryset(f),
-#                 }
-#             },
-#         }
-
-
 # ------ UnidadContable / Filter ------
 class UnidadContableFilter(MyGenericFilter):
     search_fields = [
@@ -262,7 +235,6 @@ class TipoProductoFilter(MyGenericFilter):
 
 # ------ EstadoProducto / Filter ------
 class EstadoProductoFilter(TipoProductoFilter):
-
     class Meta(TipoProductoFilter.Meta):
         model = EstadoProducto
         form = EstadoProductoFormFilter
@@ -272,7 +244,7 @@ class EstadoProductoFilter(TipoProductoFilter):
 class ClaseMateriaPrimaFilter(MyGenericFilter):
     search_fields = [
         'id__contains',
-        'descripcion__icontains',        
+        'descripcion__icontains',
         'capote_fortaleza__icontains',
     ]
     split_space_search = ' '
@@ -297,14 +269,13 @@ class ClaseMateriaPrimaFilter(MyGenericFilter):
         }
 
 
-
 # ------ ProductoFlujo / Filter ------
 class ProductoFlujoFilter(MyGenericFilter):
     search_fields = [
         'id__contains',
         'codigo__icontains',
         'id__contains',
-        'descripcion__icontains', 
+        'descripcion__icontains',
         'activo',
         'idmedida__descripcion__icontains',
         'idtipoproducto__descripcion__icontains',
@@ -334,11 +305,10 @@ class ProductoFlujoFilter(MyGenericFilter):
         }
 
 
-
 # ------ ProductoFlujoClase / Filter ------
 class ProductoFlujoClaseFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',     
+        'id__contains',
         'idclasemateriaprima__descripcion__icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -367,7 +337,7 @@ class ProductoFlujoClaseFilter(MyGenericFilter):
 # ------ ProductoFlujoDestino / Filter ------
 class ProductoFlujoDestinoFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'destino_icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -396,7 +366,7 @@ class ProductoFlujoDestinoFilter(MyGenericFilter):
 # ------ ProductoFlujoCuenta / Filter ------
 class ProductoFlujoCuentaFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'idcuenta__descripcion__icontains',
         'idproducto__descripcion__icontains',
     ]
@@ -425,7 +395,7 @@ class ProductoFlujoCuentaFilter(MyGenericFilter):
 # ------ CategoriaVitola / Filter ------
 class CategoriaVitolaFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'descripcion__icontains',
         'orden__contains',
     ]
@@ -454,7 +424,7 @@ class CategoriaVitolaFilter(MyGenericFilter):
 # ------ TipoVitola / Filter ------
 class TipoVitolaFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',  
+        'id__contains',
         'descripcion__icontains',
     ]
     split_space_search = ' '
@@ -467,6 +437,70 @@ class TipoVitolaFilter(MyGenericFilter):
         ]
 
         form = TipoVitolaFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+
+# ------ Vitola / Filter ------
+class VitolaFilter(MyGenericFilter):
+    search_fields = [
+        'diametro__contains',
+        'longitud__contains',
+        'destino__icontains',
+        'cepo__contains',
+        'idcategoriavitola__descripcion__icontains',
+        'idproducto__descripcion__icontains',
+        'idtipovitola__descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = Vitola
+        fields = [
+            'diametro',
+            'longitud',
+            'destino',
+            'cepo',
+            'idcategoriavitola',
+            'idproducto',
+            'idtipovitola',
+        ]
+
+        form = VitolaFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+
+# ------ MarcaSalida / Filter ------
+class MarcaSalidaFilter(MyGenericFilter):
+    search_fields = [
+        'codigo__icontains',
+        'descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = MarcaSalida
+        fields = [
+            'codigo',
+            'descripcion',
+        ]
+
+        form = MarcaSalidaFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

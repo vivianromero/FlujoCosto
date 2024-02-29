@@ -105,6 +105,8 @@ class UnidadContableCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
+    template_name_base = 'codificadores/unidadcontable/cruds'
+
     fields = [
         'codigo',
         'nombre',
@@ -156,6 +158,8 @@ class MedidaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
+    template_name_base = 'codificadores/medida/cruds'
+
     fields = [
         'clave',
         'descripcion',
@@ -194,6 +198,8 @@ class MedidaConversionCRUD(CommonCRUDView):
     model = MedidaConversion
 
     namespace = 'app_index:codificadores'
+
+    template_name_base = 'codificadores/medidaconversion/cruds'
 
     fields = [
         'factor_conversion',
@@ -632,3 +638,85 @@ class TipoVitolaCRUD(CommonCRUDView):
 
     # Table settings
     table_class = TipoVitolaTable
+
+
+# ------ Vitola / CRUD ------
+class VitolaCRUD(CommonCRUDView):
+    model = Vitola
+
+    namespace = 'app_index:codificadores'
+
+    template_name_base = 'codificadores/vitola/cruds'
+
+    fields = [
+        'diametro',
+        'longitud',
+        'destino',
+        'cepo',
+        'idcategoriavitola',
+        'idproducto',
+        'idtipovitola',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'diametro__contains',
+        'longitud__contains',
+        'destino__icontains',
+        'cepo__contains',
+        'idcategoriavitola__descripcion__icontains',
+        'idproducto__descripcion__icontains',
+        'idtipovitola__descripcion__icontains',
+    ]
+
+    # search_method = hecho_extraordinario_search_queryset
+
+    add_form = VitolaForm
+    update_form = VitolaForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = VitolaFilter
+
+    # Table settings
+    table_class = VitolaTable
+
+
+# ------ MarcaSalida / CRUD ------
+class MarcaSalidaCRUD(CommonCRUDView):
+    model = MarcaSalida
+
+    namespace = 'app_index:codificadores'
+
+    template_name_base = 'codificadores/marcasalida/cruds'
+
+    fields = [
+        'codigo',
+        'descripcion',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'codigo__icontains',
+        'descripcion__icontains',
+    ]
+
+    # search_method = hecho_extraordinario_search_queryset
+
+    add_form = MarcaSalidaForm
+    update_form = MarcaSalidaForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = MarcaSalidaFilter
+
+    # Table settings
+    table_class = MarcaSalidaTable

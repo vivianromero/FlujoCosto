@@ -200,3 +200,29 @@ class TipoVitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'id',
             'descripcion',
         )
+
+
+class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = Vitola
+
+        fields = (
+            'diametro',
+            'longitud',
+            'destino',
+            'cepo',
+            'idcategoriavitola',
+            'idproducto',
+            'idtipovitola',
+        )
+
+
+# ------ MarcaSalida / Table ------
+class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = TipoVitola
+
+        fields = (
+            'codigo',
+            'descripcion',
+        )

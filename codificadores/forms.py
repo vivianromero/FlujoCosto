@@ -1471,10 +1471,227 @@ class TipoVitolaFormFilter(forms.Form):
         return context
 
 
+# ------------ Vitola / Form ------------
+class VitolaForm(forms.ModelForm):
+    class Meta:
+        model = Vitola
+        fields = [
+            'diametro',
+            'longitud',
+            'destino',
+            'cepo',
+            'idcategoriavitola',
+            'idproducto',
+            'idtipovitola',
+        ]
+
+        widgets = {
+            'idcategoriavitola': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'idproducto': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'idtipovitola': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(VitolaForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_vitola_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Vitola',
+                    Row(
+                        Column('diametro', css_class='form-group col-md-3 mb-0'),
+                        Column('longitud', css_class='form-group col-md-3 mb-0'),
+                        Column('destino', css_class='form-group col-md-3 mb-0'),
+                        Column('cepo', css_class='form-group col-md-4 mb-3'),
+                        Column('idcategoriavitola', css_class='form-group col-md-4 mb-0'),
+                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('idtipovitola', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+
+# ------------ Vitola / Form Filter ------------
+class VitolaFormFilter(forms.Form):
+    class Meta:
+        model = Vitola
+        fields = [
+            'diametro',
+            'longitud',
+            'destino',
+            'cepo',
+            'idcategoriavitola',
+            'idproducto',
+            'idtipovitola',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(VitolaFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_vitola_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Vitola',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('diametro', css_class='form-group col-md-3 mb-0'),
+                        Column('longitud', css_class='form-group col-md-3 mb-0'),
+                        Column('destino', css_class='form-group col-md-3 mb-0'),
+                        Column('cepo', css_class='form-group col-md-4 mb-3'),
+                        Column('idcategoriavitola', css_class='form-group col-md-4 mb-0'),
+                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('idtipovitola', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+
+# ------------ MarcaSalida / Form ------------
+class MarcaSalidaForm(forms.ModelForm):
+    class Meta:
+        model = MarcaSalida
+        fields = [
+            'codigo',
+            'descripcion',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(MarcaSalidaForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_marcasalida_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Marca Salida',
+                    Row(
+                        Column('codigo', css_class='form-group col-md-4 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+
+# ------------ MarcaSalida / Form Filter ------------
+class MarcaSalidaFormFilter(forms.Form):
+    class Meta:
+        model = MarcaSalida
+        fields = [
+            'codigo',
+            'descripcion',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(MarcaSalidaFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_marcasalida_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Marca Salida',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('codigo', css_class='form-group col-md-4 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+
 # ------------- Departamento / Form --------------
 
 class DepartamentoForm(forms.ModelForm):
-
     class Meta:
         model = Departamento
         fields = [
@@ -1605,164 +1822,3 @@ class DepartamentoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
-
-# class DepartamentoRelacionForm(forms.ModelForm):
-#     class Media:
-#         js = ['js/my_dual_listbox.js']
-#
-#     class Meta:
-#         model = DepartamentoRelacion
-#         fields = [
-#             'iddepartamentoo',
-#             'iddepartamentod',
-#         ]
-#
-#         widgets = {
-#             'iddepartamentoo': forms.Select(
-#                 attrs={'style': 'width: 100%'}
-#             ),
-#             'iddepartamentod': forms.Select(
-#                 attrs={
-#                     'style': 'width: 100%',
-#                 }
-#             ),
-#         }
-#
-#     def __init__(self, *args, **kwargs) -> None:
-#         instance = kwargs.get('instance', None)
-#         self.user = kwargs.pop('user', None)
-#         self.post = kwargs.pop('post', None)
-#         super(DepartamentoRelacionForm, self).__init__(*args, **kwargs)
-#         self.helper = FormHelper(self)
-#         self.helper.form_id = 'id_departamento_relacion_Form'
-#         self.helper.form_method = 'post'
-#         self.helper.form_tag = False
-#
-#         self.helper.layout = Layout(
-#             TabHolder(
-#                 Tab(
-#                     'Información Básica',
-#                     Row(
-#                         Column('iddepartamentoo', css_class='form-group col-md-6 mb-0'),
-#                         Column('iddepartamentod', css_class='form-group col-md-6 mb-0'),
-#
-#                         css_class='form-row'
-#                     ),
-#                 ),
-#
-#             ),
-#         )
-#         self.helper.layout.append(
-#             FormActions(
-#                 HTML(
-#                     get_template('cruds/actions/hx_common_form_actions.html').template.source
-#                 )
-#             )
-#         )
-#
-#
-# class DepartamentoRelacionFormFilter(forms.Form):
-#     class Meta:
-#         model = DepartamentoRelacion
-#         fields = [
-#             'iddepartamentoo',
-#             'iddepartamentod',
-#         ]
-#
-#     def __init__(self, *args, **kwargs) -> None:
-#         instance = kwargs.get('instance', None)
-#         self.user = kwargs.pop('user', None)
-#         self.post = kwargs.pop('post', None)
-#         super(DepartamentoRelacionFormFilter, self).__init__(*args, **kwargs)
-#         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
-#         self.helper = FormHelper(self)
-#         self.helper.form_id = 'id_departamento_relacion_form_filter'
-#         self.helper.form_method = 'GET'
-#
-#         self.helper.layout = Layout(
-#
-#             TabHolder(
-#                 Tab(
-#                     '1',
-#                     Row(
-#                         Column(
-#                             AppendedText(
-#                                 'query', mark_safe('<i class="fas fa-search"></i>')
-#                             ),
-#                             css_class='form-group col-md-12 mb-0'
-#                         ),
-#                         Column('iddepartamentoo', css_class='form-group col-md-6 mb-0'),
-#                         Column('iddepartamentod', css_class='form-group col-md-6 mb-0'),
-#
-#                         css_class='form-row',
-#                     ),
-#                 ),
-#                 style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
-#             ),
-#
-#         )
-#
-#         self.helper.layout.append(
-#             common_filter_form_actions()
-#         )
-#
-#     def get_context(self):
-#         context = super().get_context()
-#         context['width_right_sidebar'] = '760px'
-#         context['height_right_sidebar'] = '505px'
-#         return context
-#
-#
-# class DepartamentoRelacionModalForm(forms.ModelForm):
-#     class Media:
-#         js = ['js/my_dual_listbox.js']
-#
-#     class Meta:
-#         model = DepartamentoRelacion
-#         fields = [
-#             'iddepartamentoo',
-#             'iddepartamentod',
-#         ]
-#
-#         widgets = {
-#             'iddepartamentoo': SelectWidget(
-#                 attrs={'style': 'width: 100%'}
-#             ),
-#             'iddepartamentod': SelectWidget(
-#                 attrs={
-#                     'style': 'width: 100%',
-#                 }
-#             ),
-#         }
-#
-#     def __init__(self, *args, **kwargs) -> None:
-#         instance = kwargs.get('instance', None)
-#         self.user = kwargs.pop('user', None)
-#         self.post = kwargs.pop('post', None)
-#         super(DepartamentoRelacionModalForm, self).__init__(*args, **kwargs)
-#         self.helper = ModalEditFormHelper()
-#         self.helper.form_id = 'id_departamento_relacion_modal_Form'
-#         self.helper.form_method = 'post'
-#         self.helper.form_tag = False
-#
-#         self.helper.layout = ModalEditLayout(
-#             TabHolder(
-#                 Tab(
-#                     'Información Básica',
-#                     Row(
-#                         Column('iddepartamentoo', css_class='form-group col-md-6 mb-0'),
-#                         Column('iddepartamentod', css_class='form-group col-md-6 mb-0'),
-#
-#                         css_class='form-row'
-#                     ),
-#                 ),
-#
-#             ),
-#         )
-#         self.helper.layout.append(
-#             FormActions(
-#                 HTML(
-#                     get_template('cruds/actions/hx_common_form_actions.html').template.source
-#                 )
-#             )
-#         )
