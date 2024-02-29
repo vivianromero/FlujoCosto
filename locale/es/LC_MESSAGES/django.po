@@ -644,6 +644,12 @@ msgstr "Apellido"
 msgid "Code"
 msgstr "Código"
 
+#: codificadores/models.py:13 codificadores/models.py:26
+#: codificadores/models.py:74 codificadores/models.py:137
+#: codificadores/models.py:240 codificadores/models.py:273
+msgid "Key"
+msgstr "Clave"
+
 #: codificadores/models.py:15 codificadores/models.py:78
 #: codificadores/models.py:139 codificadores/models.py:324
 msgid "Active"
@@ -1325,9 +1331,6 @@ msgstr "Inglés"
 #~ msgid "Products"
 #~ msgstr "Productos"
 
-#~ msgid "Measurement units"
-#~ msgstr "Unidades de medida"
-
 #~ msgid "EVENTS"
 #~ msgstr "HECHOS"
 
@@ -1337,6 +1340,10 @@ msgstr "Inglés"
 #: codificadores/models.py:35
 msgid "Unit of measurement"
 msgstr "Unidad de medida"
+
+#: codificadores/models.py:35
+msgid "Measurement units"
+msgstr "Unidades de medida"
 
 #~ msgid "Event Type"
 #~ msgstr "Tipos de Hechos"
@@ -1396,6 +1403,10 @@ msgid "Convert measurement units"
 msgstr "Convertir unidades de medida"
 
 #: codificadores/models.py:43
+msgid "Convert unit of measurement"
+msgstr "Convertir unidad de medida"
+
+#: codificadores/models.py:43
 msgid "Account"
 msgstr "Cuenta"
 
@@ -1419,3 +1430,6 @@ msgstr "Conexiones a base de datos"
 msgid "Database conexion"
 msgstr "Conexión a base de datos"
 
+#: codificadores/models.py:43
+msgid "The value must be greater than 0"
+msgstr "El valor debe ser mayor que 0"

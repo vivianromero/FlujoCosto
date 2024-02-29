@@ -6,17 +6,24 @@ from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import gettext_lazy as _
 from bulk_update_or_create import BulkUpdateOrCreateQuerySet
+from django.core.validators import MinValueValidator
+
+
+class ObjectsManagerAbstract(models.Model):
+    objects = BulkUpdateOrCreateQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
 
 
 # todas las unidades contables de la empresa
-class UnidadContable(models.Model):
+class UnidadContable(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=10, verbose_name=_("Code"))
     nombre = models.CharField(unique=True, max_length=30, verbose_name=_("Name"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     is_empresa = models.BooleanField(default=False, verbose_name=_("Is Company"))
     is_comercializadora = models.BooleanField(default=False, verbose_name=_("Is Commercial"))
-    objects = BulkUpdateOrCreateQuerySet.as_manager()
 
     class Meta:
         db_table = 'cla_unidadcontable'
@@ -35,10 +42,11 @@ class UnidadContable(models.Model):
         return "%s | %s" % (self.codigo, self.nombre)
 
 
-class Medida(models.Model):
+class Medida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clave = models.CharField(unique=True, max_length=6, verbose_name=_("Code"))
+    clave = models.CharField(unique=True, max_length=6, verbose_name=_("Key"))
     descripcion = models.CharField(unique=True, max_length=50, verbose_name=_("Description"))
+    objects = BulkUpdateOrCreateQuerySet.as_manager()
 
     class Meta:
         db_table = 'cla_medida'
@@ -58,10 +66,12 @@ class Medida(models.Model):
         return "%s | %s" % (self.clave, self.descripcion)
 
 
-class MedidaConversion(models.Model):
+class MedidaConversion(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     factor_conversion = models.DecimalField(max_digits=10, decimal_places=6, db_comment='Factor de conversión',
-                                            verbose_name=_("Convertion Factor"))
+                                            verbose_name=_("Convertion Factor"),
+                                            validators=[MinValueValidator(0.000001, message=_(
+                                                'The value must be greater than 0'))])
     medidao = models.ForeignKey(Medida, on_delete=models.CASCADE, related_name='medidaconversion_origen',
                                 db_comment='Medida origen de la conversión',
                                 verbose_name=_("Origin Measure"))
@@ -88,7 +98,7 @@ class MedidaConversion(models.Model):
         return "%s | %s" % (self.medidao, self.medidad)
 
 
-class Cuenta(MPTTModel):
+class Cuenta(MPTTModel, ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     long_niv = models.IntegerField()
     posicion = models.IntegerField()
@@ -117,7 +127,7 @@ class Cuenta(MPTTModel):
         return self.descripcion
 
 
-class CentroCosto(models.Model):
+class CentroCosto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clave = models.CharField(unique=True, max_length=25, verbose_name=_("Code"))
     clavenivel = models.CharField(max_length=50)
@@ -195,7 +205,7 @@ class ClaseMateriaPrima(models.Model):
         ordering = ['descripcion']
 
 
-class ProductoFlujo(models.Model):
+class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
@@ -281,7 +291,7 @@ class TipoVitola(models.Model):
         db_table = 'cla_tipovitola'
 
 
-class Vitola(models.Model):
+class Vitola(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     diametro = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,
                                    verbose_name=_("Diameter"))
@@ -298,7 +308,7 @@ class Vitola(models.Model):
         db_table = 'cla_vitola'
 
 
-class MarcaSalida(models.Model):
+class MarcaSalida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=5, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=128, verbose_name=_("Description"))
@@ -308,7 +318,7 @@ class MarcaSalida(models.Model):
         ordering = ['descripcion']
 
 
-class LineaSalida(models.Model):
+class LineaSalida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     envase = models.IntegerField(default=0, verbose_name=_("Package"))
     norma_embalaje = models.IntegerField(default=0,
@@ -331,7 +341,7 @@ class LineaSalida(models.Model):
         db_table = 'cla_lineasalida'
 
 
-class Departamento(models.Model):
+class Departamento(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
@@ -385,7 +395,7 @@ class Departamento(models.Model):
 #         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
 
 
-class NormaConsumo(models.Model):
+class NormaConsumo(ObjectsManagerAbstract):
     CHOICE_TIPOS_NORMAS = {
         1: 'Pesada',
         2: 'Materia Prima',
@@ -429,7 +439,7 @@ class NormaconsumoDetalle(models.Model):
         db_table = 'cla_normaconsumodetalle'
 
 
-class MotivoAjuste(models.Model):
+class MotivoAjuste(ObjectsManagerAbstract):
     CHOICE_MOTIVOS = {
         1: 'Merma',
         2: 'Rotura',
@@ -480,7 +490,7 @@ class TipoDocumento(models.Model):
         ordering = ['operacion', 'descripcion']
 
 
-class NumeracionDocumentos(models.Model):
+class NumeracionDocumentos(ObjectsManagerAbstract):
     CHOICE_TIPO_NUMERO = {
         1: 'Número Consecutivo',
         2: 'Número de Control',
@@ -573,7 +583,7 @@ class TipoDocumentoCuentaTransfExternaUEB(models.Model):
 
 
 # Formato del versat para las cuentas y código de los productos
-class FormatoCuentaProducto(models.Model):
+class FormatoCuentaProducto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre = models.CharField(max_length=30)
     separador = models.CharField(max_length=1)

@@ -4,6 +4,7 @@ from .general import views
 
 app_name = 'appversat'
 urlpatterns = [
-    path('appversat/', views.GenUnidadcontableList.as_view(), name='uc_appversat'),
+    path('um_appversat/', views.GenUnidadMedidaList.as_view(), name='um_appversat'),
 ]
+
 

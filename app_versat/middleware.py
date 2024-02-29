@@ -1,6 +1,7 @@
 from django.http import HttpResponse
-from django.urls import reverse
+from django.shortcuts import redirect
 from dynamic_db_router import in_database
+from django.urls import resolve
 
 from configuracion.models import ConexionBaseDato
 
@@ -18,10 +19,11 @@ class DatabaseConectionMiddleware:
         # the view (and later middleware) are called.
         user = request.user
         try:
-            path = request.path
-            if not user.is_authenticated or request.path.find('/appversat/') == -1:
+            match = resolve(request.path)
+            if not user.is_authenticated or not 'appversat' in match.namespaces:
                 return self.get_response(request)
-
+            if not user.is_adminempresa:
+                return redirect('app_index:noauthorized')
             try:
                 conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola')
 
