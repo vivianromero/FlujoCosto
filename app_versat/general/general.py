@@ -51,6 +51,7 @@ class GenMedida(models.Model):
     class Meta:
         managed = True
         db_table = 'gen_medida'
+        ordering = ['clave']
 
 class GenProducto(models.Model):
     idproducto = models.AutoField(primary_key=True)

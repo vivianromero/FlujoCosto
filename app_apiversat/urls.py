@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'apiversat'
 urlpatterns = [
-    path('uc_versat/', views.UC_Versat, name='uc_versat'),
+    path('uc_apiversat/', views.UC_Versat, name='uc_apiversat'),
 ]
 
 # urlpatterns += crud_for_app(

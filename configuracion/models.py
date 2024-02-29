@@ -124,7 +124,7 @@ class UserUeb(AbstractUser):
         return self.groups.filter(name="Consultant").exists()
 
     @property
-    def is_adminemp(self):
+    def is_adminempresa(self):
         return self.groups.filter(name="Administrator").exists() and self.idueb and self.idueb.is_empresa
 
     @property
