@@ -17,6 +17,8 @@ producto_flujo_destino_crud = views.ProductoFlujoDestinoCRUD()
 producto_flujo_cuenta_crud = views.ProductoFlujoCuentaCRUD()
 categoria_vitola_crud = views.CategoriaVitolaCRUD()
 tipo_vitola_crud = views.TipoVitolaCRUD()
+marcasalida_crud = views.MarcaSalidaCRUD()
+vitola_crud = views.VitolaCRUD()
 
 app_name = 'codificadores'
 
@@ -37,5 +39,7 @@ urlpatterns = [
     path("", include(producto_flujo_cuenta_crud.get_urls())),
     path("", include(categoria_vitola_crud.get_urls())),
     path("", include(tipo_vitola_crud.get_urls())),
+    path("", include(marcasalida_crud.get_urls())),
+    path("", include(vitola_crud.get_urls())),
 ]
 

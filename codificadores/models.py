@@ -139,7 +139,7 @@ class CentroCosto(models.Model):
         verbose_name = _('Cost center')
 
     def __str__(self):
-        return "%s | %s" % (self.clave, self.descipcion)
+        return "%s | %s" % (self.clave, self.descripcion)
 
 
 class TipoProducto(models.Model):

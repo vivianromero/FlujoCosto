@@ -17,9 +17,27 @@
         <li class="nav-item">
             <a href="{{ menu.url }}" class="nav-link {% if menu.selected %} active {% endif %}">
                 <i class="{{ menu.icon_class }}"></i>
-                <p>{{ menu.name }}</p>
+                <p>
+                    {{ menu.name }}
+                    {% if menu.submenu %}<i class="right fas fa-angle-left"></i>{% endif %}
+                </p>
             </a>
+            {% if menu.submenu %}
+                {% block main_sidebar_submenu_items_submenus %}
+                    <ul class="nav nav-treeview">
+                    {% for submenu in menu.submenu %}
+                        <li class="nav-item">
+                            <a href="{{ submenu.url }}" class="nav-link {% if submenu.selected %} active {% endif %}">
+                                <i class="{{ submenu.icon_class }}"></i>
+                                <p>{{ submenu.name }}</p>
+                            </a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endblock main_sidebar_submenu_items_submenus %}
+            {% endif %}
         </li>
+
     {% endfor %}
     </ul>
 {% endblock main_sidebar_menu_items_submenus %}

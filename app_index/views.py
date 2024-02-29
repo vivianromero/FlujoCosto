@@ -107,10 +107,20 @@ class CommonCRUDView(CRUDView):
                 return context
 
             def get_template_names(self):
-                if self.request.htmx:
-                    template_name = "app_index/partials/list_table_partial.html"
+                if self.table_class is None:
+                    template = 'list.html'
+                    template_partial = 'list_partial.html'
                 else:
-                    template_name = "app_index/cruds/list_table.html"
+                    template = 'list_table.html'
+                    template_partial = 'list_table_partial.html'
+                if self.request.htmx:
+                    template_name = "%s/%s" % (
+                        self.partial_template_name_base, template_partial
+                    )
+                else:
+                    template_name = "%s/%s" % (
+                        self.template_name_base, template
+                    )
 
                 return template_name
 
