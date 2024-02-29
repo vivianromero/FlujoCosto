@@ -10,6 +10,8 @@ class ConCuenta(models.Model):
         managed = True
         db_table = 'con_cuenta'
         unique_together = (('idapertura', 'clave'),)
+        ordering = ['clave']
+
 
 class ConCuentaNat(models.Model):
     idcuenta = models.ForeignKey('ConCuenta', models.DO_NOTHING, db_column='idcuenta')
@@ -31,4 +33,3 @@ class ConApertura(models.Model):
     class Meta:
         managed = True
         db_table = 'con_apertura'
-
