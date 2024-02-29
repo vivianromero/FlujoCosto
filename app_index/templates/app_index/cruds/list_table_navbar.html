@@ -38,9 +38,11 @@
 {% block right_table_navbar_links %}
 <ul class="navbar-nav ml-auto">
     <div id="act_versat_link_url_div" style="display: flex; align-items: center">
-        {% block list_act_versat_table_main_header %}
-            {# aquí se debe poner el link de importar#}
-        {% endblock list_act_versat_table_main_header %}
+        {% if request.user.is_adminemp %}
+            {% block list_act_versat_table_main_header %}
+                {# aquí se debe poner el link de importar#}
+            {% endblock list_act_versat_table_main_header %}
+        {% endif %}
     </div>
     <div id="export_link_url_div" style="display: flex; align-items: center">
         {% block list_import_table_main_header %}

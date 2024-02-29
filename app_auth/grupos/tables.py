@@ -40,7 +40,6 @@ class GroupTable(ColumnShiftTableBootstrap4Responsive):
 
         fields = (
             'name',
-            'permissions'
         )
         template_name = "django_tables2/bootstrap4.html"
         table_pagination = {
