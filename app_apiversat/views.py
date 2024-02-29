@@ -2,8 +2,9 @@ from django.shortcuts import redirect
 from .functionapi import getAPI
 from cruds_adminlte3.utils import crud_url_name
 from codificadores.models import UnidadContable
+from utiles.decorators import adminempresa_required
 
-
+@adminempresa_required
 def UC_Versat(request):
     response = getAPI('unidad')
     if response.status_code == 200:

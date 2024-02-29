@@ -16,15 +16,14 @@ class DatabaseConectionMiddleware:
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
+        user = request.user
         try:
             path = request.path
-            # noHeaderRequired = path.startswith(reverse('admin:index')) | path.startswith(reverse('schema', current_app='drf_spectacular')) | (path == '/')
-            # if noHeaderRequired:
-            #     return self.get_response(request)
+            if not user.is_authenticated or request.path.find('/appversat/') == -1:
+                return self.get_response(request)
 
-            token_conection = request.META[self.header]
             try:
-                conection = ConexionBaseDato.objects.get(idunidadcontable=request.user.idueb, sistema='VersatSarasola')
+                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola')
 
                 external_db = {
                     'ENGINE': 'mssql',
@@ -32,7 +31,13 @@ class DatabaseConectionMiddleware:
                     'USER': conection.database_user,
                     'PASSWORD': conection.password,
                     'HOST': conection.host,
-                    'PORT': conection.host,
+                    'PORT': conection.port,
+                    'ATOMIC_REQUESTS': True,
+                    'CONN_REQUESTS': True,
+                    'TIME_ZONE': None,
+                    'CONN_HEALTH_CHECKS': False,
+                    'CONN_MAX_AGE': 0,
+                    'AUTOCOMMIT': True,
                     'OPTIONS': {
                         'driver': 'ODBC Driver 17 for SQL Server',
                         'connect_timeout': 5,

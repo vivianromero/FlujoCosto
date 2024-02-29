@@ -9,6 +9,7 @@ from .views import (
     Index,
     Underconstruction,
     Dashboard,
+    Noauthorized,
 )
 
 app_name = 'app_index'
@@ -18,6 +19,8 @@ urlpatterns = [
     path('', login_required(Index.as_view(), login_url='login/'), name='index'),
     path('under_construction/', Underconstruction.as_view(), name='under_construction'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
+    # Acceso denegado
+    path('noauthorized/', Noauthorized.as_view(), name='noauthorized'),
     # Django-select2
     path("select2/", include("django_select2.urls")),
     # JWT auth
@@ -31,6 +34,7 @@ urlpatterns = [
     path('', include('configuracion.urls')),
     path('', include('app_apiversat.urls')),
     path('', include('app_versat.urls')),
+
 
     # api
     # path('api/', include(router.urls)),
