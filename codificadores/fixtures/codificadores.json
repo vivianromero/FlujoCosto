@@ -401,28 +401,28 @@
     "model": "auth.group",
     "pk": "1",
     "fields": {
-        "name":"Administrator"
+        "name":"Administrador"
     }
 },
 {
     "model": "auth.group",
     "pk": "2",
     "fields": {
-        "name":"Flow Operator"
+        "name":"Operador Flujo"
     }
 },
 {
     "model": "auth.group",
     "pk": "3",
     "fields": {
-        "name":"Cost Operator"
+        "name":"Operador Costo"
     }
 },
 {
     "model": "auth.group",
     "pk": "4",
     "fields": {
-        "name":"Consultant"
+        "name":"Consultor"
     }
 },
 {
