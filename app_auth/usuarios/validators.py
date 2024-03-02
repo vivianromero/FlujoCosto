@@ -33,7 +33,7 @@ def is_adminempresa(request):
     """
     Retorna verdadero si el usuario es admin de empresa, si no devuelve falso
     """
-    return is_authenticated(request) and request.user.is_adminempresa
+    return is_authenticated(request) and (request.user.is_adminempresa or request.user.is_superuser)
 
 
 def is_consultoremp(request):

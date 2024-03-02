@@ -27,6 +27,8 @@ env = environ.Env()
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
 
+MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'static/upload'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 

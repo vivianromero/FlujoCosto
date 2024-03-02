@@ -109,27 +109,27 @@ class UserUeb(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.groups.filter(name="Administrator").exists()
+        return self.groups.filter(name="Administrador").exists()
 
     @property
     def is_operflujo(self):
-        return self.groups.filter(name="Flow Operator").exists()
+        return self.groups.filter(name="Operador Flujo").exists()
 
     @property
     def is_opercosto(self):
-        return self.groups.filter(name="Cost Operator").exists()
+        return self.groups.filter(name="Operador Costo").exists()
 
     @property
     def is_consultor(self):
-        return self.groups.filter(name="Consultant").exists()
+        return self.groups.filter(name="Consultor").exists()
 
     @property
     def is_adminempresa(self):
-        return self.groups.filter(name="Administrator").exists() and self.idueb and self.idueb.is_empresa
+        return self.groups.filter(name="Administrador").exists() and self.idueb and self.idueb.is_empresa
 
     @property
     def is_consultoremp(self):
-        return self.groups.filter(name="Consultant").exists() and self.idueb and self.idueb.is_empresa
+        return self.groups.filter(name="Consultor").exists() and self.idueb and self.idueb.is_empresa
 
 
 # Model to store the list of logged-in users
