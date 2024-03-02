@@ -233,9 +233,9 @@ class MedidaConversionForm(forms.ModelForm):
     class Meta:
         model = MedidaConversion
         fields = [
-            'factor_conversion',
             'medidao',
-            'medidad'
+            'medidad',
+            'factor_conversion'
         ]
 
         widgets = {
@@ -262,9 +262,9 @@ class MedidaConversionForm(forms.ModelForm):
                 Tab(
                     'Medida Conversión',
                     Row(
-                        Column('factor_conversion', css_class='form-group col-md-2 mb-0'),
                         Column('medidao', css_class='form-group col-md-5 mb-0'),
                         Column('medidad', css_class='form-group col-md-5 mb-0'),
+                        Column('factor_conversion', css_class='form-group col-md-2 mb-0'),
 
                         css_class='form-row'
                     ),
@@ -286,9 +286,9 @@ class MedidaConversionFormFilter(forms.Form):
     class Meta:
         model = MedidaConversion
         fields = [
-            'factor_conversion',
             'medidao',
             'medidad',
+            'factor_conversion',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -313,9 +313,9 @@ class MedidaConversionFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('factor_conversion', css_class='form-group col-md-2 mb-0'),
                         Column('medidao', css_class='form-group col-md-5 mb-0'),
                         Column('medidad', css_class='form-group col-md-5 mb-0'),
+                        Column('factor_conversion', css_class='form-group col-md-2 mb-0'),
 
                         css_class='form-row',
                     ),

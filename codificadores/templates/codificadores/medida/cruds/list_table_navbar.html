@@ -7,8 +7,7 @@
 {% block list_act_versat_table_main_header %}
     {# aquí se debe poner el link de importar#}
     <a id="id_create_url"
-       {#href="{% url 'app_index:apiversat:uc_versat' %}"#}
-       href="{% url 'app_index:appversat:uc_appversat' %}"
+       href="{% url 'app_index:appversat:um_appversat' %}"
 
        class="nav-link"
 {#               hx-get="{{ url }}{{ getparams }}"#}
@@ -29,24 +28,26 @@
 
 {% block list_import_table_main_header %}
     {# aquí se debe poner el link de importar#}
-    <a id="id_create_url"
-       href="#"
-       class="nav-link"
-{#               hx-get="{{ url }}{{ getparams }}"#}
-{#               hx-trigger="click"#}
-{#               hx-target="#main_content_swap"#}
-{#               hx-swap="outerHTML"#}
-{#               hx-replace-url="true"#}
-       role="button">
-        <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
-    </a>
+    {% if request.user.is_adminempresa %}
+        <a id="id_create_url"
+           href="#"
+           class="nav-link"
+    {#               hx-get="{{ url }}{{ getparams }}"#}
+    {#               hx-trigger="click"#}
+    {#               hx-target="#main_content_swap"#}
+    {#               hx-swap="outerHTML"#}
+    {#               hx-replace-url="true"#}
+           role="button">
+            <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+        </a>
+    {% endif %}
 {% endblock list_import_table_main_header %}
 
 
 {% block list_export_table_main_header %}
     {# aquí se debe poner el link de exportar#}
     <a id="id_create_url"
-       href="#"
+       href="{% url 'app_index:exportar:umc_exportar' %}"
        class="nav-link"
 {#               hx-get="{{ url }}{{ getparams }}"#}
 {#               hx-trigger="click"#}

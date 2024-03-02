@@ -61,9 +61,9 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = Medida
 
         fields = (
-            'factor_conversion',
             'medidao',
             'medidad',
+            'factor_conversion',
         )
 
 

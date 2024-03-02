@@ -124,7 +124,7 @@ MENUS = {
                     "name": _("Groups"),
                     "icon_class": 'fa fa-users',
                     "url": crud_url_name(Group, 'list', 'app_index:group:'),
-                    "validators": ["app_auth.usuarios.validators.is_admin"],
+                    "validators": ["app_auth.usuarios.validators.is_adminempresa"],
                 },
                 {
                     "name": _("Permissons"),
