@@ -78,14 +78,6 @@ class CommonCRUDView(CRUDView):
 
     filterset_class = None  # Must be filled in descendant classes
 
-    perms = {
-        'create': [],
-        'list': [],
-        'delete': [],
-        'update': [],
-        'detail': []
-    }
-
     page_length = 10
 
     page_length_menu = [5, 10, 15, 20]
