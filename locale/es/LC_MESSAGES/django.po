@@ -1433,3 +1433,11 @@ msgstr "Conexión a base de datos"
 #: codificadores/models.py:43
 msgid "The value must be greater than 0"
 msgstr "El valor debe ser mayor que 0"
+
+#: cruds_adminlte3/config.py:7 cruds_adminlte3/config.py:8
+msgid "Flow"
+msgstr "Flujo"
+
+#: cruds_adminlte3/config.py:7 cruds_adminlte3/config.py:8
+msgid "Cost"
+msgstr "Costo"
