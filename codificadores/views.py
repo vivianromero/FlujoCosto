@@ -1,7 +1,8 @@
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
-# from codificadores.inlines import DepartamentoRelacionInline
+from django.http.response import HttpResponseRedirect
+from django.db.models import ProtectedError
 from codificadores.tables import *
 
 
@@ -150,6 +151,25 @@ class UnidadContableCRUD(CommonCRUDView):
 
     # Table settings
     table_class = UnidadContableTable
+
+    # def get_delete_view(self):
+    #     view = self.get_delete_view_class()
+    #
+    #     class ODeleteView(view):
+    #
+    #         def post(self, request, *args, **kwargs):
+    #             self.object = self.get_object()
+    #             try:
+    #                 self.object.delete()
+    #             except ProtectedError:
+    #                 messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
+    #                 return HttpResponseRedirect(self.get_success_url())
+    #             self.object.delete()
+    #             if self.success_message:
+    #                 messages.success(self.request, self.success_message)
+    #             return HttpResponseRedirect(self.get_success_url())
+    #
+    #     return ODeleteView
 
 
 # ------ Medida / CRUD ------

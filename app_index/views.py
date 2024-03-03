@@ -195,5 +195,6 @@ class CommonCRUDView(CRUDView):
 
         return OCreateView
 
+
 class Noauthorized(TemplateView):
     template_name = 'app_index/cruds/403.html'
