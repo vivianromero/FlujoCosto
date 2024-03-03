@@ -29,6 +29,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
 
 MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'static/upload'))
 
+APP_VERSION = (os.path.join(BASE_DIR, 'version'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -186,8 +188,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
-
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

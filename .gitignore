@@ -4,3 +4,5 @@
 /.env.local
 */__pycache__/*
 *.pyc
+/setting/.env.local
+/config/.env.local
