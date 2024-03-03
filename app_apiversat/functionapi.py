@@ -1,7 +1,7 @@
 import requests
 from requests.auth import HTTPBasicAuth
 
-import settings
+from django.conf import settings
 
 URL_API = settings.URL_API
 CONNECTION_TOKEN_API = settings.CONNECTION_TOKEN_API
