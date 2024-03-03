@@ -12,7 +12,9 @@ def uc_exportar(request):
     # Lógica para generar el contenido del archivo (por ejemplo, usando pandas)
     contenido_archivo = "Contenido del archivo a exportar"
 
-    json_info = json_info('UC')
+    json_verify = json_info('UC')
+
+
 
 
     # Configuración de la respuesta HTTP para la descarga del archivo

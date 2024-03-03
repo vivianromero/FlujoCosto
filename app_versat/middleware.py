@@ -52,7 +52,7 @@ class DatabaseConectionMiddleware:
                     return response
 
                 # return self.get_response(request)
-            except ConectionDatabase.DoesNotExist:
+            except ConexionBaseDato.DoesNotExist:
                 res = HttpResponse("Invalid header %s." % self.header_name, status=401)
                 res["CONNECTION_TOKEN"] = "Invalid header %s." % self.header_name
                 return res
