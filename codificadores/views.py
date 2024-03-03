@@ -1,8 +1,6 @@
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
-from django.http.response import HttpResponseRedirect
-from django.db.models import ProtectedError
 from codificadores.tables import *
 
 

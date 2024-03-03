@@ -11,12 +11,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
 from datetime import timedelta
+from pathlib import Path
+
 import environ
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.conf import Settings as Thumbnail_Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
