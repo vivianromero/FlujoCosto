@@ -10,6 +10,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query_utils import Q
+from django.db.models import ProtectedError
 from django.forms import Select, SelectMultiple
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -29,6 +30,7 @@ from django_tables2.export import ExportMixin, TableExport
 from django_tables2.views import SingleTableMixin
 from tablib import Dataset
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView
+import sweetify
 
 # Own imports
 from cruds_adminlte3 import utils
@@ -1037,7 +1039,25 @@ class CRUDView(object):
 
             def post(self, request, *args, **kwargs):
                 self.object = self.get_object()
-                self.object.delete()
+                try:
+                    self.object.delete()
+                except ProtectedError as e:
+                    protected_details = ", ".join([str(obj) for obj in e.protected_objects])
+                    # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
+                    title = _('Cannot delete ')
+                    text = _('This element is related to: ')
+                    confirm_button_text = _('Accept')
+                    sweetify.error(
+                        self.request,
+                        title + self.object.__str__() + '!',
+                        text=text + protected_details,
+                        confirmButtonColor='#3085d6',
+                        confirmButtonText=confirm_button_text,
+                        backdrop=True,
+                        showLoaderOnConfirm=True,
+                        persistent="Close",
+                    )
+                    return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     messages.success(self.request, self.success_message)
                 return HttpResponseRedirect(self.get_success_url())
