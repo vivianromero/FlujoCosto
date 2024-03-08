@@ -35,6 +35,23 @@
     {% endblock left_table_navbar_links %}
     <!-- Right table navbar links -->
     {% block right_table_navbar_links %}
+    <div id="act_versat_link_url_div" style="display: flex; align-items: center" hx-swap-oob="true">
+        {% if request.user.is_adminempresa %} {# si tiene permiso#}
+            {% block list_act_versat_table_main_header %}
+                {# aquí se debe poner el link de importar#}
+            {% endblock list_act_versat_table_main_header %}
+        {% endif %}
+    </div>
+    <div id="import_link_url_div" style="display: flex; align-items: center" hx-swap-oob="true">
+        {% block list_import_table_main_header %}
+            {# aquí se debe poner el link de importar#}
+        {% endblock list_import_table_main_header %}
+    </div>
+    <div id="export_link_url_div" style="display: flex; align-items: center" hx-swap-oob="true">
+        {% block list_export_table_main_header %}
+            {# aquí se debe poner el link de exportar#}
+        {% endblock list_export_table_main_header %}
+    </div>
     <ul class="navbar-nav ml-auto">
         {% if table.shift_table_column %}
             <div id="table_visibility_link_dropdown_menu" class="btn-group" hx-swap-oob="true">

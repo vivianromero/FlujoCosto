@@ -5,11 +5,11 @@
 {% load crud_tags %}
 {% load render_table from django_tables2 %}
 
-{% if not url_list in request.htmx.current_url_abs_path %}
-    {% block table_navbar %}
-        {% include 'app_index/partials/list_table_navbar_partial.html' %}
-    {% endblock table_navbar %}
-{% endif %}
+<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
+     style="padding-bottom: 0; padding-top: 0; height: 35px;" hx-swap-oob="true">
+    {% include 'codificadores/unidadcontable/partials/list_table_navbar_partial.html' %}
+</nav>
+
 <div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
     {% include 'adminlte/lib/_messages.html' %}
 </div>

@@ -1,27 +1,81 @@
 {% extends template_father %}
 {% load i18n %}
+{% load crud_tags %}
 
-{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
-{% block body_class %}{{ blocks.body_class|default:model_verbose_name_plural|lower }}{% endblock body_class %}
-{% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
-{% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+{#{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}#}
+{#{% block body_class %}{{ blocks.body_class|default:model_verbose_name_plural|lower }}{% endblock body_class %}#}
+{#{% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}#}
+{#{% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}#}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 col-md-offset-1">
-        {% if crud_perms.list %}
-            <a href="{{ url_list }}{{getparams}}" class="btn btn-primary">
-                <i class="fa fa-angle-double-left"></i>
-                {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
-            </a>
-        {% endif %}
-        <br /><br />
-        <div class="card mx-auto" style="width: 85%">
-            <div class="card-header with-border border-primary" style="background-color: lightgreen">
-                <h3 class="card-title">{% trans "New" %} {{ model_verbose_name }}</h3>
+<section class="content">
+    <div class="container-fluid">
+        <div id="main_content_swap">
+            <div class="row" style="padding: 0;">
+                <div class="col-md-12 col-md-offset-1">
+                    {% if crud_perms.list %}
+                        <a hx-get="{{ url_list }}{{getparams}}"
+                           hx-trigger="click"
+                           hx-target="#main_content_swap"
+                           hx-swap="outerHTML"
+                           hx-replace-url="true"
+                           href="{{ url_list }}{{getparams}}"
+                           class="btn btn-primary">
+                            <i class="fa fa-angle-double-left"></i>
+                            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+                        </a>
+                    {% endif %}
+                    <div class="card mx-auto" style="width: 100%; padding: 0; margin-top: 8px; margin-bottom: 0">
+            {#            <div class="card-header with-border border-primary" style="background-color: lightgreen">#}
+            {#                <h3 class="card-title">{% trans "Edit" %} {{ model_verbose_name }}</h3>#}
+            {#            </div>#}
+                        <script>
+                            window.data = {
+                                filterTextClear: '{{ filterTextClear|safe }}',
+                                filterPlaceHolder: '{{ filterPlaceHolder|safe }}',
+                                moveSelectedLabel: '{{ moveSelectedLabel|safe }}',
+                                moveAllLabel: '{{ moveAllLabel|safe }}',
+                                removeSelectedLabel: '{{ removeSelectedLabel|safe }}',
+                                removeAllLabel: '{{ removeAllLabel|safe }}',
+                                infoText1: '{{ infoText1|safe }}',
+                                infoText2: '{{ infoText2|safe }}',
+                                infoTextFiltered: '{{ infoTextFiltered|safe }}',
+                                infoTextEmpty: '{{ infoTextEmpty|safe }}',
+                                today: '{{ today|safe }}',
+                                clear: '{{ clear|safe }}',
+                                close: '{{ close|safe }}',
+                                selectMonth: '{{ selectMonth|safe }}',
+                                prevMonth: '{{ prevMonth|safe }}',
+                                nextMonth: '{{ nextMonth|safe }}',
+                                selectYear: '{{ selectYear|safe }}',
+                                prevYear: '{{ prevYear|safe }}',
+                                nextYear: '{{ nextYear|safe }}',
+                                selectDecade: '{{ selectDecade|safe }}',
+                                prevDecade: '{{ prevDecade|safe }}',
+                                nextDecade: '{{ nextDecade|safe }}',
+                                prevCentury: '{{ prevCentury|safe }}',
+                                nextCentury: '{{ nextCentury|safe }}',
+                                pickHour: '{{ pickHour|safe }}',
+                                incrementHour: '{{ incrementHour|safe }}',
+                                decrementHour: '{{ decrementHour|safe }}',
+                                pickMinute: '{{ pickMinute|safe }}',
+                                incrementMinute: '{{ incrementMinute|safe }}',
+                                decrementMinute: '{{ decrementMinute|safe }}',
+                                pickSecond: '{{ pickSecond|safe }}',
+                                incrementSecond: '{{ incrementSecond|safe }}',
+                                decrementSecond: '{{ decrementSecond|safe }}',
+                                togglePeriod: '{{ togglePeriod|safe }}',
+                                selectTime: '{{ selectTime|safe }}'
+                            }
+                        </script>
+
+                        {% include "cruds/_form.html" with action='create' %}
+
+                    </div>
+                </div>
             </div>
-            {% include "cruds/_form.html" with action='create' %}
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
+
