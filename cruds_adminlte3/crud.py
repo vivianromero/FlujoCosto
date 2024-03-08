@@ -39,7 +39,7 @@ from cruds_adminlte3.domains import (
     prefix_to_infix
 )
 from cruds_adminlte3.filter import get_filters, get_filter_fields
-from .config import CONFIG
+# from .config import CONFIG
 
 User = get_user_model()
 
@@ -279,7 +279,7 @@ class CRUDMixin(object):
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
         context['getparams'] += "&" if self.getparams else ""
-        context.update(CONFIG)
+        # context.update(CONFIG)
         return context
 
     def dispatch(self, request, *args, **kwargs):
