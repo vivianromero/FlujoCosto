@@ -32,6 +32,8 @@ MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'staticfiles/upload'))
 
 APP_VERSION = (os.path.join(BASE_DIR, 'config/version'))
 
+APP_VERSION = (os.path.join(BASE_DIR, 'version'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
