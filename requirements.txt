@@ -22,7 +22,7 @@ django-image-cropping==1.7
 django-js-asset==2.2.0
 django-menu-generator==1.1.0
 django-mptt==0.16.0
-django-mssql-backend==2.8.1
+mssql-django==2.8.1
 django-password-expire==0.2
 django-select2==8.1.2
 django-session-timeout==0.1.0

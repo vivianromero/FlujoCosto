@@ -303,7 +303,7 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 }
 
 # Session expiration
-SESSION_EXPIRE_SECONDS = 600  # 10 minutos
+SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS'))
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
 

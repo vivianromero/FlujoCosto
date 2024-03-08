@@ -948,11 +948,11 @@ msgid "Port"
 msgstr "Puerto"
 
 #: configuracion/models.py:40
-msgid "Conexions of data bases"
+msgid "Connections of data bases"
 msgstr "Conexiones a base de datos"
 
 #: configuracion/models.py:41
-msgid "Database conexion"
+msgid "Database connection"
 msgstr "Conexión a base de datos"
 
 #: configuracion/models.py:50
@@ -1518,3 +1518,35 @@ msgstr "Rotos"
 
 #~ msgid "Convert measurement of unit"
 #~ msgstr "Convertir unidad de medida"
+
+#: app_apiversat/views.py:64
+msgid "Data were successfully update"
+msgstr "Datos actualizados correctamente"
+
+#: app_apiversat/views.py:64
+msgid "Success update"
+msgstr "Actualización exitosa"
+
+#: app_apiversat/views.py:64
+#, python-format
+msgid "Couldn't update"
+msgstr "No se pudo actualizar"
+
+#: app_apiversat/views.py:64
+msgid "Connection error"
+msgstr "Error de conexión"
+
+#: app_apiversat/views.py:64
+#, python-format
+msgid "Couldn't connect"
+msgstr "No se pudo conectar"
+
+#: app_apiversat/views.py:64
+msgid "Data error"
+msgstr "Error de datos"
+
+#: app_appversat/views.py:64
+msgid "Database connect for Versat Sarasola not define"
+msgstr "La conexión a la base de datos del Versat Sarasola no se está definida"
+
+

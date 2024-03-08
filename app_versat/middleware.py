@@ -1,9 +1,14 @@
 from django.http import HttpResponse
+from django.urls import resolve
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 from dynamic_db_router import in_database
-from django.urls import resolve
+from django.db import connections
 
 from configuracion.models import ConexionBaseDato
+from utiles.utils import message_error
+from codificadores.models import UnidadContable, Medida
+from cruds_adminlte3.utils import crud_url_name
 
 
 class DatabaseConectionMiddleware:
@@ -24,16 +29,25 @@ class DatabaseConectionMiddleware:
                 return self.get_response(request)
             if not user.is_adminempresa:
                 return redirect('app_index:noauthorized')
+            url_name = match.url_name
+            object = None
+            match url_name:
+                case 'um_appversat':
+                    object=Medida
+                # case 'uc_appversat':
+                #     object=UnidadContable
+                # case _:
+                #     action - default
             try:
-                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola')
+                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola1')
 
                 external_db = {
                     'ENGINE': 'mssql',
-                    'NAME': conection.database_name,
+                    'NAME': 'conection.database_name',
                     'USER': conection.database_user,
                     'PASSWORD': conection.password,
                     'HOST': conection.host,
-                    'PORT': conection.port,
+                    'PORT': '',
                     'ATOMIC_REQUESTS': True,
                     'CONN_REQUESTS': True,
                     'TIME_ZONE': None,
@@ -47,16 +61,14 @@ class DatabaseConectionMiddleware:
                 }
                 with in_database(external_db, read=True, write=True):
                     response = self.get_response(request)
-                    # Code to be executed for each request/response after
-                    # the view is called.
-                    return response
+                return response if response.status_code==200 else redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))
 
-                # return self.get_response(request)
             except ConexionBaseDato.DoesNotExist:
-                res = HttpResponse("Invalid header %s." % self.header_name, status=401)
-                res["CONNECTION_TOKEN"] = "Invalid header %s." % self.header_name
-                return res
+                message_error(request=request, title=_("Couldn't connect"), text=_('Database connect for Versat Sarasola not define'))
+                return redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))
+            except Exception as e:
+                message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))
+                return redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))
         except KeyError:
-            res = HttpResponse("Header %s is  required." % self.header_name, status=401)
-            res["CONNECTION_TOKEN"] = "Header %s is  required." % self.header_name
-            return res
+            message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))
+            return redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))

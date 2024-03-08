@@ -14,15 +14,12 @@ def uc_exportar(request):
 
     json_verify = json_info('UC')
 
-
-
-
     # Configuración de la respuesta HTTP para la descarga del archivo
-    # response = HttpResponse(content_type='text/csv')
-    # response['Content-Disposition'] = 'attachment; filename="archivo_exportado_uc.csv"'
+    response = HttpResponse(content_type='text/json')
+    response['Content-Disposition'] = 'attachment; filename="archivo_exportado_uc.json"'
 
     # Escribir el contenido del archivo en la respuesta
-    # response.write(contenido_archivo)
+    response.write(json_verify)
     return response
 
 @login_required

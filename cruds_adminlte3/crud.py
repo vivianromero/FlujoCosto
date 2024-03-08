@@ -9,14 +9,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models.query_utils import Q
 from django.db.models import ProtectedError
+from django.db.models.query_utils import Q
 from django.forms import Select, SelectMultiple
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from django.template.defaulttags import url
 from django.template.loader import render_to_string
-from django.urls import re_path, include
+from django.urls import re_path
 from django.urls.base import reverse_lazy, reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -24,13 +23,11 @@ from django.views import View
 from django.views.generic import (ListView, CreateView, DeleteView,
                                   UpdateView, DetailView)
 from django_filters.views import FilterView
-from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 from django_tables2 import RequestConfig
 from django_tables2.export import ExportMixin, TableExport
 from django_tables2.views import SingleTableMixin
-from tablib import Dataset
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView
-import sweetify
+from tablib import Dataset
 
 # Own imports
 from cruds_adminlte3 import utils
@@ -39,7 +36,8 @@ from cruds_adminlte3.domains import (
     prefix_to_infix
 )
 from cruds_adminlte3.filter import get_filters, get_filter_fields
-# from .config import CONFIG
+from utiles.utils import message_error
+from .config import CONFIG
 
 User = get_user_model()
 
@@ -279,7 +277,7 @@ class CRUDMixin(object):
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
         context['getparams'] += "&" if self.getparams else ""
-        # context.update(CONFIG)
+        context.update(CONFIG)
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -1046,17 +1044,20 @@ class CRUDView(object):
                     # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
                     title = _('Cannot delete ')
                     text = _('This element is related to: ')
-                    confirm_button_text = _('Accept')
-                    sweetify.error(
-                        self.request,
+                    # confirm_button_text = _('Accept')
+                    message_error(self.request,
                         title + self.object.__str__() + '!',
-                        text=text + protected_details,
-                        confirmButtonColor='#3085d6',
-                        confirmButtonText=confirm_button_text,
-                        backdrop=True,
-                        showLoaderOnConfirm=True,
-                        persistent="Close",
-                    )
+                        text=text + protected_details)
+                    # sweetify.error(
+                    #     self.request,
+                    #     title + self.object.__str__() + '!',
+                    #     text=text + protected_details,
+                        # confirmButtonColor='#3085d6',
+                        # confirmButtonText=confirm_button_text,
+                        # backdrop=True,
+                        # showLoaderOnConfirm=True,
+                        # persistent=_("Close"),
+                    # )
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     messages.success(self.request, self.success_message)

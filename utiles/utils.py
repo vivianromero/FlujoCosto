@@ -1,6 +1,8 @@
 import base64
 
+import sweetify
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 KEY_ENCRIP="DATAZUCAR-ETTVC-SISGESFC"
 
@@ -31,6 +33,31 @@ def obtener_version():
     valor = app_version_file.read()
 
     return decodificar(valor)
+
+def message_error(request, title, text):
+    sweetify.error(
+        request=request,
+        title=title,
+        text=text,
+        confirmButtonColor='#3085d6',
+        confirmButtonText=_('Accept'),
+        backdrop=True,
+        showLoaderOnConfirm=True,
+        persistent=_("Close"),
+    )
+
+def message_success(request, title, text):
+    sweetify.success(
+        request=request,
+        title=title,
+        text=text,
+        confirmButtonColor='#3085d6',
+        confirmButtonText=_('Accept'),
+        backdrop=True,
+        showLoaderOnConfirm=True,
+        persistent=_("Close"),
+    )
+
 
 
 # #TODO ver si se va a usar
