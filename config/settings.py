@@ -11,23 +11,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
 from datetime import timedelta
+from pathlib import Path
+
 import environ
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.conf import Settings as Thumbnail_Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # env = environ.Env()
 env = environ.Env()
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
+environ.Env.read_env(os.path.join(BASE_DIR, 'config/.env.local'))
 
-MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'static/upload'))
+MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'staticfiles/upload'))
+
+APP_VERSION = (os.path.join(BASE_DIR, 'config/version'))
+
+APP_VERSION = (os.path.join(BASE_DIR, 'version'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -167,7 +172,7 @@ JWT_AUTH = {
     # 'JWT_AUTH_HEADER_PREFIX': 'Bearer', # <---------- Comentariar esta línea cuando no se pruebe con 'Postman'
 }
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -187,8 +192,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
-
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -301,7 +305,7 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 }
 
 # Session expiration
-SESSION_EXPIRE_SECONDS = 600  # 10 minutos
+SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS'))
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
 

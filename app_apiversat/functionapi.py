@@ -1,7 +1,7 @@
 import requests
 from requests.auth import HTTPBasicAuth
 
-import settings
+from django.conf import settings
 
 URL_API = settings.URL_API
 CONNECTION_TOKEN_API = settings.CONNECTION_TOKEN_API
@@ -22,12 +22,12 @@ def getAPI(opcion, *param):
 
     # Make a GET request Basic Authentication, and Connection Token
     # response = requests.get(url, auth=auth, headers=headers)
-    return requests.get(url, auth=auth, headers=headers)
+    response = requests.get(url, auth=auth, headers=headers)
     # Check the response
-    # if response.status_code == 200:
-    #     print("Request successful")
-    #     data = response.json()  # Assuming the response is in JSON format
-    #     return data
-    # else:
-    #     print(f"Request failed with status code {response.status_code}")
-    #     print(response.text)
+    if response.status_code == 200:
+        # print("Request successful")
+        # data = response.json()  # Assuming the response is in JSON format
+        return response
+    else:
+        print(f"Request failed with status code {response.status_code}")
+        print(response.text)
