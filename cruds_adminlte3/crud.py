@@ -1044,20 +1044,9 @@ class CRUDView(object):
                     # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
                     title = _('Cannot delete ')
                     text = _('This element is related to: ')
-                    # confirm_button_text = _('Accept')
                     message_error(self.request,
                         title + self.object.__str__() + '!',
                         text=text + protected_details)
-                    # sweetify.error(
-                    #     self.request,
-                    #     title + self.object.__str__() + '!',
-                    #     text=text + protected_details,
-                        # confirmButtonColor='#3085d6',
-                        # confirmButtonText=confirm_button_text,
-                        # backdrop=True,
-                        # showLoaderOnConfirm=True,
-                        # persistent=_("Close"),
-                    # )
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     messages.success(self.request, self.success_message)
