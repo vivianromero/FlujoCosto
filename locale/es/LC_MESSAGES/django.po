@@ -1558,5 +1558,6 @@ msgid "Warning"
 msgstr "Advertencia"
 
 #: exportar/views.py:64
-msgid "There are no data to export"
+#, python-format
+msgid "There aren't data to export"
 msgstr "No hay datos para exportar"

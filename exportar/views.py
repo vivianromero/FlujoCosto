@@ -49,7 +49,7 @@ def crear_export_file(request, opcion, modelo):
     dicc_verify['check_sum_data'] = check_sum_data
 
     if len(json_data) <= 2:
-        message_success(request=request, title=_("Warning"), text=_('There are no data to export'))
+        message_success(request=request, title=_("Warning"), text=_("There aren't data to export"))
         return redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
     encoder = json.encoder.JSONEncoder()
