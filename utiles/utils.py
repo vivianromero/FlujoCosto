@@ -58,6 +58,18 @@ def message_success(request, title, text):
         persistent=_("Close"),
     )
 
+def message_warning(request, title, text):
+    sweetify.warning(
+        request=request,
+        title=title,
+        text=text,
+        confirmButtonColor='#3085d6',
+        confirmButtonText=_('Accept'),
+        backdrop=True,
+        showLoaderOnConfirm=True,
+        persistent=_("Close"),
+    )
+
 
 
 # #TODO ver si se va a usar

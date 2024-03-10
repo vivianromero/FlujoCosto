@@ -39,11 +39,11 @@ class DatabaseConectionMiddleware:
                 # case _:
                 #     action - default
             try:
-                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola1')
+                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola')
 
                 external_db = {
                     'ENGINE': 'mssql',
-                    'NAME': 'conection.database_name',
+                    'NAME': conection.database_name,
                     'USER': conection.database_user,
                     'PASSWORD': conection.password,
                     'HOST': conection.host,

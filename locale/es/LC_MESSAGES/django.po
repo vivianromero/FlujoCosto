@@ -1549,4 +1549,14 @@ msgstr "Error de datos"
 msgid "Database connect for Versat Sarasola not define"
 msgstr "La conexión a la base de datos del Versat Sarasola no se está definida"
 
+#: cruds_adminlte3/crud.py:716
+msgid "Data importation was successful"
+msgstr "Los datos fueron importados exitosamente"
 
+#: exportar/views.py:64
+msgid "Warning"
+msgstr "Advertencia"
+
+#: exportar/views.py:64
+msgid "There are no data to export"
+msgstr "No hay datos para exportar"
