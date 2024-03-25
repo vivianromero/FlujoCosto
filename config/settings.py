@@ -219,10 +219,10 @@ def get_db_config(environ_var='DATABASE_URL'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fc',
+        'NAME': 'flujo_costo',
         'USER': 'flujo_costo',
         'PASSWORD': 'flujo_costo.123*-',
-        'HOST': '172.17.0.3',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
