@@ -210,7 +210,6 @@ def get_db_config(environ_var='DATABASE_URL'):
 
     return options
 
-
 #
 # DATABASES = {
 #     'default': get_db_config()
