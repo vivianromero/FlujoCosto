@@ -89,3 +89,16 @@ class GenAperturaprod(models.Model):
         managed = True
         db_table = 'gen_aperturaprod'
 
+
+# SisGestMP
+
+class MPMarca(models.Model):
+    idMarca = models.AutoField(primary_key=True)
+    codigoMarca = models.CharField(unique=True, max_length=50)
+    descripcion = models.CharField(unique=True, max_length=50)
+
+    class Meta:
+        managed = True
+        db_table = 'Marca'
+        ordering = ['descripcion']
+

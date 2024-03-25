@@ -46,13 +46,22 @@ class UnidadContableForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["codigo"].disabled = True
+        self.fields["nombre"].disabled = True
+
+        self.fields["codigo"].required = False
+        self.fields["nombre"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
-                    'Unidad Contable',
+                    'UEB',
                     Row(
                         Column('codigo', css_class='form-group col-md-2 mb-0'),
                         Column('nombre', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
                         Column('is_empresa', css_class='form-group col-md-2 mb-0'),
                         Column('is_comercializadora', css_class='form-group col-md-2 mb-0'),
@@ -98,7 +107,7 @@ class UnidadContableFormFilter(forms.Form):
 
             TabHolder(
                 Tab(
-                    'Unidad Contable',
+                    'UEB',
                     Row(
                         Column(
                             AppendedText(
@@ -139,6 +148,7 @@ class MedidaForm(forms.ModelForm):
         fields = [
             'clave',
             'descripcion',
+            'activa',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -151,14 +161,24 @@ class MedidaForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["clave"].disabled = True
+        self.fields["descripcion"].disabled = True
+
+        self.fields["clave"].required = False
+        self.fields["descripcion"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
-                    'Medida',
+                    _('Unit of measurement'),
                     Row(
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
 
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activa', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -181,6 +201,7 @@ class MedidaFormFilter(forms.Form):
         fields = [
             'clave',
             'descripcion',
+            'activa',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -197,7 +218,7 @@ class MedidaFormFilter(forms.Form):
 
             TabHolder(
                 Tab(
-                    'Medida',
+                    _('Unit of measurement'),
                     Row(
                         Column(
                             AppendedText(
@@ -207,6 +228,7 @@ class MedidaFormFilter(forms.Form):
                         ),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        Column('activa', css_class='form-group col-md-8 mb-0'),
 
                         css_class='form-row',
                     ),
@@ -230,6 +252,10 @@ class MedidaFormFilter(forms.Form):
 # ------------ MedidaConversion / Form ------------
 
 class MedidaConversionForm(forms.ModelForm):
+    medidao = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
+                                          widget=forms.Select(attrs={'style': 'width: 100%'}))
+    medidad = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
+                                     widget=forms.Select(attrs={'style': 'width: 100%'}))
     class Meta:
         model = MedidaConversion
         fields = [
@@ -238,14 +264,14 @@ class MedidaConversionForm(forms.ModelForm):
             'factor_conversion'
         ]
 
-        widgets = {
-            'medidao': SelectWidget(
-                attrs={'style': 'width: 100%'}
-            ),
-            'medidad': SelectWidget(
-                attrs={'style': 'width: 100%'}
-            ),
-        }
+        # widgets = {
+        #     # 'medidao': SelectWidget(
+        #     #     attrs={'style': 'width: 100%'}
+        #     # ),
+        #     'medidad': SelectWidget(
+        #         attrs={'style': 'width: 100%'}
+        #     ),
+        # }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -256,11 +282,13 @@ class MedidaConversionForm(forms.ModelForm):
         self.helper.form_id = 'id_medidaconversion_Form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
+        # medidao_queryset = self.fields['medidao'].choices.queryset
+        # self.fields['medidao'].choices.queryset = medidao_queryset.filter(activa=True)
 
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
-                    'Medida Conversión',
+                    _('Convert unit of measurement'),
                     Row(
                         Column('medidao', css_class='form-group col-md-5 mb-0'),
                         Column('medidad', css_class='form-group col-md-5 mb-0'),
@@ -305,7 +333,7 @@ class MedidaConversionFormFilter(forms.Form):
 
             TabHolder(
                 Tab(
-                    'Medida Conversión',
+                    _('Convert unit of measurement'),
                     Row(
                         Column(
                             AppendedText(
@@ -858,15 +886,15 @@ class ProductoFlujoForm(forms.ModelForm):
             'codigo',
             'descripcion',
             'activo',
-            'idmedida',
-            'idtipoproducto',
+            'medida',
+            'tipoproducto',
         ]
 
         widgets = {
-            'idmedida': SelectWidget(
+            'medida': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idtipoproducto': SelectWidget(
+            'tipoproducto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -890,8 +918,8 @@ class ProductoFlujoForm(forms.ModelForm):
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('activo', css_class='form-group col-md-2 mb-0'),
-                        Column('idmedida', css_class='form-group col-md-5 mb-0'),
-                        Column('idtipoproducto', css_class='form-group col-md-5 mb-0'),
+                        Column('medida', css_class='form-group col-md-5 mb-0'),
+                        Column('tipoproducto', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -916,8 +944,8 @@ class ProductoFlujoFormFilter(forms.Form):
             'codigo',
             'descripcion',
             'activo',
-            'idmedida',
-            'idtipoproducto',
+            'medida',
+            'tipoproducto',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -946,8 +974,8 @@ class ProductoFlujoFormFilter(forms.Form):
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('activo', css_class='form-group col-md-2 mb-0'),
-                        Column('idmedida', css_class='form-group col-md-5 mb-0'),
-                        Column('idtipoproducto', css_class='form-group col-md-5 mb-0'),
+                        Column('medida', css_class='form-group col-md-5 mb-0'),
+                        Column('tipoproducto', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -973,15 +1001,15 @@ class ProductoFlujoClaseForm(forms.ModelForm):
         model = ProductoFlujoClase
         fields = [
             # 'id',
-            'idclasemateriaprima',
-            'idproducto',
+            'clasemateriaprima',
+            'producto',
         ]
 
         widgets = {
-            'idclasemateriaprima': SelectWidget(
+            'clasemateriaprima': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idproducto': SelectWidget(
+            'producto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -1002,8 +1030,8 @@ class ProductoFlujoClaseForm(forms.ModelForm):
                     'Producto Flujo Clase',
                     Row(
                         # Column('id', css_class='form-group col-md-4 mb-0'),
-                        Column('idclasemateriaprima', css_class='form-group col-md-5 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-5 mb-0'),
+                        Column('clasemateriaprima', css_class='form-group col-md-5 mb-0'),
+                        Column('producto', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1025,8 +1053,8 @@ class ProductoFlujoClaseFormFilter(forms.Form):
         model = ProductoFlujoClase
         fields = [
             'id',
-            'idclasemateriaprima',
-            'idproducto',
+            'clasemateriaprima',
+            'producto',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1052,8 +1080,8 @@ class ProductoFlujoClaseFormFilter(forms.Form):
                             css_class='form-group col-md-12 mb-0'
                         ),
                         Column('id', css_class='form-group col-md-4 mb-0'),
-                        Column('idclasemateriaprima', css_class='form-group col-md-5 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-5 mb-0'),
+                        Column('clasemateriaprima', css_class='form-group col-md-5 mb-0'),
+                        Column('producto', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1080,11 +1108,11 @@ class ProductoFlujoDestinoForm(forms.ModelForm):
         fields = [
             # 'id',
             'destino',
-            'idproducto',
+            'producto',
         ]
 
         widgets = {
-            'idproducto': SelectWidget(
+            'producto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -1106,7 +1134,7 @@ class ProductoFlujoDestinoForm(forms.ModelForm):
                     Row(
                         # Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('destino', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1129,7 +1157,7 @@ class ProductoFlujoDestinoFormFilter(forms.Form):
         fields = [
             'id',
             'destino',
-            'idproducto',
+            'producto',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1156,7 +1184,7 @@ class ProductoFlujoDestinoFormFilter(forms.Form):
                         ),
                         Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('destino', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1182,15 +1210,15 @@ class ProductoFlujoCuentaForm(forms.ModelForm):
         model = ProductoFlujoCuenta
         fields = [
             # 'id',
-            'idcuenta',
-            'idproducto',
+            'cuenta',
+            'producto',
         ]
 
         widgets = {
-            'idcuenta': SelectWidget(
+            'cuenta': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idproducto': SelectWidget(
+            'producto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -1211,8 +1239,8 @@ class ProductoFlujoCuentaForm(forms.ModelForm):
                     'Producto Flujo Cuenta',
                     Row(
                         # Column('id', css_class='form-group col-md-4 mb-0'),
-                        Column('idcuenta', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('cuenta', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1234,8 +1262,8 @@ class ProductoFlujoCuentaFormFilter(forms.Form):
         model = ProductoFlujoCuenta
         fields = [
             'id',
-            'idcuenta',
-            'idproducto',
+            'cuenta',
+            'producto',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1261,8 +1289,8 @@ class ProductoFlujoCuentaFormFilter(forms.Form):
                             css_class='form-group col-md-12 mb-0'
                         ),
                         Column('id', css_class='form-group col-md-4 mb-0'),
-                        Column('idcuenta', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
+                        Column('cuenta', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1480,19 +1508,19 @@ class VitolaForm(forms.ModelForm):
             'longitud',
             'destino',
             'cepo',
-            'idcategoriavitola',
-            'idproducto',
-            'idtipovitola',
+            'categoriavitola',
+            'producto',
+            'tipovitola',
         ]
 
         widgets = {
-            'idcategoriavitola': SelectWidget(
+            'categoriavitola': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idproducto': SelectWidget(
+            'producto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idtipovitola': SelectWidget(
+            'tipovitola': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -1516,9 +1544,9 @@ class VitolaForm(forms.ModelForm):
                         Column('longitud', css_class='form-group col-md-3 mb-0'),
                         Column('destino', css_class='form-group col-md-3 mb-0'),
                         Column('cepo', css_class='form-group col-md-4 mb-3'),
-                        Column('idcategoriavitola', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
-                        Column('idtipovitola', css_class='form-group col-md-4 mb-0'),
+                        Column('categoriavitola', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        Column('tipovitola', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1543,9 +1571,9 @@ class VitolaFormFilter(forms.Form):
             'longitud',
             'destino',
             'cepo',
-            'idcategoriavitola',
-            'idproducto',
-            'idtipovitola',
+            'categoriavitola',
+            'producto',
+            'tipovitola',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1574,9 +1602,9 @@ class VitolaFormFilter(forms.Form):
                         Column('longitud', css_class='form-group col-md-3 mb-0'),
                         Column('destino', css_class='form-group col-md-3 mb-0'),
                         Column('cepo', css_class='form-group col-md-4 mb-3'),
-                        Column('idcategoriavitola', css_class='form-group col-md-4 mb-0'),
-                        Column('idproducto', css_class='form-group col-md-4 mb-0'),
-                        Column('idtipovitola', css_class='form-group col-md-4 mb-0'),
+                        Column('categoriavitola', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        Column('tipovitola', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1603,6 +1631,7 @@ class MarcaSalidaForm(forms.ModelForm):
         fields = [
             'codigo',
             'descripcion',
+            'activa',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1615,6 +1644,13 @@ class MarcaSalidaForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+
+        self.fields["codigo"].disabled = True
+        self.fields["descripcion"].disabled = True
+
+        self.fields["codigo"].required = False
+        self.fields["descripcion"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
@@ -1622,6 +1658,10 @@ class MarcaSalidaForm(forms.ModelForm):
                     Row(
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activa', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1644,6 +1684,7 @@ class MarcaSalidaFormFilter(forms.Form):
         fields = [
             'codigo',
             'descripcion',
+            'activa',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1697,8 +1738,8 @@ class DepartamentoForm(forms.ModelForm):
         fields = [
             'codigo',
             'descripcion',
-            'idcentrocosto',
-            'idunidadcontable',
+            'centrocosto',
+            'unidadcontable',
             'relaciondepartamento',
             'departamentoproducto'
         ]
@@ -1707,7 +1748,7 @@ class DepartamentoForm(forms.ModelForm):
             'idcentrocosto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'idunidadcontable': forms.CheckboxSelectMultiple(),
+            'unidadcontable': forms.CheckboxSelectMultiple(),
             'relaciondepartamento': forms.CheckboxSelectMultiple(),
             'departamentoproducto': forms.CheckboxSelectMultiple(),
         }
@@ -1733,10 +1774,10 @@ class DepartamentoForm(forms.ModelForm):
                     Row(
                         Column('codigo', css_class='form-group col-md-3 mb-0'),
                         Column('descripcion', css_class='form-group col-md-5 mb-0'),
-                        Column('idcentrocosto', css_class='form-group col-md-4 mb-0'),
+                        Column('centrocosto', css_class='form-group col-md-4 mb-0'),
                         Column(
                             Field(
-                                'idunidadcontable',
+                                'unidadcontable',
                                 template='widgets/layout/field.html'
                             ),
                             css_class='form-group col-md-3 mb-0'
@@ -1775,8 +1816,8 @@ class DepartamentoFormFilter(forms.Form):
         fields = [
             'codigo',
             'descripcion',
-            'idcentrocosto',
-            'idunidadcontable',
+            'centrocosto',
+            'unidadcontable',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1803,7 +1844,7 @@ class DepartamentoFormFilter(forms.Form):
                         ),
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-12 mb-0'),
-                        Column('idcentrocosto', css_class='form-group col-md-12 mb-0'),
+                        Column('centrocosto', css_class='form-group col-md-12 mb-0'),
 
                         css_class='form-row',
                     ),

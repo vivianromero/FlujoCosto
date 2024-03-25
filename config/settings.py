@@ -15,7 +15,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import environ
+# import environ
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.conf import Settings as Thumbnail_Settings
@@ -24,9 +24,9 @@ from easy_thumbnails.conf import Settings as Thumbnail_Settings
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # env = environ.Env()
-env = environ.Env()
+# env = environ.Env()
 
-environ.Env.read_env(os.path.join(BASE_DIR, 'config/.env.local'))
+# environ.Env.read_env(os.path.join(BASE_DIR, 'config/.env.local'))
 
 MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'staticfiles/upload'))
 
@@ -36,10 +36,12 @@ APP_VERSION = (os.path.join(BASE_DIR, 'config/version'))
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+# SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = 'django-insecure-h-yyy!9x0ci_%88!mham!0$j%jkd0j+#!8@r6ent@h513m=b^e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG', default=True)
+# DEBUG = env('DEBUG', default=True)
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -78,6 +80,7 @@ THIRD_APPS = [
     'crispy_formset_modal',
     'mptt',
     'sweetify',
+    'importar',
 ]
 
 MY_APPS = [
@@ -209,8 +212,19 @@ def get_db_config(environ_var='DATABASE_URL'):
 
 
 #
+# DATABASES = {
+#     'default': get_db_config()
+# }
+
 DATABASES = {
-    'default': get_db_config()
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fc',
+        'USER': 'flujo_costo',
+        'PASSWORD': 'flujo_costo.123*-',
+        'HOST': '172.17.0.3',
+        'PORT': '5432',
+    }
 }
 
 # Password validation
@@ -303,7 +317,8 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 }
 
 # Session expiration
-SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS'))
+# SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS'))
+SESSION_EXPIRE_SECONDS = 600
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
 
@@ -335,7 +350,12 @@ PASSWORD_EXPIRE_FORCE = True
 PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 
 #Configuraciones de la API
-URL_API = env('URL_API')
-CONNECTION_TOKEN_API = env('CONNECTION_TOKEN_API')
-USERNAME_API = env('USERNAME_API')
-PASSWORD_API = env('PASSWORD_API')
+# URL_API = env('URL_API')
+# CONNECTION_TOKEN_API = env('CONNECTION_TOKEN_API')
+# USERNAME_API = env('USERNAME_API')
+# PASSWORD_API = env('PASSWORD_API')
+
+URL_API = 'http://127.0.0.1:8085/'
+CONNECTION_TOKEN_API = 'e57f3a72-5508-4935-af3d-36ff98997239'
+USERNAME_API = 'ettvcl'
+PASSWORD_API = 'Zxc123*-'

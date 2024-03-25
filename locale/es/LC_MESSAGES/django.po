@@ -896,7 +896,14 @@ msgstr "Destino"
 #: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:24
 #: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:24
 msgid "Update from VERSAT"
-msgstr ""
+msgstr "Actualizar desde VERSAT"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:24
+msgid "Update from SisGestMP"
+msgstr "Actualizar desde SisGestMP"
 
 #: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:40
 #: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:41
@@ -904,16 +911,22 @@ msgstr ""
 #: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:40
 #: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:40
 msgid "Import"
-msgstr ""
+msgstr "Importar"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:41
+#: codificadores/templates/codificadores/medidaconversion/cruds/list_table_navbar.html:20
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:40
+msgid "Export"
+msgstr "Exportar"
 
 #: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:56
 #: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:58
 #: codificadores/templates/codificadores/medidaconversion/cruds/list_table_navbar.html:37
 #: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:57
 #: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:56
-#, fuzzy
-#| msgid "Export to pdf"
-msgid "Export"
+msgid "Export to pdf"
 msgstr "Exportar a pdf"
 
 #: config/settings.py:245
@@ -1141,10 +1154,6 @@ msgstr "Copiar"
 #: cruds_adminlte3/config.py:58
 msgid "Export to .csv"
 msgstr "Exportar a .csv"
-
-#: cruds_adminlte3/config.py:60
-msgid "Export to pdf"
-msgstr "Exportar a pdf"
 
 #: cruds_adminlte3/config.py:61
 msgid "Print"
@@ -1561,3 +1570,15 @@ msgstr "Advertencia"
 #, python-format
 msgid "There aren't data to export"
 msgstr "No hay datos para exportar"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Configuration"
+msgstr "Configuración"
+
+
+#: cruds_adminlte3/menus.py:14
+msgid "Departments"
+msgstr "Departamentos"
+
+msgid "Can add log entry"
+msgstr "Puede adicionar logs"

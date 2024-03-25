@@ -9,10 +9,10 @@ from codificadores.tables import *
 # class DepartamentoRelacionAjaxCRUD(InlineAjaxCRUD):
 #     model = DepartamentoRelacion
 #     base_model = Departamento
-#     inline_field = 'iddepartamentoo'
+#     inline_field = 'departamentoo'
 #     add_form = DepartamentoRelacionForm
 #     update_form = DepartamentoRelacionForm
-#     fields = ['iddepartamentod']
+#     fields = ['departamentod']
 #     title = "Relaciones"
 
 
@@ -25,8 +25,8 @@ class DepartamentoCRUD(CommonCRUDView):
     fields = [
         'codigo',
         'descripcion',
-        'idcentrocosto',
-        'idunidadcontable',
+        'centrocosto',
+        'unidadcontable',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -35,8 +35,8 @@ class DepartamentoCRUD(CommonCRUDView):
     search_fields = [
         'codigo__contains',
         'descripcion__icontains',
-        'idcentrocosto__contains',
-        'idunidadcontable__contains',
+        'centrocosto__contains',
+        'unidadcontable__contains',
 
     ]
 
@@ -66,16 +66,16 @@ class DepartamentoCRUD(CommonCRUDView):
 #     namespace = 'app_index:codificadores'
 #
 #     fields = [
-#         'iddepartamentoo',
-#         'iddepartamentod',
+#         'departamentoo',
+#         'departamentod',
 #     ]
 #
 #     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
 #     # y no distinga entre mayúsculas y minúsculas.
 #     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
 #     search_fields = [
-#         'iddepartamentoo__descripcion__icontains',
-#         'iddepartamentod__descripcion__icontains',
+#         'departamentoo__descripcion__icontains',
+#         'departamentod__descripcion__icontains',
 #     ]
 #
 #     # search_method = hecho_extraordinario_search_queryset
@@ -84,13 +84,13 @@ class DepartamentoCRUD(CommonCRUDView):
 #     update_form = DepartamentoRelacionForm
 #
 #     list_fields = [
-#         'iddepartamentoo',
-#         'iddepartamentod',
+#         'departamentoo',
+#         'departamentod',
 #     ]
 #
 #     filter_fields = [
-#         'iddepartamentoo',
-#         'iddepartamentod',
+#         'departamentoo',
+#         'departamentod',
 #     ]
 #     filterset_class = DepartamentoRelacionFilter
 #
@@ -127,7 +127,7 @@ class UnidadContableCRUD(CommonCRUDView):
 
     # search_method = hecho_extraordinario_search_queryset
 
-    add_form = UnidadContableForm
+    # add_form = UnidadContableForm
     update_form = UnidadContableForm
 
     list_fields = [
@@ -145,6 +145,9 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_empresa',
         'is_comercializadora',
     ]
+
+    views_available = ['list','update']
+    view_type = ['list','update']
     filterset_class = UnidadContableFilter
 
     # Table settings
@@ -181,6 +184,7 @@ class MedidaCRUD(CommonCRUDView):
     fields = [
         'clave',
         'descripcion',
+        'activa',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -205,6 +209,10 @@ class MedidaCRUD(CommonCRUDView):
         'clave',
         'descripcion',
     ]
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
     filterset_class = MedidaFilter
 
     # Table settings
@@ -448,8 +456,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
         'codigo',
         'descripcion',
         'activo',
-        'idmedida',
-        'idtipoproducto',
+        'medida',
+        'tipoproducto',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -461,8 +469,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
         'id__contains',
         'descripcion__icontains',
         'activo',
-        'idmedida__descripcion__icontains',
-        'idtipoproducto__descripcion__icontains',
+        'medida__descripcion__icontains',
+        'tipoproducto__descripcion__icontains',
     ]
 
     # search_method = hecho_extraordinario_search_queryset
@@ -488,8 +496,8 @@ class ProductoFlujoClaseCRUD(CommonCRUDView):
 
     fields = [
         'id',
-        'idclasemateriaprima',
-        'idproducto',
+        'clasemateriaprima',
+        'producto',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -497,8 +505,8 @@ class ProductoFlujoClaseCRUD(CommonCRUDView):
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
         'id__contains',
-        'idclasemateriaprima__descripcion__icontains',
-        'idproducto__descripcion__icontains',
+        'clasemateriaprima__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
 
     # search_method = hecho_extraordinario_search_queryset
@@ -525,7 +533,7 @@ class ProductoFlujoDestinoCRUD(CommonCRUDView):
     fields = [
         'id',
         'destino',
-        'idproducto',
+        'producto',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -534,7 +542,7 @@ class ProductoFlujoDestinoCRUD(CommonCRUDView):
     search_fields = [
         'id__contains',
         'destino_icontains',
-        'idproducto__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
 
     # search_method = hecho_extraordinario_search_queryset
@@ -560,8 +568,8 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
 
     fields = [
         'id',
-        'idcuenta',
-        'idproducto',
+        'cuenta',
+        'producto',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -569,8 +577,8 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
         'id__contains',
-        'idcuenta__descripcion__icontains',
-        'idproducto__descripcion__icontains',
+        'cuenta__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
 
     # search_method = hecho_extraordinario_search_queryset
@@ -671,9 +679,9 @@ class VitolaCRUD(CommonCRUDView):
         'longitud',
         'destino',
         'cepo',
-        'idcategoriavitola',
-        'idproducto',
-        'idtipovitola',
+        'categoriavitola',
+        'producto',
+        'tipovitola',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -684,9 +692,9 @@ class VitolaCRUD(CommonCRUDView):
         'longitud__contains',
         'destino__icontains',
         'cepo__contains',
-        'idcategoriavitola__descripcion__icontains',
-        'idproducto__descripcion__icontains',
-        'idtipovitola__descripcion__icontains',
+        'categoriavitola__descripcion__icontains',
+        'producto__descripcion__icontains',
+        'tipovitola__descripcion__icontains',
     ]
 
     # search_method = hecho_extraordinario_search_queryset
@@ -715,6 +723,7 @@ class MarcaSalidaCRUD(CommonCRUDView):
     fields = [
         'codigo',
         'descripcion',
+        'activa',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -733,6 +742,9 @@ class MarcaSalidaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
 
     filterset_class = MarcaSalidaFilter
 

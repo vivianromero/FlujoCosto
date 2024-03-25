@@ -46,16 +46,16 @@ class UserUebCRUD(CommonCRUDView):
     namespace = 'app_index:configuracion'
 
     fields = [
-        'idueb',
-        'iduser',
+        'ueb',
+        'user',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'idueb__idunidadcontable__nombre__icontains',
-        'iduser__username__icontains',
+        'ueb__idunidadcontable__nombre__icontains',
+        'user__username__icontains',
     ]
 
     add_form = UserUebForm
@@ -69,3 +69,4 @@ class UserUebCRUD(CommonCRUDView):
 
     # Table settings
     table_class = UserUebTable
+    aa=1

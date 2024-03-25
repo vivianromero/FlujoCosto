@@ -6,3 +6,5 @@
 *.pyc
 /setting/.env.local
 /config/.env.local
+/staticfiles/download/*.*
+/staticfiles/upload/*.*

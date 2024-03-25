@@ -116,12 +116,11 @@ class UserUebForm(forms.ModelForm):
     class Meta:
         model = UserUeb
         fields = [
-            'idueb',
-
+            'ueb',
         ]
 
         widgets = {
-            'idueb': SelectWidget(
+            'ueb': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -141,7 +140,7 @@ class UserUebForm(forms.ModelForm):
                 Tab(
                     _('UEB User'),
                     Row(
-                        Column('idueb', css_class='form-group col-md-6 mb-0'),
+                        Column('ueb', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -162,7 +161,7 @@ class UserUebFormFilter(forms.Form):
     class Meta:
         model = UserUeb
         fields = [
-            'idueb',
+            'ueb',
 
         ]
 
@@ -188,7 +187,104 @@ class UserUebFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('idueb', css_class='form-group col-md-6 mb-0'),
+                        Column('ueb', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+# ------------ ConexionBaseDato / Form ------------
+
+class ConexionBaseDatoForm(forms.ModelForm):
+    class Meta:
+        model = ConexionBaseDato
+        fields = [
+            'unidadcontable',
+
+        ]
+
+        widgets = {
+            'unidadcontable': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ConexionBaseDatoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_conexionbasedato_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _('UEB User'),
+                    Row(
+                        Column('unidadcontable', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+
+# ------------ User UEB / Form Filter ------------
+class ConexionBaseDatoFormFilter(forms.Form):
+    class Meta:
+        model = ConexionBaseDato
+        fields = [
+            'unidadcontable',
+
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ConexionBaseDatoFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_conexionbasedato_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    _('UEB User'),
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('unidadcontable', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row',
                     ),
                 ),

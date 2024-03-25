@@ -23,81 +23,75 @@ MENUS = {
             ]
         },
         {
-            "name": "Configuración",
+            "name": _("Configuration"),
             "icon_class": 'fa fa-tools',
             "url": '#',
-            "validators": ["app_auth.usuarios.validators.is_admin"],
+            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
             "submenu": [
                 {
                     "name": _("Flow"),
                     "icon_class": 'fa fa-project-diagram',
                     "url": '#',
-                    "validators": ["app_auth.usuarios.validators.is_admin"],
+                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                     "submenu": [
                         {
-                            "name": "Departamentos",
+                            "name": _("Departments"),
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Departamento, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "name": "Unidad Contable",
+                            "name": "Unidades Contable",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(UnidadContable, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "name": "Medida",
+                            "name": "Unidades de Medida",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Medida, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "name": "Medida Conversión",
+                            "name": "Conversión de Medidas",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(MedidaConversion, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "name": "Producto Flujo",
+                            "name": "Productos",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "name": "Producto Flujo Clase",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(ProductoFlujoClase, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
-                        },
-                        {
-                            "name": "Vitola",
+                            "name": "Vitolas",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_admin"],
                         },
                         {
-                            "name": "Marca Salida",
+                            "name": "Marcas de Salida",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(MarcaSalida, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                     ]
                 },
                 {
                     "name": _("Cost"),
                     "icon_class": 'fa fa-chart-column',
-                    "url": crud_url_name(Cuenta, 'list', 'app_index:codificadores:'),
+                    "url": "#",
                     "validators": ["app_auth.usuarios.validators.is_admin"],
                     "submenu": [
                         {
-                            "name": "Cuenta",
+                            "name": "Cuentas Contables",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Cuenta, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_admin"],
                         },
                         {
-                            "name": "Centro Costo",
+                            "name": "Centros de Costo",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(CentroCosto, 'list', 'app_index:codificadores:'),
                             "validators": [
@@ -112,32 +106,32 @@ MENUS = {
             "name": _("Administration"),
             "icon_class": 'fa fa-tools',
             "url": '#',
-            "validators": ["app_auth.usuarios.validators.is_admin"],
+            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
             "submenu": [
                 {
                     "name": _("Users"),
-                    "icon_class": 'fa fa-user',
-                    "url": crud_url_name(User, 'list', 'app_index:usuario:'),
-                    "validators": ["app_auth.usuarios.validators.is_superuser"],
-                },
-                {
-                    "name": _("Groups"),
                     "icon_class": 'fa fa-users',
-                    "url": crud_url_name(Group, 'list', 'app_index:group:'),
-                    "validators": ["app_auth.usuarios.validators.is_adminempresa"],
-                },
-                {
-                    "name": _("Permissons"),
-                    "icon_class": 'fa fa-lock',
-                    "url": crud_url_name(Permission, 'list', 'app_index:permission:'),
-                    "validators": ["app_auth.usuarios.validators.is_admin"],
-                },
-                {
-                    "name": _("UEB User"),
-                    "icon_class": 'fa fa-user',
                     "url": crud_url_name(UserUeb, 'list', 'app_index:configuracion:'),
-                    "validators": ["app_auth.usuarios.validators.is_admin"],
+                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                 },
+                # {
+                #     "name": _("Groups"),
+                #     "icon_class": 'fa fa-users',
+                #     "url": crud_url_name(Group, 'list', 'app_index:group:'),
+                #     "validators": ["app_auth.usuarios.validators.is_adminempresa"],
+                # },
+                # {
+                #     "name": _("Permissons"),
+                #     "icon_class": 'fa fa-lock',
+                #     "url": crud_url_name(Permission, 'list', 'app_index:permission:'),
+                #     "validators": ["app_auth.usuarios.validators.is_admin"],
+                # },
+                # {
+                #     "name": _("UEB User"),
+                #     "icon_class": 'fa fa-user',
+                #     "url": crud_url_name(UserUeb, 'list', 'app_index:configuracion:'),
+                #     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                # },
             ]
         }
     ]

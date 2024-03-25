@@ -3,9 +3,11 @@
     "model": "configuracion.userueb",
     "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 03",
         "username":"admin03",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "003dec56-d3ac-452d-a2be-9c07539be90f",
+        "ueb": "003dec56-d3ac-452d-a2be-9c07539be90f",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }

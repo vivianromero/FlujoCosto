@@ -27,14 +27,14 @@ class Documento(models.Model):
     reproceso = models.BooleanField(default=False, verbose_name=_("Reprocessing"))
     editar_nc = models.BooleanField(default=False)
     comprob = models.CharField(max_length=150, blank=True, null=True)
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documento_departamento')
-    idtipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='documento_tipodocumento')
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_tipodocumento')
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documento_departamento')
+    tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='documento_tipodocumento')
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_tipodocumento')
 
     class Meta:
         db_table = 'fp_documento'
-        #unique_together = (('numeroconsecutivo', 'idtipodocumento', 'iddepartamento', 'idueb'),)
-        ordering = ['idueb', 'iddepartamento', 'idtipodocumento', '-numeroconsecutivo']
+        #unique_together = (('numeroconsecutivo', 'tipodocumento', 'departamento', 'ueb'),)
+        ordering = ['ueb', 'departamento', 'tipodocumento', '-numeroconsecutivo']
 
 
 class DocumentoDetalle(models.Model):
@@ -47,10 +47,10 @@ class DocumentoDetalle(models.Model):
                                   verbose_name=_("Amount"))
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentodetalle_documento')
-    idestado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentodetalle_documento')
+    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
                                  related_name='documentodetalle_productoestado', verbose_name=_("Status"))
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
                                    verbose_name=_("Product"))
 
     class Meta:
@@ -59,8 +59,8 @@ class DocumentoDetalle(models.Model):
 
 class DocumentoAjuste(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoajuste_documento')
-    idmotivoajuste = models.ForeignKey(MotivoAjuste, on_delete=models.PROTECT, related_name='documentoajuste_motivo',
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoajuste_documento')
+    motivoajuste = models.ForeignKey(MotivoAjuste, on_delete=models.PROTECT, related_name='documentoajuste_motivo',
                                        verbose_name=_("Adjustment Reason"))
 
     class Meta:
@@ -69,9 +69,9 @@ class DocumentoAjuste(models.Model):
 
 class DocumentoTransfDepartamento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                     related_name='documentotransfdepartamento_documento')
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                        related_name='documentotransfdepartamento_departamento',
                                        verbose_name=_("Department"))
 
@@ -90,8 +90,8 @@ class DocumentoDetalleTransfDptoControlTecnico(models.Model):
                                   verbose_name=_("Amount"))
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
-    iddocumento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentodetalletransfdptocontroltecnico_documento')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentodetalletransfdptocontroltecnico_documento')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                    related_name='documentodetalletransfdptocontroltecnico_producto',
                                    verbose_name=_("Product"))
     buenos = models.IntegerField(default=0, verbose_name=_("Good"))
@@ -105,9 +105,9 @@ class DocumentoDetalleTransfDptoControlTecnico(models.Model):
 
 class DocumentoTransfDepartamentoRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                     related_name='documentotransfdepartamentorecibida_documento')
-    iddocumentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                           related_name='documentotransfdepartamentorecibida_documentoorigen',
                                           db_comment="Documento que originó la transferencia hacia el departamento")
 
@@ -117,8 +117,8 @@ class DocumentoTransfDepartamentoRecibida(models.Model):
 
 class DocumentoTransfExterna(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentotransfext_documento')
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentotransfext_documento')
+    unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='documentotransfext_unidadcontable')
 
     class Meta:
@@ -127,9 +127,9 @@ class DocumentoTransfExterna(models.Model):
 
 class DocumentoTransfExternaDptoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumentotransfext = models.ForeignKey(Documento, on_delete=models.CASCADE,
+    documentotransfext = models.ForeignKey(Documento, on_delete=models.CASCADE,
                                              related_name='documentotransfextdptodest_documento')
-    iddptodestino = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+    dptodestino = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                       related_name='documentotransfextdptodest_dptodest')
 
     class Meta:
@@ -139,9 +139,9 @@ class DocumentoTransfExternaDptoDestino(models.Model):
 # transf hacia recibida desde otra unidad contable
 class DocumentoTransfExternaRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                     related_name='documentotransfextrecibida_documento')
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='documentotransfextrecibida_unidadcontable')
 
     class Meta:
@@ -152,9 +152,9 @@ class DocumentoTransfExternaRecibida(models.Model):
 # SI LA BD NO ES UNICA EL DATO DEL ID DOCUMENTO NO EXISTE Y NO SE PUEDE DEFINIR LA UNIDAD CONTABLE ORIGEN.
 class DocumentoTransfExternaRecibidaDocOrigen(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumentoorigen = models.ForeignKey(DocumentoTransfExternaRecibida, on_delete=models.CASCADE,
+    documentoorigen = models.ForeignKey(DocumentoTransfExternaRecibida, on_delete=models.CASCADE,
                                           related_name='documentotransfextrecibidadocorigen_documento')
-    iddocumentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                           related_name='documentotransfextrecibida_documentoorigen')
 
     class Meta:
@@ -165,7 +165,7 @@ class DocumentoTransfExternaRecibidaDocOrigen(models.Model):
 class DocumentoDetalleVenta(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00, verbose_name=_("Amount"))
-    iddocumentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
+    documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
                                            related_name='documentodetalleventa_detalle')
 
     class Meta:
@@ -177,10 +177,10 @@ class DocumentoDetalleEstado(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     existencia = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                      verbose_name=_("Existence"))
-    idestado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
+    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
                                  related_name='documentodetalleestado_estado',
                                  verbose_name=_("Status"))
-    iddocumentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
+    documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
                                            related_name='documentodetalleestado_detalle')
 
     class Meta:
@@ -192,10 +192,10 @@ class DocumentoDetalleProducto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     existencia = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                      verbose_name=_("Existence"))
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                    related_name='documentodetalleproducto_producto',
                                    verbose_name=_("Product"))
-    iddocumentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
+    documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
                                            related_name='documentodetalleproducto_detalle')
 
     class Meta:
@@ -204,7 +204,7 @@ class DocumentoDetalleProducto(models.Model):
 
 class DocumentoDevolucion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                     related_name='documentodevolucion_documento')
 
     class Meta:
@@ -214,9 +214,9 @@ class DocumentoDevolucion(models.Model):
 # Devolución recibida desde otro dpto
 class DocumentoDevolucionRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                     related_name='documentodevolucionrecibida_documento')
-    iddocumentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
                                           related_name='documentodevolucionrecibida_documentoorigen',
                                           db_comment="Documento que originó la devolucion hacia el departamento")
 
@@ -227,8 +227,8 @@ class DocumentoDevolucionRecibida(models.Model):
 # Se guardan los documentos que se salvan o confirman y son los procedents del versat
 class DocumentoOrigenVersat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumentoversat = models.IntegerField()
-    iddocumento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoorigenversat_documento')
+    documentoversat = models.IntegerField()
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoorigenversat_documento')
     origen_versat = models.CharField(max_length=40)
 
     class Meta:
@@ -238,10 +238,10 @@ class DocumentoOrigenVersat(models.Model):
 # Los documentos del versat que son rechazados, se guarda el id de los documentos del versat que se rechazan
 class DocumentoVersatRechazado(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumentoversat = models.IntegerField()
+    documentoversat = models.IntegerField()
     fecha_doc_versat = models.DateField()
     fecha_rechazo = models.DateTimeField(db_default=Now())
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
 
     class Meta:
         db_table = 'fp_documentoversatrechazado'
@@ -249,11 +249,11 @@ class DocumentoVersatRechazado(models.Model):
 # Existencia por departamentos
 class ExistenciaDpto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='existenciadpto_departamento')
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='existenciadpto_ueb')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='existenciadpto_departamento')
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='existenciadpto_ueb')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                    related_name='existenciadpto_producto')
-    idestado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
+    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
                                  related_name='existenciadpto_productoestado')
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
@@ -267,25 +267,25 @@ class ExistenciaDpto(models.Model):
 class FechaPeriodo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                        related_name='fechaperiodo_departamento',
                                        verbose_name=_("Department"))
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                               related_name='fechaperiodo_ueb',
                               verbose_name="UEB")
 
     class Meta:
         db_table = 'fp_fechaperiodo'
-        unique_together = (('fecha', 'iddepartamento', 'idueb'),)
+        unique_together = (('fecha', 'departamento', 'ueb'),)
 
 
 class FechaCierreMes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                               related_name='fechacierremes_ueb',
                               verbose_name="UEB")
 
     class Meta:
         db_table = 'fp_fechacierremes'
-        unique_together = (('fecha', 'idueb'),)
+        unique_together = (('fecha', 'ueb'),)

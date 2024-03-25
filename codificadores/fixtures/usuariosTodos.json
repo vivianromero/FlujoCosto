@@ -3,9 +3,11 @@
     "model": "configuracion.userueb",
     "pk": "000603fa-af2d-4713-b0e5-c2991a289f4b",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 01",
         "username":"admin01",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "000603fa-af2d-4713-b0e5-c2991a289f4b",
+        "ueb": "000603fa-af2d-4713-b0e5-c2991a289f4b",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -14,9 +16,11 @@
     "model": "configuracion.userueb",
     "pk": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 02",
         "username":"admin02",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
+        "ueb": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -25,9 +29,11 @@
     "model": "configuracion.userueb",
     "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 03",
         "username":"admin03",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "003dec56-d3ac-452d-a2be-9c07539be90f",
+        "ueb": "003dec56-d3ac-452d-a2be-9c07539be90f",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -36,9 +42,11 @@
     "model": "configuracion.userueb",
     "pk": "009bfd05-0357-4614-ba5b-c9876272a460",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 04",
         "username":"admin04",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "009bfd05-0357-4614-ba5b-c9876272a460",
+        "ueb": "009bfd05-0357-4614-ba5b-c9876272a460",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -47,9 +55,11 @@
     "model": "configuracion.userueb",
     "pk": "009c9e8f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 05",
         "username":"admin05",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "009c9e8f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "009c9e8f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -58,9 +68,11 @@
     "model": "configuracion.userueb",
     "pk": "009c9e9f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 06",
         "username":"admin06",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "009c9e9f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "009c9e9f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -69,9 +81,11 @@
     "model": "configuracion.userueb",
     "pk": "009d9e9f-4064-4214-a051-a1f78ea26b85",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 07",
         "username":"admin07",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "009d9e9f-4064-4214-a051-a1f78ea26b85",
+        "ueb": "009d9e9f-4064-4214-a051-a1f78ea26b85",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -80,9 +94,11 @@
     "model": "configuracion.userueb",
     "pk": "109d9e9f-4064-4214-a051-a1f78ea28b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 08",
         "username":"admin08",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "109d9e9f-4064-4214-a051-a1f78ea28b65",
+        "ueb": "109d9e9f-4064-4214-a051-a1f78ea28b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -91,9 +107,11 @@
     "model": "configuracion.userueb",
     "pk": "209d9e9f-4064-4214-a051-a1f99ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 09",
         "username":"admin09",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "209d9e9f-4064-4214-a051-a1f99ea26b65",
+        "ueb": "209d9e9f-4064-4214-a051-a1f99ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -102,9 +120,11 @@
     "model": "configuracion.userueb",
     "pk": "309d9e9f-4064-4214-a051-a1f78ea66b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 10",
         "username":"admin10",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "309d9e9f-4064-4214-a051-a1f78ea66b65",
+        "ueb": "309d9e9f-4064-4214-a051-a1f78ea66b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -113,9 +133,11 @@
     "model": "configuracion.userueb",
     "pk": "400d9e9f-4084-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 13",
         "username":"admin13",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "400d9e9f-4084-4214-a051-a1f78ea26b65",
+        "ueb": "400d9e9f-4084-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -124,9 +146,11 @@
     "model": "configuracion.userueb",
     "pk": "409f9e9f-4064-4214-a051-a1f78ea26b66",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 14",
         "username":"admin14",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "409f9e9f-4064-4214-a051-a1f78ea26b66",
+        "ueb": "409f9e9f-4064-4214-a051-a1f78ea26b66",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -135,9 +159,11 @@
     "model": "configuracion.userueb",
     "pk": "409f9e9f-4094-4214-a051-a1f78ea26b66",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 16",
         "username":"admin16",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "26915d79-cf24-4374-b053-4fbeca66c96e",
+        "ueb": "26915d79-cf24-4374-b053-4fbeca66c96e",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -146,9 +172,11 @@
     "model": "configuracion.userueb",
     "pk": "889d9e9f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 22",
         "username":"admin22",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "889d9e9f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "889d9e9f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -157,9 +185,11 @@
     "model": "configuracion.userueb",
     "pk": "879d9e9f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"UEB 23",
         "username":"admin23",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "879d9e9f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "879d9e9f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
         "groups": [1]
     }
@@ -168,11 +198,13 @@
     "model": "configuracion.userueb",
     "pk": "809d9e9f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"Dirección de Empresa",
         "username":"adminempresa",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "809d9e9f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "809d9e9f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
-        "groups": [1]
+        "groups": [5]
     }
 }
 ]

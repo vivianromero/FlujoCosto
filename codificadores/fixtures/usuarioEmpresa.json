@@ -3,11 +3,13 @@
     "model": "configuracion.userueb",
     "pk": "809d9e9f-4064-4214-a051-a1f78ea26b65",
     "fields": {
+        "first_name":"Administrador",
+        "last_name":"Dirección de Empresa",
         "username":"adminempresa",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
-        "idueb": "809d9e9f-4064-4214-a051-a1f78ea26b65",
+        "ueb": "809d9e9f-4064-4214-a051-a1f78ea26b65",
         "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
-        "groups": [1]
+        "groups": [5]
     }
 }
 ]

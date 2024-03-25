@@ -13,6 +13,7 @@ from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success
 from utiles.utils import obtener_version, codificar
+from django.conf import settings
 
 
 @adminempresa_required
@@ -42,9 +43,9 @@ def json_info(opcion):
 def crear_export_file(request, opcion, modelo):
 
     dicc_verify = json_info(opcion)
-    file_path = "staticfiles"
+    file_path = settings.STATIC_ROOT
 
-    json_data = serializers.serialize("json", modelo.objects.all())
+    json_data = serializers.serialize("json", modelo.objects.all()).replace("true", '"True"').replace("false",'"False"')
     check_sum_data = codificar(json_data)
     dicc_verify['check_sum_data'] = check_sum_data
 
@@ -67,12 +68,11 @@ def crear_export_file(request, opcion, modelo):
     file_json_data.write(json_data)
     file_json_data.close()
 
-    filename = "Exportando_" + dicc_verify['opcion'] + '_' + dicc_verify['version'].replace('.', '-') + ".tar.gz"
+    filename = "Exportando_" + dicc_verify['opcion'] + '_' + dicc_verify['version'].replace('.', '-') + "_SisGestFC.tar.gz"
     ruta_archivo = os.path.join(file_path, 'download', filename)
     with tarfile.open(ruta_archivo, mode='w:bz2') as out:
         out.add(ruta_archivo_verify, "json_verify")
         out.add(ruta_archivo_data, "json_data")
-
 
     # Configuración de la respuesta HTTP para la descarga del archivo
     response = HttpResponse(open(ruta_archivo, 'rb'), content_type='application/gzip')

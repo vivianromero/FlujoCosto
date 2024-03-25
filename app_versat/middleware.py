@@ -7,7 +7,7 @@ from django.db import connections
 
 from configuracion.models import ConexionBaseDato
 from utiles.utils import message_error
-from codificadores.models import UnidadContable, Medida
+from codificadores.models import UnidadContable, Medida, MarcaSalida
 from cruds_adminlte3.utils import crud_url_name
 
 
@@ -23,6 +23,7 @@ class DatabaseConectionMiddleware:
         # Code to be executed for each request before
         # the view (and later middleware) are called.
         user = request.user
+        sistema='VersatSarasola'
         try:
             match = resolve(request.path)
             if not user.is_authenticated or not 'appversat' in match.namespaces:
@@ -34,12 +35,15 @@ class DatabaseConectionMiddleware:
             match url_name:
                 case 'um_appversat':
                     object=Medida
+                case 'ms_appversat':
+                    object = MarcaSalida
+                    sistema="SisGestMP"
                 # case 'uc_appversat':
                 #     object=UnidadContable
                 # case _:
                 #     action - default
             try:
-                conection = ConexionBaseDato.objects.get(idunidadcontable=user.idueb, sistema='VersatSarasola')
+                conection = ConexionBaseDato.objects.get(unidadcontable=user.ueb, sistema=sistema)
 
                 external_db = {
                     'ENGINE': 'mssql',
