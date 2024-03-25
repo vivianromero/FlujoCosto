@@ -46,28 +46,28 @@ class UserUebFilter(django_filters.FilterSet):
         label=_('First name'),
         widget=forms.TextInput(),
         lookup_expr='icontains',
-        field_name='iduser.first_name',
+        field_name='first_name',
     )
 
     last_name = django_filters.CharFilter(
         label=_('Last name'),
         widget=forms.TextInput(),
         lookup_expr='icontains',
-        field_name='iduser.last_name',
+        field_name='last_name',
     )
 
     username = django_filters.CharFilter(
         label=_('User name'),
         widget=forms.TextInput(),
         lookup_expr='icontains',
-        field_name='iduser.username',
+        field_name='username',
     )
 
     email = django_filters.CharFilter(
         label=_('Email'),
         widget=forms.TextInput(),
         lookup_expr='icontains',
-        field_name='iduser.email',
+        field_name='email',
     )
 
     last_login = CustomDateFromToRangeFilter(
@@ -78,7 +78,7 @@ class UserUebFilter(django_filters.FilterSet):
             }
         ),
         label=_('Last login'),
-        field_name='iduser.last_login',
+        field_name='last_login',
     )
 
     date_joined = CustomDateFromToRangeFilter(
@@ -89,22 +89,22 @@ class UserUebFilter(django_filters.FilterSet):
             }
         ),
         label=_('Date joined'),
-        field_name='iduser.date_joined',
+        field_name='date_joined',
     )
 
     is_superuser = django_filters.BooleanFilter(
         label=_('Is superuser?'),
-        field_name='iduser.is_superuser',
+        field_name='is_superuser',
     )
 
     is_staff = django_filters.BooleanFilter(
         label=_('Is staff?'),
-        field_name='iduser.is_staff',
+        field_name='is_staff',
     )
 
     is_active = django_filters.BooleanFilter(
         label=_('Is active?'),
-        field_name='iduser.is_active',
+        field_name='is_active',
     )
 
     query = django_filters.CharFilter(
@@ -143,7 +143,8 @@ class UserUebFilter(django_filters.FilterSet):
         search_fields = [
             'username__icontains',
             'email__icontains',
-            'nombre__icontains',
+            'first_name__icontains',
+            'last_name__icontains',
             'last_login__icontains',
         ]
 

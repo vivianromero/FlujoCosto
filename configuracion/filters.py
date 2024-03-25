@@ -8,7 +8,7 @@ from .models import *
 # ------ Departamento / Filter ------
 # class UebFilter(MyGenericFilter):
 #     search_fields = [
-#         'idunidadcontable__nombre__contains',
+#         'unidadcontable__nombre__contains',
 #     ]
 #     split_space_search = ' '
 #
@@ -16,7 +16,7 @@ from .models import *
 #         model = Ueb
 #         fields = [
 #             'query',
-#             'idunidadcontable',
+#             'unidadcontable',
 #         ]
 #
 #         form = UebFormFilter
@@ -34,7 +34,7 @@ from .models import *
 # ------ User UEB / Filter ------
 class UserUebFilter(MyGenericFilter):
     search_fields = [
-        'idueb__idunidadcontable__nombre__icontains',
+        'ueb__unidadcontable__nombre__icontains',
         'username__icontains',
     ]
     split_space_search = ' '
@@ -42,7 +42,7 @@ class UserUebFilter(MyGenericFilter):
     class Meta:
         model = UserUeb
         fields = [
-            'idueb',
+            'ueb',
             'username',
         ]
 

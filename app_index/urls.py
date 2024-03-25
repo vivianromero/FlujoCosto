@@ -35,6 +35,7 @@ urlpatterns = [
     path('', include('app_apiversat.urls')),
     path('', include('app_versat.urls')),
     path('', include('exportar.urls')),
+    path('', include('importar.urls')),
 
 
     # api

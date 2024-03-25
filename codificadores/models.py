@@ -46,7 +46,7 @@ class Medida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clave = models.CharField(unique=True, max_length=6, verbose_name=_("Key"))
     descripcion = models.CharField(unique=True, max_length=50, verbose_name=_("Description"))
-    objects = BulkUpdateOrCreateQuerySet.as_manager()
+    activa = models.BooleanField(default=True, verbose_name=_("Active"))
 
     class Meta:
         db_table = 'cla_medida'
@@ -210,21 +210,21 @@ class ProductoFlujo(ObjectsManagerAbstract):
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida',
+    medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida',
                                  verbose_name="U.M")
-    idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
+    tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
                                        verbose_name=_("Product Type"))
 
     class Meta:
         db_table = 'cla_productoflujo'
-        ordering = ['idtipoproducto', 'descripcion']
+        ordering = ['tipoproducto', 'descripcion']
 
 
 class ProductoFlujoClase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idclasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
+    clasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
                                             related_name='productoflujoclase_clasemateriaprima')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujoclase_producto')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujoclase_producto')
 
     class Meta:
         db_table = 'cla_productoflujoclase'
@@ -232,8 +232,8 @@ class ProductoFlujoClase(models.Model):
 
 class ProductoFlujoVitola(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
-    idvitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
+    vitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
 
     class Meta:
         db_table = 'cla_productoflujovitola'
@@ -243,7 +243,7 @@ class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'},
                                verbose_name=_("Destination"))
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE,
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE,
                                    related_name='productoflujodestino_producto')
 
     class Meta:
@@ -252,8 +252,8 @@ class ProductoFlujoDestino(models.Model):
 
 class ProductoFlujoCuenta(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idcuenta = models.ForeignKey(Cuenta, on_delete=models.PROTECT, related_name='productoflujocuenta_cuenta')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujocuenta_producto')
+    cuenta = models.ForeignKey(Cuenta, on_delete=models.PROTECT, related_name='productoflujocuenta_cuenta')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujocuenta_producto')
 
     class Meta:
         db_table = 'cla_productoflujocuenta'
@@ -299,9 +299,9 @@ class Vitola(ObjectsManagerAbstract):
     destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'},
                                verbose_name=_("Destination"))
     cepo = models.IntegerField(default=0)
-    idcategoriavitola = models.ForeignKey(CategoriaVitola, on_delete=models.PROTECT, related_name='vitola_categotia')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_producto')
-    idtipovitola = models.ForeignKey(TipoVitola, on_delete=models.PROTECT, related_name='vitola_tipo',
+    categoriavitola = models.ForeignKey(CategoriaVitola, on_delete=models.PROTECT, related_name='vitola_categotia')
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_producto')
+    tipovitola = models.ForeignKey(TipoVitola, on_delete=models.PROTECT, related_name='vitola_tipo',
                                      verbose_name=_("Type"))
 
     class Meta:
@@ -312,6 +312,7 @@ class MarcaSalida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=5, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=128, verbose_name=_("Description"))
+    activa = models.BooleanField(default=True, verbose_name=_("Active"))
 
     class Meta:
         db_table = 'cla_marcasalida'
@@ -331,10 +332,10 @@ class LineaSalida(ObjectsManagerAbstract):
                                     verbose_name=_("Net Weight"))
     peso_legal = models.DecimalField(max_digits=10, decimal_places=6, default=0.00,
                                      verbose_name=_("Legal Weight"))
-    idmarcasalida = models.ForeignKey(MarcaSalida, on_delete=models.PROTECT, related_name='lineasalida_marcasalida',
+    marcasalida = models.ForeignKey(MarcaSalida, on_delete=models.PROTECT, related_name='lineasalida_marcasalida',
                                       verbose_name=_("Starting Mark"))
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='lineasalida_producto')
-    idvitola = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='lineasalida_vitola',
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='lineasalida_producto')
+    vitola = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='lineasalida_vitola',
                                  verbose_name="Vitola")
 
     class Meta:
@@ -346,9 +347,9 @@ class Departamento(ObjectsManagerAbstract):
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
     inicializado = models.BooleanField(default=False)
-    idcentrocosto = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name='departamento_centrocosto',
+    centrocosto = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name='departamento_centrocosto',
                                       verbose_name=_("Cost Center"))
-    idunidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
+    unidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                               verbose_name="UEB")
 
     relaciondepartamento = models.ManyToManyField('self',
@@ -370,10 +371,10 @@ class Departamento(ObjectsManagerAbstract):
 
 # class DepartamentoProductoSalida(models.Model):
 #     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     iddepartamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#     departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
 #                                        related_name='departamentoproductosalida_departamento',
 #                                        verbose_name=_("Department"))
-#     idtipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
+#     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
 #                                        related_name='departamentoproductosalida_producto',
 #                                        verbose_name=_("Product"))
 #
@@ -383,10 +384,10 @@ class Departamento(ObjectsManagerAbstract):
 #
 # class DepartamentoRelacion(models.Model):
 #     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     iddepartamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#     departamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
 #                                         related_name='departamentorelacion_origen',
 #                                         verbose_name=_("Origin Department"))
-#     iddepartamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
+#     departamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
 #                                         related_name='departamentorelacion_destino',
 #                                         verbose_name=_("Destination Department"))
 #
@@ -410,14 +411,14 @@ class NormaConsumo(ObjectsManagerAbstract):
     activa = models.BooleanField(default=True, verbose_name=_("Active"))
     fecha_creacion = models.DateTimeField(db_default=Now(), verbose_name=_("Crate at"))
     fecha = models.DateField(verbose_name=_("Date"))
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida',
+    medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida',
                                  verbose_name="U.M")
-    idproducto = models.ForeignKey(ProductoFlujo, models.PROTECT, related_name='normaconsumo_producto',
+    producto = models.ForeignKey(ProductoFlujo, models.PROTECT, related_name='normaconsumo_producto',
                                    verbose_name=_("Product"))
 
     class Meta:
         db_table = 'cla_normaconsumo'
-        ordering = ['tipo', 'idproducto__descripcion']
+        ordering = ['tipo', 'producto__descripcion']
 
 
 class NormaconsumoDetalle(models.Model):
@@ -428,11 +429,11 @@ class NormaconsumoDetalle(models.Model):
                                             verbose_name=_("Enterprise Norm"))
     operativo = models.BooleanField(default=False, db_comment='Si el producto es operativo o no',
                                     verbose_name=_("Operational"))
-    idnormaconsumo = models.ForeignKey(NormaConsumo, on_delete=models.CASCADE,
+    normaconsumo = models.ForeignKey(NormaConsumo, on_delete=models.CASCADE,
                                        related_name='normaconsumodetalle_normaconsumo')
-    idproducto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='normaconsumodetalle_producto',
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='normaconsumodetalle_producto',
                                    verbose_name=_("Product"))
-    idmedida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumodetalle_medida',
+    medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumodetalle_medida',
                                  verbose_name="U.M")
 
     class Meta:
@@ -515,7 +516,7 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
 # Documento que se va a configurar la cuenta para su contabilizacion
 class TipoDocumentoCuentaAbstract(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    iddocumento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE,
+    documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE,
                                     verbose_name=_("Document Type"))
 
     class Meta:
@@ -527,16 +528,16 @@ class TipoDocumentoCuentaAbstract(models.Model):
 # Ajuste de Disminución
 # Tranf entre departamentos
 class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
-    idcuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                           related_name='tipodocumentocuenta_cuenta_debe_exp',
                                           verbose_name=_("Debit Count Exp"))
-    idcuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                          related_name='tipodocumentocuenta_cuenta_debe_cn',
                                          verbose_name=_("Debit Count CN"))
-    idcuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                            related_name='tipodocumentocuenta_cuenta_haber_exp',
                                            verbose_name=_("Credit Count Exp"))
-    idcuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                           related_name='tipodocumentocuenta_cuenta_haber_cn',
                                           verbose_name=_("Credit Count CN"))
 
@@ -546,11 +547,11 @@ class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
 
 # Se va a configurar por unidad contable y los departamentos de la unidad contable
 class TipoDocumentoCuentaTransfExterna(TipoDocumentoCuentaAbstract):
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='tipodocumentocuentatransfexterna_unidadcontable',
                                          db_comment='Esta es la unidad contable para la que se va a configurar el documento',
                                          verbose_name="UEB")
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                        db_comment='Dpto de la unidad contable para la que se va a configurar el documento',
                                        related_name='tipodocumentocuentatransfexterna_departamento',
                                        verbose_name=_("Department"))
@@ -566,16 +567,16 @@ class TipoDocumentoCuentaTransfExternaUEB(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     idtipodocumentocuentatransfexterna = models.ForeignKey(TipoDocumentoCuentaTransfExterna, on_delete=models.CASCADE,
                                                            related_name='tipodocumentocuentatransfexternadpto_ipodocumentocuentatransfexterna')
-    idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+    unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                          related_name='tipodocumentocuentatransfexternadpto_unidadcontable',
                                          db_comment='Unidad contab que recibe o envía la transf, según el tipo de documento')
-    idcuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                           related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_exp')
-    idcuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                          related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_cn')
-    idcuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                            related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_exp')
-    idcuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
+    cuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
                                           related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_cn')
 
     class Meta:

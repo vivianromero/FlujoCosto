@@ -7,7 +7,7 @@
 {% block list_act_versat_table_main_header %}
     {# aquí se debe poner el link de importar#}
     <a id="id_create_url"
-       {#href="{% url 'app_index:appversat:uc_appversat' %}"#}
+       href="{% url 'app_index:appversat:ms_appversat' %}"
 
        class="nav-link"
 {#               hx-get="{{ url }}{{ getparams }}"#}
@@ -21,7 +21,7 @@
 {#                        class="icon"#}
 {#                        style="height: 20px;"#}
 {#                        alt="{% translate 'Update from Versat' %}"/>#}
-        <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
+        <i class="fa fa-database" title="{% trans 'Update from SisGestMP' %}"></i>
     </a>
 {% endblock list_act_versat_table_main_header %}
 

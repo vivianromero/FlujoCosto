@@ -2,7 +2,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from rest_framework.views import APIView
 
-from codificadores.models import UnidadContable, Medida
+from codificadores.models import UnidadContable, Medida, MarcaSalida
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from .serializers import *
@@ -43,3 +43,21 @@ class GenUnidadContableList(APIView):
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
         return redirect(crud_url_name(UnidadContable, 'list', 'app_index:codificadores:'))
+
+
+class MPMarcaList(APIView):
+    """
+    Devuelve las MARCAS DE SALIDA desde SisGestMP
+    """
+
+    def get(self, request, format=None):
+        try:
+            marca = MPMarca.objects.all()
+            serializer = MPMarcaSerializer(marca, many=True)
+            data = serializer.data
+            datos = [MarcaSalida(codigo=item['codigoMarca'].strip(), descripcion=item['descripcion']) for item in data]
+            MarcaSalida.objects.bulk_update_or_create(datos, ['descripcion'], match_field='codigo')
+            message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
+        except Exception as e:
+            message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
+        return redirect(crud_url_name(MarcaSalida, 'list', 'app_index:codificadores:'))

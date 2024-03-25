@@ -1,5 +1,5 @@
 import uuid
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Permission
 from django.db import models
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, NumeracionDocumentos
@@ -7,49 +7,46 @@ from cruds_adminlte3.utils import crud_url
 from django.utils.translation import gettext_lazy as _
 
 
-# class Ueb(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     idunidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
-#                                          verbose_name="UEB")
-#
-#     class Meta:
-#         db_table = 'cfg_ueb'
-
-
 class ConexionBaseDato(models.Model):
+    CHOICE_SYSTEMS = {
+        1: "VersatSarasola",
+        2: "SisGestMP",
+    }
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     database_name = models.CharField(max_length=250, verbose_name=_("Database Name"))
     database_user = models.CharField(max_length=250, verbose_name=_("User Name"))
     password = models.CharField(max_length=250, verbose_name=_("Password"))
     host = models.CharField(max_length=250, verbose_name=_("Host"))
     port = models.CharField(max_length=100, verbose_name=_("Port"))
-    idunidadcontable = models.OneToOneField(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
-    sistema = models.CharField(max_length=50, verbose_name=_("System"), default='VersatSarasola')
+    unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
+    sistema = models.CharField(choices=CHOICE_SYSTEMS, editable=False, default=CHOICE_SYSTEMS[1],
+                                  verbose_name=_("System"))
 
     class Meta:
         db_table = 'cfg_conexionasedato'
         indexes = [
             models.Index(
                 fields=[
-                    'idunidadcontable',
+                    'unidadcontable',
                     'sistema',
                 ]
             ),
         ]
-        ordering = ['idunidadcontable__codigo', 'sistema']
+        ordering = ['unidadcontable__codigo', 'sistema']
         verbose_name_plural = _('Conexions of data bases')
         verbose_name = _('Database conexion')
-
+        unique_together = (('unidadcontable', 'sistema'),)
 
 
 class ConsecutivoDocumento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idnumeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
-                                              related_name='consecutivodocumento_numeracion',
-                                              verbose_name=_("Enumeration Type"))
+    numeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
+                                            related_name='consecutivodocumento_numeracion',
+                                            verbose_name=_("Enumeration Type"))
     numero = models.IntegerField(verbose_name=_("Number"))
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb',
-                              verbose_name="UEB")
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb',
+                            verbose_name="UEB")
 
     class Meta:
         db_table = 'cfg_consecutivodocumento'
@@ -57,11 +54,11 @@ class ConsecutivoDocumento(models.Model):
 
 class ConsecutivoDocumentoDepartamento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idconsecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-                                               related_name='consecutivodocumentodpto_consecutivodocumento')
-    iddepartamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                       related_name='consecutivodocumentodpto_departamento',
-                                       verbose_name=_("Department"))
+    consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
+                                             related_name='consecutivodocumentodpto_consecutivodocumento')
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                     related_name='consecutivodocumentodpto_departamento',
+                                     verbose_name=_("Department"))
 
     class Meta:
         db_table = 'cfg_consecutivodocumentodepartamento'
@@ -69,10 +66,10 @@ class ConsecutivoDocumentoDepartamento(models.Model):
 
 class ConsecutivoDocumentoTipoDocumento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idconsecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-                                               related_name='consecutivodocumentotipodoc_consecutivodocumento')
-    idtipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT,
-                                        related_name='consecutivodocumentotipodoc_tipodocumento')
+    consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
+                                             related_name='consecutivodocumentotipodoc_consecutivodocumento')
+    tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT,
+                                      related_name='consecutivodocumentotipodoc_tipodocumento')
 
     class Meta:
         db_table = 'cfg_consecutivodocumentotipodocumento'
@@ -80,10 +77,8 @@ class ConsecutivoDocumentoTipoDocumento(models.Model):
 
 class UserUeb(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    idueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, null=True,
-                              blank=True, verbose_name='UEB')
-
-    # iduser = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_ueb')
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, null=True,
+                            blank=True, verbose_name='UEB')
 
     def __str__(self):
         return self.username
@@ -98,12 +93,12 @@ class UserUeb(AbstractUser):
                 fields=[
                     'username',
                     'email',
-                    'idueb',
+                    'ueb',
                     'last_login',
                 ]
             ),
         ]
-        ordering = ('idueb', 'username', 'pk')
+        ordering = ('ueb', 'username', 'pk')
         verbose_name_plural = _('Users')
         verbose_name = _('User')
 
@@ -125,11 +120,11 @@ class UserUeb(AbstractUser):
 
     @property
     def is_adminempresa(self):
-        return self.groups.filter(name="Administrador").exists() and self.idueb and self.idueb.is_empresa
+        return self.groups.filter(name="Administrador Empresa").exists() and self.ueb and self.ueb.is_empresa
 
     @property
     def is_consultoremp(self):
-        return self.groups.filter(name="Consultor").exists() and self.idueb and self.idueb.is_empresa
+        return self.groups.filter(name="Consultor").exists() and self.ueb and self.ueb.is_empresa
 
 
 # Model to store the list of logged-in users

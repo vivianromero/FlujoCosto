@@ -18,6 +18,19 @@ class UserUebTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = UserUeb
 
         fields = (
-            'idueb',
-            'iduser',
+            'ueb',
+            'user',
+        )
+
+# ------ User UEB / Table ------
+class ConexionBaseDatoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConexionBaseDato
+
+        fields = (
+            'database_name',
+            'host',
+            'port',
+            'sistema',
+            'unidadcontable',
         )

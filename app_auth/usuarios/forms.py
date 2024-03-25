@@ -6,12 +6,14 @@ from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
+from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django.template.loader import get_template
 
 from cruds_adminlte3.utils import common_filter_form_actions, common_form_actions
 from cruds_adminlte3.widgets import SelectWidget
+
+from codificadores.models import UnidadContable
 
 User = get_user_model()
 
@@ -23,26 +25,35 @@ class RegistroUsuarioForm(UserCreationForm):
     class Meta:
         model = User
         fields = [
-            'username',
+            'first_name',
+            'last_name',
             'email',
-            'idueb',
-
+            'username',
+            'ueb',
+            'groups'
         ]
 
     widgets = {
-        'last_login': forms.DateTimeInput(
+        # 'last_login': forms.DateTimeInput(
+        #     attrs={
+        #         'readonly': True,
+        #         'format': 'yyyy-mm-dd',
+        #     },
+        # ),
+        # 'date_joined': forms.DateTimeInput(
+        #     attrs={
+        #         'readonly': True,
+        #         'format': 'yyyy-mm-dd',
+        #     }
+        # ),
+        'groups': forms.SelectMultiple(
             attrs={
-                'readonly': True,
-                'format': 'yyyy-mm-dd',
-            },
-        ),
-        'date_joined': forms.DateTimeInput(
-            attrs={
-                'readonly': True,
-                'format': 'yyyy-mm-dd',
+                'class': 'duallistbox',
+                'style': 'width: 100%;',
+                'multiple': 'multiple',
             }
         ),
-        'idueb': SelectWidget(
+        'ueb': SelectWidget(
             attrs={'style': 'width: 100%'}
         ),
     }
@@ -61,14 +72,23 @@ class RegistroUsuarioForm(UserCreationForm):
                 Tab(
                     _('Registration information'),
                     Row(
-                        # Column('first_name', css_class='form-group col-md-4 mb-0'),
-                        # Column('last_name', css_class='form-group col-md-4 mb-0'),
-                        Column('username', css_class='form-group col-md-4 mb-0'),
+                        Column('first_name', css_class='form-group col-md-4 mb-0'),
+                        Column('last_name', css_class='form-group col-md-4 mb-0'),
                         Column('email', css_class='form-group col-md-4 mb-0'),
-                        Column('idueb', css_class='form-group col-md-4 mb-0'),
+
+                        Column('username', css_class='form-group col-md-4 mb-0'),
+
+                        Column('ueb', css_class='form-group col-md-4 mb-0'),
                         Column('password1', css_class='form-group col-md-6 mb-0'),
                         Column('password2', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'),
+                ),
+                Tab(
+                    _('Groups'),
+                    Row(
+                        Column('groups', css_class='form-group col-md-12 mb-0'),
+                        css_class='form-row'),
+
                 ),
                 # Tab(
                 #     'Información de sistema',
@@ -94,6 +114,17 @@ class RegistroUsuarioForm(UserCreationForm):
             )
         )
 
+        if not self.user_pop.is_superuser:
+            self.fields['ueb'].initial = UnidadContable.objects.get(pk=self.user_pop.ueb.id)
+        else:
+            self.fields['ueb'].queryset = UnidadContable.objects.filter(activo=True).all()
+
+        self.fields['ueb'].disabled = not self.user_pop.is_superuser
+        self.fields['ueb'].required = self.user_pop.is_superuser
+
+        self.fields["groups"].queryset = Group.objects.all().exclude(
+            id=5) if self.user_pop.is_admin else Group.objects.all()
+
     def clean_password2(self):  # Validar que ambas contraseñas coincidan
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
@@ -104,11 +135,11 @@ class RegistroUsuarioForm(UserCreationForm):
     def save(self, commit=True):  # Guardar las contraseñas en formato Hash
         usuario = super(RegistroUsuarioForm, self).save(commit=False)
         usuario.set_password(self.cleaned_data['password1'])
-        usuario.active = False
+        usuario.active = True
         if commit:
             usuario.save()
+        super(RegistroUsuarioForm, self).save()
         return usuario
-
 
 # Forma para actualizar los usuarios.
 class EditarUsuarioForm(UserChangeForm):
@@ -118,6 +149,7 @@ class EditarUsuarioForm(UserChangeForm):
     error_messages = {
         "password_mismatch": _("The two password fields didn’t match."),
     }
+
     new_password1 = forms.CharField(
         label=_("New password"),
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
@@ -155,7 +187,7 @@ class EditarUsuarioForm(UserChangeForm):
             'groups': forms.SelectMultiple(
                 attrs={
                     'class': 'duallistbox',
-                    'style': 'width: 100%;',
+                    'style': 'width: 100%; heigth: 100%',
                     'multiple': 'multiple',
                 }
             ),
@@ -166,8 +198,8 @@ class EditarUsuarioForm(UserChangeForm):
                     'multiple': 'multiple',
                 }
             ),
-            'idueb': SelectWidget(
-                attrs={'style': 'width: 100%'}
+            'ueb': SelectWidget(
+                attrs={'style': 'width: 85%;'}
             ),
 
         }
@@ -200,32 +232,41 @@ class EditarUsuarioForm(UserChangeForm):
                             PrependedText(
                                 'first_name', mark_safe('<i class="fa fa-user-pen"></i>')
                             ),
-                            css_class='form-group col-md-3 mb-0'
+                            css_class='form-group col-md-4 mb-0'
                         ),
                         Column(
                             PrependedText(
                                 'last_name', mark_safe('<i class="fa fa-user-pen"></i>')
                             ),
-                            css_class='form-group col-md-3 mb-0'
-                        ),
-                        Column(
-                            PrependedText(
-                                'username', mark_safe('<i class="fa fa-user-check"></i>')
-                            ),
-                            css_class='form-group col-md-3 mb-0'
+                            css_class='form-group col-md-4 mb-0'
                         ),
                         Column(
                             PrependedText(
                                 'email', mark_safe('<i class="fa fa-envelope"></i>')
                             ),
-                            css_class='form-group col-md-3 mb-0'
+                            css_class='form-group col-md-4 mb-0'
                         ),
+                        css_class='form-row'),
+                    Row(
                         Column(
                             PrependedText(
-                                'idueb', mark_safe('<i class="fa fa-building"></i>')
+                                'username', mark_safe('<i class="fa fa-user-check"></i>')
                             ),
                             css_class='form-group col-md-4 mb-0'
                         ),
+                        Column(
+                            PrependedText(
+                                'ueb', mark_safe('<i class="fa fa-building"></i>')
+                            ),
+                            css_class='form-group col-md-4 mb-0'
+                        ),
+
+                        Column(
+                            'is_active', css_class='form-group col-md-3 mb-0'
+                        ),
+                        css_class='form-row'
+                    ),
+                    Row(
                         Column(
                             PrependedText(
                                 'new_password1', mark_safe('<i class="fa fa-key"></i>')
@@ -262,7 +303,7 @@ class EditarUsuarioForm(UserChangeForm):
                         ),
                         Column('is_superuser', css_class='form-group col-md-3 mb-0'),
                         Column('is_staff', css_class='form-group col-md-2 mb-0'),
-                        Column('is_active', css_class='form-group col-md-3 mb-0'),
+                        # Column('is_active', css_class='form-group col-md-3 mb-0'),
                         css_class='form-row'),
 
                 ),
@@ -273,13 +314,13 @@ class EditarUsuarioForm(UserChangeForm):
                         css_class='form-row'),
 
                 ),
-                Tab(
-                    _('Permissions'),
-                    Row(
-                        Column('user_permissions', css_class='form-group col-md-12 mb-0'),
-                        css_class='form-row'),
-
-                ),
+                # Tab(
+                #     _('Permissions'),
+                #     Row(
+                #         Column('user_permissions', css_class='form-group col-md-12 mb-0'),
+                #         css_class='form-row'),
+                #
+                # ),
             ),
         )
 
@@ -287,6 +328,12 @@ class EditarUsuarioForm(UserChangeForm):
             common_form_actions()
         )
         super(EditarUsuarioForm, self).__init__(*args, **kwargs)
+        self.fields["ueb"].disabled = not self.user_pop.is_superuser
+        self.fields["ueb"].required = self.user_pop.is_superuser
+        self.fields["is_superuser"].disabled = not self.user_pop.is_superuser
+        self.fields["is_staff"].disabled = not self.user_pop.is_superuser
+        self.fields["groups"].queryset = Group.objects.all().exclude(
+            id=5) if self.user_pop.is_admin else Group.objects.all()
 
     def clean_new_password2(self):
         password1 = self.cleaned_data.get("new_password1")
@@ -389,7 +436,7 @@ class UserUebFormFilter(forms.Form):
             'is_superuser',
             'is_staff',
             'is_active',
-            'idueb',
+            'ueb',
         ]
 
     def __init__(self, *args, **kwargs) -> None:

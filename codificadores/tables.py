@@ -1,9 +1,10 @@
 import django_tables2 as tables
-from django.utils.translation import gettext as _
-from django.contrib.auth.models import User
 
 from codificadores.models import *
-from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions
+from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions, \
+    ColumnShiftTableBootstrap4Responsive
+from cruds_adminlte3.utils import attrs_center_center
+from django.utils.translation import gettext as _
 
 
 # ------ Departamento / Table ------
@@ -14,8 +15,8 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         fields = (
             'codigo',
             'descripcion',
-            'idcentrocosto',
-            'idunidadcontable',
+            'centrocosto',
+            'unidadcontable',
         )
 
 
@@ -25,8 +26,8 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 #         model = DepartamentoRelacion
 #
 #         fields = (
-#             'iddepartamentoo',
-#             'iddepartamentod',
+#             'departamentoo',
+#             'departamentod',
 #         )
 
 
@@ -52,6 +53,7 @@ class MedidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         fields = (
             'clave',
             'descripcion',
+            'activa',
         )
 
 
@@ -138,8 +140,8 @@ class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'codigo',
             'descripcion',
             'activo',
-            'idmedida',
-            'idtipoproducto',
+            'medida',
+            'tipoproducto',
         )
 
 
@@ -150,8 +152,8 @@ class ProductoFlujoClaseTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
 
         fields = (
             'id',
-            'idclasemateriaprima',
-            'idproducto',
+            'clasemateriaprima',
+            'producto',
         )
 
 
@@ -163,7 +165,7 @@ class ProductoFlujoDestinoTable(CommonColumnShiftTableBootstrap4ResponsiveAction
         fields = (
             'id',
             'destino',
-            'idproducto',
+            'producto',
         )
 
 
@@ -174,8 +176,8 @@ class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions
 
         fields = (
             'id',
-            'idcuenta',
-            'idproducto',
+            'cuenta',
+            'producto',
         )
 
 
@@ -211,18 +213,20 @@ class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'longitud',
             'destino',
             'cepo',
-            'idcategoriavitola',
-            'idproducto',
-            'idtipovitola',
+            'categoriavitola',
+            'producto',
+            'tipovitola',
         )
 
 
 # ------ MarcaSalida / Table ------
 class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = TipoVitola
+        model = MarcaSalida
 
         fields = (
             'codigo',
             'descripcion',
+            'activa',
         )
+

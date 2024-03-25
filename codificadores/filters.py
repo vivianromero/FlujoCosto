@@ -15,8 +15,8 @@ class DepartamentoFilter(MyGenericFilter):
     search_fields = [
         'codigo__contains',
         'descripcion__icontains',
-        'idcentrocosto__contains',
-        'idunidadcontable__contains',
+        'centrocosto__contains',
+        'unidadcontable__contains',
     ]
     split_space_search = ' '
 
@@ -38,7 +38,7 @@ class DepartamentoFilter(MyGenericFilter):
             'query',
             'codigo',
             'descripcion',
-            'idcentrocosto',
+            'centrocosto',
         ]
 
         form = DepartamentoFormFilter
@@ -84,7 +84,6 @@ class UnidadContableFilter(MyGenericFilter):
                 }
             },
         }
-
 
 # ------ Medida / Filter ------
 class MedidaFilter(MyGenericFilter):
@@ -277,8 +276,8 @@ class ProductoFlujoFilter(MyGenericFilter):
         'id__contains',
         'descripcion__icontains',
         'activo',
-        'idmedida__descripcion__icontains',
-        'idtipoproducto__descripcion__icontains',
+        'medida__descripcion__icontains',
+        'tipoproducto__descripcion__icontains',
     ]
     split_space_search = ' '
 
@@ -289,8 +288,8 @@ class ProductoFlujoFilter(MyGenericFilter):
             'codigo',
             'descripcion',
             'activo',
-            'idmedida',
-            'idtipoproducto',
+            'medida',
+            'tipoproducto',
         ]
 
         form = ProductoFlujoFormFilter
@@ -309,8 +308,8 @@ class ProductoFlujoFilter(MyGenericFilter):
 class ProductoFlujoClaseFilter(MyGenericFilter):
     search_fields = [
         'id__contains',
-        'idclasemateriaprima__descripcion__icontains',
-        'idproducto__descripcion__icontains',
+        'clasemateriaprima__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
     split_space_search = ' '
 
@@ -318,8 +317,8 @@ class ProductoFlujoClaseFilter(MyGenericFilter):
         model = ProductoFlujoClase
         fields = [
             'id',
-            'idclasemateriaprima',
-            'idproducto',
+            'clasemateriaprima',
+            'producto',
         ]
 
         form = ProductoFlujoClaseFormFilter
@@ -339,7 +338,7 @@ class ProductoFlujoDestinoFilter(MyGenericFilter):
     search_fields = [
         'id__contains',
         'destino_icontains',
-        'idproducto__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
     split_space_search = ' '
 
@@ -348,7 +347,7 @@ class ProductoFlujoDestinoFilter(MyGenericFilter):
         fields = [
             'id',
             'destino',
-            'idproducto',
+            'producto',
         ]
 
         form = ProductoFlujoClaseFormFilter
@@ -367,8 +366,8 @@ class ProductoFlujoDestinoFilter(MyGenericFilter):
 class ProductoFlujoCuentaFilter(MyGenericFilter):
     search_fields = [
         'id__contains',
-        'idcuenta__descripcion__icontains',
-        'idproducto__descripcion__icontains',
+        'cuenta__descripcion__icontains',
+        'producto__descripcion__icontains',
     ]
     split_space_search = ' '
 
@@ -376,8 +375,8 @@ class ProductoFlujoCuentaFilter(MyGenericFilter):
         model = ProductoFlujoCuenta
         fields = [
             'id',
-            'idcuenta',
-            'idproducto',
+            'cuenta',
+            'producto',
         ]
 
         form = ProductoFlujoCuentaFormFilter
@@ -455,9 +454,9 @@ class VitolaFilter(MyGenericFilter):
         'longitud__contains',
         'destino__icontains',
         'cepo__contains',
-        'idcategoriavitola__descripcion__icontains',
-        'idproducto__descripcion__icontains',
-        'idtipovitola__descripcion__icontains',
+        'categoriavitola__descripcion__icontains',
+        'producto__descripcion__icontains',
+        'tipovitola__descripcion__icontains',
     ]
     split_space_search = ' '
 
@@ -468,9 +467,9 @@ class VitolaFilter(MyGenericFilter):
             'longitud',
             'destino',
             'cepo',
-            'idcategoriavitola',
-            'idproducto',
-            'idtipovitola',
+            'categoriavitola',
+            'producto',
+            'tipovitola',
         ]
 
         form = VitolaFormFilter
