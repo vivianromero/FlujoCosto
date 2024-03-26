@@ -21,16 +21,16 @@ from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.conf import Settings as Thumbnail_Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve()
 
 # env = environ.Env()
 # env = environ.Env()
+#
+# environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
 
-# environ.Env.read_env(os.path.join(BASE_DIR, 'config/.env.local'))
+MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR.parent, 'staticfiles/upload'))
 
-MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR, 'staticfiles/upload'))
-
-APP_VERSION = (os.path.join(BASE_DIR, 'config/version'))
+APP_VERSION = (os.path.join(BASE_DIR.parent, 'config/version'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -206,7 +206,7 @@ def get_db_config(environ_var='DATABASE_URL'):
     # This will allow use a relative to the project root DB path
     # for SQLite like 'sqlite:///db.sqlite3'
     if not options['NAME'] == ':memory:' and not os.path.isabs(options['NAME']):
-        options.update({'NAME': os.path.join(BASE_DIR, options['NAME'])})
+        options.update({'NAME': os.path.join(BASE_DIR.parent, options['NAME'])})
 
     return options
 
@@ -247,7 +247,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'configuracion.UserUeb'
 
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
+    os.path.join(BASE_DIR.parent, 'locale'),
 ]
 
 # Internationalization
@@ -274,11 +274,11 @@ USE_TZ = False
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'app_index/static',
-    BASE_DIR / 'cruds_adminlte3/static'
+    BASE_DIR.parent / 'app_index/static',
+    BASE_DIR.parent / 'cruds_adminlte3/static'
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR.parent, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
