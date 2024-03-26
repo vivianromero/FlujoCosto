@@ -228,7 +228,7 @@ class MedidaFormFilter(forms.Form):
                         ),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
-                        Column('activa', css_class='form-group col-md-8 mb-0'),
+                        Column('activa', css_class='form-group col-md-3 mb-0'),
 
                         css_class='form-row',
                     ),
