@@ -20,17 +20,6 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         )
 
 
-# ------ DepartamentoRelacion / Table ------
-# class DepartamentoRelacionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-#     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-#         model = DepartamentoRelacion
-#
-#         fields = (
-#             'departamentoo',
-#             'departamentod',
-#         )
-
-
 # ------ UnidadContable / Table ------
 class UnidadContableTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -101,35 +90,6 @@ class CentroCostoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         )
 
 
-# ------ TipoProducto / Table ------
-class TipoProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = TipoProducto
-
-        fields = (
-            'id',
-            'descripcion',
-        )
-
-
-# ------ EstadoProducto / Table ------
-class EstadoProductoTable(TipoProductoTable):
-    class Meta(TipoProductoTable.Meta):
-        model = EstadoProducto
-
-
-# ------ ClaseMateriaPrima / Table ------
-class ClaseMateriaPrimaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ClaseMateriaPrima
-
-        fields = (
-            'id',
-            'descripcion',
-            'capote_fortaleza',
-        )
-
-
 # ------ ProductoFlujo / Table ------
 class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -179,30 +139,6 @@ class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions
             'cuenta',
             'producto',
         )
-
-
-# ------ CategoriaVitola / Table ------
-class CategoriaVitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = CategoriaVitola
-
-        fields = (
-            'id',
-            'descripcion',
-            'orden',
-        )
-
-
-# ------ TipoVitola / Table ------
-class TipoVitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = TipoVitola
-
-        fields = (
-            'id',
-            'descripcion',
-        )
-
 
 class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):

@@ -369,33 +369,6 @@ class Departamento(ObjectsManagerAbstract):
         return self.descripcion
 
 
-# class DepartamentoProductoSalida(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-#                                        related_name='departamentoproductosalida_departamento',
-#                                        verbose_name=_("Department"))
-#     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT,
-#                                        related_name='departamentoproductosalida_producto',
-#                                        verbose_name=_("Product"))
-#
-#     class Meta:
-#         db_table = 'cla_departamentoproductosalida'
-#
-#
-# class DepartamentoRelacion(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     departamentoo = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-#                                         related_name='departamentorelacion_origen',
-#                                         verbose_name=_("Origin Department"))
-#     departamentod = models.ForeignKey(Departamento, on_delete=models.CASCADE,
-#                                         related_name='departamentorelacion_destino',
-#                                         verbose_name=_("Destination Department"))
-#
-#     class Meta:
-#         db_table = 'cla_departamentorelacion'
-#         unique_together = (('iddepartamentoo', 'iddepartamentod'),)
-
-
 class NormaConsumo(ObjectsManagerAbstract):
     CHOICE_TIPOS_NORMAS = {
         1: 'Pesada',
@@ -558,8 +531,6 @@ class TipoDocumentoCuentaTransfExterna(TipoDocumentoCuentaAbstract):
 
     class Meta:
         db_table = 'cla_tipodocumentocuentatransfexterna'
-        # unique_together = (('iddocumento__id', 'idunidadcontable', 'iddepartamentod'),)
-
 
 # se configura la cuenta por unidad contable que realiza o recibe la transf.
 # en dependencia del tipo de documento
