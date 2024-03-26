@@ -1,28 +1,7 @@
 from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions
 from .models import *
 
-
-# ------ UEB / Table ------
-# class UebTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-#     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-#         model = Ueb
-#
-#         fields = (
-#             'idunidadcontable',
-#         )
-
-
-# ------ User UEB / Table ------
-class UserUebTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = UserUeb
-
-        fields = (
-            'ueb',
-            'user',
-        )
-
-# ------ User UEB / Table ------
+# ------ Conexiones a las BD de sistemas externos / Table ------
 class ConexionBaseDatoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = ConexionBaseDato

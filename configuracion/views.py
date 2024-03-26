@@ -3,70 +3,51 @@ from .filters import *
 from .forms import *
 from .tables import *
 
-
-# Create your views here.
-# class UebCRUD(CommonCRUDView):
-#     model = Ueb
-#
-#     namespace = 'app_index:configuracion'
-#
-#     fields = [
-#         'idunidadcontable',
-#     ]
-#
-#     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-#     # y no distinga entre mayúsculas y minúsculas.
-#     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-#     search_fields = [
-#         'idunidadcontable__nombre__contains',
-#     ]
-#
-#     # search_method = hecho_extraordinario_search_queryset
-#
-#     add_form = UebForm
-#     update_form = UebForm
-#
-#     list_fields = [
-#         'idunidadcontable',
-#     ]
-#
-#     filter_fields = [
-#         'idunidadcontable',
-#     ]
-#
-#     filterset_class = UebFilter
-#
-#     # Table settings
-#     table_class = UebTable
-
-
-class UserUebCRUD(CommonCRUDView):
-    model = UserUeb
+class ConexionBaseDatoCRUD(CommonCRUDView):
+    model = ConexionBaseDato
 
     namespace = 'app_index:configuracion'
 
     fields = [
-        'ueb',
-        'user',
+        'sistema',
+        'database_name',
+        'host',
+        'port',
+        'database_user',
+        'password',
+        'unidadcontable',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'ueb__idunidadcontable__nombre__icontains',
-        'user__username__icontains',
+        'sistema__icontains',
+        'database_name__icontains',
+        'unidadcontable__codigo__icontains',
+        'unidadcontable__unidadcontable__icontains',
     ]
 
-    add_form = UserUebForm
-    update_form = UserUebForm
+    add_form = ConexionBaseDatoForm
+    update_form = ConexionBaseDatoForm
 
     list_fields = fields
 
     filter_fields = fields
 
-    filterset_class = UserUebFilter
+    filterset_class = ConexionBaseDatoFilter
 
     # Table settings
-    table_class = UserUebTable
-    aa=1
+    table_class = ConexionBaseDatoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_queryset(self):
+                qset = super().get_queryset()
+                user = self.request.user
+                if not user.is_superuser:
+                    qset = qset.filter(unidadcontable=user.ueb)
+                return qset
+        return OFilterListView

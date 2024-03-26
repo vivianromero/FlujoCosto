@@ -206,7 +206,7 @@ msgstr "Contraseña"
 #: app_auth/usuarios/templates/usuarios/usuario/partials/password_hide.html:14
 #: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:15
 #: app_auth/usuarios/views.py:123 cruds_adminlte3/config.py:69
-msgid "show password"
+msgid "Show password"
 msgstr "Mostrar contraseña"
 
 #: app_auth/usuarios/templates/registration/login.html:68
@@ -324,7 +324,7 @@ msgstr " Imagen del usuario %(usuario_username)s "
 
 #: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:15
 #: app_auth/usuarios/views.py:122 cruds_adminlte3/config.py:68
-msgid "hide password"
+msgid "Hide password"
 msgstr "Ocultar contraseña"
 
 #: app_auth/usuarios/views.py:29 cruds_adminlte3/crud.py:632

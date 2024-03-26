@@ -10,10 +10,9 @@ from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from codificadores.models import UnidadContable
 from cruds_adminlte3.utils import common_filter_form_actions, common_form_actions
 from cruds_adminlte3.widgets import SelectWidget
-
-from codificadores.models import UnidadContable
 
 User = get_user_model()
 
@@ -34,18 +33,6 @@ class RegistroUsuarioForm(UserCreationForm):
         ]
 
     widgets = {
-        # 'last_login': forms.DateTimeInput(
-        #     attrs={
-        #         'readonly': True,
-        #         'format': 'yyyy-mm-dd',
-        #     },
-        # ),
-        # 'date_joined': forms.DateTimeInput(
-        #     attrs={
-        #         'readonly': True,
-        #         'format': 'yyyy-mm-dd',
-        #     }
-        # ),
         'groups': forms.SelectMultiple(
             attrs={
                 'class': 'duallistbox',
@@ -90,19 +77,6 @@ class RegistroUsuarioForm(UserCreationForm):
                         css_class='form-row'),
 
                 ),
-                # Tab(
-                #     'Información de sistema',
-                #     Row(
-                #         Column('last_login', css_class='form-group col-md-6 mb-0'),
-                #         Column('date_joined', css_class='form-group col-md-6 mb-0'),
-                #         Column('groups', css_class='form-group col-md-6 mb-0'),
-                #         Column('user_permissions', css_class='form-group col-md-6 mb-0'),
-                #         Column('is_superuser', css_class='form-group col-md-4 mb-0'),
-                #         Column('is_staff', css_class='form-group col-md-4 mb-0'),
-                #         Column('is_active', css_class='form-group col-md-4 mb-0'),
-                #         css_class='form-row'),
-                #
-                # )
             ),
         )
 
@@ -279,11 +253,6 @@ class EditarUsuarioForm(UserChangeForm):
                             ),
                             css_class='form-group col-md-4 mb-0'
                         ),
-                        # Field(
-                        #     'pic',
-                        #     template='usuarios/usuario/cruds/image_input.html',
-                        #     css_class='form-group col-md-6 mb-0'
-                        # ),
                         css_class='form-row'),
                 ),
                 Tab(
@@ -303,9 +272,7 @@ class EditarUsuarioForm(UserChangeForm):
                         ),
                         Column('is_superuser', css_class='form-group col-md-3 mb-0'),
                         Column('is_staff', css_class='form-group col-md-2 mb-0'),
-                        # Column('is_active', css_class='form-group col-md-3 mb-0'),
                         css_class='form-row'),
-
                 ),
                 Tab(
                     _('Groups'),
@@ -314,20 +281,12 @@ class EditarUsuarioForm(UserChangeForm):
                         css_class='form-row'),
 
                 ),
-                # Tab(
-                #     _('Permissions'),
-                #     Row(
-                #         Column('user_permissions', css_class='form-group col-md-12 mb-0'),
-                #         css_class='form-row'),
-                #
-                # ),
             ),
         )
 
         self.helper.layout.append(
             common_form_actions()
         )
-        super(EditarUsuarioForm, self).__init__(*args, **kwargs)
         self.fields["ueb"].disabled = not self.user_pop.is_superuser
         self.fields["ueb"].required = self.user_pop.is_superuser
         self.fields["is_superuser"].disabled = not self.user_pop.is_superuser
@@ -356,7 +315,6 @@ class EditarUsuarioForm(UserChangeForm):
             self.user.save()
         return self.user
 
-
 class PassUserChangeForm(PasswordChangeForm):
 
     def __init__(self, *args, **kwargs):
@@ -372,7 +330,6 @@ class PassUserChangeForm(PasswordChangeForm):
                 )
             )
         )
-
 
 class GroupForm(forms.ModelForm):
     class Media:
@@ -420,7 +377,6 @@ class GroupForm(forms.ModelForm):
                 )
             )
         )
-
 
 class UserUebFormFilter(forms.Form):
     class Meta:

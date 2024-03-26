@@ -12,7 +12,6 @@ from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion
 from cruds_adminlte3.utils import crud_url_name
-from utiles.decorators import adminempresa_required
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
 

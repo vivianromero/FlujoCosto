@@ -111,27 +111,15 @@ MENUS = {
                 {
                     "name": _("Users"),
                     "icon_class": 'fa fa-users',
-                    "url": crud_url_name(UserUeb, 'list', 'app_index:configuracion:'),
+                    "url": crud_url_name(UserUeb, 'list', 'app_index:usuario:'),
                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                 },
-                # {
-                #     "name": _("Groups"),
-                #     "icon_class": 'fa fa-users',
-                #     "url": crud_url_name(Group, 'list', 'app_index:group:'),
-                #     "validators": ["app_auth.usuarios.validators.is_adminempresa"],
-                # },
-                # {
-                #     "name": _("Permissons"),
-                #     "icon_class": 'fa fa-lock',
-                #     "url": crud_url_name(Permission, 'list', 'app_index:permission:'),
-                #     "validators": ["app_auth.usuarios.validators.is_admin"],
-                # },
-                # {
-                #     "name": _("UEB User"),
-                #     "icon_class": 'fa fa-user',
-                #     "url": crud_url_name(UserUeb, 'list', 'app_index:configuracion:'),
-                #     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                # },
+                {
+                    "name": _("Database connection"),
+                    "icon_class": 'fa fa-database',
+                    "url": crud_url_name(ConexionBaseDato, 'list', 'app_index:configuracion:'),
+                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                },
             ]
         }
     ]
