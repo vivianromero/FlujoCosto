@@ -100,7 +100,7 @@ class UnidadContableFormFilter(forms.Form):
         super(UnidadContableFormFilter, self).__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
         self.helper = FormHelper(self)
-        self.helper.form_id = 'id_departamento_form_filter'
+        self.helper.form_id = 'id_undadcontable_form_filter'
         self.helper.form_method = 'GET'
 
         self.helper.layout = Layout(
@@ -115,11 +115,11 @@ class UnidadContableFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('codigo', css_class='form-group col-md-2 mb-0'),
-                        Column('nombre', css_class='form-group col-md-4 mb-0'),
-                        Column('activo', css_class='form-group col-md-2 mb-0'),
-                        Column('is_empresa', css_class='form-group col-md-2 mb-0'),
-                        Column('is_comercializadora', css_class='form-group col-md-2 mb-0'),
+                        Column('codigo', css_class='form-group col-md-4 mb-0'),
+                        Column('nombre', css_class='form-group col-md-8 mb-0'),
+                        Column('activo', css_class='form-group col-md-4 mb-0'),
+                        Column('is_empresa', css_class='form-group col-md-4 mb-0'),
+                        Column('is_comercializadora', css_class='form-group col-md-4 mb-0'),
 
                         css_class='form-row',
                     ),

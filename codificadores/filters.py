@@ -58,11 +58,20 @@ class UnidadContableFilter(MyGenericFilter):
     search_fields = [
         'codigo__icontains',
         'nombre__icontains',
-        'activo',
-        'is_empresa',
-        'is_comercializadora',
     ]
     split_space_search = ' '
+
+    codigo = django_filters.CharFilter(
+        label=_("Code"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    nombre = django_filters.CharFilter(
+        label=_("Name"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
 
     class Meta:
         model = UnidadContable
