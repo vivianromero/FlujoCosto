@@ -106,6 +106,8 @@ class UnidadContableCRUD(CommonCRUDView):
 
     template_name_base = 'codificadores/unidadcontable/cruds'
 
+    partial_template_name_base = 'codificadores/unidadcontable/partials'
+
     fields = [
         'codigo',
         'nombre',
