@@ -253,9 +253,10 @@ class MedidaFormFilter(forms.Form):
 
 class MedidaConversionForm(forms.ModelForm):
     medidao = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
-                                          widget=forms.Select(attrs={'style': 'width: 100%'}))
+                                     widget=forms.Select(attrs={'style': 'width: 100%'}))
     medidad = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
                                      widget=forms.Select(attrs={'style': 'width: 100%'}))
+
     class Meta:
         model = MedidaConversion
         fields = [
@@ -341,12 +342,11 @@ class MedidaConversionFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('medidao', css_class='form-group col-md-5 mb-0'),
-                        Column('medidad', css_class='form-group col-md-5 mb-0'),
-                        Column('factor_conversion', css_class='form-group col-md-2 mb-0'),
-
+                        Column('medidao', css_class='form-group col-md-6 mb-0'),
+                        Column('medidad', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row',
                     ),
+                    Row('factor_conversion', css_class='form-group form-row'),
                 ),
                 style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
             ),
@@ -450,11 +450,11 @@ class CuentaFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('long_niv', css_class='form-group col-md-2 mb-0'),
-                        Column('posicion', css_class='form-group col-md-2 mb-0'),
-                        Column('clave', css_class='form-group col-md-4 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('clave', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('activa', css_class='form-group col-md-3 mb-0'),
+                        Column('long_niv', css_class='form-group col-md-3 mb-0'),
+                        Column('posicion', css_class='form-group col-md-3 mb-0'),
 
                         css_class='form-row',
                     ),
@@ -940,7 +940,6 @@ class ProductoFlujoFormFilter(forms.Form):
     class Meta:
         model = ProductoFlujo
         fields = [
-            'id',
             'codigo',
             'descripcion',
             'activo',
@@ -970,12 +969,11 @@ class ProductoFlujoFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
-                        Column('id', css_class='form-group col-md-4 mb-0'),
-                        Column('codigo', css_class='form-group col-md-4 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-4 mb-0'),
-                        Column('activo', css_class='form-group col-md-2 mb-0'),
-                        Column('medida', css_class='form-group col-md-5 mb-0'),
-                        Column('tipoproducto', css_class='form-group col-md-5 mb-0'),
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        Column('medida', css_class='form-group col-md-6 mb-0'),
+                        Column('tipoproducto', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1643,7 +1641,6 @@ class MarcaSalidaForm(forms.ModelForm):
         self.helper.form_id = 'id_marcasalida_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
-
 
         self.fields["codigo"].disabled = True
         self.fields["descripcion"].disabled = True

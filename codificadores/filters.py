@@ -144,6 +144,11 @@ class MedidaConversionFilter(MyGenericFilter):
     ]
     split_space_search = ' '
 
+    factor_conversion = django_filters.RangeFilter(
+        label=_('Convertion Factor'),
+        method='my_range_queryset',
+    )
+
     class Meta:
         model = MedidaConversion
         fields = [
@@ -167,13 +172,34 @@ class MedidaConversionFilter(MyGenericFilter):
 # ------ Cuenta / Filter ------
 class CuentaFilter(MyGenericFilter):
     search_fields = [
-        'long_niv_contains',
-        'posicion_contains',
-        'clave_icontains',
-        'descripcion_icontains',
-        'activa',
+        'long_niv__contains',
+        'posicion__contains',
+        'clave__icontains',
+        'descripcion__icontains',
     ]
     split_space_search = ' '
+
+    long_niv = django_filters.RangeFilter(
+        label=_('Long level'),
+        method='my_range_queryset',
+    )
+
+    posicion = django_filters.RangeFilter(
+        label=_('Position'),
+        method='my_range_queryset',
+    )
+
+    clave = django_filters.CharFilter(
+        label=_("Key"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
 
     class Meta:
         model = Cuenta
@@ -203,9 +229,26 @@ class CentroCostoFilter(MyGenericFilter):
         'clave__icontains',
         'clavenivel__icontains',
         'descripcion__icontains',
-        'activo',
     ]
     split_space_search = ' '
+
+    clave = django_filters.CharFilter(
+        label=_("Key"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    clavenivel = django_filters.CharFilter(
+        # label=_("Key"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
 
     class Meta:
         model = CentroCosto
@@ -294,20 +337,28 @@ class ClaseMateriaPrimaFilter(MyGenericFilter):
 # ------ ProductoFlujo / Filter ------
 class ProductoFlujoFilter(MyGenericFilter):
     search_fields = [
-        'id__contains',
         'codigo__icontains',
-        'id__contains',
         'descripcion__icontains',
-        'activo',
         'medida__descripcion__icontains',
         'tipoproducto__descripcion__icontains',
     ]
     split_space_search = ' '
 
+    codigo = django_filters.CharFilter(
+        label=_("Code"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
     class Meta:
         model = ProductoFlujo
         fields = [
-            'id',
             'codigo',
             'descripcion',
             'activo',
