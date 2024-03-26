@@ -3,6 +3,8 @@ import json
 import os
 import tarfile
 from tarfile import ReadError
+import tkinter as tk
+from tkinter import filedialog
 
 from django.conf import settings
 from django.shortcuts import redirect
@@ -19,28 +21,37 @@ from django.core.management import call_command
 def uc_importar(request):
     # TODO funcion para que me devuelva el fichero, siempre debe de estar en
     # staticfiles/upload
-    filename="Exportando_UC_1-0-241101_SisGestFC.tar.gz"
+    file_path = os.path.join(settings.STATIC_ROOT, 'upload/')
+    archivo_importar = filedialog.askopenfilename(
+        initialdir=file_path,
+        title="Seleccione el fichero",
+        filetypes=[("Ficheros a importar", "*.tar.gz"), ("All files", "*.*")]
+    )
+    filename = "Exportando_UC_1-0-241101_SisGestFC.tar.gz"
     file_path = settings.STATIC_ROOT
-    archivo_importar = os.path.join(file_path, 'upload', filename)
-    data = importar_datos_desde_tar(request, archivo_importar, 'UC')
+    # archivo_importar = os.path.join(file_path, 'upload', filename)
+    if archivo_importar:
+        data = importar_datos_desde_tar(request, archivo_importar, 'UC')
     return redirect(crud_url_name(UnidadContable, 'list', 'app_index:codificadores:'))
+
 
 @adminempresa_required
 def um_importar(request):
     # TODO funcion para que me devuelva el fichero, siempre debe de estar en
     # staticfiles/upload
-    filename="Exportando_UM_1-0-241101_SisGestFC.tar.gz"
+    filename = "Exportando_UM_1-0-241101_SisGestFC.tar.gz"
     # filename="data_K.tar.gz"
     file_path = settings.STATIC_ROOT
     archivo_importar = os.path.join(file_path, 'upload', filename)
     data = importar_datos_desde_tar(request, archivo_importar, 'UM')
     return redirect(crud_url_name(Medida, 'list', 'app_index:codificadores:'))
 
+
 @adminempresa_required
 def umc_importar(request):
     # TODO funcion para que me devuelva el fichero, siempre debe de estar en
     # staticfiles/upload
-    filename="Exportando_UMC_1-0-241101_SisGestFC.tar.gz"
+    filename = "Exportando_UMC_1-0-241101_SisGestFC.tar.gz"
     # filename="data_K.tar.gz"
     file_path = settings.STATIC_ROOT
     archivo_importar = os.path.join(file_path, 'upload', filename)
@@ -70,7 +81,7 @@ def importar_datos_desde_tar(request, archivo_tar, opcion):
                         check_sum_datos = codificar(str(datos_json).replace("'", '"'))
                         # Procesa los datos según tus necesidades
             if valida_json_verify(request, datos_json_verify, check_sum_datos, opcion):
-                filename = 'json_data_'+opcion.upper()+'.json'
+                filename = 'json_data_' + opcion.upper() + '.json'
                 ruta_archivo = os.path.join('importar', 'fixtures', filename)
                 fichero_json = open(ruta_archivo, "w+")
                 fichero_json.write(str(datos_json).replace("'", '"'))
@@ -86,9 +97,11 @@ def importar_datos_desde_tar(request, archivo_tar, opcion):
     except:
         message_error(request, 'File Error', "The file doesn't exist or is corrupt")
 
+
 def valida_json_verify(request, json_verify, check_sum_data, opcion):
     if json_verify['opcion'].upper() != opcion.upper():
-        message_error(request, "Error", "La información de este fichero no contiene los datos para la opción seleccionada")
+        message_error(request, "Error",
+                      "La información de este fichero no contiene los datos para la opción seleccionada")
         return False
     if json_verify['version'] != obtener_version():
         message_error(request, "Error", "La versión del sistema no se corresponde con la del fichero a importar")
@@ -164,4 +177,3 @@ def valida_json_verify(request, json_verify, check_sum_data, opcion):
 #     response = HttpResponse(open(ruta_archivo, 'rb'), content_type='application/gzip')
 #     response['Content-Disposition'] = f'attachment; filename={filename}'
 #     return response
-
