@@ -85,6 +85,7 @@ class UnidadContableFilter(MyGenericFilter):
             },
         }
 
+
 # ------ Medida / Filter ------
 class MedidaFilter(MyGenericFilter):
     search_fields = [
@@ -93,11 +94,24 @@ class MedidaFilter(MyGenericFilter):
     ]
     split_space_search = ' '
 
+    clave = django_filters.CharFilter(
+        label=_("Key"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
     class Meta:
         model = Medida
         fields = [
             'clave',
             'descripcion',
+            'activa',
         ]
 
         form = MedidaFormFilter
