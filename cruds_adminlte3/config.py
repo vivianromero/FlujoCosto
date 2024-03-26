@@ -65,8 +65,8 @@ CONFIG = {
     'open_event': _('Open event'),
 
     # Show or hide password
-    'hide_password': _('hide password'),
-    'show_password': _('show password'),
+    'hide_password': _('Hide password'),
+    'show_password': _('Show password'),
 
     # login/logout messages
     'title_success': _('Success'),
