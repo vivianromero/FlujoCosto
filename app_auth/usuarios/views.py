@@ -212,7 +212,7 @@ class UsuarioCRUD(CommonCRUDView):
                 qset = super().get_queryset()
                 user = self.request.user
                 if not user.is_superuser:
-                    qset = qset.filter(is_superuser=False)
+                    qset = qset.filter(is_superuser=False, ueb=user.ueb)
                 return qset
         return OFilterListView
 
