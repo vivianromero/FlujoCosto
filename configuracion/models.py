@@ -9,8 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 class ConexionBaseDato(models.Model):
     CHOICE_SYSTEMS = {
-        1: "VersatSarasola",
-        2: "SisGestMP",
+        "VersatSarasola": "VersatSarasola",
+        "SisGestMP": "SisGestMP",
     }
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -20,7 +20,7 @@ class ConexionBaseDato(models.Model):
     host = models.CharField(max_length=250, verbose_name=_("Host"))
     port = models.CharField(max_length=100, verbose_name=_("Port"))
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
-    sistema = models.CharField(choices=CHOICE_SYSTEMS, editable=False, default=CHOICE_SYSTEMS[1],
+    sistema = models.CharField(choices=CHOICE_SYSTEMS, default=CHOICE_SYSTEMS["VersatSarasola"],
                                   verbose_name=_("System"))
 
     class Meta:

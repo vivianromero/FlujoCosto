@@ -4,18 +4,6 @@ from codificadores.forms import *
 from codificadores.tables import *
 
 
-# Create your views here.
-# ------ DepartamentoRelacion / Ajax CRUD ------
-# class DepartamentoRelacionAjaxCRUD(InlineAjaxCRUD):
-#     model = DepartamentoRelacion
-#     base_model = Departamento
-#     inline_field = 'departamentoo'
-#     add_form = DepartamentoRelacionForm
-#     update_form = DepartamentoRelacionForm
-#     fields = ['departamentod']
-#     title = "Relaciones"
-
-
 # ------ Departamento / CRUD ------
 class DepartamentoCRUD(CommonCRUDView):
     model = Departamento
@@ -40,8 +28,6 @@ class DepartamentoCRUD(CommonCRUDView):
 
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = DepartamentoForm
     update_form = DepartamentoForm
 
@@ -57,45 +43,6 @@ class DepartamentoCRUD(CommonCRUDView):
     # inlines = [DepartamentoRelacionInline]
 
     form_class = DepartamentoForm
-
-
-# ------ DepartamentoRelacion / CRUD ------
-# class DepartamentoRelacionCRUD(CommonCRUDView):
-#     model = DepartamentoRelacion
-#
-#     namespace = 'app_index:codificadores'
-#
-#     fields = [
-#         'departamentoo',
-#         'departamentod',
-#     ]
-#
-#     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-#     # y no distinga entre mayúsculas y minúsculas.
-#     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-#     search_fields = [
-#         'departamentoo__descripcion__icontains',
-#         'departamentod__descripcion__icontains',
-#     ]
-#
-#     # search_method = hecho_extraordinario_search_queryset
-#
-#     add_form = DepartamentoRelacionForm
-#     update_form = DepartamentoRelacionForm
-#
-#     list_fields = [
-#         'departamentoo',
-#         'departamentod',
-#     ]
-#
-#     filter_fields = [
-#         'departamentoo',
-#         'departamentod',
-#     ]
-#     filterset_class = DepartamentoRelacionFilter
-#
-#     # Table settings
-#     table_class = DepartamentoRelacionTable
 
 
 # ------ UnidadContable / CRUD ------
@@ -127,8 +74,6 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_comercializadora',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     # add_form = UnidadContableForm
     update_form = UnidadContableForm
 
@@ -155,26 +100,6 @@ class UnidadContableCRUD(CommonCRUDView):
     # Table settings
     table_class = UnidadContableTable
 
-    # def get_delete_view(self):
-    #     view = self.get_delete_view_class()
-    #
-    #     class ODeleteView(view):
-    #
-    #         def post(self, request, *args, **kwargs):
-    #             self.object = self.get_object()
-    #             try:
-    #                 self.object.delete()
-    #             except ProtectedError:
-    #                 messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
-    #                 return HttpResponseRedirect(self.get_success_url())
-    #             self.object.delete()
-    #             if self.success_message:
-    #                 messages.success(self.request, self.success_message)
-    #             return HttpResponseRedirect(self.get_success_url())
-    #
-    #     return ODeleteView
-
-
 # ------ Medida / CRUD ------
 class MedidaCRUD(CommonCRUDView):
     model = Medida
@@ -196,8 +121,6 @@ class MedidaCRUD(CommonCRUDView):
         'clave__icontains',
         'descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = MedidaForm
     update_form = MedidaForm
@@ -244,8 +167,6 @@ class MedidaConversionCRUD(CommonCRUDView):
         'medidad__descripcion__contains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = MedidaConversionForm
     update_form = MedidaConversionForm
 
@@ -290,8 +211,6 @@ class CuentaCRUD(CommonCRUDView):
         'descripcion_icontains',
         'activa',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = CuentaForm
     update_form = CuentaForm
@@ -340,8 +259,6 @@ class CentroCostoCRUD(CommonCRUDView):
         'activo',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = CentroCostoForm
     update_form = CentroCostoForm
 
@@ -382,8 +299,6 @@ class TipoProductoCRUD(CommonCRUDView):
         'id__contains',
         'descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = TipoProductoForm
     update_form = TipoProductoForm
@@ -432,8 +347,6 @@ class ClaseMateriaPrimaCRUD(CommonCRUDView):
         'capote_fortaleza__icontains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = ClaseMateriaPrimaForm
     update_form = ClaseMateriaPrimaForm
 
@@ -475,8 +388,6 @@ class ProductoFlujoCRUD(CommonCRUDView):
         'tipoproducto__descripcion__icontains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = ProductoFlujoForm
     update_form = ProductoFlujoForm
 
@@ -510,8 +421,6 @@ class ProductoFlujoClaseCRUD(CommonCRUDView):
         'clasemateriaprima__descripcion__icontains',
         'producto__descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = ProductoFlujoClaseForm
     update_form = ProductoFlujoClaseForm
@@ -547,8 +456,6 @@ class ProductoFlujoDestinoCRUD(CommonCRUDView):
         'producto__descripcion__icontains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = ProductoFlujoDestinoForm
     update_form = ProductoFlujoDestinoForm
 
@@ -582,8 +489,6 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
         'cuenta__descripcion__icontains',
         'producto__descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = ProductoFlujoCuentaForm
     update_form = ProductoFlujoCuentaForm
@@ -619,8 +524,6 @@ class CategoriaVitolaCRUD(CommonCRUDView):
         'orden__contains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = CategoriaVitolaForm
     update_form = CategoriaVitolaForm
 
@@ -652,8 +555,6 @@ class TipoVitolaCRUD(CommonCRUDView):
         'id__contains',
         'descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = TipoVitolaForm
     update_form = TipoVitolaForm
@@ -699,8 +600,6 @@ class VitolaCRUD(CommonCRUDView):
         'tipovitola__descripcion__icontains',
     ]
 
-    # search_method = hecho_extraordinario_search_queryset
-
     add_form = VitolaForm
     update_form = VitolaForm
 
@@ -735,8 +634,6 @@ class MarcaSalidaCRUD(CommonCRUDView):
         'codigo__icontains',
         'descripcion__icontains',
     ]
-
-    # search_method = hecho_extraordinario_search_queryset
 
     add_form = MarcaSalidaForm
     update_form = MarcaSalidaForm

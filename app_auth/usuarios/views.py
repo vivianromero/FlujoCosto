@@ -45,7 +45,6 @@ class ListarUsuarios(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(ListarUsuarios, self).get_context_data()
-        # context['pic_url'] = self.model.pic.url
         context['model'] = 'User'
         return context
 
@@ -65,7 +64,6 @@ class EditarUsuario(UpdateView):
         pk = self.kwargs.get('pk', 0)
         if 'form' not in context:
             context['form'] = self.form_class()
-        # context['pic_url'] = self.model.pic.url
         context['id'] = pk
         context['model'] = 'User'
         context['previous_url'] = self.request.META.get('HTTP_REFERER')
@@ -82,7 +80,6 @@ class EditarUsuario(UpdateView):
         else:
             return HttpResponseRedirect(self.get_success_url())
 
-
 class PassChangeView(SuccessMessageMixin, PasswordChangeView):
     form_class = PassUserChangeForm
     success_url = reverse_lazy("app_index:index")
@@ -98,7 +95,6 @@ class PassChangeView(SuccessMessageMixin, PasswordChangeView):
         context['id'] = pk
         context['model'] = 'User'
         context['previous_url'] = self.request.META.get('HTTP_REFERER')
-        # self.success_url = self.request.META.get('HTTP_REFERER')
         return context
 
     def get_success_message(self, cleaned_data):
@@ -120,8 +116,8 @@ class MyLoginView(SuccessMessageMixin, LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context.update({
-            'hide_password': _('hide password'),
-            'show_password': _('show password'),
+            'hide_password': _('Hide password'),
+            'show_password': _('Show password'),
             'title_success': _('Success'),
         })
         return context
