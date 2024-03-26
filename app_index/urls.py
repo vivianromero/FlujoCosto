@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-# from .routers import router
 from .views import (
     Index,
     Underconstruction,
@@ -28,8 +27,6 @@ urlpatterns = [
     path('api/auth/refresh_token/', TokenRefreshView.as_view(), name='token_refresh'),
     # Apps
     path('', include('app_auth.usuarios.urls')),
-    path('', include('app_auth.grupos.urls')),
-    path('', include('app_auth.permisos.urls')),
     path('', include('codificadores.urls')),
     path('', include('configuracion.urls')),
     path('', include('app_apiversat.urls')),
@@ -37,9 +34,6 @@ urlpatterns = [
     path('', include('exportar.urls')),
     path('', include('importar.urls')),
 
-
-    # api
-    # path('api/', include(router.urls)),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

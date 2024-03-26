@@ -15,7 +15,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-# import environ
+# import environ TODO esto se habilita cuando funcione el environ
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.conf import Settings as Thumbnail_Settings
@@ -23,10 +23,12 @@ from easy_thumbnails.conf import Settings as Thumbnail_Settings
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve()
 
+##### TODO esto se habilita cuando funcione el environ
 # env = environ.Env()
 # env = environ.Env()
 #
 # environ.Env.read_env(os.path.join(BASE_DIR, '.env.local'))
+######
 
 MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR.parent, 'staticfiles/upload'))
 
@@ -36,11 +38,11 @@ APP_VERSION = (os.path.join(BASE_DIR.parent, 'config/version'))
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env('SECRET_KEY')
+# SECRET_KEY = env('SECRET_KEY') TODO esto se habilita cuando funcione el environ
 SECRET_KEY = 'django-insecure-h-yyy!9x0ci_%88!mham!0$j%jkd0j+#!8@r6ent@h513m=b^e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = env('DEBUG', default=True)
+# DEBUG = env('DEBUG', default=True) TODO esto se habilita cuando funcione el environ
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -92,8 +94,6 @@ MY_APPS = [
     'app_versat',
     'app_apiversat',
     'app_auth.usuarios',
-    'app_auth.grupos',
-    'app_auth.permisos',
     'cruds_adminlte3',
 ]
 
@@ -170,7 +170,6 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
     'JWT_EXPIRATION_DELTA': timedelta(hours=1),
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
-    # 'JWT_AUTH_HEADER_PREFIX': 'Bearer', # <---------- Comentariar esta línea cuando no se pruebe con 'Postman'
 }
 
 ROOT_URLCONF = 'config.urls'
@@ -210,10 +209,12 @@ def get_db_config(environ_var='DATABASE_URL'):
 
     return options
 
+### TODO esto se habilita cuando funcione el environ
 #
 # DATABASES = {
 #     'default': get_db_config()
 # }
+#####
 
 DATABASES = {
     'default': {
@@ -278,6 +279,7 @@ STATICFILES_DIRS = [
     BASE_DIR.parent / 'cruds_adminlte3/static'
 ]
 
+
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'staticfiles')
 
 # Default primary key field type
@@ -301,12 +303,6 @@ BOOTSTRAP_DATEPICKER_PLUS = {
         "date": {
             "format": "DD/MM/YYYY",
         },
-        # "datetime": {
-        #     "format": "MM/DD/YYYY HH:mm",
-        # },
-        # "month": {
-        #     "format": "MMMM, YYYY",
-        # },
     },
     "datetimepicker_js_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.js",
     "datetimepicker_css_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.css",
@@ -316,7 +312,7 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 }
 
 # Session expiration
-# SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS'))
+# SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS')) TODO esto se habilita cuando funcione el environ
 SESSION_EXPIRE_SECONDS = 600
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
@@ -330,7 +326,6 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "django.contrib.auth.backends.AllowAllUsersModelBackend",
-    # "guardian.backends.ObjectPermissionBackend",
 )
 
 DATABASE_ROUTERS = ['app_versat.routers.ApiDynamicDbRouter']
@@ -348,7 +343,7 @@ PASSWORD_EXPIRE_FORCE = True
 #exclude superusers from the password expiration
 PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 
-#Configuraciones de la API
+#Configuraciones de la API VERSAT TODO esto se habilita cuando funcione el environ
 # URL_API = env('URL_API')
 # CONNECTION_TOKEN_API = env('CONNECTION_TOKEN_API')
 # USERNAME_API = env('USERNAME_API')
