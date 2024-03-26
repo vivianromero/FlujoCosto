@@ -21,7 +21,6 @@ def decodificar(enc):
     enc = (base64.urlsafe_b64decode(enc)).decode("utf-8", "replace")
     key = KEY_ENCRIP
     for i in range(len(enc)):
-        print(i)
         key_c = key[i % len(key)]
         dec_c = chr((256 + ord(enc[i])- ord(key_c)) % 256)
         dec.append(dec_c)
