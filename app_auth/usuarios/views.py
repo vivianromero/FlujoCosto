@@ -107,6 +107,7 @@ class PassChangeView(SuccessMessageMixin, PasswordChangeView):
             user=self.request.user.username
         )
 
+
 class MyPasswordChangeDoneView(SuccessMessageMixin, PasswordChangeDoneView):
     template_name = "registration/pass_change_done.html"
     title = _("Password change")
@@ -199,9 +200,24 @@ class UsuarioCRUD(CommonCRUDView):
 
     # Table settings
     table_class = UserTable
-    template_name = "he_index/cruds/list_table.html"
+    template_name = "app_index/cruds/list_table.html"
     paginate_by = 10
     exclude_columns = ("actions",)
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_queryset(self):
+                qset = super().get_queryset()
+                user = self.request.user
+                if not user.is_superuser:
+                    qset = qset.exclude(is_superuser=True)
+                return qset
+
+
+
+        return OFilterListView
 
 
 def password_show(request):
@@ -214,4 +230,3 @@ def password_show(request):
 
 def password_hide(request):
     return render(request, 'usuarios/usuario/partials/password_hide.html')
-
