@@ -227,19 +227,12 @@ class CuentaFilter(MyGenericFilter):
 class CentroCostoFilter(MyGenericFilter):
     search_fields = [
         'clave__icontains',
-        'clavenivel__icontains',
         'descripcion__icontains',
     ]
     split_space_search = ' '
 
     clave = django_filters.CharFilter(
         label=_("Key"),
-        widget=forms.TextInput(),
-        lookup_expr='icontains',
-    )
-
-    clavenivel = django_filters.CharFilter(
-        # label=_("Key"),
         widget=forms.TextInput(),
         lookup_expr='icontains',
     )
@@ -254,7 +247,6 @@ class CentroCostoFilter(MyGenericFilter):
         model = CentroCosto
         fields = [
             'clave',
-            'clavenivel',
             'descripcion',
             'activo',
         ]
@@ -451,9 +443,42 @@ class MarcaSalidaFilter(MyGenericFilter):
         fields = [
             'codigo',
             'descripcion',
+            'activa',
         ]
 
         form = MarcaSalidaFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+# ------ MotivoAjuste / Filter ------
+class MotivoAjusteFilter(MyGenericFilter):
+    search_fields = [
+        'descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    class Meta:
+        model = MotivoAjuste
+        fields = [
+            'descripcion',
+            'aumento',
+            'activo',
+        ]
+
+        form = MotivoAjusteFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

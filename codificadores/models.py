@@ -129,8 +129,7 @@ class Cuenta(MPTTModel, ObjectsManagerAbstract):
 
 class CentroCosto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clave = models.CharField(unique=True, max_length=25, verbose_name=_("Code"))
-    clavenivel = models.CharField(max_length=50)
+    clave = models.CharField(unique=True, max_length=50, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=255,
                                    verbose_name=_("Description"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
@@ -140,7 +139,7 @@ class CentroCosto(ObjectsManagerAbstract):
         indexes = [
             models.Index(
                 fields=[
-                    'clave',
+                    'clave','descripcion'
                 ]
             ),
         ]
@@ -424,6 +423,7 @@ class MotivoAjuste(ObjectsManagerAbstract):
     descripcion = models.CharField(unique=True, max_length=128, verbose_name=_("Description"))
     aumento = models.BooleanField(default=False, db_comment='Ajuste de aumento True en otro caso False',
                                   verbose_name=_("Increase"))
+    activo = models.BooleanField(default=True, verbose_name=_("Active"))
 
     class Meta:
         db_table = 'cla_motivoajuste'

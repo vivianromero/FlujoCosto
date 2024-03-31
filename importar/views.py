@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.management import call_command
 from django.shortcuts import redirect
 
-from codificadores.models import Medida, UnidadContable, MedidaConversion
+from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
@@ -32,8 +32,16 @@ def um_importar(request):
     return importacion(request, 'UM', Medida)
 
 @login_required
+def ms_importar(request):
+    return importacion(request, 'MS', MarcaSalida)
+
+@login_required
 def umc_importar(request):
     return importacion(request, 'UMC', MedidaConversion)
+
+@login_required
+def cc_importar(request):
+    return importacion(request, 'CC', CentroCosto)
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:
@@ -45,12 +53,12 @@ def importar_datos_desde_tar(request, archivo_tar, opcion):
                     if contenido.name == 'json_verify':
                         datos_json_verify = datos_json
                     else:
-                        check_sum_datos = codificar(str(datos_json).replace("'", '"'))
+                        check_sum_datos = codificar(json.dumps(datos_json, ensure_ascii=False))
             if valida_json_verify(request, datos_json_verify, check_sum_datos, opcion):
                 filename = 'json_data_' + opcion.upper() + '.json'
                 ruta_archivo = os.path.join('importar', 'fixtures', filename)
                 fichero_json = open(ruta_archivo, "w+")
-                fichero_json.write(str(datos_json).replace("'", '"'))
+                fichero_json.write(json.dumps(datos_json))
                 fichero_json.close()
                 call_command('loaddata', filename)
                 message_success(request, "Success", "Importación terminada con éxito")

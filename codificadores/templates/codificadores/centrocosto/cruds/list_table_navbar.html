@@ -7,7 +7,7 @@
 {% block list_act_versat_table_main_header %}
     {# aquí se debe poner el link de importar#}
     <a id="id_create_url"
-       href="{% url 'app_index:appversat:ms_appversat' %}"
+       href="{% url 'app_index:apiversat:cc_apiversat' %}"
 
        class="nav-link"
 {#               hx-get="{{ url }}{{ getparams }}"#}
@@ -21,31 +21,33 @@
 {#                        class="icon"#}
 {#                        style="height: 20px;"#}
 {#                        alt="{% translate 'Update from Versat' %}"/>#}
-        <i class="fa fa-database" title="{% trans 'Update from SisGestMP' %}"></i>
+        <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
     </a>
 {% endblock list_act_versat_table_main_header %}
 
 
 {% block list_import_table_main_header %}
     {# aquí se debe poner el link de importar#}
-    <a id="id_create_url"
-       href="{% url 'app_index:importar:ms_importar' %}"
-       class="nav-link"
-{#               hx-get="{{ url }}{{ getparams }}"#}
-{#               hx-trigger="click"#}
-{#               hx-target="#main_content_swap"#}
-{#               hx-swap="outerHTML"#}
-{#               hx-replace-url="true"#}
-       role="button">
-        <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
-    </a>
+    {% if request.user.is_adminempresa %}
+        <a id="id_create_url"
+           href="{% url 'app_index:importar:cc_importar' %}"
+           class="nav-link"
+    {#               hx-get="{{ url }}{{ getparams }}"#}
+    {#               hx-trigger="click"#}
+    {#               hx-target="#main_content_swap"#}
+    {#               hx-swap="outerHTML"#}
+    {#               hx-replace-url="true"#}
+           role="button">
+            <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+        </a>
+    {% endif %}
 {% endblock list_import_table_main_header %}
 
 
 {% block list_export_table_main_header %}
     {# aquí se debe poner el link de exportar#}
     <a id="id_create_url"
-       href="{% url 'app_index:exportar:ms_exportar' %}"
+       href="{% url 'app_index:exportar:cc_exportar' %}"
        class="nav-link"
 {#               hx-get="{{ url }}{{ getparams }}"#}
 {#               hx-trigger="click"#}

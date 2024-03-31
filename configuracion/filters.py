@@ -12,7 +12,6 @@ class ConexionBaseDatoFilter(MyGenericFilter):
         'sistema__icontains',
         'database_name__icontains',
         'unidadcontable__codigo__icontains',
-        'unidadcontable__unidadcontable__icontains',
     ]
     split_space_search = ' '
 
@@ -24,12 +23,6 @@ class ConexionBaseDatoFilter(MyGenericFilter):
 
     database_name = django_filters.CharFilter(
         label=_("Database Name"),
-        widget=forms.TextInput(),
-        lookup_expr='icontains',
-    )
-
-    unidadcontable = django_filters.CharFilter(
-        label=_("UEB"),
         widget=forms.TextInput(),
         lookup_expr='icontains',
     )
