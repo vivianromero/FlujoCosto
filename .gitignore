@@ -4,6 +4,7 @@
 /.env.local
 */__pycache__/*
 *.pyc
+/config/.env.local
 /staticfiles/download/*.*
 /staticfiles/upload/*.*
 /importar/fixtures/*.json
