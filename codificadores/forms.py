@@ -470,7 +470,6 @@ class CentroCostoForm(forms.ModelForm):
         model = CentroCosto
         fields = [
             'clave',
-            'clavenivel',
             'descripcion',
             'activo',
         ]
@@ -488,12 +487,14 @@ class CentroCostoForm(forms.ModelForm):
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
-                    'Centro de Costo',
+                    ('Cost center'),
                     Row(
                         Column('clave', css_class='form-group col-md-4 mb-0'),
-                        Column('clavenivel', css_class='form-group col-md-4 mb-0'),
-                        Column('activo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-12 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activo', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -515,7 +516,6 @@ class CentroCostoFormFilter(forms.Form):
         model = CentroCosto
         fields = [
             'clave',
-            'clavenivel',
             'descripcion',
             'activo',
         ]
@@ -534,7 +534,7 @@ class CentroCostoFormFilter(forms.Form):
 
             TabHolder(
                 Tab(
-                    'Centro de Costo',
+                    _('Cost center'),
                     Row(
                         Column(
                             AppendedText(
@@ -543,9 +543,11 @@ class CentroCostoFormFilter(forms.Form):
                             css_class='form-group col-md-12 mb-0'
                         ),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
-                        Column('clavenivel', css_class='form-group col-md-4 mb-0'),
-                        Column('activo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-12 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1207,6 +1209,10 @@ class MarcaSalidaFormFilter(forms.Form):
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
                         css_class='form-row',
                     ),
+                    Row(
+                        Column('activa', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
                 ),
                 style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
             ),
@@ -1346,6 +1352,106 @@ class DepartamentoFormFilter(forms.Form):
                 style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
             ),
 
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+# ------------ MedidaConversion / Form ------------
+class MotivoAjusteForm(forms.ModelForm):
+
+    class Meta:
+        model = MotivoAjuste
+        fields = [
+            'descripcion',
+            'aumento',
+            'activo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(MotivoAjusteForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_motivoajuste_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _('Reason for Adjustment'),
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('aumento', css_class='form-group col-md-2 mb-0'),
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+# ------------ MotivoAjuste / Form Filter ------------
+class MotivoAjusteFormFilter(forms.Form):
+    class Meta:
+        model = MotivoAjuste
+        fields = [
+            'descripcion',
+            'aumento'
+            'activo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(MotivoAjusteFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_motivoajuste_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    _('Reason for Adjustment'),
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                     Row(
+                        Column('aumento', css_class='form-group col-md-2 mb-0'),
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
         )
 
         self.helper.layout.append(

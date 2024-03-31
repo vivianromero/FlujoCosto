@@ -84,7 +84,6 @@ class CentroCostoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
         fields = (
             'clave',
-            'clavenivel',
             'descripcion',
             'activo',
         )
@@ -166,3 +165,13 @@ class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'activa',
         )
 
+# ------ MedidaConversion / Table ------
+class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = MotivoAjuste
+
+        fields = (
+            'descripcion',
+            'aumento',
+            'activo',
+        )

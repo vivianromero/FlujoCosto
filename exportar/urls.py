@@ -8,5 +8,6 @@ urlpatterns = [
     path('um_exportar/', views.um_exportar, name='um_exportar'),
     path('umc_exportar/', views.umc_exportar, name='umc_exportar'),
     path('ms_exportar/', views.ms_exportar, name='ms_exportar'),
+    path('cc_exportar/', views.cc_exportar, name='cc_exportar'),
 ]
 

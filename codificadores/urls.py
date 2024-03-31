@@ -13,6 +13,8 @@ producto_flujo_destino_crud = views.ProductoFlujoDestinoCRUD()
 producto_flujo_cuenta_crud = views.ProductoFlujoCuentaCRUD()
 marcasalida_crud = views.MarcaSalidaCRUD()
 vitola_crud = views.VitolaCRUD()
+motivoajuste_crud = views.MotivoAjusteCRUD()
+centrocosto_crud = views.CentroCostoCRUD()
 
 app_name = 'codificadores'
 
@@ -29,5 +31,7 @@ urlpatterns = [
     path("", include(producto_flujo_cuenta_crud.get_urls())),
     path("", include(marcasalida_crud.get_urls())),
     path("", include(vitola_crud.get_urls())),
+    path("", include(motivoajuste_crud.get_urls())),
+    path("", include(centrocosto_crud.get_urls())),
 ]
 

@@ -1582,3 +1582,11 @@ msgstr "Departamentos"
 
 msgid "Can add log entry"
 msgstr "Puede adicionar logs"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Reasons for Adjustment"
+msgstr "Motivos de Ajuste"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Reason for Adjustment"
+msgstr "Motivo de Ajuste"

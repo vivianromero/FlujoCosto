@@ -242,9 +242,10 @@ class CentroCostoCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
+    template_name_base = 'codificadores/centrocosto/cruds'
+
     fields = [
         'clave',
-        'clavenivel',
         'descripcion',
         'activo',
     ]
@@ -254,7 +255,6 @@ class CentroCostoCRUD(CommonCRUDView):
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
         'clave__icontains',
-        'clavenivel__icontains',
         'descripcion__icontains',
         'activo',
     ]
@@ -264,14 +264,12 @@ class CentroCostoCRUD(CommonCRUDView):
 
     list_fields = [
         'clave',
-        'clavenivel',
         'descripcion',
         'activo',
     ]
 
     filter_fields = [
         'clave',
-        'clavenivel',
         'descripcion',
         'activo',
     ]
@@ -502,3 +500,41 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     # Table settings
     table_class = MarcaSalidaTable
+
+# ------ MotivoAjuste / CRUD ------
+class MotivoAjusteCRUD(CommonCRUDView):
+    model = MotivoAjuste
+
+    namespace = 'app_index:codificadores'
+
+    template_name_base = 'codificadores/motivoajuste/cruds'
+
+    fields = [
+        'descripcion',
+        'aumento',
+        'activo',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'descripcion__icontains',
+        'aumento',
+        'activo',
+    ]
+
+    add_form = MotivoAjusteForm
+    update_form = MotivoAjusteForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    filterset_class = MotivoAjusteFilter
+
+    # Table settings
+    table_class = MotivoAjusteTable

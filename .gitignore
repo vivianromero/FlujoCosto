@@ -8,3 +8,4 @@
 /config/.env.local
 /staticfiles/download/*.*
 /staticfiles/upload/*.*
+/importar/fixtures/*.json

@@ -35,17 +35,18 @@ MENUS = {
                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                     "submenu": [
                         {
-                            "name": _("Departments"),
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(Departamento, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                        },
-                        {
                             "name": "Unidades Contable",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(UnidadContable, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
+                        {
+                            "name": _("Departments"),
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(Departamento, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
+
                         {
                             "name": "Unidades de Medida",
                             "icon_class": 'fa fa-university',
@@ -56,6 +57,12 @@ MENUS = {
                             "name": "Conversión de Medidas",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(MedidaConversion, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
+                        {
+                            "name": _("Reasons for Adjustment"),
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(MotivoAjuste, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
@@ -82,20 +89,19 @@ MENUS = {
                     "name": _("Cost"),
                     "icon_class": 'fa fa-chart-column',
                     "url": "#",
-                    "validators": ["app_auth.usuarios.validators.is_admin"],
+                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                     "submenu": [
                         {
                             "name": "Cuentas Contables",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Cuenta, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
                             "name": "Centros de Costo",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(CentroCosto, 'list', 'app_index:codificadores:'),
-                            "validators": [
-                                "app_auth.usuarios.validators.is_admin" or "app_auth.usuarios.validators.is_superuser"],
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                     ]
                 },
