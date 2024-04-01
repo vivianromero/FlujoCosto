@@ -1,14 +1,13 @@
-from django.http import HttpResponse
+from django.urls import resolve
+from django.shortcuts import redirect
 from django.urls import resolve
 from django.utils.translation import gettext_lazy as _
-from django.shortcuts import redirect
 from dynamic_db_router import in_database
-from django.db import connections
 
+from codificadores.models import Medida, MarcaSalida, Cuenta
 from configuracion.models import ConexionBaseDato
-from utiles.utils import message_error
-from codificadores.models import UnidadContable, Medida, MarcaSalida
 from cruds_adminlte3.utils import crud_url_name
+from utiles.utils import message_error
 
 
 class DatabaseConectionMiddleware:
@@ -23,7 +22,7 @@ class DatabaseConectionMiddleware:
         # Code to be executed for each request before
         # the view (and later middleware) are called.
         user = request.user
-        sistema='VersatSarasola'
+        sistema = 'VersatSarasola'
         try:
             match = resolve(request.path)
             if not user.is_authenticated or not 'appversat' in match.namespaces:
@@ -34,14 +33,12 @@ class DatabaseConectionMiddleware:
             object = None
             match url_name:
                 case 'um_appversat':
-                    object=Medida
+                    object = Medida
                 case 'ms_appversat':
                     object = MarcaSalida
-                    sistema="SisGestMP"
-                # case 'uc_appversat':
-                #     object=UnidadContable
-                # case _:
-                #     action - default
+                    sistema = "SisGestMP"
+                case 'ccta_appversat':
+                    object = Cuenta
             try:
                 conection = ConexionBaseDato.objects.get(unidadcontable=user.ueb, sistema=sistema)
 
@@ -65,10 +62,12 @@ class DatabaseConectionMiddleware:
                 }
                 with in_database(external_db, read=True, write=True):
                     response = self.get_response(request)
-                return response if response.status_code==200 else redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))
+                return response if response.status_code == 200 else redirect(
+                    crud_url_name(object, 'list', 'app_index:codificadores:'))
 
             except ConexionBaseDato.DoesNotExist:
-                message_error(request=request, title=_("Couldn't connect"), text=_('Database connect for Versat Sarasola not define'))
+                message_error(request=request, title=_("Couldn't connect"),
+                              text=_('Database connect for Versat Sarasola not define'))
                 return redirect(crud_url_name(object, 'list', 'app_index:codificadores:'))
             except Exception as e:
                 message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))

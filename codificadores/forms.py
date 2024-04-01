@@ -360,12 +360,9 @@ class CuentaForm(forms.ModelForm):
     class Meta:
         model = Cuenta
         fields = [
-            'long_niv',
-            'posicion',
             'clave',
             'descripcion',
             'activa',
-            'parent',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -378,20 +375,25 @@ class CuentaForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["clave"].disabled = True
+        self.fields["descripcion"].disabled = True
+
+        self.fields["clave"].required = False
+        self.fields["descripcion"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     'Cuenta',
                     Row(
-                        Column('long_niv', css_class='form-group col-md-2 mb-0'),
-                        Column('posicion', css_class='form-group col-md-2 mb-0'),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
-                        Column('parent', css_class='form-group col-md-4 mb-0'),
-
                         css_class='form-row'
                     ),
+
+                    Row(Column('activa', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    )
                 ),
 
             ),
@@ -410,8 +412,6 @@ class CuentaFormFilter(forms.Form):
     class Meta:
         model = Cuenta
         fields = [
-            'long_niv',
-            'posicion',
             'clave',
             'descripcion',
             'activa',
@@ -442,8 +442,6 @@ class CuentaFormFilter(forms.Form):
                         Column('clave', css_class='form-group col-md-3 mb-0'),
                         Column('descripcion', css_class='form-group col-md-6 mb-0'),
                         Column('activa', css_class='form-group col-md-3 mb-0'),
-                        Column('long_niv', css_class='form-group col-md-3 mb-0'),
-                        Column('posicion', css_class='form-group col-md-3 mb-0'),
 
                         css_class='form-row',
                     ),
@@ -571,7 +569,6 @@ class ProductoFlujoForm(forms.ModelForm):
     class Meta:
         model = ProductoFlujo
         fields = [
-            # 'id',
             'codigo',
             'descripcion',
             'activo',
@@ -603,7 +600,6 @@ class ProductoFlujoForm(forms.ModelForm):
                 Tab(
                     'Producto Flujo',
                     Row(
-                        # Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -687,7 +683,6 @@ class ProductoFlujoClaseForm(forms.ModelForm):
     class Meta:
         model = ProductoFlujoClase
         fields = [
-            # 'id',
             'clasemateriaprima',
             'producto',
         ]
@@ -716,7 +711,6 @@ class ProductoFlujoClaseForm(forms.ModelForm):
                 Tab(
                     'Producto Flujo Clase',
                     Row(
-                        # Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('clasemateriaprima', css_class='form-group col-md-5 mb-0'),
                         Column('producto', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'
@@ -793,7 +787,6 @@ class ProductoFlujoDestinoForm(forms.ModelForm):
     class Meta:
         model = ProductoFlujoDestino
         fields = [
-            # 'id',
             'destino',
             'producto',
         ]
@@ -819,7 +812,6 @@ class ProductoFlujoDestinoForm(forms.ModelForm):
                 Tab(
                     'Producto Flujo Destino',
                     Row(
-                        # Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('destino', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
@@ -896,7 +888,6 @@ class ProductoFlujoCuentaForm(forms.ModelForm):
     class Meta:
         model = ProductoFlujoCuenta
         fields = [
-            # 'id',
             'cuenta',
             'producto',
         ]
@@ -925,7 +916,6 @@ class ProductoFlujoCuentaForm(forms.ModelForm):
                 Tab(
                     'Producto Flujo Cuenta',
                     Row(
-                        # Column('id', css_class='form-group col-md-4 mb-0'),
                         Column('cuenta', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
