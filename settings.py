@@ -83,6 +83,7 @@ THIRD_APPS = [
     'mptt',
     'sweetify',
     'importar',
+    'template_partials',
 ]
 
 MY_APPS = [
@@ -194,6 +195,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 def get_db_config(environ_var='DATABASE_URL'):
@@ -208,6 +210,7 @@ def get_db_config(environ_var='DATABASE_URL'):
         options.update({'NAME': os.path.join(BASE_DIR.parent, options['NAME'])})
 
     return options
+
 
 ### TODO esto se habilita cuando funcione el environ
 #
@@ -279,7 +282,6 @@ STATICFILES_DIRS = [
     BASE_DIR.parent / 'cruds_adminlte3/static'
 ]
 
-
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'staticfiles')
 
 # Default primary key field type
@@ -337,13 +339,13 @@ PASSWORD_EXPIRE_SECONDS = 90 * 24 * 60 * 60
 # start warning 10 days before expiration
 PASSWORD_EXPIRE_WARN_SECONDS = 10 * 24 * 60 * 60
 
-#To redirect new users to the change password page
+# To redirect new users to the change password page
 PASSWORD_EXPIRE_FORCE = True
 
-#exclude superusers from the password expiration
+# exclude superusers from the password expiration
 PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 
-#Configuraciones de la API VERSAT TODO esto se habilita cuando funcione el environ
+# Configuraciones de la API VERSAT TODO esto se habilita cuando funcione el environ
 # URL_API = env('URL_API')
 # CONNECTION_TOKEN_API = env('CONNECTION_TOKEN_API')
 # USERNAME_API = env('USERNAME_API')

@@ -51,9 +51,9 @@ class UnidadContableCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/unidadcontable/cruds'
+    # template_name_base = 'codificadores/unidadcontable/cruds'
 
-    partial_template_name_base = 'codificadores/unidadcontable/partials'
+    # partial_template_name_base = 'codificadores/unidadcontable/partials'
 
     fields = [
         'codigo',
@@ -93,12 +93,28 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_comercializadora',
     ]
 
-    views_available = ['list','update']
-    view_type = ['list','update']
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
     filterset_class = UnidadContableFilter
 
     # Table settings
     table_class = UnidadContableTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_apiversat': 'app_index:apiversat:uc_apiversat',
+                    'url_importar': 'app_index:importar:uc_importar',
+                    'url_exportar': 'app_index:exportar:uc_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ Medida / CRUD ------
 class MedidaCRUD(CommonCRUDView):
@@ -106,7 +122,7 @@ class MedidaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/medida/cruds'
+    # template_name_base = 'codificadores/medida/cruds'
 
     fields = [
         'clave',
@@ -143,6 +159,21 @@ class MedidaCRUD(CommonCRUDView):
     # Table settings
     table_class = MedidaTable
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_apiversat': 'app_index:appversat:um_appversat',
+                    'url_importar': 'app_index:importar:um_importar',
+                    'url_exportar': 'app_index:exportar:um_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ MedidaConversion / CRUD ------
 class MedidaConversionCRUD(CommonCRUDView):
@@ -150,7 +181,7 @@ class MedidaConversionCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/medidaconversion/cruds'
+    # template_name_base = 'codificadores/medidaconversion/cruds'
 
     fields = [
         'factor_conversion',
@@ -186,6 +217,20 @@ class MedidaConversionCRUD(CommonCRUDView):
     # Table settings
     table_class = MedidaConversionTable
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:umc_importar',
+                    'url_exportar': 'app_index:exportar:umc_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ Cuenta / CRUD ------
 class CuentaCRUD(CommonCRUDView):
@@ -193,7 +238,7 @@ class CuentaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/cuenta/cruds'
+    # template_name_base = 'codificadores/cuenta/cruds'
 
     fields = [
         'long_niv',
@@ -237,6 +282,21 @@ class CuentaCRUD(CommonCRUDView):
     # Table settings
     table_class = CuentaTable
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_apiversat': 'app_index:appversat:ccta_appversat',
+                    'url_importar': 'app_index:importar:ccta_importar',
+                    'url_exportar': 'app_index:exportar:ccta_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ CentroCosto / CRUD ------
 class CentroCostoCRUD(CommonCRUDView):
@@ -244,7 +304,7 @@ class CentroCostoCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/centrocosto/cruds'
+    # template_name_base = 'codificadores/centrocosto/cruds'
 
     fields = [
         'clave',
@@ -279,6 +339,22 @@ class CentroCostoCRUD(CommonCRUDView):
 
     # Table settings
     table_class = CentroCostoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_apiversat': 'app_index:apiversat:cc_apiversat',
+                    'url_importar': 'app_index:importar:cc_importar',
+                    'url_exportar': 'app_index:exportar:cc_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ ProductoFlujo / CRUD ------
 class ProductoFlujoCRUD(CommonCRUDView):
@@ -319,6 +395,21 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
     # Table settings
     table_class = ProductoFlujoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                # context.update({
+                #     'url_apiversat': '',
+                #     'url_importar': '',
+                #     'url_exportar': '',
+                # })
+                # return context
+
+        return OFilterListView
 
 
 # ------ ProductoFlujoClase / CRUD ------
@@ -422,13 +513,14 @@ class ProductoFlujoCuentaCRUD(CommonCRUDView):
     # Table settings
     table_class = ProductoFlujoCuentaTable
 
+
 # ------ Vitola / CRUD ------
 class VitolaCRUD(CommonCRUDView):
     model = Vitola
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/vitola/cruds'
+    # template_name_base = 'codificadores/vitola/cruds'
 
     fields = [
         'diametro',
@@ -465,6 +557,21 @@ class VitolaCRUD(CommonCRUDView):
     # Table settings
     table_class = VitolaTable
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                # context.update({
+                #     'url_apiversat': '',
+                #     'url_importar': '',
+                #     'url_exportar': '',
+                # })
+                return context
+
+        return OFilterListView
+
 
 # ------ MarcaSalida / CRUD ------
 class MarcaSalidaCRUD(CommonCRUDView):
@@ -472,7 +579,7 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/marcasalida/cruds'
+    # template_name_base = 'codificadores/marcasalida/cruds'
 
     fields = [
         'codigo',
@@ -503,13 +610,29 @@ class MarcaSalidaCRUD(CommonCRUDView):
     # Table settings
     table_class = MarcaSalidaTable
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_apiversat': 'app_index:appversat:ms_appversat',
+                    'url_importar': 'app_index:importar:ms_importar',
+                    'url_exportar': 'app_index:exportar:ms_exportar',
+                })
+                return context
+
+        return OFilterListView
+
+
 # ------ MotivoAjuste / CRUD ------
 class MotivoAjusteCRUD(CommonCRUDView):
     model = MotivoAjuste
 
     namespace = 'app_index:codificadores'
 
-    template_name_base = 'codificadores/motivoajuste/cruds'
+    # template_name_base = 'codificadores/motivoajuste/cruds'
 
     fields = [
         'descripcion',
@@ -540,3 +663,17 @@ class MotivoAjusteCRUD(CommonCRUDView):
 
     # Table settings
     table_class = MotivoAjusteTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:ms_importar',
+                    'url_exportar': 'app_index:exportar:ms_exportar',
+                })
+                return context
+
+        return OFilterListView
