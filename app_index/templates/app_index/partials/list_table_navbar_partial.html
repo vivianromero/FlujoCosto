@@ -1,6 +1,69 @@
 {% load django_tables2 %}
 {% load i18n %}
 {% load crud_tags %}
+{% load partials %}
+
+{% partialdef act_versat_link_url_partial_hx %}
+    {% if request.user.is_adminempresa and url_apiversat %} {# si tiene permiso#}
+        <div id="act_versat_link_url_div" style="display: flex; align-items: center">
+                {# aquí se debe poner el link de importar#}
+                <a id="act_versat_link_url_div_a"
+                   href="{% url url_apiversat %}"
+            
+                   class="nav-link"
+            {#               hx-get="{{ url }}{{ getparams }}"#}
+            {#               hx-trigger="click"#}
+            {#               hx-target="#main_content_swap"#}
+            {#               hx-swap="outerHTML"#}
+            {#               hx-replace-url="true"#}
+                   role="button">
+            {#                <img#}
+            {#                        src="{% static 'dist/img/database-import.svg' %}"#}
+            {#                        class="icon"#}
+            {#                        style="height: 20px;"#}
+            {#                        alt="{% translate 'Update from Versat' %}"/>#}
+                    <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
+                </a>
+        </div>
+    {% endif %}
+{% endpartialdef %}
+
+{% partialdef  import_link_url_partial_hx %}
+    {% if url_importar %}
+        <div id="import_link_url_div" style="display: flex; align-items: center">
+            <a id="import_link_url_div_a"
+               href="{% url url_importar %}"
+               class="nav-link"
+        {#               hx-get="{{ url }}{{ getparams }}"#}
+        {#               hx-trigger="click"#}
+        {#               hx-target="#main_content_swap"#}
+        {#               hx-swap="outerHTML"#}
+        {#               hx-replace-url="true"#}
+               role="button" hx-select-oob="true">
+                <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+            </a>
+        </div>
+    {% endif %} 
+{% endpartialdef %}
+
+{% partialdef  export_link_url_partial_hx %}
+    {% if request.user.is_adminempresa and url_exportar %}
+        <div id="export_link_url_div" style="display: flex; align-items: center">
+            <a id="export_link_url_div_a"
+               href="{% url url_exportar %}"
+               class="nav-link"
+            {#               hx-get="{{ url }}{{ getparams }}"#}
+            {#               hx-trigger="click"#}
+            {#               hx-target="#main_content_swap"#}
+            {#               hx-swap="outerHTML"#}
+            {#               hx-replace-url="true"#}
+               role="button" hx-select-oob="true">
+                <i class="fa fa-file-export" title="{% trans 'Export' %}"></i>
+            </a>
+        </div>
+    {% endif %} 
+{% endpartialdef %}
+
 <nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
      style="padding-bottom: 0; padding-top: 0; height: 35px;" hx-swap-oob="true">
     <!-- Left table navbar links -->
@@ -36,6 +99,18 @@
     <!-- Right table navbar links -->
     {% block right_table_navbar_links %}
     <ul class="navbar-nav ml-auto">
+        {% block list_act_versat_table_main_header %}
+        {# aquí se debe poner el link de importar#}
+        {% partial act_versat_link_url_partial_hx %}
+    {% endblock list_act_versat_table_main_header %}
+    {% block list_import_table_main_header %}
+        {# aquí se debe poner el link de importar#}
+        {% partial import_link_url_partial_hx %}
+    {% endblock list_import_table_main_header %}
+    {% block list_export_table_main_header %}
+        {# aquí se debe poner el link de exportar#}
+        {% partial export_link_url_partial_hx %}
+    {% endblock list_export_table_main_header %}
         {% if table.shift_table_column %}
             <div id="table_visibility_link_dropdown_menu" class="btn-group" hx-swap-oob="true">
                 {% block table_button_group_head %}
