@@ -363,6 +363,18 @@ class Departamento(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cla_departamento'
         ordering = ('codigo',)
+        indexes = [
+            models.Index(
+                fields=[
+                    'codigo',
+                    'descripcion',
+                    'centrocosto'
+                ]
+            ),
+        ]
+        ordering = ['codigo']
+        verbose_name_plural = _('Departments')
+        verbose_name = _('Department')
 
     def __str__(self):
         return self.descripcion
