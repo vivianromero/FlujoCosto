@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.management import call_command
 from django.shortcuts import redirect
 
-from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto
+from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, Departamento
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
@@ -42,6 +42,14 @@ def umc_importar(request):
 @login_required
 def cc_importar(request):
     return importacion(request, 'CC', CentroCosto)
+
+@login_required
+def ccta_importar(request):
+    return importacion(request, 'CCTA', Cuenta)
+
+@login_required
+def dpto_importar(request):
+    return importacion(request, 'DPTO', Departamento)
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:

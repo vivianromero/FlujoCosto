@@ -9,6 +9,7 @@ class DepartamentoCRUD(CommonCRUDView):
     model = Departamento
 
     namespace = 'app_index:codificadores'
+    template_name_base = 'codificadores/departamento/cruds'
 
     fields = [
         'codigo',
@@ -25,7 +26,6 @@ class DepartamentoCRUD(CommonCRUDView):
         'descripcion__icontains',
         'centrocosto__contains',
         'unidadcontable__contains',
-
     ]
 
     add_form = DepartamentoForm
@@ -277,6 +277,10 @@ class CuentaCRUD(CommonCRUDView):
         'descripcion',
         'activa',
     ]
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
     filterset_class = CuentaFilter
 
     # Table settings
@@ -335,6 +339,10 @@ class CentroCostoCRUD(CommonCRUDView):
         'descripcion',
         'activo',
     ]
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
     filterset_class = CentroCostoFilter
 
     # Table settings

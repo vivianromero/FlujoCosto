@@ -3,8 +3,8 @@
     "model": "configuracion.userueb",
     "pk": "009c9e8f-4064-4214-a051-a1f78ea26b65",
     "fields": {
-        "first_name":"Administrador",
-        "last_name":"UEB 05",
+        "first_name":"Administrador UEB-05",
+        "last_name":"",
         "username":"admin05",
         "is_active": "True", "is_staff": "True", "is_superuser": "False",
         "ueb": "009c9e8f-4064-4214-a051-a1f78ea26b65",
