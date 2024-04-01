@@ -1311,7 +1311,7 @@ class DepartamentoForm(forms.ModelForm):
             queryset=UnidadContable.objects.filter(activo=True),
             widget=forms.CheckboxSelectMultiple
         )
-        self.fields['idcentrocosto'] = forms.ModelChoiceField(queryset=CentroCosto.objects.filter(activo=True).all())
+        self.fields['centrocosto'] = forms.ModelChoiceField(queryset=CentroCosto.objects.filter(activo=True).all())
         self.fields["relaciondepartamento"].required = False
 
 class DepartamentoFormFilter(forms.Form):
