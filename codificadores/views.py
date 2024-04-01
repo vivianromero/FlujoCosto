@@ -193,6 +193,8 @@ class CuentaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
+    template_name_base = 'codificadores/cuenta/cruds'
+
     fields = [
         'long_niv',
         'posicion',

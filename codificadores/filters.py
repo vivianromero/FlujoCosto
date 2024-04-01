@@ -172,22 +172,10 @@ class MedidaConversionFilter(MyGenericFilter):
 # ------ Cuenta / Filter ------
 class CuentaFilter(MyGenericFilter):
     search_fields = [
-        'long_niv__contains',
-        'posicion__contains',
         'clave__icontains',
         'descripcion__icontains',
     ]
     split_space_search = ' '
-
-    long_niv = django_filters.RangeFilter(
-        label=_('Long level'),
-        method='my_range_queryset',
-    )
-
-    posicion = django_filters.RangeFilter(
-        label=_('Position'),
-        method='my_range_queryset',
-    )
 
     clave = django_filters.CharFilter(
         label=_("Key"),
@@ -204,8 +192,6 @@ class CuentaFilter(MyGenericFilter):
     class Meta:
         model = Cuenta
         fields = [
-            'long_niv',
-            'posicion',
             'clave',
             'descripcion',
             'activa',

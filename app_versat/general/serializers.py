@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from app_versat.general.general import GenUnidadcontable, GenMedida, MPMarca
+from app_versat.general.general import GenUnidadcontable, GenMedida, MPMarca, ConCuentanat
 
 
 class GenUnidadcontableSerializer(serializers.ModelSerializer):
