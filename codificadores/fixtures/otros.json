@@ -59,56 +59,56 @@
     "model": "codificadores.departamento",
     "pk": "000604fa-af2d-4713-b0e5-c2991a289f4b",
     "fields": {
-        "codigo":"02","descripcion":"Clasificado de Hoja", "idcentrocosto": "000604fa-af2d-4713-b0e5-c2991a289f4b"
+        "codigo":"02","descripcion":"Clasificado de Hoja", "centrocosto": "000604fa-af2d-4713-b0e5-c2991a289f4b"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "000603fa-af2d-4713-b0e5-c2991a289f4b",
     "fields": {
-        "codigo":"03","descripcion":"Preparación de Materias Primas", "idcentrocosto": "000603fa-af2d-4713-b0e5-c2991a289f4b"
+        "codigo":"03","descripcion":"Preparación de Materias Primas", "centrocosto": "000603fa-af2d-4713-b0e5-c2991a289f4b"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
     "fields": {
-        "codigo":"04","descripcion":"Despacho de Materia Prima", "idcentrocosto":"003820bb-9dc1-4cbb-b8cf-93f28322c697"
+        "codigo":"04","descripcion":"Despacho de Materia Prima", "centrocosto":"003820bb-9dc1-4cbb-b8cf-93f28322c697"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
     "fields": {
-        "codigo":"05","descripcion":"Torcido", "idcentrocosto":"003dec56-d3ac-452d-a2be-9c07539be90f"
+        "codigo":"05","descripcion":"Torcido", "centrocosto":"003dec56-d3ac-452d-a2be-9c07539be90f"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "009bfd05-0357-4614-ba5b-c9876272a460",
     "fields": {
-        "codigo":"06","descripcion":"Adornado", "idcentrocosto":"009bfd05-0357-4614-ba5b-c9876272a460"
+        "codigo":"06","descripcion":"Adornado", "centrocosto":"009bfd05-0357-4614-ba5b-c9876272a460"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "009bfd06-0357-4614-ba5b-c9876272a460",
     "fields": {
-       "codigo":"07","descripcion":"Escogida de colores", "idcentrocosto":"009bfd06-0357-4614-ba5b-c9876272a460"
+       "codigo":"07","descripcion":"Escogida de colores", "centrocosto":"009bfd06-0357-4614-ba5b-c9876272a460"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "009bfd06-0357-4624-ba5b-c9876272a460",
     "fields": {
-       "codigo":"08","descripcion":"Anillado", "idcentrocosto":"009bfd06-0357-4624-ba5b-c9876272a460"
+       "codigo":"08","descripcion":"Anillado", "centrocosto":"009bfd06-0357-4624-ba5b-c9876272a460"
     }
 },
 {
     "model": "codificadores.departamento",
     "pk": "000bfd06-0357-4624-ba5b-c9876272a460",
     "fields": {
-       "codigo":"12","descripcion":"Terminado", "idcentrocosto":"000bfd06-0357-4624-ba5b-c9876272a460"
+       "codigo":"12","descripcion":"Terminado", "centrocosto":"000bfd06-0357-4624-ba5b-c9876272a460"
     }
 }
 ]

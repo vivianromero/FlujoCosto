@@ -9,7 +9,6 @@ class DepartamentoCRUD(CommonCRUDView):
     model = Departamento
 
     namespace = 'app_index:codificadores'
-    template_name_base = 'codificadores/departamento/cruds'
 
     fields = [
         'codigo',
@@ -28,7 +27,7 @@ class DepartamentoCRUD(CommonCRUDView):
         'unidadcontable__contains',
     ]
 
-    add_form = DepartamentoForm
+    # add_form = DepartamentoForm
     update_form = DepartamentoForm
 
     list_fields = fields
@@ -44,16 +43,26 @@ class DepartamentoCRUD(CommonCRUDView):
 
     form_class = DepartamentoForm
 
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:dpto_importar',
+                    'url_exportar': 'app_index:exportar:dpto_exportar',
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ UnidadContable / CRUD ------
 class UnidadContableCRUD(CommonCRUDView):
     model = UnidadContable
 
     namespace = 'app_index:codificadores'
-
-    # template_name_base = 'codificadores/unidadcontable/cruds'
-
-    # partial_template_name_base = 'codificadores/unidadcontable/partials'
 
     fields = [
         'codigo',
@@ -74,7 +83,6 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_comercializadora',
     ]
 
-    # add_form = UnidadContableForm
     update_form = UnidadContableForm
 
     list_fields = [
@@ -121,8 +129,6 @@ class MedidaCRUD(CommonCRUDView):
     model = Medida
 
     namespace = 'app_index:codificadores'
-
-    # template_name_base = 'codificadores/medida/cruds'
 
     fields = [
         'clave',
@@ -181,8 +187,6 @@ class MedidaConversionCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    # template_name_base = 'codificadores/medidaconversion/cruds'
-
     fields = [
         'factor_conversion',
         'medidao',
@@ -237,8 +241,6 @@ class CuentaCRUD(CommonCRUDView):
     model = Cuenta
 
     namespace = 'app_index:codificadores'
-
-    # template_name_base = 'codificadores/cuenta/cruds'
 
     fields = [
         'long_niv',
@@ -307,8 +309,6 @@ class CentroCostoCRUD(CommonCRUDView):
     model = CentroCosto
 
     namespace = 'app_index:codificadores'
-
-    # template_name_base = 'codificadores/centrocosto/cruds'
 
     fields = [
         'clave',
@@ -528,8 +528,6 @@ class VitolaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    # template_name_base = 'codificadores/vitola/cruds'
-
     fields = [
         'diametro',
         'longitud',
@@ -587,8 +585,6 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     namespace = 'app_index:codificadores'
 
-    # template_name_base = 'codificadores/marcasalida/cruds'
-
     fields = [
         'codigo',
         'descripcion',
@@ -639,8 +635,6 @@ class MotivoAjusteCRUD(CommonCRUDView):
     model = MotivoAjuste
 
     namespace = 'app_index:codificadores'
-
-    # template_name_base = 'codificadores/motivoajuste/cruds'
 
     fields = [
         'descripcion',
