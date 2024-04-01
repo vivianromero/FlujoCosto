@@ -72,7 +72,7 @@ class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             # 'posicion',
             'clave',
             'descripcion',
-            # 'activa',
+            'activa',
             # 'parent',
         )
 

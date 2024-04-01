@@ -355,8 +355,6 @@ class MedidaConversionFormFilter(forms.Form):
 
 # ------------ Cuenta / Form ------------
 class CuentaForm(forms.ModelForm):
-    parent = TreeNodeChoiceField(queryset=Cuenta.objects.all(), level_indicator='+--')
-
     class Meta:
         model = Cuenta
         fields = [
@@ -393,7 +391,7 @@ class CuentaForm(forms.ModelForm):
 
                     Row(Column('activa', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'
-                    )
+                        )
                 ),
 
             ),
@@ -482,6 +480,12 @@ class CentroCostoForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["clave"].disabled = True
+        self.fields["descripcion"].disabled = True
+
+        self.fields["clave"].required = False
+        self.fields["descripcion"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
@@ -563,6 +567,7 @@ class CentroCostoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
 
 # ------------ ProductoFlujo / Form ------------
 class ProductoFlujoForm(forms.ModelForm):
@@ -986,6 +991,7 @@ class ProductoFlujoCuentaFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 # ------------ Vitola / Form ------------
 class VitolaForm(forms.ModelForm):
     class Meta:
@@ -1223,6 +1229,7 @@ class MarcaSalidaFormFilter(forms.Form):
 # ------------- Departamento / Form --------------
 
 class DepartamentoForm(forms.ModelForm):
+
     class Meta:
         model = Departamento
         fields = [
@@ -1235,7 +1242,7 @@ class DepartamentoForm(forms.ModelForm):
         ]
 
         widgets = {
-            'idcentrocosto': SelectWidget(
+            'centrocosto': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
@@ -1248,10 +1255,7 @@ class DepartamentoForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         super(DepartamentoForm, self).__init__(*args, **kwargs)
-        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(
-            queryset=Departamento.objects.exclude(id=instance.id),
-            widget=forms.CheckboxSelectMultiple
-        )
+
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_departamento_Form'
         self.helper.form_method = 'post'
@@ -1299,6 +1303,16 @@ class DepartamentoForm(forms.ModelForm):
             )
         )
 
+        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(
+            queryset=Departamento.objects.exclude(id=instance.id) if instance else Departamento.objects.all(),
+            widget=forms.CheckboxSelectMultiple
+        )
+        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
+            queryset=UnidadContable.objects.filter(activo=True),
+            widget=forms.CheckboxSelectMultiple
+        )
+        self.fields['idcentrocosto'] = forms.ModelChoiceField(queryset=CentroCosto.objects.filter(activo=True).all())
+        self.fields["relaciondepartamento"].required = False
 
 class DepartamentoFormFilter(forms.Form):
     class Meta:
@@ -1354,9 +1368,9 @@ class DepartamentoFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 # ------------ MedidaConversion / Form ------------
 class MotivoAjusteForm(forms.ModelForm):
-
     class Meta:
         model = MotivoAjuste
         fields = [
@@ -1399,6 +1413,7 @@ class MotivoAjusteForm(forms.ModelForm):
             )
         )
 
+
 # ------------ MotivoAjuste / Form Filter ------------
 class MotivoAjusteFormFilter(forms.Form):
     class Meta:
@@ -1434,7 +1449,7 @@ class MotivoAjusteFormFilter(forms.Form):
                         Column('descripcion', css_class='form-group col-md-8 mb-0'),
                         css_class='form-row',
                     ),
-                     Row(
+                    Row(
                         Column('aumento', css_class='form-group col-md-2 mb-0'),
                         Column('activo', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row',

@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 
-from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto
+from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, Departamento
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success
@@ -35,6 +35,14 @@ def ms_exportar(request):
 @adminempresa_required
 def cc_exportar(request):
     return crear_export_file(request, 'CC', CentroCosto)
+
+@adminempresa_required
+def ccta_exportar(request):
+    return crear_export_file(request, 'CCTA', Cuenta)
+
+@adminempresa_required
+def dpto_exportar(request):
+    return crear_export_file(request, 'DPTO', Departamento)
 
 def json_info(opcion):
     version = obtener_version()
