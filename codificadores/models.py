@@ -217,8 +217,8 @@ class ProductoFlujo(ObjectsManagerAbstract):
     #                                       blank=True, null=True,
     #                                       related_name='productoflujoclase_clasemateriaprima')
     clasemateriaprima = models.ManyToManyField(ClaseMateriaPrima, blank=True, null=True,
-
-                           verbose_name="Clase Materia Prima")
+                                               related_name='productoflujoclase_clasemateriaprima',
+                                               verbose_name="Clase Materia Prima")
 
     class Meta:
         db_table = 'cla_productoflujo'
@@ -228,7 +228,7 @@ class ProductoFlujo(ObjectsManagerAbstract):
 class ProductoFlujoClase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
-                                            related_name='productoflujoclase_clasemateriaprima')
+                                            related_name='productosflujoclase_clasemateriaprima')
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujoclase_producto')
 
     class Meta:
