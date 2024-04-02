@@ -15,8 +15,8 @@ class DepartamentoFilter(MyGenericFilter):
     search_fields = [
         'codigo__contains',
         'descripcion__icontains',
-        'centrocosto__contains',
-        'unidadcontable__contains',
+        'centrocosto__descripcion__icontains',
+        'unidadcontable__nombre__icontains',
     ]
     split_space_search = ' '
 
@@ -39,6 +39,7 @@ class DepartamentoFilter(MyGenericFilter):
             'codigo',
             'descripcion',
             'centrocosto',
+            'unidadcontable'
         ]
 
         form = DepartamentoFormFilter

@@ -252,11 +252,6 @@ class MedidaFormFilter(forms.Form):
 # ------------ MedidaConversion / Form ------------
 
 class MedidaConversionForm(forms.ModelForm):
-    medidao = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
-                                     widget=forms.Select(attrs={'style': 'width: 100%'}))
-    medidad = forms.ModelChoiceField(queryset=Medida.objects.filter(activa=True).all(),
-                                     widget=forms.Select(attrs={'style': 'width: 100%'}))
-
     class Meta:
         model = MedidaConversion
         fields = [
@@ -274,6 +269,15 @@ class MedidaConversionForm(forms.ModelForm):
         self.helper.form_id = 'id_medidaconversion_Form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
+
+        queryset_um = Medida.objects.filter(activa=True)
+        self.fields['medidao'] = forms.ModelChoiceField(
+            queryset=queryset_um if not instance else queryset_um | Medida.objects.filter(
+                pk=instance.medidao.pk, activa=False))
+
+        self.fields['medidad'] = forms.ModelChoiceField(
+            queryset=queryset_um if not instance else queryset_um | Medida.objects.filter(
+                pk=instance.medidad.pk, activa=False))
 
         self.helper.layout = Layout(
             TabHolder(
@@ -297,7 +301,6 @@ class MedidaConversionForm(forms.ModelForm):
                 )
             )
         )
-
 
 # ------------ MedidaConversión / Form Filter ------------
 class MedidaConversionFormFilter(forms.Form):
@@ -1229,7 +1232,6 @@ class MarcaSalidaFormFilter(forms.Form):
 # ------------- Departamento / Form --------------
 
 class DepartamentoForm(forms.ModelForm):
-
     class Meta:
         model = Departamento
         fields = [
@@ -1307,12 +1309,18 @@ class DepartamentoForm(forms.ModelForm):
             queryset=Departamento.objects.exclude(id=instance.id) if instance else Departamento.objects.all(),
             widget=forms.CheckboxSelectMultiple
         )
+        queryset_uc = UnidadContable.objects.filter(activo=True)
         self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
-            queryset=UnidadContable.objects.filter(activo=True),
+            queryset=queryset_uc if not instance else queryset_uc | Departamento.objects.get(
+                pk=instance.pk).unidadcontable.filter(activo=False),
             widget=forms.CheckboxSelectMultiple
         )
-        self.fields['centrocosto'] = forms.ModelChoiceField(queryset=CentroCosto.objects.filter(activo=True).all())
+        queryset_cc = CentroCosto.objects.filter(activo=True).all()
+        self.fields['centrocosto'] = forms.ModelChoiceField(
+            queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
+                pk=instance.centrocosto.pk, activo=False))
         self.fields["relaciondepartamento"].required = False
+
 
 class DepartamentoFormFilter(forms.Form):
     class Meta:
@@ -1344,12 +1352,15 @@ class DepartamentoFormFilter(forms.Form):
                             AppendedText(
                                 'query', mark_safe('<i class="fas fa-search"></i>')
                             ),
-                            css_class='form-group col-md-8 mb-0'
+                            css_class='form-group col-md-12 mb-0'
                         ),
+                        css_class='form-row',
+                    ),
+                    Row(
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-12 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-4 mb-0'),
                         Column('centrocosto', css_class='form-group col-md-12 mb-0'),
-
+                        Column('unidadcontable', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1412,7 +1423,6 @@ class MotivoAjusteForm(forms.ModelForm):
                 )
             )
         )
-
 
 # ------------ MotivoAjuste / Form Filter ------------
 class MotivoAjusteFormFilter(forms.Form):

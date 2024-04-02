@@ -15,6 +15,8 @@ class DepartamentoCRUD(CommonCRUDView):
         'descripcion',
         'centrocosto',
         'unidadcontable',
+        'relaciondepartamento',
+        'departamentoproducto',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -23,11 +25,11 @@ class DepartamentoCRUD(CommonCRUDView):
     search_fields = [
         'codigo__contains',
         'descripcion__icontains',
-        'centrocosto__contains',
-        'unidadcontable__contains',
+        'centrocosto__descripcion__icontains',
+        'unidadcontable__nombre__icontains',
     ]
 
-    # add_form = DepartamentoForm
+    add_form = DepartamentoForm
     update_form = DepartamentoForm
 
     list_fields = fields
@@ -38,10 +40,6 @@ class DepartamentoCRUD(CommonCRUDView):
 
     # Table settings
     table_class = DepartamentoTable
-
-    # inlines = [DepartamentoRelacionInline]
-
-    form_class = DepartamentoForm
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
