@@ -1,0 +1,28 @@
+{% load trans from i18n %}
+{% load static %}
+<ul id="vibility_menu" role="listbox" tabindex="0" aria-label="visibility_menu" class="dropdown-menu" style="min-width:250px; padding:5px; cursor:pointer;">
+    {% for column in table.columns %}
+        {% if column.attrs.td.class not in table.get_column_excluded %}
+            {% if column.attrs.td.class in table.get_column_default_show %}
+                <li tabindex="-1" role="option" aria-checked="false" class="btn-shift-column-visivility"
+                    {% if not forloop.last %} style="border-bottom:1px solid #ccc;" {%endif %}
+                >
+                        <input tabindex="-1" type="checkbox" style="margin-left: 2px;"
+                            class="form-check-input"
+                            {% if column.visible %}
+                               checked
+                            {% endif %}
+                            name="set_visibility_value"
+                            id="set_{{ column.name }}_visibility_value"
+                            hx-get="{{ url_list }}{{ getparams }}vis={{ column.name }}"
+                            hx-trigger="click"
+                            hx-target="#main_content_swap"
+                            hx-swap="outerHTML"
+                            hx-replace-url="true">
+                        <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>
+                        <input type="hidden" name="visibility" value={{ column.name }}>
+                </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+</ul>

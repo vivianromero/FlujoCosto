@@ -1,0 +1,6 @@
+{% load crud_tags %}
+{% load l10n %}
+{% localize on %}
+
+{{ object|format_value:field|date:'d/m/Y' }}
+{% endlocalize  %}

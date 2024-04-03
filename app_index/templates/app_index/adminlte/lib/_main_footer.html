@@ -1,0 +1,25 @@
+{% extends 'adminlte/lib/_main_footer.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block legal %}
+    <strong>Copyright {% block legal_year %} 2024 {% endblock legal_year %} &copy;
+        {% if site %}
+            <a href="http://{{ site.domain }}">{{ site.name }}</a>
+        {% endif %}
+    <img src="{% static 'dist/img/logo_datazucar.png' %}"
+         class="user-image" width="15" height="15"
+         style="opacity: .8; margin-bottom: 3px" alt="DATAZUCAR"
+    >
+    DATAZUCAR
+    </strong> {% translate 'All rights reserved.' %}
+{% endblock legal %}
+
+
+{% block footer_right %}
+    <b> {% translate 'Version' %}</b> {% block version %}0.1{% endblock %}
+{% endblock %}
+
+
+
+

@@ -1,0 +1,19 @@
+<footer class="main-footer align-middle" style="padding-bottom: 0; padding-top: 4px; height: 35px;">
+    {% block footer_left %}
+    {% block legal %}
+    <strong>Copyright &copy; {% block legal_year %} 2023 {% endblock legal_year %}
+        {% if site %}
+            <a href="http://{{ site.domain }}">{{ site.name }}</a>
+        {% endif %}
+    </strong> Todos los derechos reservados.
+    {% endblock legal %}
+    {% endblock footer_left %}
+
+    <div class="float-right d-none d-sm-inline-block">
+        {% block footer_right %}
+            <b>Version</b> {% block version %}0.1{% endblock %}
+        {% endblock %}
+    </div>
+
+
+</footer>

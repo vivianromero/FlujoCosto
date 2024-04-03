@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if not url_update %}
+    <button id="id_form_btn_add_another" type="submit" name="another" class="btn btn-primary">
+        <i class="fa fa-plus"></i> {% translate 'Register and add another' %}
+    </button>
+{% endif %}

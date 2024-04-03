@@ -1,0 +1,6 @@
+{% load i18n crispy_forms_tags %}
+{% if url_update and 'update' in views_available and crud_perms.update %}
+    <div class="card-header">
+        <a href="{{ url_update }}{{getparams}}" class="btn btn-primary" >{% trans "Edit" %}</a>
+    </div>
+{% endif %}

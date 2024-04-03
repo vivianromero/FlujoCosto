@@ -1,0 +1,69 @@
+{% load django_tables2 %}
+{% load i18n %}
+{% load crud_tags %}
+
+<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
+     style="padding-bottom: 0; padding-top: 0; height: 35px; display: none" hx-swap-oob="true"></nav>
+
+<div id="main_content_swap">
+    <div class="row" style="padding: 0;">
+        <div class="col-md-12 col-md-offset-1">
+            {% if crud_perms.list %}
+                <a href="{{ request.htmx.current_url_abs_path }}" class="btn btn-primary"
+                   hx-get="{{ request.htmx.current_url_abs_path }}"
+                   hx-trigger="click"
+                   hx-target="#main_content_swap"
+                   hx-swap="outerHTML"
+                   hx-replace-url="true">
+                    <i class="fa fa-angle-double-left"></i>
+                    {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+                </a>
+            {% endif %}
+            <div class="card mx-auto" style="width: 100%; padding: 0; margin-top: 8px; margin-bottom: 0">
+    {#            <div class="card-header with-border border-primary" style="background-color: lightgreen">#}
+    {#                <h3 class="card-title">{% trans "Edit" %} {{ model_verbose_name }}</h3>#}
+    {#            </div>#}
+                <script>
+                    window.data = {
+                        filterTextClear: '{{ filterTextClear|safe }}',
+                        filterPlaceHolder: '{{ filterPlaceHolder|safe }}',
+                        moveSelectedLabel: '{{ moveSelectedLabel|safe }}',
+                        moveAllLabel: '{{ moveAllLabel|safe }}',
+                        removeSelectedLabel: '{{ removeSelectedLabel|safe }}',
+                        removeAllLabel: '{{ removeAllLabel|safe }}',
+                        infoText1: '{{ infoText1|safe }}',
+                        infoText2: '{{ infoText2|safe }}',
+                        infoTextFiltered: '{{ infoTextFiltered|safe }}',
+                        infoTextEmpty: '{{ infoTextEmpty|safe }}',
+                        today: '{{ today|safe }}',
+                        clear: '{{ clear|safe }}',
+                        close: '{{ close|safe }}',
+                        selectMonth: '{{ selectMonth|safe }}',
+                        prevMonth: '{{ prevMonth|safe }}',
+                        nextMonth: '{{ nextMonth|safe }}',
+                        selectYear: '{{ selectYear|safe }}',
+                        prevYear: '{{ prevYear|safe }}',
+                        nextYear: '{{ nextYear|safe }}',
+                        selectDecade: '{{ selectDecade|safe }}',
+                        prevDecade: '{{ prevDecade|safe }}',
+                        nextDecade: '{{ nextDecade|safe }}',
+                        prevCentury: '{{ prevCentury|safe }}',
+                        nextCentury: '{{ nextCentury|safe }}',
+                        pickHour: '{{ pickHour|safe }}',
+                        incrementHour: '{{ incrementHour|safe }}',
+                        decrementHour: '{{ decrementHour|safe }}',
+                        pickMinute: '{{ pickMinute|safe }}',
+                        incrementMinute: '{{ incrementMinute|safe }}',
+                        decrementMinute: '{{ decrementMinute|safe }}',
+                        pickSecond: '{{ pickSecond|safe }}',
+                        incrementSecond: '{{ incrementSecond|safe }}',
+                        decrementSecond: '{{ decrementSecond|safe }}',
+                        togglePeriod: '{{ togglePeriod|safe }}',
+                        selectTime: '{{ selectTime|safe }}'
+                    }
+                </script>
+                {% include "cruds/_form.html" with action='create' %}
+            </div>
+        </div>
+    </div>
+</div>

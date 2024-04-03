@@ -1,0 +1,232 @@
+{% extends 'he_index/cruds/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block favicon %}
+  <link rel="shortcut icon" type="image/png" href="{% static app_logo_path %}"/>
+{% endblock favicon %}
+{% block page_name %}{% endblock page_name %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav_header %}
+  {% include 'he_index/adminlte/lib/_main_header.html' %}
+{% endblock nav_header %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div id="main_content_swap">
+                <!-- Info boxes -->
+                <div class="row" style="padding: 0;">
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-exclamation-triangle"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text" style="text-align: center">
+                                    {% translate 'Total Events' %}
+                                </span>
+                                <span class="info-box-number" style="text-align: center;font-size: large;font-weight: bold">
+                                    {{  hechos_count }}
+                                </span>
+                            </div>
+                        <!-- /.info-box-content -->
+                        </div>
+                    <!-- /.info-box -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box mb-3">
+                            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-dollar"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text" style="text-align: center">{% translate 'Total losses' %}</span>
+                                <span class="info-box-number" style="text-align: center;font-size: large;font-weight: bold">
+                                    $ {{  valor_perdido_cup }}
+                                    <small>Cup</small>
+                                </span>
+                            </div>
+                            <!-- /.info-box-content -->
+                        </div>
+                        <!-- /.info-box -->
+                    </div>
+                    <!-- /.col -->
+
+                    <!-- fix for small devices only -->
+                    <div class="clearfix hidden-md-up"></div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box mb-3">
+                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-recycle"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text" style="text-align: center">{% translate 'Total recovered value' %}</span>
+                                <span class="info-box-number" style="text-align: center;font-size: large;font-weight: bold">
+                                    $ {{  valor_recuperado_cup }}
+                                    <small>Cup</small>
+                                </span>
+                            </div>
+                            <!-- /.info-box-content -->
+                        </div>
+                        <!-- /.info-box -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box mb-3">
+                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-percentage"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text" style="text-align: center">{% translate 'Percent recovered' %}</span>
+                                <span class="info-box-number" style="text-align: center;font-size: large;font-weight: bold">
+                                    {{  porciento_recuperado }}
+                                    <small>%</small>
+                                </span>
+                            </div>
+                          <!-- /.info-box-content -->
+                        </div>
+                    <!-- /.info-box -->
+                    </div>
+                <!-- /.col -->
+                </div>
+                <!-- /.row -->
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">{% translate 'Behavior of events by provinces' %}</h5>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <!-- Cuba Chart Canvas -->
+                                        <div class="chart"
+                                            id="chart-1"
+                                            style="position: relative;
+                                            width:100%;
+                                            height: 100%;"
+                                        >
+                                            {{ chart_cuba|safe }}
+                                        </div>
+                                    <!-- /.chart-responsive -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-4">
+                                        <p class="text-center">
+                                            <strong>{% translate 'Event Types' %}</strong>
+                                        </p>
+                                        {% for tipo in tipos_he %}
+                                            <div class="progress-group">
+                                                {{ tipo.tipo_hecho__nombre }}
+                                                <span class="float-right"><b>{{ tipo.count }} ({{ tipo.percent }}%)</b></span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-danger" style="width: {{ tipo.percent }}%"></div>
+                                                </div>
+                                            </div>
+                                        <!-- /.progress-group -->
+                                        {% endfor %}
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                            <!-- /.row -->
+                            </div>
+                            <!-- ./card-body -->
+                            <div class="card-footer">
+                                <div class="row">
+                                    <div class="col-sm-3 col-6">
+                                        <div class="description-block border-right">
+                                            <span class="description-percentage text-danger">{{ sin_cerrar_x100 }}%</span>
+                                            <h5 class="description-header">{{ sin_cerrar }}</h5>
+                                            <span class="description-text">{% translate 'TOTAL UNCLOSED EVENTS' %}</span>
+                                        </div>
+                                    <!-- /.description-block -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-3 col-6">
+                                        <div class="description-block border-right">
+                                            <span class="description-percentage text-success">{{ cerradas_x100 }}%</span>
+                                            <h5 class="description-header">{{ cerradas }}</h5>
+                                            <span class="description-text">{% translate 'TOTAL CLOSED EVENTS' %}</span>
+                                        </div>
+                                    <!-- /.description-block -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-3 col-6">
+                                        <div class="description-block border-right">
+                                            <span class="description-percentage text-danger">{{ mas_30_dias_x100 }}%</span>
+                                            <h5 class="description-header">{{ mas_30_dias }}</h5>
+                                            <span class="description-text">{% translate 'EVENTS WITH MORE THAN 30 DAYS' %}</span>
+                                        </div>
+                                    <!-- /.description-block -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-3 col-6">
+                                        <div class="description-block">
+                                            <span class="description-percentage text-danger"></span>
+                                            <h5 class="description-header">{{ cant_corrup }} / {{ cant_relev }}</h5>
+                                            <span class="description-text">{% translate 'CORRUPTION EVENTS / RELEVANT' %}</span>
+                                        </div>
+                                    <!-- /.description-block -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                            </div>
+                            <!-- /.card-footer -->
+                        </div>
+                    <!-- /.card -->
+                    </div>
+                  <!-- /.col -->
+                </div>
+                <!-- /.row -->
+
+                <!-- Main row -->
+                <div class="row">
+                    <!-- Left col -->
+                    <div class="col-md-12">
+                    <!-- MAP & BOX PANE -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    {% translate 'Extraordinary Events of Enterprises and their Entities by Provinces' %}
+                                </h3>
+
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body p-0">
+                                <div class="d-md-flex">
+                                    <div class="p-1 flex-fill" style="overflow: hidden">
+                                        <!-- Map will be created here -->
+                                        <div class="chart"
+                                            id="chart-2"
+                                            style="position: relative;
+                                            width:100%;
+                                            height: 400px;
+                                            overflow: hidden">
+                                            {{ chart_empresas|safe }}
+                                        </div>
+
+                                    </div>
+
+                                </div><!-- /.d-md-flex -->
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.col -->
+                    <!-- /.col -->
+                </div>
+            </div><!--/. main_content_swap -->
+                <!-- /.row -->
+        </div><!--/. container-fluid -->
+    </section>
+{% endblock %}

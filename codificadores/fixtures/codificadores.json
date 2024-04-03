@@ -1,0 +1,585 @@
+[
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Pesada"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Materia Prima"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Habilitación"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 4,
+    "fields": {
+        "descripcion": "Línea de Salida"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Vitola"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Subproducto"
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 7,
+    "fields": {
+        "descripcion": "Línea sin Terminar"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Bueno"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Deficiente"
+    }
+},
+{
+    "model": "codificadores.estadoproducto",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Rechazo"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Capote",
+        "capote_fortaleza": "C"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 2,
+    "fields": {
+        "descripcion": "F1",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 3,
+    "fields": {
+        "descripcion": "F2",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 4,
+    "fields": {
+        "descripcion": "F3",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Capa Clasificada",
+        "capote_fortaleza": "P"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Capa sin Clasificar",
+        "capote_fortaleza": "P"
+    }
+},
+{
+    "model": "codificadores.clasemateriaprima",
+    "pk": 7,
+    "fields": {
+        "descripcion": "F4",
+        "capote_fortaleza": "F"
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 5,
+    "fields": {
+        "descripcion": "IX",
+        "orden": 5
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 6,
+    "fields": {
+        "descripcion": "ND",
+        "orden": 6
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 7,
+    "fields": {
+        "descripcion": "V",
+        "orden": 1
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 8,
+    "fields": {
+        "descripcion": "VI",
+        "orden": 2
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 9,
+    "fields": {
+        "descripcion": "VII",
+        "orden": 3
+    }
+},
+{
+    "model": "codificadores.categoriavitola",
+    "pk": 10,
+    "fields": {
+        "descripcion": "VIII",
+        "orden": 4
+    }
+},
+{
+    "model": "codificadores.tipovitola",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Picadura"
+    }
+},
+{
+    "model": "codificadores.tipovitola",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Hoja"
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Merma",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Rotura",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Promoción",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.motivoajuste",
+    "pk": 4,
+    "fields": {
+        "descripcion": "SubProductos",
+        "aumento": false
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Entrada Desde Versat",
+        "operacion": "E",
+        "generado": "True"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 2,
+    "fields": {
+        "descripcion": "Salida Hacia Versat",
+        "operacion": "S",
+        "generado": "True"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Transferencia Hacia Departamento",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 4,
+    "fields": {
+        "descripcion": "Transferencia Desde Departamento",
+        "operacion": "E",
+        "generado": "True"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Ajuste de Aumento",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 6,
+    "fields": {
+        "descripcion": "Ajuste de Disminución",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 7,
+    "fields": {
+        "descripcion": "Recepción de Producción de Reproceso",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 8,
+    "fields": {
+        "descripcion": "Recepción de Producción",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 9,
+    "fields": {
+        "descripcion": "Devolución",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 10,
+    "fields": {
+        "descripcion": "Sobrante Sujeto a Investigación",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 11,
+    "fields": {
+        "descripcion": "Recepción de Rechazo",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 12,
+    "fields": {
+        "descripcion": "Carga Inicial",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 13,
+    "fields": {
+        "descripcion": "Devolución Recibida",
+        "operacion": "E",
+        "generado": "True"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 14,
+    "fields": {
+        "descripcion": "Cambio de Estado",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 15,
+    "fields": {
+        "descripcion": "Transferencia Externa",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 16,
+    "fields": {
+        "descripcion": "Recibir Transferencia Externa",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 17,
+    "fields": {
+        "descripcion": "Venta a Trabajadores",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 18,
+    "fields": {
+        "descripcion": "Reporte de SubProductos",
+        "operacion": "E"
+    }
+},
+{
+    "model": "codificadores.tipodocumento",
+    "pk": 19,
+    "fields": {
+        "descripcion": "Cambio de Producto",
+        "operacion": "S"
+    }
+},
+{
+    "model": "codificadores.numeraciondocumentos",
+    "pk": 1,
+    "fields": {
+        "tiponumeracion": "Número Consecutivo",
+        "sistema": true,
+        "departamento": true,
+        "tipo_documento": true,
+        "prefijo": null
+    }
+},
+{
+    "model": "codificadores.numeraciondocumentos",
+    "pk": 2,
+    "fields": {
+        "tiponumeracion": "Número de Control",
+        "sistema": false,
+        "departamento": true,
+        "tipo_documento": true,
+        "prefijo": null
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "1",
+    "fields": {
+        "name":"Administrador",
+        "permissions": [148, 96, 100, 60, 162, 163, 164, 165, 158, 159, 160, 161, 12, 157, 158, 159, 160,
+                        64, 84, 88, 92]
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "2",
+    "fields": {
+        "name":"Operador Flujo"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "3",
+    "fields": {
+        "name":"Operador Costo"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "4",
+    "fields": {
+        "name":"Consultor"
+    }
+},
+{
+    "model": "auth.group",
+    "pk": "5",
+    "fields": {
+        "name":"Administrador Empresa",
+        "permissions": [146, 148, 94, 96, 97, 98, 99, 100, 58, 60, 162, 163, 164, 165, 158, 159, 160, 161, 12,
+            157, 158, 159, 160, 61, 62, 64, 84, 82, 86, 88, 89, 90, 91, 92]
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "000603fa-af2d-4713-b0e5-c2991a289f4b",
+    "fields": {
+        "codigo":"01",
+        "nombre":"UEB SANTA CLARA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
+    "fields": {
+        "codigo":"02",
+        "nombre":"UEB TT PLACETAS EXPORTACION"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
+    "fields": {
+        "codigo":"03",
+        "nombre":"UEB CAMAJUANí"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "009bfd05-0357-4614-ba5b-c9876272a460",
+    "fields": {
+        "codigo":"04",
+        "nombre":"UEB BAEZ"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "009c9e8f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"05",
+        "nombre":"UEB QUEMADO"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "009c9e9f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"06",
+        "nombre":"UEB MANICARAGUA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "009d9e9f-4064-4214-a051-a1f78ea26b85",
+    "fields": {
+        "codigo":"07",
+        "nombre":"UEB ESPERANZA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "109d9e9f-4064-4214-a051-a1f78ea28b65",
+    "fields": {
+        "codigo":"08",
+        "nombre":"UEB RANCHUELO"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "209d9e9f-4064-4214-a051-a1f99ea26b65",
+    "fields": {
+        "codigo":"09",
+        "nombre":"UEB REMEDIOS"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "309d9e9f-4064-4214-a051-a1f78ea66b65",
+    "fields": {
+        "codigo":"10",
+        "nombre":"UEB VUELTAS"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "400d9e9f-4084-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"13",
+        "nombre":"UEB SAGUA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "409f9e9f-4064-4214-a051-a1f78ea26b66",
+    "fields": {
+        "codigo":"14",
+        "nombre":"UEB ENCRUCIJADA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "26915d79-cf24-4374-b053-4fbeca66c96e",
+    "fields": {
+        "codigo":"16",
+        "nombre":"UEB CENTRO PROCESO DE CAPA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "409d9e9f-4064-4214-a051-a1f78ea36b65",
+    "fields": {
+        "codigo":"19",
+        "nombre":"UEB COMERCIALIZADORA",
+        "is_comercializadora": "True"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "809d9e9f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"21",
+        "nombre":"DIRECCION DE EMPRESA",
+        "is_empresa": "True"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "889d9e9f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"22",
+        "nombre":"UEB SANTO DOMINGO"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "879d9e9f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "codigo":"23",
+        "nombre":"UEB JICOTEA"
+    }
+},
+{
+    "model": "codificadores.unidadcontable",
+    "pk": "57042ce6-b154-4663-88dd-507d79701504",
+    "fields": {
+        "codigo":"24",
+        "nombre":"UEB SERVICIOS"
+    }
+}
+]

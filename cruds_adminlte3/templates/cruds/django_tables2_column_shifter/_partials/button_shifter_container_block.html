@@ -1,0 +1,14 @@
+{% load trans from i18n %}
+{% load static %}
+<div class="btn-group">
+    {% block button_group_head %}
+
+        {% include 'cruds/django_tables2_column_shifter/_partials/button_goup_head_block.html' %}
+
+    {% endblock button_group_head %}
+    {% block button_group_dropdown_menu %}
+
+        {% include 'cruds/django_tables2_column_shifter/_partials/button_group_dropdown_menu_block.html' %}
+
+    {% endblock button_group_dropdown_menu %}
+</div> {# End  btn-group#}

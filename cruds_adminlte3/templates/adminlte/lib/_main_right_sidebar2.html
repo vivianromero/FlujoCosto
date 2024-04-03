@@ -1,0 +1,59 @@
+{% load crud_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block main_right_sidebar2 %}
+<!-- Control Sidebar -->
+<aside id="search-sidebar" class="control-sidebar control-sidebar-light"
+       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: 100px; flex-grow: 1; top: 50px;">
+{% block main_right_sidebar_content2 %}
+<!-- Control sidebar content goes here -->
+    <div class="p-1 control-sidebar-content">
+        {% if filter and search %}
+            {{ filter.form.media }}
+            {% block list_filter %}
+                <div class="filters">
+                    <div class="card card-success" style="padding-top: 0">
+                        <div class="card-header with-border">
+                            <h3 class="card-title">{% trans 'Search' %}</h3>
+                            <div class="card-tools" style="height: 20px; display: flex; align-items: center">
+                                <a class="nav-link"
+                                   data-widget="control-sidebar"
+                                   data-slide="true"
+                                   data-target="#search-sidebar"
+                                   href="#"
+                                   role="button">
+                                    <i class="fas fa-times" title={% translate 'Close' %}></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding: 0.5rem;">
+                            <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    {{ filter.form.query }}
+                                    <div class="input-group-append">
+                                        <button class="btn" style="background-color: #dadfe4; border-color: #ced4da;" type="submit" title="{% translate 'Search' %}">
+                                            <i class="fas fa-search" title="{% translate 'Search' %}"></i>
+                                        </button>
+                                        <a class="btn btn-warning"
+                                           style="background-color: #dadfe4; border-color: #ced4da;"
+                                           href="{{ getparams|clean_query_search }}">
+                                            <i class="fas fa-refresh" title="{% translate 'Reset' %}"></i>
+                                        </a>
+{#                                        <button class="btn" href="{{ getparams|clean_query_search }}" style="background-color: #dadfe4; border-color: #ced4da;" id="button_search_reset">#}
+{#                                            <i class="fas fa-refresh" title="{% translate 'Reset' %}"></i>#}
+{#                                        </button>#}
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endblock list_filter %}
+        {% endif %}
+    </div>
+{% endblock main_right_sidebar_content2 %}
+</aside>
+<!-- /.control-sidebar -->
+{% endblock main_right_sidebar2 %}

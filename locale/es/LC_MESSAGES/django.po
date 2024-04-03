@@ -1,0 +1,1592 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-03 10:48-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app_auth/grupos/filters.py:14 app_auth/permisos/filters.py:14
+#: app_auth/usuarios/filters.py:112 cruds_adminlte3/filter.py:174
+msgid "Universal Search"
+msgstr "Búsqueda Universal"
+
+#: app_auth/grupos/filters.py:17 app_auth/permisos/filters.py:17
+#: app_auth/usuarios/filters.py:115 app_auth/usuarios/forms.py:399
+#: codificadores/forms.py:92 codificadores/forms.py:191
+#: codificadores/forms.py:299 codificadores/forms.py:408
+#: codificadores/forms.py:511 codificadores/forms.py:612
+#: codificadores/forms.py:711 codificadores/forms.py:813
+#: codificadores/forms.py:928 codificadores/forms.py:1037
+#: codificadores/forms.py:1140 codificadores/forms.py:1246
+#: codificadores/forms.py:1343 codificadores/forms.py:1436
+#: codificadores/forms.py:1556 codificadores/forms.py:1654
+#: codificadores/forms.py:1787 configuracion/forms.py:174
+#: cruds_adminlte3/filter.py:177
+msgid "Search..."
+msgstr "Buscar..."
+
+#: app_auth/grupos/filters.py:26 app_auth/permisos/filters.py:26
+#: codificadores/models.py:23
+msgid "Name"
+msgstr "Nombre"
+
+#: app_auth/grupos/forms.py:46
+msgid "Group and permissions"
+msgstr "Grupo y permisos"
+
+#: app_auth/grupos/tables.py:24 app_auth/permisos/tables.py:24
+#: app_auth/usuarios/tables.py:26 app_auth/usuarios/tables.py:79
+#: app_index/templates/app_index/cruds/list.html:76
+#: app_index/templates/app_index/cruds/partial_list.html:61
+#: cruds_adminlte3/tables.py:167
+#: cruds_adminlte3/templates/cruds/ajax/list.html:14
+#: cruds_adminlte3/templates/cruds/list.html:83
+#: cruds_adminlte3/templates/cruds/listOK.html:83
+#: cruds_adminlte3/templates/cruds/list_OK.html:159
+#: cruds_adminlte3/templates/cruds/partial_list.html:61
+msgid "Actions"
+msgstr "Acciones"
+
+#: app_auth/grupos/templates/auth/group/create.html:4
+#: app_auth/permisos/templates/auth/permission/create.html:4
+#: app_auth/usuarios/templates/usuarios/usuario/create.html:4
+#: app_auth/usuarios/templates/usuarios/usuario_groups/create.html:4
+#: app_auth/usuarios/templates/usuarios/usuario_user_permissions/create.html:4
+#: app_index/templates/app_index/cruds/create.html:4
+#: codificadores/templates/codificadores/marcasalida/cruds/create.html:4
+#: codificadores/templates/codificadores/medida/cruds/create.html:4
+#: codificadores/templates/codificadores/medidaconversion/cruds/create.html:4
+#: codificadores/templates/codificadores/unidadcontable/cruds/create.html:4
+#: codificadores/templates/codificadores/vitola/cruds/create.html:4
+#: cruds_adminlte3/templates/cruds/create.html:4
+#: cruds_adminlte3/templates/cruds/create.html:7
+msgid "Create new"
+msgstr "Adicionar"
+
+#: app_auth/grupos/templates/auth/group/list.html:6
+#: app_auth/permisos/templates/auth/permission/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario_groups/list.html:6
+#: app_auth/usuarios/templates/usuarios/usuario_user_permissions/list.html:6
+#: codificadores/templates/codificadores/marcasalida/cruds/list.html:6
+#: codificadores/templates/codificadores/medida/cruds/list.html:6
+#: codificadores/templates/codificadores/medidaconversion/cruds/list.html:6
+#: codificadores/templates/codificadores/unidadcontable/cruds/list.html:6
+#: codificadores/templates/codificadores/vitola/cruds/list.html:6
+#: cruds_adminlte3/templates/cruds/list.html:6
+#: cruds_adminlte3/templates/cruds/listOK.html:5
+#: cruds_adminlte3/templates/cruds/listOK.html:8
+#: cruds_adminlte3/templates/cruds/list_OK.html:5
+#: cruds_adminlte3/templates/cruds/list_OK.html:9
+msgid "List of"
+msgstr "Listado de"
+
+#: app_auth/permisos/filters.py:32
+msgid "codename"
+msgstr "nombre en código"
+
+#: app_auth/permisos/forms.py:36
+msgid "Permission Information"
+msgstr "Información de Permisos"
+
+#: app_auth/usuarios/filters.py:46
+msgid "First name"
+msgstr "Nombre"
+
+#: app_auth/usuarios/filters.py:53
+msgid "Last name"
+msgstr "Apellido"
+
+#: app_auth/usuarios/filters.py:60
+msgid "User name"
+msgstr "Usuario"
+
+#: app_auth/usuarios/filters.py:67
+#: app_auth/usuarios/templates/registration/registrar_OK.html:35
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#: app_auth/usuarios/filters.py:80
+msgid "Last login"
+msgstr "Última entrada"
+
+#: app_auth/usuarios/filters.py:91
+msgid "Date joined"
+msgstr "Fecha de registro"
+
+#: app_auth/usuarios/filters.py:96
+msgid "Is superuser?"
+msgstr "¿Es superusuario?"
+
+#: app_auth/usuarios/filters.py:101
+msgid "Is staff?"
+msgstr "¿Es del equipo?"
+
+#: app_auth/usuarios/filters.py:106
+msgid "Is active?"
+msgstr "¿Está activo?"
+
+#: app_auth/usuarios/forms.py:62
+msgid "Registration information"
+msgstr "Información de Registro"
+
+#: app_auth/usuarios/forms.py:119
+msgid "The two password fields didn’t match."
+msgstr "Las dos contraseñas no coinciden."
+
+#: app_auth/usuarios/forms.py:122
+msgid "New password"
+msgstr "Nueva contraseña"
+
+#: app_auth/usuarios/forms.py:129
+msgid "New password confirmation"
+msgstr "Confirmación de nueva contraseña"
+
+#: app_auth/usuarios/forms.py:185
+msgid ""
+"Raw passwords are not stored, so there is no way to see this user’s "
+"password, but you can change the password using <a href=\"{}\">this form</a>."
+msgstr ""
+"Las contraseñas sin procesar no se almacenan, por lo que no hay forma de ver "
+"la contraseña de este usuario, pero puede cambiar la contraseña usando <a "
+"href=\"{}\">este formulario</a>."
+
+#: app_auth/usuarios/forms.py:197
+msgid "User information"
+msgstr "Información de usuario"
+
+#: app_auth/usuarios/forms.py:249
+msgid "System information"
+msgstr "Información del sistema"
+
+#: app_auth/usuarios/forms.py:270 cruds_adminlte3/menus.py:124
+msgid "Groups"
+msgstr "Grupos"
+
+#: app_auth/usuarios/forms.py:277
+msgid "Permissions"
+msgstr "Permisos"
+
+#: app_auth/usuarios/templates/registration/login.html:20
+#: cruds_adminlte3/templates/registration/login.html:20
+msgid "Sign in to start your session"
+msgstr "Introduzca sus datos para comenzar la sesión"
+
+#: app_auth/usuarios/templates/registration/login.html:29
+#: app_auth/usuarios/templates/registration/registrar_OK.html:27
+#: configuracion/models.py:108
+#: cruds_adminlte3/templates/registration/login.html:27
+msgid "User"
+msgstr "Usuario"
+
+#: app_auth/usuarios/templates/registration/login.html:42
+#: app_auth/usuarios/templates/registration/registrar_OK.html:43
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_hide.html:3
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:4
+#: configuracion/models.py:23
+#: cruds_adminlte3/templates/registration/login.html:35
+msgid "Password"
+msgstr "Contraseña"
+
+#: app_auth/usuarios/templates/registration/login.html:53
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_hide.html:14
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:15
+#: app_auth/usuarios/views.py:123 cruds_adminlte3/config.py:69
+msgid "Show password"
+msgstr "Mostrar contraseña"
+
+#: app_auth/usuarios/templates/registration/login.html:68
+msgid "Login"
+msgstr "Entrar"
+
+#: app_auth/usuarios/templates/registration/pass_change_form.html:19
+msgid "Change your password"
+msgstr "Cambiar su contraseña"
+
+#: app_auth/usuarios/templates/registration/pass_change_form.html:24
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:29
+msgid ""
+"Please enter your old password, for security’s sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"por favor, ingrese su contraseña anterior, por razones de seguridad, y luego "
+"ingrese su nueva contraseña dos veces para que podamos verificar que la "
+"escribió  correctamente."
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:4
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:5
+msgid "Documentation"
+msgstr "Documentación"
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:4
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:5
+#: app_index/templates/app_index/adminlte/lib/_main_header.html:13
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:59
+#: cruds_adminlte3/templates/adminlte/lib/_main_header_OK.html:49
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:7
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:8
+#: app_index/templates/app_index/adminlte/lib/_main_header.html:19
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:62
+msgid "Log out"
+msgstr "Salir"
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:12
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:13
+#: cruds_adminlte3/templates/adminlte/base.html:67
+msgid "Home"
+msgstr "Inicio"
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:13
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:14
+#: app_auth/usuarios/views.py:91 app_auth/usuarios/views.py:112
+msgid "Password change"
+msgstr "Cambio de contraseña"
+
+#: app_auth/usuarios/templates/registration/password_change_done_OK.html:18
+msgid "Your password was changed."
+msgstr "Su contraseña fue modificada."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:24
+msgid "Please correct the error below."
+msgstr "Por favor, corrija el error a continuación."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:24
+msgid "Please correct the errors below."
+msgstr "Por favor, corrija los errores a continuación."
+
+#: app_auth/usuarios/templates/registration/password_change_form_OK.html:57
+msgid "Change my password"
+msgstr "Cambiar mi contraseña"
+
+#: app_auth/usuarios/templates/registration/registrar.html:13
+#: app_auth/usuarios/templates/registration/registrar_OK.html:20
+msgid "Register a new user"
+msgstr "Registrar un nuevo usuario"
+
+#: app_auth/usuarios/templates/registration/registrar_OK.html:51
+msgid "Retype Password"
+msgstr "Repita la contraseña"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/403.html:6
+#: app_index/templates/app_index/cruds/403.html:6
+#: cruds_adminlte3/templates/HttpResponse/403.html:5
+#: cruds_adminlte3/templates/HttpResponse/403.html:6
+#: cruds_adminlte3/templates/cruds/403.html:6
+#: cruds_adminlte3/templates/cruds/403_OK.html:5
+#: cruds_adminlte3/templates/cruds/403_OK.html:6
+msgid "Error 403"
+msgstr "Error 403"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/403.html:16
+#: app_index/templates/app_index/cruds/403.html:16
+#: cruds_adminlte3/templates/cruds/403.html:16
+msgid "You are not authorized to view this page"
+msgstr "Ud. no está autorizado a ver esta página"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/403.html:17
+#: app_index/templates/app_index/cruds/403.html:17
+#: cruds_adminlte3/templates/cruds/403.html:17
+msgid "Please check with the site admin if you believe this is a mistake."
+msgstr ""
+"Por favor, consulte con el administrador del sitio si piensa que esto es un "
+"error"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/403.html:19
+#: app_index/templates/app_index/cruds/403.html:19
+#: cruds_adminlte3/templates/HttpResponse/403.html:11
+#: cruds_adminlte3/templates/cruds/403.html:19
+#: cruds_adminlte3/templates/cruds/403_OK.html:11
+msgid "Return to Main Page"
+msgstr "Regresar a la página principal"
+
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/image_input.html:5
+#: app_auth/usuarios/templates/usuarios/usuario/cruds/image_input.html:6
+#, python-format
+msgid " %(usuario_username)s user image "
+msgstr " Imagen del usuario %(usuario_username)s "
+
+#: app_auth/usuarios/templates/usuarios/usuario/partials/password_show.html:15
+#: app_auth/usuarios/views.py:122 cruds_adminlte3/config.py:68
+msgid "Hide password"
+msgstr "Ocultar contraseña"
+
+#: app_auth/usuarios/views.py:29 cruds_adminlte3/crud.py:632
+msgid "Data creation was successful"
+msgstr "Los datos se crearon satisfactoriamente"
+
+#: app_auth/usuarios/views.py:89 app_auth/usuarios/views.py:113
+#, fuzzy, python-format
+#| msgid "User <<%(user)s>> were successfully logged in."
+msgid "User <<%(user)s>> has successfully changed password."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
+#: app_auth/usuarios/views.py:117
+#, fuzzy, python-format
+#| msgid "User <<%(user)s>> were successfully logged in."
+msgid "User <<%(user)s>> has successfully logged in."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
+#: app_auth/usuarios/views.py:124 cruds_adminlte3/config.py:72
+msgid "Success"
+msgstr "Satisfactorio"
+
+#: app_auth/usuarios/views.py:139
+#, fuzzy, python-format
+#| msgid "User <<%s>> were successfully logged out."
+msgid "User <<%s>> has successfully logged out."
+msgstr "El usuario <<%s>> ha salido satisfactoriamente."
+
+#: app_index/filters.py:41
+msgid "Past 2 weeks"
+msgstr ""
+
+#: app_index/filters.py:42
+msgid "Past 30 days"
+msgstr ""
+
+#: app_index/filters.py:64
+#, fuzzy
+#| msgid "Close"
+msgid "Closed"
+msgstr "Cerrar"
+
+#: app_index/filters.py:65
+#, fuzzy
+#| msgid "Close"
+msgid "Unclosed"
+msgstr "Cerrar"
+
+#: app_index/templates/app_index/adminlte/dashboard.html:24
+#: app_index/templates/app_index/partials/partial_dashboard.html:101
+msgid "Total Events"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:39
+#: app_index/templates/app_index/partials/partial_dashboard.html:116
+msgid "Total losses"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:57
+#: app_index/templates/app_index/partials/partial_dashboard.html:134
+msgid "Total recovered value"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:73
+#: app_index/templates/app_index/partials/partial_dashboard.html:150
+msgid "Percent recovered"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:91
+#: app_index/templates/app_index/partials/partial_dashboard.html:168
+msgid "Behavior of events by provinces"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:116
+#: app_index/templates/app_index/partials/partial_dashboard.html:193
+msgid "Event Types"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:140
+#: app_index/templates/app_index/partials/partial_dashboard.html:217
+msgid "TOTAL UNCLOSED EVENTS"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:149
+#: app_index/templates/app_index/partials/partial_dashboard.html:226
+msgid "TOTAL CLOSED EVENTS"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:158
+#: app_index/templates/app_index/partials/partial_dashboard.html:235
+msgid "EVENTS WITH MORE THAN 30 DAYS"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:167
+#: app_index/templates/app_index/partials/partial_dashboard.html:244
+msgid "CORRUPTION EVENTS / RELEVANT"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/dashboard.html:190
+#: app_index/templates/app_index/partials/partial_dashboard.html:267
+msgid "Extraordinary Events of Enterprises and their Entities by Provinces"
+msgstr ""
+
+#: app_index/templates/app_index/adminlte/lib/_main_footer.html:15
+msgid "All rights reserved."
+msgstr "Todos los derechos reservados"
+
+#: app_index/templates/app_index/adminlte/lib/_main_footer.html:20
+msgid "Version"
+msgstr "Versión"
+
+#: app_index/templates/app_index/cruds/detail.html:12
+#: cruds_adminlte3/templates/cruds/create.html:15
+#: cruds_adminlte3/templates/cruds/detail.html:19
+#: cruds_adminlte3/templates/cruds/partial_create.html:19
+#: cruds_adminlte3/templates/cruds/partial_update.html:20
+#: cruds_adminlte3/templates/cruds/update.html:25
+msgid "Back to"
+msgstr "Regresar"
+
+#: app_index/templates/app_index/cruds/detail.html:18
+#: cruds_adminlte3/templates/cruds/detail.html:6
+#: cruds_adminlte3/templates/cruds/detail.html:9
+#: cruds_adminlte3/templates/cruds/detail.html:25
+msgid "Detail of"
+msgstr "Detalle de"
+
+#: app_index/templates/app_index/cruds/detail.html:25
+#: cruds_adminlte3/templates/cruds/detail.html:32
+msgid "Label"
+msgstr "Etiqueta"
+
+#: app_index/templates/app_index/cruds/detail.html:25
+#: cruds_adminlte3/templates/cruds/detail.html:32
+msgid "Value"
+msgstr "Valor"
+
+#: app_index/templates/app_index/cruds/detail.html:36
+#: app_index/templates/app_index/cruds/list.html:108
+#: app_index/templates/app_index/cruds/partial_list.html:97
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:16
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:14
+#: cruds_adminlte3/templates/cruds/actions/common_detail_form_actions.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:26
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:19
+#: cruds_adminlte3/templates/cruds/ajax/list.html:45
+#: cruds_adminlte3/templates/cruds/ajax/update.html:8
+#: cruds_adminlte3/templates/cruds/detail.html:43
+#: cruds_adminlte3/templates/cruds/list.html:115
+#: cruds_adminlte3/templates/cruds/listOK.html:106
+#: cruds_adminlte3/templates/cruds/list_OK.html:189
+#: cruds_adminlte3/templates/cruds/partial_list.html:97
+msgid "Edit"
+msgstr "Editar"
+
+#: app_index/templates/app_index/cruds/list.html:98
+#: app_index/templates/app_index/cruds/list_table_navbar.html:17
+#: app_index/templates/app_index/cruds/partial_list.html:84
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:16
+#: app_index/templates/app_index/partials/partial_dashboard.html:11
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:6
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:5
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:11
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:5
+#: cruds_adminlte3/templates/cruds/ajax/list.html:35
+#: cruds_adminlte3/templates/cruds/list.html:105
+#: cruds_adminlte3/templates/cruds/listOK.html:102
+#: cruds_adminlte3/templates/cruds/list_OK.html:181
+#: cruds_adminlte3/templates/cruds/partial_list.html:84
+msgid "Show"
+msgstr "Mostrar"
+
+#: app_index/templates/app_index/cruds/list.html:119
+#: app_index/templates/app_index/cruds/partial_list.html:108
+#: cruds_adminlte3/templates/cruds/_form.html:35
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:26
+#: cruds_adminlte3/templates/cruds/actions/actions_template.html:24
+#: cruds_adminlte3/templates/cruds/actions/delete_button.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:37
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_template.html:29
+#: cruds_adminlte3/templates/cruds/ajax/list.html:55
+#: cruds_adminlte3/templates/cruds/list.html:126
+#: cruds_adminlte3/templates/cruds/listOK.html:110
+#: cruds_adminlte3/templates/cruds/list_OK.html:197
+#: cruds_adminlte3/templates/cruds/partial_list.html:108
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:25
+msgid "Delete"
+msgstr "Eliminar"
+
+#: app_index/templates/app_index/cruds/list.html:147
+#: app_index/templates/app_index/cruds/partial_list.html:136
+#: cruds_adminlte3/templates/cruds/ajax/list.html:64
+#: cruds_adminlte3/templates/cruds/list.html:154
+#: cruds_adminlte3/templates/cruds/listOK.html:120
+#: cruds_adminlte3/templates/cruds/list_OK.html:222
+#: cruds_adminlte3/templates/cruds/partial_list.html:136
+msgid "No items yet."
+msgstr "No hay elementos aún"
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:28
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:27
+#: app_index/templates/app_index/partials/partial_dashboard.html:22
+msgid "Entries"
+msgstr "Entradas"
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:61
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:43
+#: app_index/templates/app_index/partials/partial_dashboard.html:49
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/nav_link_head_block.html:4
+msgid "Visibility columns"
+msgstr "Visibilidad de columnas"
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:108
+#: app_index/templates/app_index/cruds/partial_list.html:19
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:90
+#: app_index/templates/app_index/partials/partial_dashboard.html:42
+#: cruds_adminlte3/templates/cruds/list.html:39
+#: cruds_adminlte3/templates/cruds/listOK.html:23
+#: cruds_adminlte3/templates/cruds/list_OK.html:26
+#: cruds_adminlte3/templates/cruds/partial_list.html:19
+msgid "Create new "
+msgstr "Adicionar "
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:116
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:98
+#: app_index/templates/app_index/partials/partial_dashboard.html:53
+#: cruds_adminlte3/config.py:59
+msgid "Export to excel"
+msgstr "Exportar a excel"
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:131
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:113
+#: app_index/templates/app_index/partials/partial_dashboard.html:68
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:17
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:35
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:36
+msgid "Search"
+msgstr "Buscar"
+
+#: app_index/templates/app_index/cruds/list_table_navbar.html:147
+#: app_index/templates/app_index/partials/list_table_navbar_partial.html:129
+#: app_index/templates/app_index/partials/partial_dashboard.html:85
+#: cruds_adminlte3/config.py:12
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:36
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:84
+#: cruds_adminlte3/templates/cruds/actions/common_filter_form_actions.html:3
+#: cruds_adminlte3/templates/cruds/listOK.html:62
+#: cruds_adminlte3/templates/cruds/list_OK.html:71
+#: cruds_adminlte3/templates/cruds/list_OK.html:115
+#: cruds_adminlte3/templates/filter/forms.html:14
+msgid "Filter"
+msgstr "Filtro"
+
+#: app_index/templates/app_index/shifter_templates/dj-tb2-bootstrap4.html:59
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/dj-tb2-hx-bootstrap4.html:60
+#: cruds_adminlte3/templates/cruds/tables/bootstrap_htmx_full.html:67
+#: cruds_adminlte3/templates/tables/bootstrap_col_filter.html:53
+#: cruds_adminlte3/templates/tables/bootstrap_htmx_full.html:76
+msgid "previous"
+msgstr "anterior"
+
+#: app_index/templates/app_index/shifter_templates/dj-tb2-bootstrap4.html:87
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/dj-tb2-hx-bootstrap4.html:90
+#: cruds_adminlte3/templates/cruds/tables/bootstrap_htmx_full.html:87
+#: cruds_adminlte3/templates/tables/bootstrap_col_filter.html:73
+#: cruds_adminlte3/templates/tables/bootstrap_htmx_full.html:101
+msgid "next"
+msgstr "próximo"
+
+#: app_index/widgets.py:51
+msgid "Apply"
+msgstr ""
+
+#: app_index/widgets.py:52
+msgid "Clear"
+msgstr ""
+
+#: app_index/widgets.py:53
+msgid "W"
+msgstr ""
+
+#: app_index/widgets.py:54
+msgid "Custom Range"
+msgstr ""
+
+#: app_index/widgets.py:65
+msgid "Today"
+msgstr ""
+
+#: app_index/widgets.py:66
+msgid "Yesterday"
+msgstr ""
+
+#: app_index/widgets.py:68
+msgid "This week"
+msgstr ""
+
+#: app_index/widgets.py:70
+#, fuzzy
+#| msgid "Last name"
+msgid "Last week"
+msgstr "Apellido"
+
+#: app_index/widgets.py:72
+msgid "Week ago"
+msgstr ""
+
+#: app_index/widgets.py:73
+msgid "This month"
+msgstr ""
+
+#: app_index/widgets.py:74
+#, fuzzy
+#| msgid "Last login"
+msgid "Last month"
+msgstr "Última entrada"
+
+#: app_index/widgets.py:76
+msgid "3 months ago"
+msgstr ""
+
+#: app_index/widgets.py:77
+msgid "Year ago"
+msgstr ""
+
+#: app_index/widgets.py:78
+msgid "This year"
+msgstr ""
+
+#: app_index/widgets.py:80
+#, fuzzy
+#| msgid "Last name"
+msgid "Last year"
+msgstr "Apellido"
+
+#: codificadores/models.py:22 codificadores/models.py:132
+#: codificadores/models.py:210 codificadores/models.py:313
+#: codificadores/models.py:346
+msgid "Code"
+msgstr "Código"
+
+#: codificadores/models.py:24 codificadores/models.py:136
+#: codificadores/models.py:212 codificadores/models.py:410
+msgid "Active"
+msgstr "En Uso"
+
+#: codificadores/models.py:25
+msgid "Is Company"
+msgstr "Es Empresa"
+
+#: codificadores/models.py:26
+msgid "Is Commercial"
+msgstr "Es Comercializadora"
+
+#: codificadores/models.py:38
+msgid "UEBs"
+msgstr ""
+
+#: codificadores/models.py:39
+msgid "UEB"
+msgstr ""
+
+#: codificadores/models.py:47
+msgid "Key"
+msgstr "Clave"
+
+#: codificadores/models.py:48 codificadores/models.py:107
+#: codificadores/models.py:135 codificadores/models.py:211
+#: codificadores/models.py:314 codificadores/models.py:347
+#: codificadores/models.py:450
+msgid "Description"
+msgstr "Descripción"
+
+#: codificadores/models.py:62
+msgid "Measurement units"
+msgstr "Unidades de medida"
+
+#: codificadores/models.py:63
+msgid "Unit of measurement"
+msgstr "Unidad de medida"
+
+#: codificadores/models.py:72
+msgid "Convertion Factor"
+msgstr "Factor de Conversión"
+
+#: codificadores/models.py:74
+msgid "The value must be greater than 0"
+msgstr "El valor debe ser mayor que 0"
+
+#: codificadores/models.py:77
+msgid "Origin Measure"
+msgstr "Medida Origen"
+
+#: codificadores/models.py:80
+msgid "Destination Measure"
+msgstr "Medida Destino"
+
+#: codificadores/models.py:94
+msgid "Convert measurement units"
+msgstr "Convertir unidades de medida"
+
+#: codificadores/models.py:95
+msgid "Convert unit of measurement"
+msgstr "Convertir unidad de medida"
+
+#: codificadores/models.py:123
+msgid "Accounts"
+msgstr "Cuentas"
+
+#: codificadores/models.py:124
+msgid "Account"
+msgstr "Cuenta"
+
+#: codificadores/models.py:148
+msgid "Centers of cost"
+msgstr "Centros de costo"
+
+#: codificadores/models.py:149
+msgid "Cost center"
+msgstr "Centro de Costo"
+
+#: codificadores/models.py:216
+msgid "Product Type"
+msgstr "Tipo de Producto"
+
+#: codificadores/models.py:245 codificadores/models.py:300
+msgid "Destination"
+msgstr "Destino"
+
+#: codificadores/models.py:297
+msgid "Diameter"
+msgstr "Diámetro"
+
+#: codificadores/models.py:298
+msgid "Length"
+msgstr "Longitud"
+
+#: codificadores/models.py:305 codificadores/models.py:407
+msgid "Type"
+msgstr "Tipo"
+
+#: codificadores/models.py:323
+msgid "Package"
+msgstr "Envase"
+
+#: codificadores/models.py:325
+msgid "Packaging Standard"
+msgstr "Norma de embalaje"
+
+#: codificadores/models.py:327
+msgid "Box Volume M3"
+msgstr "Volumen Caja M3"
+
+#: codificadores/models.py:329
+msgid "Gross Weight"
+msgstr "Peso Bruto"
+
+#: codificadores/models.py:331
+msgid "Net Weight"
+msgstr "Peso Neto"
+
+#: codificadores/models.py:333
+msgid "Legal Weight"
+msgstr "Peso Legal"
+
+#: codificadores/models.py:335
+msgid "Starting Mark"
+msgstr "Marca de Salida"
+
+#: codificadores/models.py:350
+msgid "Cost Center"
+msgstr "Centro Costo"
+
+#: codificadores/models.py:357
+msgid "Destination Department"
+msgstr "Departamento Destino"
+
+#: codificadores/models.py:361
+msgid "Output Product"
+msgstr "Producto de Salida"
+
+#: codificadores/models.py:409 flujo/models.py:43 flujo/models.py:86
+msgid "Quantity"
+msgstr "Cantidad"
+
+#: codificadores/models.py:411
+msgid "Crate at"
+msgstr "Fecha Creación"
+
+#: codificadores/models.py:412 flujo/models.py:18 flujo/models.py:269
+#: flujo/models.py:284
+msgid "Date"
+msgstr "Fecha"
+
+#: codificadores/models.py:416 codificadores/models.py:434 flujo/models.py:54
+#: flujo/models.py:96 flujo/models.py:197
+msgid "Product"
+msgstr "Producto"
+
+#: codificadores/models.py:426
+msgid "Ramal Norm"
+msgstr "Norma Ramal"
+
+#: codificadores/models.py:428
+msgid "Enterprise Norm"
+msgstr "Norma Empresarial"
+
+#: codificadores/models.py:430
+msgid "Operational"
+msgstr "Operativa"
+
+#: codificadores/models.py:452
+msgid "Increase"
+msgstr "Aumento"
+
+#: codificadores/models.py:486
+msgid "Generado"
+msgstr ""
+
+#: codificadores/models.py:500 configuracion/models.py:49
+msgid "Enumeration Type"
+msgstr "Tipo de Numeración"
+
+#: codificadores/models.py:502 configuracion/models.py:27
+msgid "System"
+msgstr "Sistema"
+
+#: codificadores/models.py:504 codificadores/models.py:556
+#: configuracion/models.py:64 flujo/models.py:76 flujo/models.py:272
+msgid "Department"
+msgstr "Departamento"
+
+#: codificadores/models.py:506 codificadores/models.py:519
+msgid "Document Type"
+msgstr "Tipo Documento"
+
+#: codificadores/models.py:509
+msgid "Prefix"
+msgstr "Prefijo"
+
+#: codificadores/models.py:532
+msgid "Debit Count Exp"
+msgstr "Cuenta Debe Exp"
+
+#: codificadores/models.py:535
+msgid "Debit Count CN"
+msgstr "Cuenta Debe CN"
+
+#: codificadores/models.py:538
+msgid "Credit Count Exp"
+msgstr "Cuenta Haber Exp"
+
+#: codificadores/models.py:541
+msgid "Credit Count CN"
+msgstr "Cuenta Haber CN"
+
+#: codificadores/models.py:603
+msgid "Origin Product"
+msgstr "Producto Origen"
+
+#: codificadores/models.py:605
+#, fuzzy
+#| msgid "Destination"
+msgid "Destination Product"
+msgstr "Destino"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:24
+msgid "Update from VERSAT"
+msgstr "Actualizar desde VERSAT"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:24
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:24
+msgid "Update from SisGestMP"
+msgstr "Actualizar desde SisGestMP"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:41
+#: codificadores/templates/codificadores/medidaconversion/cruds/list_table_navbar.html:20
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:40
+msgid "Import"
+msgstr "Importar"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:41
+#: codificadores/templates/codificadores/medidaconversion/cruds/list_table_navbar.html:20
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:40
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:40
+msgid "Export"
+msgstr "Exportar"
+
+#: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:56
+#: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:58
+#: codificadores/templates/codificadores/medidaconversion/cruds/list_table_navbar.html:37
+#: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:57
+#: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:56
+msgid "Export to pdf"
+msgstr "Exportar a pdf"
+
+#: config/settings.py:245
+msgid "Spanish"
+msgstr "Español"
+
+#: config/settings.py:246
+msgid "English"
+msgstr "Inglés"
+
+#: configuracion/forms.py:142 configuracion/forms.py:183
+#: cruds_adminlte3/menus.py:136
+#, fuzzy
+#| msgid "User"
+msgid "UEB User"
+msgstr "Usuario"
+
+#: configuracion/models.py:21
+msgid "Database Name"
+msgstr "Base de Datos"
+
+#: configuracion/models.py:22
+msgid "User Name"
+msgstr "Usuario"
+
+#: configuracion/models.py:24
+msgid "Host"
+msgstr "Host"
+
+#: configuracion/models.py:25
+msgid "Port"
+msgstr "Puerto"
+
+#: configuracion/models.py:40
+msgid "Connections of data bases"
+msgstr "Conexiones a base de datos"
+
+#: configuracion/models.py:41
+msgid "Database connection"
+msgstr "Conexión a base de datos"
+
+#: configuracion/models.py:50
+msgid "Number"
+msgstr "Número"
+
+#: configuracion/models.py:107 cruds_adminlte3/menus.py:118
+msgid "Users"
+msgstr "Usuarios"
+
+#: cruds_adminlte3/config.py:5
+msgid "Site for the management of tobacco flows and costs."
+msgstr "Sitio para la gestión de los flujos y costos del tabaco"
+
+#: cruds_adminlte3/config.py:7 cruds_adminlte3/config.py:8
+msgid "Flows and costs"
+msgstr "Flujos y costos"
+
+#: cruds_adminlte3/config.py:11
+msgid "show all"
+msgstr "mostrar todo"
+
+#: cruds_adminlte3/config.py:13
+msgid "Move selected"
+msgstr "Mover seleccionados"
+
+#: cruds_adminlte3/config.py:14
+msgid "Move all"
+msgstr "Mover todos"
+
+#: cruds_adminlte3/config.py:15
+msgid "Remove selected"
+msgstr "Eliminar seleccionados"
+
+#: cruds_adminlte3/config.py:16
+msgid "Remove all"
+msgstr "Eliminar todos"
+
+#: cruds_adminlte3/config.py:17
+#, python-brace-format
+msgid "Showing available elements: {0}"
+msgstr "Mostrando elementos disponibles: {0}"
+
+#: cruds_adminlte3/config.py:18
+#, python-brace-format
+msgid "Showing selected elements: {0}"
+msgstr "Mostrando elementos seleccionados: {0}"
+
+#: cruds_adminlte3/config.py:19
+msgid "Filtered"
+msgstr "Filtrado"
+
+#: cruds_adminlte3/config.py:20
+msgid "Empty list"
+msgstr "Lista vacía"
+
+#: cruds_adminlte3/config.py:23
+msgid "Go to today"
+msgstr "Hoy"
+
+#: cruds_adminlte3/config.py:24
+msgid "Clear selection"
+msgstr "Borrar selección"
+
+#: cruds_adminlte3/config.py:25
+msgid "Close the picker"
+msgstr "Cerrar selector"
+
+#: cruds_adminlte3/config.py:26
+msgid "Select Month"
+msgstr "Seleccionar Mes"
+
+#: cruds_adminlte3/config.py:27
+msgid "Previous Month"
+msgstr "Mes Anterior"
+
+#: cruds_adminlte3/config.py:28
+msgid "Next Month"
+msgstr "Próximo Mes"
+
+#: cruds_adminlte3/config.py:29
+msgid "Select Year"
+msgstr "Seleccionar Año"
+
+#: cruds_adminlte3/config.py:30
+msgid "Previous Year"
+msgstr "Año Anterior"
+
+#: cruds_adminlte3/config.py:31
+msgid "Next Year"
+msgstr "Próximo Año"
+
+#: cruds_adminlte3/config.py:32
+msgid "Select Decade"
+msgstr "Seleccionar Década"
+
+#: cruds_adminlte3/config.py:33
+msgid "Previous Decade"
+msgstr "Década Anterior"
+
+#: cruds_adminlte3/config.py:34
+msgid "Next Decade"
+msgstr "Próxima Década"
+
+#: cruds_adminlte3/config.py:35
+msgid "Previous Century"
+msgstr "Siglo Anterior"
+
+#: cruds_adminlte3/config.py:36
+msgid "Next Century"
+msgstr "Siglo Próximo"
+
+#: cruds_adminlte3/config.py:37
+msgid "Pick Hour"
+msgstr "Seleccionar Hora"
+
+#: cruds_adminlte3/config.py:38
+msgid "Increment Hour"
+msgstr "Incrementar Hora"
+
+#: cruds_adminlte3/config.py:39
+msgid "Decrement Hour"
+msgstr "Decrementar Hora"
+
+#: cruds_adminlte3/config.py:40
+msgid "Pick Minute"
+msgstr "Seleccionar Minuto"
+
+#: cruds_adminlte3/config.py:41
+msgid "Increment Minute"
+msgstr "Incrementar Minuto"
+
+#: cruds_adminlte3/config.py:42
+msgid "Decrement Minute"
+msgstr "Decrementar Minuto"
+
+#: cruds_adminlte3/config.py:43
+msgid "Pick Second"
+msgstr "Seleccionar Segundo"
+
+#: cruds_adminlte3/config.py:44
+msgid "Increment Second"
+msgstr "Incrementar Segundo"
+
+#: cruds_adminlte3/config.py:45
+msgid "Decrement Second"
+msgstr "Decrementar Segundo"
+
+#: cruds_adminlte3/config.py:46
+msgid "Toggle Period"
+msgstr "Cambiar Período"
+
+#: cruds_adminlte3/config.py:47
+msgid "Select Time"
+msgstr "Seleccionar Hora"
+
+#: cruds_adminlte3/config.py:50
+msgid "Are you sure you want to delete this item?"
+msgstr "¿Está seguro que desea eliminar este elemento?"
+
+#: cruds_adminlte3/config.py:51
+msgid "This action cannot be reversed!"
+msgstr "¡Esta acción no podrá revertirse!"
+
+#: cruds_adminlte3/config.py:52
+msgid "Confirm Remove"
+msgstr "Confirmar eliminar"
+
+#: cruds_adminlte3/config.py:53 cruds_adminlte3/templates/cruds/_form.html:30
+#: cruds_adminlte3/templates/cruds/actions/cancel_button.html:4
+#: cruds_adminlte3/templates/cruds/actions/hx_cancel_button.html:11
+#: cruds_adminlte3/templates/cruds/actions/ok_cancel_form_actions.html:8
+#: cruds_adminlte3/templates/cruds/ajax/_form.html:39
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:29
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: cruds_adminlte3/config.py:56
+msgid "Column Visibility"
+msgstr "Visibilidad de Columna"
+
+#: cruds_adminlte3/config.py:57
+msgid "Copy"
+msgstr "Copiar"
+
+#: cruds_adminlte3/config.py:58
+msgid "Export to .csv"
+msgstr "Exportar a .csv"
+
+#: cruds_adminlte3/config.py:61
+msgid "Print"
+msgstr "Imprimir"
+
+#: cruds_adminlte3/config.py:64
+msgid "Close event"
+msgstr "Cerrar evento"
+
+#: cruds_adminlte3/config.py:65
+msgid "Open event"
+msgstr "Abrir evento"
+
+#: cruds_adminlte3/config.py:73
+#, python-format
+msgid "User <<%(user)s>> were successfully logged in."
+msgstr "El usuario <<%(user)s>> ha entrado satisfactoriamente."
+
+#: cruds_adminlte3/crud.py:716
+msgid "Data modification was successful"
+msgstr "Los datos fueron modificados exitosamente"
+
+#: cruds_adminlte3/crud.py:1026
+msgid "The data was successfully deleted"
+msgstr "Los datos fueron eliminados de manera satisfactoria"
+
+#: cruds_adminlte3/crud.py:1047
+msgid "Cannot delete "
+msgstr ""
+
+#: cruds_adminlte3/crud.py:1048
+msgid "This element is related to: "
+msgstr ""
+
+#: cruds_adminlte3/crud.py:1049 cruds_adminlte3/templates/cruds/_form.html:26
+#: cruds_adminlte3/templates/cruds/actions/acept_button.html:3
+#: cruds_adminlte3/templates/cruds/actions/ok_cancel_form_actions.html:3
+msgid "Accept"
+msgstr "Aceptar"
+
+#: cruds_adminlte3/crud.py:1181
+#, python-format
+msgid "Can see available %s"
+msgstr "Puede ver disponibilidad %s"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Dashboard"
+msgstr "Panel de control"
+
+#: cruds_adminlte3/menus.py:19
+msgid "Balanced scorecard"
+msgstr "Cuadro de mando integral"
+
+#: cruds_adminlte3/menus.py:32
+msgid "Flow"
+msgstr "Flujo"
+
+#: cruds_adminlte3/menus.py:88
+msgid "Cost"
+msgstr "Costo"
+
+#: cruds_adminlte3/menus.py:112
+msgid "Administration"
+msgstr "Administración"
+
+#: cruds_adminlte3/menus.py:130
+msgid "Permissons"
+msgstr "Permisos"
+
+#: cruds_adminlte3/templates/adminlte/base.html:55
+#: cruds_adminlte3/templates/adminlte/base.html:68
+msgid "Starter Page"
+msgstr "Página de Inicio"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:54
+msgid "Member since "
+msgstr "Miembro desde"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_header.html:91
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:17
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:49
+#: cruds_adminlte3/templates/cruds/listOK.html:48
+#: cruds_adminlte3/templates/cruds/list_OK.html:55
+#: cruds_adminlte3/templates/cruds/list_OK.html:83
+msgid "Filters"
+msgstr "Filtros"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:37
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:85
+#: cruds_adminlte3/templates/cruds/actions/common_filter_form_actions.html:7
+#: cruds_adminlte3/templates/cruds/listOK.html:63
+#: cruds_adminlte3/templates/cruds/list_OK.html:72
+#: cruds_adminlte3/templates/cruds/list_OK.html:116
+msgid "Clean filter"
+msgstr "Limpiar filtro"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar.html:57
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:25
+#: cruds_adminlte3/templates/cruds/actions/actions_he_template.html:16
+#: cruds_adminlte3/templates/cruds/actions/hx_actions_he_template.html:26
+msgid "Close"
+msgstr "Cerrar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_right_sidebar2.html:41
+msgid "Reset"
+msgstr "Reiniciar"
+
+#: cruds_adminlte3/templates/adminlte/lib/_main_sidebar.html:52
+msgid "MAIN NAVIGATION"
+msgstr "NAVEGACIÓN PRINCIPAL"
+
+#: cruds_adminlte3/templates/cruds/actions/acept_and_add_another_button.html:4
+#: cruds_adminlte3/utils.py:243
+msgid "Accept and add another"
+msgstr "Aceptar y adicionar otro"
+
+#: cruds_adminlte3/templates/cruds/actions/register_and_add_another_button.html:4
+msgid "Register and add another"
+msgstr "Registrar y adicionar otro"
+
+#: cruds_adminlte3/templates/cruds/actions/register_button.html:3
+msgid "Register"
+msgstr "Registrar"
+
+#: cruds_adminlte3/templates/cruds/ajax/_form.html:35
+msgid "Submit"
+msgstr "Enviar"
+
+#: cruds_adminlte3/templates/cruds/ajax/create.html:8
+#: cruds_adminlte3/templates/cruds/create.html:21
+msgid "New"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:7
+#: cruds_adminlte3/templates/cruds/delete.html:6
+#: cruds_adminlte3/templates/cruds/delete_OK.html:5
+msgid "Remove"
+msgstr "Eliminar"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:11
+msgid "Do you really want to remove:"
+msgstr "Seguro quiere eliminar:"
+
+#: cruds_adminlte3/templates/cruds/ajax/delete.html:24
+#: cruds_adminlte3/templates/cruds/delete_OK.html:11
+msgid "Confirm remove"
+msgstr "Confirmar eliminar"
+
+#: cruds_adminlte3/templates/cruds/detail.html:25
+msgid "Record id: "
+msgstr "Id del artículo: "
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap4_table_block.html:23
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap5_table_block.html:20
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/button_goup_head_block.html:17
+msgid "Visible columns"
+msgstr "Columnas visibles"
+
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap4_table_block.html:78
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/_partials/bootstrap5_table_block.html:78
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap2.html:25
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap3.html:25
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap4-responsive.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap4.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap5-responsive.html:22
+#: cruds_adminlte3/templates/cruds/django_tables2_column_shifter/bootstrap5.html:22
+msgid "Table content is loading..."
+msgstr "El contenido de la tabla se está cargando..."
+
+#: cruds_adminlte3/templates/cruds/listOK.html:31
+#: cruds_adminlte3/templates/cruds/list_OK.html:37
+msgid "Search for..."
+msgstr "Buscar..."
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:8
+msgid "Previous"
+msgstr "Anterior"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:12
+msgid "Page"
+msgstr "Página"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:12
+msgid "of"
+msgstr "de"
+
+#: cruds_adminlte3/templates/cruds/pagination/prev_next_OK.html:16
+msgid "Next"
+msgstr "Próximo"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:10
+#, python-format
+msgid "Change selected %(model)s"
+msgstr "Cambiar %(model)s seleccionado"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:11
+msgid "Change"
+msgstr "Cambiar"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:17
+#, python-format
+msgid "Add another %(model)s"
+msgstr "Adicionar otro %(model)s"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:18
+msgid "Add"
+msgstr "Adicionar"
+
+#: cruds_adminlte3/templates/cruds/related_links_wrapper.html:24
+#, python-format
+msgid "Delete selected %(model)s"
+msgstr "Eliminar %(model)s seleccionado"
+
+#: cruds_adminlte3/widgets.py:137
+msgid "Add Another"
+msgstr "Adicionar otro"
+
+#: flujo/models.py:19
+msgid "Create at"
+msgstr "Fecha Creación"
+
+#: flujo/models.py:20
+msgid "Control Number"
+msgstr "Número Control"
+
+#: flujo/models.py:21
+msgid "Consecutive Number"
+msgstr "Número Consecutivo"
+
+#: flujo/models.py:22 flujo/models.py:47 flujo/models.py:90 flujo/models.py:167
+#: flujo/models.py:261
+msgid "Amount"
+msgstr "Cantidad"
+
+#: flujo/models.py:23
+msgid "Observations"
+msgstr "Observations"
+
+#: flujo/models.py:26 flujo/models.py:52 flujo/models.py:182
+msgid "Status"
+msgstr "Status"
+
+#: flujo/models.py:27
+msgid "Reprocessing"
+msgstr "Reproceso"
+
+#: flujo/models.py:45 flujo/models.py:88
+msgid "Price"
+msgstr "Precio"
+
+#: flujo/models.py:49 flujo/models.py:92 flujo/models.py:179
+#: flujo/models.py:194 flujo/models.py:259
+msgid "Existence"
+msgstr "Existencia"
+
+#: flujo/models.py:64
+msgid "Adjustment Reason"
+msgstr "Motivo Ajuste"
+
+#: flujo/models.py:97
+msgid "Good"
+msgstr "Buenos"
+
+#: flujo/models.py:98
+msgid "Defective CC"
+msgstr "Defectuosos CC"
+
+#: flujo/models.py:99
+msgid "Defective 100%"
+msgstr "Defectuosos 100%"
+
+#: flujo/models.py:100
+msgid "Sensory Test"
+msgstr "Prueba Sensorial"
+
+#: flujo/models.py:101
+msgid "Broken"
+msgstr "Rotos"
+
+#~ msgid "Origin Department"
+#~ msgstr "Departamento Origen"
+
+#~ msgid "Create"
+#~ msgstr "Crear"
+
+#~ msgid "Date from..."
+#~ msgstr "Fecha desde..."
+
+#~ msgid "Date to..."
+#~ msgstr "Fecha hasta..."
+
+#~ msgid "Groups and permissions"
+#~ msgstr "Grupos y permisos"
+
+#~ msgid "User Permissions Relations"
+#~ msgstr "Relaciones Usuario Permisos"
+
+#~ msgid "Extraordinary Events"
+#~ msgstr "Hechos Extraordinarios"
+
+#~ msgid "Classifiers"
+#~ msgstr "Clasificadores"
+
+#~ msgid "Entreprises"
+#~ msgstr "Empresas"
+
+#~ msgid "Sectors"
+#~ msgstr "Sectores"
+
+#~ msgid "Entities"
+#~ msgstr "Entidades"
+
+#~ msgid "Municipalities"
+#~ msgstr "Municipios"
+
+#~ msgid "Provinces"
+#~ msgstr "Provincias"
+
+#~ msgid "Products"
+#~ msgstr "Productos"
+
+#~ msgid "EVENTS"
+#~ msgstr "HECHOS"
+
+#~ msgid "Event Classification"
+#~ msgstr "Clasificación de Hechos"
+
+#~ msgid "Event Type"
+#~ msgstr "Tipos de Hechos"
+
+#~ msgid "REPORTS"
+#~ msgstr "REPORTES"
+
+#~ msgid "Events by typicality"
+#~ msgstr "Hechos por tipicidad"
+
+#~ msgid "Events Summary"
+#~ msgstr "Resumen de Hechos"
+
+#, fuzzy
+#~| msgid "Event Type"
+#~ msgid "Events Report"
+#~ msgstr "Tipos de Hechos"
+
+#~ msgid "Notifications"
+#~ msgstr "Notificaciones"
+
+#~ msgid "Mark all notifications as read"
+#~ msgstr "Marcar todas las notificaciones como leídas"
+
+#~ msgid "Period: "
+#~ msgstr "Período: "
+
+#~ msgid "User-Group Relation"
+#~ msgstr "Relación Usuario-Grupo"
+
+#~ msgid "User-Permisssons Relation"
+#~ msgstr "Relación Usuario-Permisos"
+
+#~ msgid "Group-Permissons"
+#~ msgstr "Grupo-Permisos"
+
+#~ msgid "Dashboard v1"
+#~ msgstr "Dashboard"
+
+#~ msgid "Defective"
+#~ msgstr "Defectuosos"
+
+#~ msgid "Convert measurement of unit"
+#~ msgstr "Convertir unidad de medida"
+
+#: app_apiversat/views.py:64
+msgid "Data were successfully update"
+msgstr "Datos actualizados correctamente"
+
+#: app_apiversat/views.py:64
+msgid "Success update"
+msgstr "Actualización exitosa"
+
+#: app_apiversat/views.py:64
+#, python-format
+msgid "Couldn't update"
+msgstr "No se pudo actualizar"
+
+#: app_apiversat/views.py:64
+msgid "Connection error"
+msgstr "Error de conexión"
+
+#: app_apiversat/views.py:64
+#, python-format
+msgid "Couldn't connect"
+msgstr "No se pudo conectar"
+
+#: app_apiversat/views.py:64
+msgid "Data error"
+msgstr "Error de datos"
+
+#: app_appversat/views.py:64
+msgid "Database connect for Versat Sarasola not define"
+msgstr "La conexión a la base de datos del Versat Sarasola no se está definida"
+
+#: cruds_adminlte3/crud.py:716
+msgid "Data importation was successful"
+msgstr "Los datos fueron importados exitosamente"
+
+#: exportar/views.py:64
+msgid "Warning"
+msgstr "Advertencia"
+
+#: exportar/views.py:64
+#, python-format
+msgid "There aren't data to export"
+msgstr "No hay datos para exportar"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Configuration"
+msgstr "Configuración"
+
+
+#: cruds_adminlte3/menus.py:14
+msgid "Departments"
+msgstr "Departamentos"
+
+msgid "Can add log entry"
+msgstr "Puede adicionar logs"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Reasons for Adjustment"
+msgstr "Motivos de Ajuste"
+
+#: cruds_adminlte3/menus.py:14
+msgid "Reason for Adjustment"
+msgstr "Motivo de Ajuste"

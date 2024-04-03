@@ -1,0 +1,27 @@
+{% extends "adminlte/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block body_class %}hold-transition login-page{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <!-- /.login-logo -->
+        {% block Register %}
+            <div class="card card-outline-primary">
+                <div class="card-body">
+                    <p class="login-box-msg">{% trans 'Register a new user' %}</p>
+                    {% block register_form %}
+{#                    <form action="" method="post">#}
+                        {% csrf_token %}
+                        {% if message %}
+                            <p class="login-box-msg" style="color: red;">{{ message }}</p>
+                        {% endif %}
+                        {% crispy form %}
+{#                    </form>#}
+                    {% endblock register_form %}
+                </div>
+            </div>
+        {% endblock Register %}
+    </div>
+{% endblock body %}

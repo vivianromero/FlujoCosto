@@ -1,0 +1,31 @@
+{% extends 'adminlte/lib/_main_header.html' %}
+{% load adminlte_helpers i18n %}
+{% load static %}
+
+{% block left_navbar_links_home %}{% endblock left_navbar_links_home %}
+{% block left_navbar_links_contacts %}{% endblock left_navbar_links_contacts %}
+{% block left_navbar_links_others_period %}
+{% endblock left_navbar_links_others_period %}
+{% block user_menu_buttons %}
+    <div class="row">
+        <div class="col-sm-8">
+            <a href="{% block change_password_url %}{% url 'app_index:usuario:password' %}{% endblock %}"
+                class="btn btn-primary btn-flat">{% trans 'Change password' %}
+            </a>
+        </div>
+        <div class="col-sm-4">
+            <form action="{% url 'app_index:usuario:logout' %}" method="post">
+            {% csrf_token %}
+                <button class="btn btn-primary btn-flat" type="submit">{% trans 'Log out' %}</button>
+            </form>
+        </div>
+    </div>
+
+
+{#    <a href="{% block logout_url %}{% logout_url %}{% endblock %}"#}
+{#            class="btn btn-primary btn-flat">{% trans 'Log out' %}#}
+{#    </a>#}
+
+{% endblock user_menu_buttons %}
+{% block right_navbar_links_toggle_right_filter_menu %}
+{% endblock right_navbar_links_toggle_right_filter_menu %}

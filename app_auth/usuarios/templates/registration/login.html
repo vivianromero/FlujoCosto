@@ -1,0 +1,88 @@
+{% extends "adminlte/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block body_class %}hold-transition login-page{% endblock %}
+
+{% block body %}
+    <div class="login-box">
+        <!-- /.login-logo -->
+        {% block login %}
+            <div class="card card-outline-primary">
+                <div class="card-header text-center" style="background-color: whitesmoke">
+                    <a href="{% block logo_href %}/{% endblock logo_href %}">
+                        <img src="{% static 'dist/img/cubatabaco_logo.png' %}"
+                            alt="{{ app_logo_alt }}"
+                            class="brand-image" width="150" height="150" style="opacity: .8">
+                            {% block logo_text %}{% endblock %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <p class="login-box-msg">{% trans 'Sign in to start your session' %}</p>
+                    {% block login_form %}
+                    <form action="" method="post">{% csrf_token %}
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <p class="login-box-msg" style="color: red;">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-group input-group mb-3 has-feedback">
+                            <input name="username" class="form-control" placeholder="{% trans 'User' %}">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fa fa-user"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="input_password_div" class="form-group input-group mb-3 has-feedback">
+                            <input id="input_password"
+                                   type="password"
+                                   name="password"
+                                   class="form-control"
+                                   data-toggle="password"
+                                   placeholder="{% trans 'Password' %}"
+                                   _="on click from #input_password_span_eye
+                                        if #input_password@type == 'password'
+                                            set #input_password@type to 'text'
+                                        else set #input_password@type to 'password'"
+                            >
+                            <div class="input-group-append">
+                                <div class="input-group-text" >
+                                    <span id="input_password_span_eye"
+                                          class="fas fa-eye-slash"
+                                          style="cursor: pointer"
+                                          title="{% trans 'Show password' %}"
+                                          _="on click
+                                                toggle between .fa-eye and .fa-eye-slash
+                                                if I match .fa-eye
+                                                    set #input_password_span_eye@title to window.data.hide_password
+                                                else set #input_password_span_eye@title to window.data.show_password"
+
+                                    ></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-primary btn-block btn-flat">{% translate 'Login' %}</button>
+                            </div>
+                        </div>
+                    </form>
+                    {% endblock login_form %}
+                </div>
+            </div>
+        {% endblock login %}
+        <script>
+            window.data = {
+                show_password: '{{ show_password|safe }}',
+                hide_password: '{{ hide_password|safe }}',
+            }
+        </script>
+    </div>
+    {% block messages %}
+        <div id="messages">
+            {% include 'adminlte/lib/_messages.html' %}
+        </div>
+    {% endblock %}
+{% endblock body %}

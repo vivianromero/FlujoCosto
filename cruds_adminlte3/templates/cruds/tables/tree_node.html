@@ -1,0 +1,12 @@
+{% if record.is_child_node %}
+    {% for ancestor in record.get_ancestors %}
+        {% if forloop.last %}
+            &#9492;&#9472;&#9472;
+        {% else %}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {% endif %}
+    {% endfor %}
+    {{ record.descripcion }}
+{% else %}
+    {{ record.descripcion }}
+{% endif %}

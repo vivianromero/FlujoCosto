@@ -1,0 +1,129 @@
+{% load crud_tags %}
+{% load adminlte_helpers i18n %}
+{% load export_url from django_tables2 %}
+{% load static %}
+<!-- Navbar -->
+{% block navbar %}
+<nav class="main-header navbar navbar-expand navbar-white navbar-light"
+    style="padding-bottom: 0; padding-top: 0; height: 35px;">
+<!-- Left navbar links -->
+{% block left_navbar_links %}
+<ul class="navbar-nav">
+    {% block left_navbar_links_toggle_menu %}
+    <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+    </li>
+    {% endblock left_navbar_links_toggle_menu %}
+    {% block left_navbar_links_home %}
+    <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Home</a>
+    </li>
+    {% endblock left_navbar_links_home %}
+    {% block left_navbar_links_contacts %}
+    <li class="nav-item d-none d-sm-inline-block">
+        <a href="#" class="nav-link">Contact</a>
+    </li>
+    {% endblock left_navbar_links_contacts %}
+    {% block left_navbar_links_user %}
+    <li class="nav-item dropdown d-none d-sm-inline-block" style="padding: 0;display: flex; align-items: center">
+        <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown">
+            <img src="{% static 'dist/img/icons8-user-24i.png' %}"
+                class="img-circle" style="align-items: center;width: 20px; height: 20px" alt="User Image"
+            >
+            <span class="hidden-xs">
+                {% if request.user.is_authenticated  %}
+                    {% firstof request.user.get_short_name request.user.get_username %}
+
+                {% else %}
+                    Guest
+                {% endif %}
+            </span>
+        </a>
+        <ul class="dropdown-menu" style="padding: 0%; border: 0; margin: 0">
+            <div class="card" style="width: 22rem; margin: 0%">
+                {% block user_menu_header %}
+                    <div class="card-header text-center" style="background-color: lightblue">
+                        <span class="hidden-xs">
+                            {% firstof request.user.get_short_name request.user.get_username %}
+                        </span>
+                    </div>
+                {% endblock user_menu_header %}
+                {% block user_menu_body %}
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            {% trans 'Member since ' %} {{ request.user.date_joined }}
+                        </h6>
+                        <hr />
+                        {% block user_menu_buttons %}
+                        <a href="{% block change_password_url %}{% url 'app_index:usuario:password' %}{% endblock %}"
+                                class="btn btn-primary btn-flat">{% trans 'Change password' %}
+                        </a>
+                        <a href="{% block logout_url %}{% logout_url %}{% endblock %}"
+                                class="btn btn-primary btn-flat">{% trans 'Log out' %}
+                        </a>
+                        {% endblock user_menu_buttons %}
+                    </div>
+                {% endblock user_menu_body %}
+                {% block user_menu_footer %}{% endblock user_menu_footer %}
+
+            </div>
+        </ul>
+    </li>
+    {% endblock left_navbar_links_user %}
+    {% block left_navbar_links_others %}
+    {% block left_navbar_links_others_period %}{% endblock left_navbar_links_others_period %}
+    {% endblock left_navbar_links_others %}
+</ul>
+{% endblock left_navbar_links %}
+<!-- Right navbar links -->
+{% block right_navbar_links %}
+<ul class="navbar-nav ml-auto">
+  <!-- Messages Dropdown Menu -->
+    {% block right_navbar_links_messages %}
+    {% endblock right_navbar_links_messages %}
+
+  <!-- Notifications Dropdown Menu -->
+    {% block right_navbar_links_notifications %}
+    {% endblock right_navbar_links_notifications %}
+    {% block right_navbar_links_fullscreen %}
+    <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+            <i class="fas fa-expand-arrows-alt" title="{% translate 'Full screen' %}"></i>
+        </a>
+    </li>
+    {% endblock right_navbar_links_fullscreen %}
+
+    {% block languages %}
+        <div class="my-auto">
+            <form id="set_language" action="{% url 'set_language' %}" method="POST">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ redirect_to }}">
+                <select name="language" onchange="this.form.submit()" id="select_language">
+                    {% for language in languages %}
+                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                            {{ language.name_translated }} ({{ language.code }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    {% endblock languages %}
+</ul>
+{% endblock right_navbar_links %}
+
+</nav>
+{% endblock navbar %}
+<!-- /.navbar -->
+{% if object_list %}
+    <script>
+        function filterFormSubmit() {
+            document.getElementById('id-hecho_ext_form_filter').submit();
+        }
+
+        // const dropdown = document.getElementById("length_change");
+        //    dropdown.addEventListener("change", function() {
+        //        document.getElementById("form_length_change").submit();
+        //});
+
+    </script>
+{% endif %}

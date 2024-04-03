@@ -1,0 +1,52 @@
+{% extends 'adminlte/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block favicon %}
+  <link rel="shortcut icon" type="image/png" href="{% static app_logo_path %}"/>
+{% endblock favicon %}
+{% block page_name %}{% endblock page_name %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav_header %}
+  {% include 'app_index/adminlte/lib/_main_header.html' %}
+{% endblock nav_header %}
+{% block nav_sidebar %}
+    {% include 'app_index/adminlte/lib/_main_sidebar.html' %}
+{% endblock nav_sidebar %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div id="main_content_swap">
+                <div class="row" style="padding: 0;">
+                <div class="col-12">
+                    <div class="login-box mx-auto" style="width: 45rem;">
+                        <!-- /.login-logo -->
+                        {% block change_password %}
+                            <div class="card card-outline-primary">
+                                <div class="card-header text-center" style="background-color: whitesmoke">
+                                    <a href="{% block logo_href %}/{% endblock logo_href %}">
+                                        <img src="{% static app_logo_path %}"
+                                            alt="{{  app_logo_alt }}"
+                                            class="brand-image" width="250" height="250" style="opacity: .8">
+                                            {% block logo_text %}{% endblock %}
+                                    </a>
+                                </div>
+                                <div class="card-body" style="background-color: lightgreen">
+                                     <p class="h1 font-weight-bold text-center" style="color: white">{{ welcome_text }} </p>
+                                </div>
+                            </div>
+                        {% endblock change_password %}
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block right_sidebar %}
+  {% include 'app_index/adminlte/lib/_main_right_sidebar.html' %}
+  {% include 'app_index/adminlte/lib/_main_right_sidebar2.html' %}
+  {% endblock right_sidebar%}
+{% block nav_footer %}
+    {% include 'app_index/adminlte/lib/_main_footer.html' %}
+{% endblock nav_footer %}

@@ -1,0 +1,212 @@
+{% load django_tables2 %}
+{% load i18n %}
+{% load crud_tags %}
+{% load partials %}
+
+{% partialdef act_versat_link_url_partial_hx %}
+    {% if request.user.is_adminempresa and url_apiversat %} {# si tiene permiso#}
+        <div id="act_versat_link_url_div" style="display: flex; align-items: center">
+                {# aquí se debe poner el link de importar#}
+                <a id="act_versat_link_url_div_a"
+                   href="{% url url_apiversat %}"
+            
+                   class="nav-link"
+            {#               hx-get="{{ url }}{{ getparams }}"#}
+            {#               hx-trigger="click"#}
+            {#               hx-target="#main_content_swap"#}
+            {#               hx-swap="outerHTML"#}
+            {#               hx-replace-url="true"#}
+                   role="button">
+            {#                <img#}
+            {#                        src="{% static 'dist/img/database-import.svg' %}"#}
+            {#                        class="icon"#}
+            {#                        style="height: 20px;"#}
+            {#                        alt="{% translate 'Update from Versat' %}"/>#}
+                    <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
+                </a>
+        </div>
+    {% endif %}
+{% endpartialdef %}
+
+{% partialdef  import_link_url_partial_hx %}
+    {% if url_importar %}
+        <div id="import_link_url_div" style="display: flex; align-items: center">
+            <a id="import_link_url_div_a"
+               href="{% url url_importar %}"
+               class="nav-link"
+        {#               hx-get="{{ url }}{{ getparams }}"#}
+        {#               hx-trigger="click"#}
+        {#               hx-target="#main_content_swap"#}
+        {#               hx-swap="outerHTML"#}
+        {#               hx-replace-url="true"#}
+               role="button" hx-select-oob="true">
+                <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+            </a>
+        </div>
+    {% endif %} 
+{% endpartialdef %}
+
+{% partialdef  export_link_url_partial_hx %}
+    {% if request.user.is_adminempresa and url_exportar %}
+        <div id="export_link_url_div" style="display: flex; align-items: center">
+            <a id="export_link_url_div_a"
+               href="{% url url_exportar %}"
+               class="nav-link"
+            {#               hx-get="{{ url }}{{ getparams }}"#}
+            {#               hx-trigger="click"#}
+            {#               hx-target="#main_content_swap"#}
+            {#               hx-swap="outerHTML"#}
+            {#               hx-replace-url="true"#}
+               role="button" hx-select-oob="true">
+                <i class="fa fa-file-export" title="{% trans 'Export' %}"></i>
+            </a>
+        </div>
+    {% endif %} 
+{% endpartialdef %}
+
+<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
+     style="padding-bottom: 0; padding-top: 0; height: 35px;" hx-swap-oob="true">
+    <!-- Left table navbar links -->
+    {% block left_table_navbar_links %}
+        <ul class="navbar-nav">
+            {% block left_table_navbar_links_change_menu %}
+                <div id="form_length_change_div" style="display: flex; align-items: center" hx-swap-oob="true">
+                    {% if object_list %}
+                        {% crud_url object "list" namespace as url %}
+                        {% if url and 'list' in views_available and crud_perms.list %}
+                            <div class="my-auto">
+                                <form id="form_length_change" class="form-inline" method="GET">
+                                    <span style="padding-right: 5px">{% trans 'Show' %}</span>
+                                    <select name='length_change' id='length_change' style="height: fit-content;"
+                                        hx-get="{{ url_list }}{{getparams}}"
+                                        hx-trigger="change"
+                                        hx-target="#main_content_swap"
+                                        hx-swap="outerHTML"
+                                    >
+                                        {% for option in page_length_menu %}
+                                            <option value="{{ option|stringformat:"i" }}" {% if option == paginator.per_page %} selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span style="padding-left: 5px">{% translate 'Entries' %}</span>
+                                </form>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endblock left_table_navbar_links_change_menu %}
+        </ul>
+    {% endblock left_table_navbar_links %}
+    <!-- Right table navbar links -->
+    {% block right_table_navbar_links %}
+    <ul class="navbar-nav ml-auto">
+        {% block list_act_versat_table_main_header %}
+        {# aquí se debe poner el link de importar#}
+        {% partial act_versat_link_url_partial_hx %}
+    {% endblock list_act_versat_table_main_header %}
+    {% block list_import_table_main_header %}
+        {# aquí se debe poner el link de importar#}
+        {% partial import_link_url_partial_hx %}
+    {% endblock list_import_table_main_header %}
+    {% block list_export_table_main_header %}
+        {# aquí se debe poner el link de exportar#}
+        {% partial export_link_url_partial_hx %}
+    {% endblock list_export_table_main_header %}
+        {% if table.shift_table_column %}
+            <div id="table_visibility_link_dropdown_menu" class="btn-group" hx-swap-oob="true">
+                {% block table_button_group_head %}
+                    <a id="table_visibility_columns_link" class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="fa fa-eye-slash" title="{% translate 'Visibility columns' %}"></i>
+                    </a>
+                {% endblock table_button_group_head %}
+                {% block table_button_group_dropdown_menu %}
+                    <ul id="table_vibility_menu" role="listbox" tabindex="0" aria-label="visibility_menu" class="dropdown-menu" style="min-width:250px; padding:5px; cursor:pointer;">
+                        {% for column in table.columns %}
+                            {% if column.attrs.td.class not in table.get_column_excluded %}
+                                {% if column.name in table.get_column_default_show %}
+                                    <li tabindex="-1" role="option" aria-checked="false" class="btn-shift-column-visivility"
+                                        {% if not forloop.last %} style="border-bottom:1px solid #ccc;" {%endif %}
+                                    >
+                                        <input tabindex="-1" type="checkbox" style="margin-left: 2px;"
+                                            class="form-check-input"
+                                            {% if column.name not in table.col_vis %}
+                                               checked
+                                            {% endif %}
+                                            name="set_visibility_value"
+                                            id="set_{{ column.name }}_visibility_value"
+                                            hx-get="{{ url_list }}{{ getparams }}vis={{ column.name }}"
+                                            hx-trigger="click"
+                                            hx-target="#main_content_swap"
+                                            hx-swap="outerHTML"
+                                            hx-replace-url="true">
+                                        <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>
+                                        <input type="hidden" name="visibility" value={{ column.name }}>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endblock table_button_group_dropdown_menu %}
+            </div>
+        {% endif %}
+        <div id="create_link_url_div" style="display: flex; align-items: center" hx-swap-oob="true">
+            {% if url_create %}
+                {% block list_create_table_main_header %}
+                    {% crud_url object "create" namespace as url %}
+                    {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+                        <a id="id_create_url"
+                           href="{{ url }}{{ getparams }}"
+                           class="nav-link"
+                           hx-get="{{ url }}{{ getparams }}"
+                           hx-trigger="click"
+                           hx-target="#main_content_swap"
+                           hx-swap="outerHTML"
+                           hx-replace-url="true"
+                           role="button">
+                            <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
+                        </a>
+                    {% endif %}
+                {% endblock list_create_table_main_header %}
+            {% endif %}
+        </div>
+        {% if object_list %}
+            <a id="table_export_url" class="nav-link" href="{% export_url "xlsx" %}&excluded_columns={{ col_vis }}" role="button" hx-swap-oob="true">
+                <i class="fa fa-file-excel" title="{% translate 'Export to excel' %}"></i>
+            </a>
+        {% endif %}
+
+        <div id="search_header_div" style="display: flex; align-items: center" hx-swap-oob="rue">
+            {% if search %}
+                {% block right_table_navbar_links_toggle_right_search_menu %}
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           data-widget="control-sidebar"
+                           data-slide="true"
+                           data-target="#search-sidebar"
+                           href="#"
+                           role="button"
+                        >
+                            <i class="fas fa-search" title={% translate 'Search' %}></i>
+                        </a>
+                    </li>
+                {% endblock right_table_navbar_links_toggle_right_search_menu %}
+            {% endif %}
+        </div>
+        <div id="filter_header_div" style="display: flex; align-items: center" hx-swap-oob="true">
+            {% if filter %}
+                {% block right_table_navbar_links_toggle_right_filter_menu %}
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           data-widget="control-sidebar"
+                           data-slide="true"
+                           data-target="#filter-sidebar"
+                           href="#"
+                           role="button">
+                            <i class="fas fa-filter" title={% translate 'Filter' %}></i>
+                        </a>
+                    </li>
+                {% endblock right_table_navbar_links_toggle_right_filter_menu %}
+            {% endif %}
+        </div>
+    </ul>
+    {% endblock right_table_navbar_links %}
+</nav>

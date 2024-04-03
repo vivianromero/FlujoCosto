@@ -1,0 +1,28 @@
+.progress-bar-aqua {
+    text-align:center;
+    width:50%;
+    margin:15px auto;
+}
+.progress-value {
+    position:absolute;
+    right:0;
+    left:0;
+}
+/* input search */
+.dataTables_filter {
+    margin-bottom: 10px !important;
+    display: none;
+}
+.vertical-scrollable>.row {
+    position: absolute;
+    top: 120px;
+    bottom: 100px;
+    left: 180px;
+    width: 50%;
+    overflow-y: scroll;
+}
+
+#dataTableButtons {
+display: inline-block;
+    margin-left: 5px;
+}

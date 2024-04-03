@@ -1,0 +1,122 @@
+{% extends 'cruds/django_tables2_column_shifter/dj-tb2-hx-bootstrap4.html' %}
+{% load l10n %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load mptt_tags %}
+
+{% block table.tbody %}
+    <tbody id="body-target" {{ table.attrs.tbody.as_html }}>
+    {% for row in table.paginated_rows %}
+        {% block table.tbody.row %}
+{#        {% recursetree row.table.paginated_rows.data %}#}
+        {% if row.record.is_root_node and row.record.is_leaf_node %}
+            <tr {{ row.attrs.as_html }}>
+                {% for column, cell in row.items %}
+                    <td {{ column.attrs.td.as_html }}>
+                        {% if forloop.first %}<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>{% endif %}
+                        {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% elif row.record.is_root_node and not row.record.is_leaf_node %}
+            <tr
+                    id="{{ row.record.pk }}"
+                    data-toggle="collapse multi-collapse"
+                    data-target="{% for child in row.record.get_children %}#{{ child.pk }} {% endfor %}"
+                    class="accordion-toggle"
+                    {{ row.attrs.as_html }}
+            >
+                {% for column, cell in row.items %}
+                    <td {{ column.attrs.td.as_html }}>
+                        {% if forloop.first %}
+                            <button
+                                    class="btn btn-primary"
+                                    type="button"
+                                    data-toggle="collapse multi-collapse"
+                                    data-target=".multi-collapse"
+                                    aria-expanded="false"
+                                    aria-controls="{% for child in row.record.get_children %}{{ child.pk }} {% endfor %}">
+                                View
+                            </button>
+                        {% endif %}
+                        {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% elif not row.record.is_root_node and row.record.is_leaf_node %}
+            <tr
+                    id="{{ row.record.pk }}"
+                    class="collapse multi-collapse"
+                    {{ row.attrs.as_html }}
+            >
+                {% for column, cell in row.items %}
+                    <td {{ column.attrs.td.as_html }}>
+                        {% if forloop.first %}<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>{% endif %}
+                        {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% elif not row.record.is_root_node and not row.record.is_leaf_node %}
+            <tr
+                    id="{{ row.record.pk }}"
+                    data-toggle="collapse multi-collapse"
+                    data-target="{% for child in row.record.get_children %}#{{ child.pk }} {% endfor %}"
+                    class="accordion-toggle collapse"
+                    {{ row.attrs.as_html }}
+            >
+                {% for column, cell in row.items %}
+                    <td {{ column.attrs.td.as_html }}>
+                        {% if forloop.first %}
+                            <button
+                                    class="btn btn-primary"
+                                    type="button" data-toggle="collapse"
+                                    data-target=".multi-collapse"
+                                    aria-expanded="false"
+                                    aria-controls="{% for child in row.record.get_children %}{{ child.pk }} {% endfor %}">
+                                View
+                            </button>
+                        {% endif %}
+                        {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+{#            {% for child in row.record.get_children %}#}
+{#                <tr class="expandable-body">#}
+{#                    <td>#}
+{#                        <div class="p-0">#}
+{#                            <table class="table table-hover">#}
+{#                                <tbody>#}
+{#                                    <tr data-widget="expandable-table" aria-expanded="false">#}
+{#                                        <td>#}
+{#                                            <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>#}
+{#                                            {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                </tbody>#}
+{#                            </table>#}
+{#                        </div>#}
+{#                    </td>#}
+{#                </tr>#}
+{#            {% endfor %}#}
+
+{#        {% else %}#}
+{#            <tr {{ row.attrs.as_html }}>#}
+{#                {% for column, cell in row.items %}#}
+{#                    <td {{ column.attrs.td.as_html }}> {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>#}
+{#                {% endfor %}#}
+{#            </tr>#}
+        {% endif %}
+{#        {% endrecursetree %}#}
+        {% endblock table.tbody.row %}
+    {% empty %}
+        {% if table.empty_text %}
+        {% block table.tbody.empty_text %}
+            <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+        {% endblock table.tbody.empty_text %}
+        {% endif %}
+    {% endfor %}
+    </tbody>
+{% endblock table.tbody %}
+
+
+

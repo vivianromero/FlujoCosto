@@ -1,0 +1,25 @@
+{% extends 'adminlte/base.html' %}
+{% load static i18n %}
+{% load i18n %}
+{% load crud_tags %}
+{% block favicon %}
+  <link rel="shortcut icon" type="image/png" href="{% static app_logo_path %}"/>
+{% endblock favicon %}
+{% block content_header_class %}
+    <div class="content-header" style="padding-bottom: 0; padding-top: 0;">
+{% endblock content_header_class %}
+{% block page_name %}{% endblock page_name %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav_header %}
+  {% include 'app_index/adminlte/lib/_main_header.html' %}
+{% endblock nav_header %}
+{% block nav_sidebar %}
+    {% include 'app_index/adminlte/lib/_main_sidebar.html' %}
+{% endblock nav_sidebar %}
+{% block nav_footer %}
+    {% include 'app_index/adminlte/lib/_main_footer.html' %}
+{% endblock %}
+{% block right_sidebar %}
+    {% include 'app_index/adminlte/lib/_main_right_sidebar.html' %}
+    {% include 'app_index/adminlte/lib/_main_right_sidebar2.html' %}
+{% endblock right_sidebar%}

@@ -1,0 +1,7 @@
+{% extends 'widgets/clearable_image_input.html' %}
+{% load i18n %}
+
+{% block clearable_image_input_alt_title %}
+    alt="{% blocktrans with usuario_username=usuario.username %} {{ usuario_username }} user image {% endblocktrans %}"
+    title="{% blocktrans with usuario_username=usuario.username %} {{ usuario_username }} user image {% endblocktrans %}"
+{% endblock clearable_image_input_alt_title %}

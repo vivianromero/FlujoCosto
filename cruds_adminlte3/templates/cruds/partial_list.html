@@ -1,0 +1,272 @@
+{% load i18n %}
+{% load l10n %}
+{% load crud_tags %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row create">
+                                {% if url_create %}
+                                    {% block list_create %}
+                                        <div class="col-lg-6">
+                                            {% crud_url object "create" namespace as url %}
+                                            {% if url and 'create' in views_available and crud_perms.create %}
+                                                <a href="{{ url }}{{ getparams }}" class="btn btn-primary">
+                                                    {% trans "Create new " %} {{ model_verbose_name|lower }}</a>
+                                            {% endif %}
+                                        </div>
+                                    {% endblock list_create %}
+                                {% endif %}
+                        {% if search %}
+                            {% block list_search %}
+{#                                <div class="col-lg-6 search">#}
+{#                                    <form action="" method="get">#}
+{#                                        <div class="input-group">#}
+{#                                            <input type="text" name="q" value="{{ q }}" class="form-control"#}
+{#                                                   placeholder="{% trans 'Search for...' %}">#}
+{#                                            <span class="input-group-btn">#}
+{#                                        <button class="btn btn-flat" type="submit">#}
+{#                                            <i class="fa fa-search"></i>#}
+{#                                        </button>#}
+{#                                    </span>#}
+{#                                        </div>#}
+{#                                    </form>#}
+{#                                </div>#}
+                            {% endblock list_search %}
+                        {% endif %}
+                    </div>
+
+                    <!--                <div class="box-body">-->
+                    <!--                    <table id="datatable" class="table table-bordered table-hover">-->
+                    <div class="card-body">
+                        {% block paginate_up_both %}
+                            {% if paginate_position == 'Up' or paginate_position == 'Both' %}
+                                {% include paginate_template %}
+                            {% endif %}
+                        {% endblock paginate_up_both %}
+                        {% block datatable %}
+                            <div class="overflow-auto max-h-[650px] overflow-y-auto">
+                                <table id="datatable"
+                                   class="dataTable display compact table-bordered table-striped table-hover" style="width:100%">
+                                {% if object_list %}
+                                    <thead>
+                                    {% block thead %}
+                                        {% for field, field_name in fields.items %}
+                                            <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
+                                        {% endfor %}
+                                        <th class="text-center">{% trans "Actions" %}</th>
+                                    {% endblock thead %}
+                                    </thead>
+                                    <tbody>
+                                    {% block tbody %}
+                                        {% for object in object_list %}
+                                            <tr>
+                                                {% for field, field_name in fields.items %}
+                                                    {% block columns %}
+                                                        <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
+                                                            {% with column=field_name.1|lower|add:".html" %}
+                                                                {% include 'cruds/columns/'|add:column %}
+                                                            {% endwith %}
+                                                            {# typefield #}
+                                                        </td>
+                                                    {% endblock columns %}
+                                                {% endfor %}
+                                                <td class="text-center">
+                                                    {% block actions %}
+                                                        {% block actions_detail %}
+                                                        {% crud_url object "detail" namespace as url %}
+                                                        {% if url and 'detail' in views_available and crud_perms.detail %}
+                                                            <a href="{{ url }}{{ getparams }}"
+                                                               title="{% trans 'Show' %}">
+                                                                <i class="fa-1x fa fa-eye"
+                                                                   style="margin-right: 5px;"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% endblock actions_detail %}
+                                                        {% block actions_update %}
+                                                        {% crud_url object "update" namespace as url %}
+                                                        {% if url and 'update' in views_available and crud_perms.update %}
+                                                            <a href="{{ url }}{{ getparams }}"
+                                                                hx-get="{{ url }}{{ getparams }}"
+                                                                hx-target="#main_content"
+                                                                hx-push-url="true"
+                                                               title="{% trans 'Edit' %}">
+                                                                <i class="fa-1x fa fa-edit"
+                                                                   style="margin-right: 5px;"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% endblock actions_update %}
+                                                        {% block actions_delete %}
+                                                        {% crud_url object "delete" namespace as url %}
+                                                        {% if url and 'delete' in views_available and crud_perms.delete %}
+                                                            <a id="delete_href" href="{{ url }}{{ getparams }}"
+                                                               class="delete_href"
+                                                               title="{% trans 'Delete' %}">
+                                                                <i id="trash_icon" class="fa-1x fa fa-trash">
+                                                                </i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% endblock actions_delete %}
+                                                        {% block actions_others %}{% endblock actions_others %}
+                                                    {% endblock actions %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endblock tbody %}
+                                    </tbody>
+                                    {% if aggregates %}
+                                        <tfoot>
+                                        {% block tfoot %}
+                                            {% for field, field_name in fields.items %}
+                                                <th class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">{{ field_name.2|floatformat:2 }}</th>
+                                            {% endfor %}
+                                        {% endblock tfoot %}
+                                        </tfoot>
+                                    {% endif %}
+                                {% else %}
+                                    <thead>
+                                    <th></th>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{% translate "No items yet." %}</td>
+                                    </tr>
+                                    </tbody>
+                                {% endif %}
+                            </table>
+                            </div>
+                        {% endblock datatable %}
+
+                        <!--                    {% if paginate_position == 'Bottom' or paginate_position == 'Both' %}-->
+                            <!--                  {% include paginate_template %}-->
+                            <!--                {% endif %}-->
+
+                    </div>
+
+                    <div class="box-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+
+    </section>
+
+{% endblock content %}
+{% block extra_javascript %}
+<script>
+$(document).ready(function () {
+    let None = 'empty'
+    let filter = {{ search|safe }}
+    const filter_id = []
+    const col_order = []
+    let fields_order = {{ fields_order|safe }}
+    const headers = []
+
+    if (fields_order !== 'empty' && filter !== 'empty') {
+        let table = $("#datatable").DataTable({
+            dom: 'Bfrtip',
+            "orderCellsTop": true,
+            "fixedHeader": false,
+            'language': {
+                url: '/static/plugins/DataTables4/locale/es-MX.json'
+            },
+            stateSave: true,
+            scrollX: true,
+            scrollY: true,
+
+            'pageLength': {{ page_length|safe}},
+            'paging': true,
+            'lengthChange': false,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'scrollCollapse': true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+
+            "columnDefs": [
+                  {
+                    targets: "_all",
+                     width: 1
+                  }
+            ],
+
+
+        })
+        for (let j = 0; j< filter.length; j++) {
+            filter_id.push('#id_' + filter[j])
+            col_order.push(fields_order.indexOf(filter[j]))
+        }
+        $('#search_main_header').on( 'keyup', function () {
+        table.search($(this).val()).draw()
+    })
+        $('#length_change')
+        .val(table.page.len())
+        .change( function() {
+            table.page.len( $(this).val() ).draw();
+        })
+    }else {
+        let table = $("#datatable").DataTable({
+            dom: 'Bfrtip',
+            "orderCellsTop": true,
+            "fixedHeader": false,
+            'language': {
+                url: '/static/plugins/DataTables4/locale/es-MX.json'
+            },
+            'pageLength': {{ page_length|safe}},
+            'paging': true,
+            'lengthChange': false,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+        })
+        let dataTableHeaderElements = table.columns().header()
+        for (var i = 0; i< dataTableHeaderElements.length; i++) {
+            headers.push($(dataTableHeaderElements[i]).text())
+        }
+        $('#search_main_header').on( 'keyup', function () {
+            table.search($(this).val()).draw()
+        $('#length_change')
+        .val(table.page.len())
+        .change( function() {
+            table.page.len( $(this).val() ).draw();
+        })
+    })
+    }
+
+})
+
+const hrefsDelete = document.querySelectorAll("a.delete_href")
+hrefsDelete.forEach((ref) => {
+    ref.addEventListener("click", function (e) {
+        e.preventDefault()
+        swal.fire({
+            title: 'Está seguro que desea eliminar este elemento?',
+            text: "No se podrá revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirmar eliminar',
+            cancelButtonText: 'Cancelar',
+            backdrop: true,
+            showLoaderOnConfirm: true,
+            preConfirm:()=>{
+                location.href = e.target.parentElement.href
+            },
+            allowOutsideClick:()=>false,
+            allowEscapeKey:()=>false
+        })
+    })
+})
+
+</script>
+
+{% endblock extra_javascript %}

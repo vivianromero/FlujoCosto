@@ -1,0 +1,239 @@
+{% extends template_father %}
+{% load i18n %}
+{% load crud_tags %}
+
+{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "List of" %}
+    {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+{% block body_class %}{{ blocks.body_class|default:model_verbose_name_plural|lower }}{% endblock body_class %}
+{% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
+{% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "List of" %}
+    {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="boxed">
+
+                <div class="box-header">
+                    <div class="row create">
+                        {% if url_create %}
+                            {% block list_create %}
+                                <div class="col-lg-6">
+                                    {% crud_url object "create" namespace as url %}
+                                    {% if url and 'create' in views_available and crud_perms.create %}
+                                        <a href="{{ url }}{{ getparams }}" class="btn btn-primary">
+                                            {% trans "Create new " %} {{ model_verbose_name|lower }}</a>
+                                    {% endif %}
+                                </div>
+                            {% endblock list_create %}
+                        {% endif %}
+                        {% if search %}
+                            {% block list_search %}
+                                <div class="col-lg-6 search">
+                                    <form action="" method="get">
+                                        <div class="input-group">
+                                            <input type="text" name="q" value="{{ q }}" class="form-control"
+                                                   placeholder="{% trans 'Search for...' %}">
+                                            <span class="input-group-btn">
+                                        <button class="btn btn-flat" type="submit">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endblock list_search %}
+                        {% endif %}
+                    </div>
+
+                    {% if filters %}
+                        {% block list_filters %}
+                            <div class="filters">
+                                <div class="box box-warning collapsed-box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">{% trans 'Filters' %}</h3>
+                                        <div class="box-tools pull-right">
+                                            <button data-widget="collapse" class="btn btn-box-tool btn-success"
+                                                    type="button">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="box-body" style="">
+                                        <form action="" method="get">
+                                            <table class="table">
+                                                {% for filter in filters %}
+                                                    {{ filter.render }}
+                                                {% endfor %}
+                                            </table>
+                                            <input type="submit" class="btn btn-info filter"
+                                                   value="{% trans 'Filter' %}"/>
+                                            <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock list_filters %}
+                    {% elif filter %}
+                        {% block list_filter %}
+                            <div class="filters">
+                                <div class="box box-warning collapsed-box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">{% trans 'Filters' %}</h3>
+                                        <div class="box-tools pull-right">
+                                            <button data-widget="collapse" class="btn btn-box-tool btn-success"
+                                                    type="button">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="box-body" style="">
+                                        {% comment %} <form class="form-horizontal" action="" method="get" role="form"> {% endcomment %}
+                                        <form
+                                                hx-get="{% url 'accounts_htmx' %}"
+                                                hx-target="#table-container"
+                                                hx-trigger="input, select, sort-initiated, pagination-initiated"
+                                                hx-swap="outerHTML"
+                                                class="form-horizontal"
+                                                role="form">
+                                            {% csrf_token %}
+                                            {% for field in filter.form %}
+                                                <div class="row">
+                                                    <div class="form-group">
+                                                        <label for="{{ field.id_for_label }}"
+                                                               class="col-lg-2 control-label">{{ field.label }}</label>
+                                                        <div class="col-lg-5 form-inline">
+                                                            {{ field }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <br/>
+                                            <input type="submit" class="btn btn-info filter"
+                                                   value="{% trans 'Filter' %}"/>
+                                            <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                $('#id_fecha_0').datepicker({
+                                    autoclose: true,
+                                    // locale: 'es',
+                                    format: 'yyyy-mm-dd',
+                                    // orientation: 'bottom',
+                                    todayHighlight: true,
+                                    minViewMode: 0
+                                });
+                                $('#id_fecha_1').datepicker({
+                                    autoclose: true,
+                                    // locale: 'es',
+                                    format: 'yyyy-mm-dd',
+                                    // orientation: 'bottom',
+                                    todayHighlight: true,
+                                    minViewMode: 0
+                                })
+                            </script>
+                        {% endblock list_filter %}
+                    {% endif %}
+
+                    <!--                <div class="box-body">-->
+                    <!--                    <table id="datatable" class="table table-bordered table-hover">-->
+                    <div class="box-body">
+                        {% block paginate_up_both %}
+                            {% if paginate_position == 'Up' or paginate_position == 'Both' %}
+                                {% include paginate_template %}
+                            {% endif %}
+                        {% endblock paginate_up_both %}
+                        {% block datatable %}
+                            <table id="datatable"
+                                   class="table table-responsive table-bordered table-hover table-condensed table-striped">
+                                {% if object_list %}
+                                    <thead>
+                                    {% block thead %}
+                                        {% for field, field_name in fields.items %}
+                                            <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
+                                        {% endfor %}
+                                        <th class="text-center">{% trans "Actions" %}</th>
+                                    {% endblock thead %}
+                                    </thead>
+                                    <tbody>
+                                    {% block tbody %}
+                                        {% for object in object_list %}
+                                            <tr>
+                                                {% for field, field_name in fields.items %}
+                                                    {% block columns %}
+                                                        <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
+                                                            {% with column=field_name.1|lower|add:".html" %}
+                                                                {% include 'cruds/columns/'|add:column %}
+                                                            {% endwith %}
+                                                            {# typefield #}
+                                                        </td>
+                                                    {% endblock columns %}
+                                                {% endfor %}
+                                                <td class="text-center">
+                                                    {% block actions %}
+                                                        {% crud_url object "detail" namespace as url %}
+                                                        {% if url and 'detail' in views_available and crud_perms.detail %}
+                                                            <a href="{{ url }}{{ getparams }}"
+                                                               title="{% trans 'Show' %}">
+                                                                <i class="fa-1x fa fa-eye"
+                                                                   style="margin-right: 5px"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% crud_url object "update" namespace as url %}
+                                                        {% if url and 'update' in views_available and crud_perms.update %}
+                                                            <a href="{{ url }}{{ getparams }}"
+                                                               title="{% trans 'Edit' %}">
+                                                                <i class="fa-1x fa fa-edit"
+                                                                   style="margin-right: 5px"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        {% crud_url object "delete" namespace as url %}
+                                                        {% if url and 'delete' in views_available and crud_perms.delete %}
+                                                            <a href="{{ url }}{{ getparams }}"
+                                                               title="{% trans 'Delete' %}">
+                                                                <i class="fa-1x fa fa-trash"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endblock actions %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endblock tbody %}
+                                    </tbody>
+                                    {% if aggregates %}
+                                        <tfoot>
+                                        {% block tfoot %}
+                                            {% for field, field_name in fields.items %}
+                                                <th class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">{{ field_name.2|floatformat:2 }}</th>
+                                            {% endfor %}
+                                        {% endblock tfoot %}
+                                        </tfoot>
+                                    {% endif %}
+                                {% else %}
+                                    <thead>
+                                    <th></th>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{% trans "No items yet." %}</td>
+                                    </tr>
+                                    </tbody>
+                                {% endif %}
+                            </table>
+                        {% endblock datatable %}
+
+                        <!--                    {% if paginate_position == 'Bottom' or paginate_position == 'Both' %}-->
+                            <!--                  {% include paginate_template %}-->
+                            <!--                {% endif %}-->
+
+                    </div>
+
+                    <div class="box-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

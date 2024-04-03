@@ -1,0 +1,15 @@
+[
+{
+    "model": "configuracion.userueb",
+    "pk": "879d9e9f-4064-4214-a051-a1f78ea26b65",
+    "fields": {
+        "first_name":"Administrador UEB-23",
+        "last_name":"",
+        "username":"admin23",
+        "is_active": "True", "is_staff": "True", "is_superuser": "False",
+        "ueb": "879d9e9f-4064-4214-a051-a1f78ea26b65",
+        "password": "pbkdf2_sha256$150000$SH9BpP9heMQm$VPnCX64vYKe53mfEGqJFXSax1a4qPP5vgSEmns57els=",
+        "groups": [1]
+    }
+}
+]

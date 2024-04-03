@@ -1,0 +1,114 @@
+[
+{
+    "model": "codificadores.centrocosto",
+    "pk": "000604fa-af2d-4713-b0e5-c2991a289f4b",
+    "fields": {
+        "clave":"02","clavenivel":"02","descripcion":"Clasificado de Hoja"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "000603fa-af2d-4713-b0e5-c2991a289f4b",
+    "fields": {
+        "clave":"03","clavenivel":"03","descripcion":"Preparación de Materias Primas"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
+    "fields": {
+        "clave":"04","clavenivel":"04","descripcion":"Despacho de Materia Prima"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
+    "fields": {
+        "clave":"05","clavenivel":"05","descripcion":"Torcido"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "009bfd05-0357-4614-ba5b-c9876272a460",
+    "fields": {
+        "clave":"06","clavenivel":"06","descripcion":"Adornado"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "009bfd06-0357-4614-ba5b-c9876272a460",
+    "fields": {
+       "clave":"07","clavenivel":"07","descripcion":"Escogida de colores"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "009bfd06-0357-4624-ba5b-c9876272a460",
+    "fields": {
+       "clave":"08","clavenivel":"08","descripcion":"Anillado"
+    }
+},
+{
+    "model": "codificadores.centrocosto",
+    "pk": "000bfd06-0357-4624-ba5b-c9876272a460",
+    "fields": {
+       "clave":"12","clavenivel":"12","descripcion":"Terminado"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "000604fa-af2d-4713-b0e5-c2991a289f4b",
+    "fields": {
+        "codigo":"02","descripcion":"Clasificado de Hoja", "centrocosto": "000604fa-af2d-4713-b0e5-c2991a289f4b"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "000603fa-af2d-4713-b0e5-c2991a289f4b",
+    "fields": {
+        "codigo":"03","descripcion":"Preparación de Materias Primas", "centrocosto": "000603fa-af2d-4713-b0e5-c2991a289f4b"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "003820bb-9dc1-4cbb-b8cf-93f28322c697",
+    "fields": {
+        "codigo":"04","descripcion":"Despacho de Materia Prima", "centrocosto":"003820bb-9dc1-4cbb-b8cf-93f28322c697"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "003dec56-d3ac-452d-a2be-9c07539be90f",
+    "fields": {
+        "codigo":"05","descripcion":"Torcido", "centrocosto":"003dec56-d3ac-452d-a2be-9c07539be90f"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "009bfd05-0357-4614-ba5b-c9876272a460",
+    "fields": {
+        "codigo":"06","descripcion":"Adornado", "centrocosto":"009bfd05-0357-4614-ba5b-c9876272a460"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "009bfd06-0357-4614-ba5b-c9876272a460",
+    "fields": {
+       "codigo":"07","descripcion":"Escogida de colores", "centrocosto":"009bfd06-0357-4614-ba5b-c9876272a460"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "009bfd06-0357-4624-ba5b-c9876272a460",
+    "fields": {
+       "codigo":"08","descripcion":"Anillado", "centrocosto":"009bfd06-0357-4624-ba5b-c9876272a460"
+    }
+},
+{
+    "model": "codificadores.departamento",
+    "pk": "000bfd06-0357-4624-ba5b-c9876272a460",
+    "fields": {
+       "codigo":"12","descripcion":"Terminado", "centrocosto":"000bfd06-0357-4624-ba5b-c9876272a460"
+    }
+}
+]

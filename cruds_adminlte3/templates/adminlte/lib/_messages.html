@@ -1,0 +1,64 @@
+{% load static %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <!-- SweetAlert2 -->
+            <script src="{% static 'plugins/sweetalert2/sweetalert2.all.min.js' %}"></script>
+            <script>
+                Swal.mixin({
+                        toast: true,
+                        position: 'bottom-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    }).fire({
+                        icon: 'success',
+                        title: "{{ title_success|safe }}!",
+                        text: "{{ message|safe }}",
+                    })
+            </script>
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <!-- SweetAlert2 -->
+            <script src="{% static 'plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+            <script>
+                Swal.mixin({
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }).fire({
+                    icon: 'error',
+                    title: "{{ message|safe }}",
+                })
+            </script>
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+            <!-- SweetAlert2 -->
+            <script src="{% static 'plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+            <script>
+                Swal.mixin({
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }).fire({
+                    icon: 'warning',
+                    title: "{{ message|safe }}",
+                })
+            </script>
+        {% else %}
+            <!-- SweetAlert2 -->
+            <script src="{% static 'plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+            <script>
+                Swal.mixin({
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }).fire({
+                    icon: 'info',
+                    title: "{{ message|safe }}",
+                })
+            </script>
+
+        {% endif %}
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,37 @@
+{% extends 'app_index/cruds/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{#{% block body_class %}hold-transition login-page{% endblock %}#}
+{% block breadcrumbs %}{% endblock breadcrumbs %}
+
+{% block content %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="login-box mx-auto" style="width: 30rem;">
+                        <!-- /.login-logo -->
+                        {% block change_password %}
+                            <div class="card card-outline-primary">
+                                <div class="card-header text-center" style="background-color: whitesmoke">
+                                    {% block logo_text %}
+                                        <p class="login-box-msg">{% trans 'Change your password' %}</p>
+                                    {% endblock %}
+                                </div>
+                                <div class="card-body">
+
+                                     <p>{% translate 'Please enter your old password, for security’s sake, and then enter your new password twice so we can verify you typed it in correctly.' %}</p>
+                                    {% block login_form %}
+                                    {% csrf_token %}
+                                    {% crispy form %}
+                                    {% endblock login_form %}
+                                </div>
+                            </div>
+                        {% endblock change_password %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% load static %}
+{% load i18n %}
+{% load menu_generator %}
+<!-- Main Sidebar Container -->
+{% block main_sidebar_container %}
+<aside class="main-sidebar collapsed sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    {% block main_sidebar_logo %}
+    <a href='#' class="brand-link">
+        <img src="{% static app_logo_path %}"
+             alt="{{ app_logo_alt }}"
+             class="brand-image" style="opacity: .8">
+        <span class="brand-text font-weight-lighter align-middle"><h6><small>{{ main_sidebar_title }}</small></h6></span>
+    </a>
+    {% endblock main_sidebar_logo %}
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        {% block main_sidebar_user_panel %}
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="{% static 'dist/img/icons8-user-24i.png' %}"
+                     class="img-circle elevation-2" alt="User Image"
+                >
+            </div>
+            <div class="info">
+                {% if request.user.is_authenticated  %}
+                    <a href="#" class="d-block">
+                        <span class="hidden-xs">
+                            {% firstof request.user.get_short_name request.user.get_username %}
+                        </span>
+                        <i class="pull-right fa fa-circle text-success"></i>
+                    </a>
+                {% else %}
+                    <a href="#" class="d-block">Guest
+                        <i class="pull-right fa fa-circle text-danger"></i>
+                    </a>
+                {% endif %} 
+
+            </div>
+        </div>
+        {% endblock main_sidebar_user_panel %}
+
+        <!-- Sidebar Menu -->
+        {% block main_sidebar_menu %}
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Add icons to the links using the .nav-icon class
+                with font-awesome or any other icon font library -->
+                {% block nav_links_outer %}
+                <li class="nav-header">{% block nav_heading %}{% translate 'MAIN NAVIGATION' %}{% endblock %}</li>
+                {% get_menu 'NAV_LEFT_SIDEBAR' as left_sidebar_menu %}
+                {% block main_sidebar_menu_items %}
+                    {% for item in left_sidebar_menu  %}
+                        <li class="nav-item">
+                            <a href="{{ item.url }}" class="nav-link {% if item.selected %} active {% endif %}">
+                                <i class="{{ item.icon_class }}"></i>
+                                <p>
+                                    {{ item.name }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            {% if item.submenu %}
+                                {% block main_sidebar_menu_items_submenus %}
+                                    <ul class="nav nav-treeview">
+                                    {% for menu in item.submenu %}
+                                        <li class="nav-item">
+                                            <a href="{{ menu.url }}" class="nav-link {% if menu.selected %} active {% endif %}">
+                                                <i class="{{ menu.icon_class }}"></i>
+                                                <p>{{ menu.name }}</p>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endblock main_sidebar_menu_items_submenus %}
+
+                            {% endif %}
+
+                        </li>
+                    {% endfor %}
+                {% endblock main_sidebar_menu_items %}
+
+                {% endblock nav_links_outer %}
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+        {% endblock main_sidebar_menu %}
+    </div>
+<!-- /.sidebar -->
+</aside>
+{% endblock main_sidebar_container%}
+

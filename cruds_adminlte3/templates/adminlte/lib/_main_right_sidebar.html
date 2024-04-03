@@ -1,0 +1,128 @@
+{% load static %}
+{% load crud_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block main_right_sidebar %}
+<!-- Control Sidebar -->
+<aside id="filter-sidebar" class="control-sidebar control-sidebar-light"
+       style="width: {% if width_right_sidebar %}{{ width_right_sidebar }}{% else %}400px{% endif %}; height: {% if height_right_sidebar %}{{ height_right_sidebar }}{% else %}600px{% endif %}; flex-grow: 1; top: 50px;">
+{% block main_right_sidebar_content %}
+<!-- Control sidebar content goes here -->
+    <div class="p-1 control-sidebar-content">
+        {% if filters %}
+            {% block list_filters %}
+                <div class="filters">
+                    <div class="card card-warning">
+                        <div class="card-header with-border">
+                            <h3 class="card-title">{% translate 'Filters' %}</h3>
+                            <div class="card-tools">
+                                <button
+                                        type="button"
+                                        class="btn btn-tool"
+                                        data-card-widget="collapse"
+                                    >
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding: 0.5rem;">
+                            <form action="" method="get" role="form">
+                                <table class="table">
+                                    {% for filter in filters %}
+                                        {{ filter.render }}
+                                    {% endfor %}
+                                </table>
+                                <input type="submit" class="btn btn-info filter"
+                                       value="{% trans 'Filter' %}"/>
+                                <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endblock list_filters %}
+        {% elif filter %}
+{#            {{ filter.form.media }}#}
+            {% block list_filter %}
+                <div class="filters">
+                    <div class="card card-success" style="padding-top: 0">
+                        <div class="card-header with-border">
+                            <h3 class="card-title">{% trans 'Filters' %}</h3>
+                            <div class="card-tools" style="height: 20px; display: flex; align-items: center">
+                                <a class="nav-link"
+                                   data-widget="control-sidebar"
+                                   data-slide="true"
+                                   data-target="#filter-sidebar"
+                                   href="#"
+                                   role="button">
+                                    <i class="fas fa-times" title={% translate 'Close' %}></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding: 0.5rem;">
+                            <form class="form-horizontal" method="get" role="form">
+                                {% csrf_token %}
+                                {% if width_right_sidebar and height_right_sidebar %}
+                                    {% if filter.form.helper %}
+                                        {% crispy filter.form %}
+                                    {% else %}
+                                        {{ filter.form|crispy }}
+                                    {% endif %}
+                                {% else %}
+                                    {% for field in filter.form %}
+{#                                    <div class="row">#}
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}"
+                                                class="col-lg-12 control-label">{{ field.label }}</label>
+                                            <div class="col-lg-12 form-group">
+                                                {{ field }}
+                                            </div>
+                                        </div>
+{#                                    </div>#}
+                                    {% endfor %}
+                                    <br/>
+                                    <input type="submit" class="btn btn-info filter"
+                                        value="{% trans 'Filter' %}"/>
+                                    <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endblock list_filter %}
+        {% endif %}
+    </div>
+{% endblock main_right_sidebar_content%}
+</aside>
+<!-- /.control-sidebar -->
+{% endblock main_right_sidebar%}
+{% if view.view_type == 'list' %}
+    <script>
+        window.data = {
+            today: '{{ today|safe }}',
+            clear: '{{ clear|safe }}',
+            close: '{{ close|safe }}',
+            selectMonth: '{{ selectMonth|safe }}',
+            prevMonth: '{{ prevMonth|safe }}',
+            nextMonth: '{{ nextMonth|safe }}',
+            selectYear: '{{ selectYear|safe }}',
+            prevYear: '{{ prevYear|safe }}',
+            nextYear: '{{ nextYear|safe }}',
+            selectDecade: '{{ selectDecade|safe }}',
+            prevDecade: '{{ prevDecade|safe }}',
+            nextDecade: '{{ nextDecade|safe }}',
+            prevCentury: '{{ prevCentury|safe }}',
+            nextCentury: '{{ nextCentury|safe }}',
+            pickHour: '{{ pickHour|safe }}',
+            incrementHour: '{{ incrementHour|safe }}',
+            decrementHour: '{{ decrementHour|safe }}',
+            pickMinute: '{{ pickMinute|safe }}',
+            incrementMinute: '{{ incrementMinute|safe }}',
+            decrementMinute: '{{ decrementMinute|safe }}',
+            pickSecond: '{{ pickSecond|safe }}',
+            incrementSecond: '{{ incrementSecond|safe }}',
+            decrementSecond: '{{ decrementSecond|safe }}',
+            togglePeriod: '{{ togglePeriod|safe }}',
+            selectTime: '{{ selectTime|safe }}'
+        }
+    </script>
+{% endif %}
