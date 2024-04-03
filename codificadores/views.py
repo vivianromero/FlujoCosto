@@ -301,7 +301,6 @@ class CuentaCRUD(CommonCRUDView):
 
         return OFilterListView
 
-
 # ------ CentroCosto / CRUD ------
 class CentroCostoCRUD(CommonCRUDView):
     model = CentroCosto
