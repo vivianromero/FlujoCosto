@@ -213,12 +213,6 @@ class ProductoFlujo(ObjectsManagerAbstract):
                                  verbose_name="U.M")
     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
                                        verbose_name=_("Product Type"))
-    # clasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
-    #                                       blank=True, null=True,
-    #                                       related_name='productoflujoclase_clasemateriaprima')
-    clasemateriaprima = models.ManyToManyField(ClaseMateriaPrima, blank=True, null=True,
-                                               related_name='productoflujoclase_clasemateriaprima',
-                                               verbose_name="Clase Materia Prima")
 
     class Meta:
         db_table = 'cla_productoflujo'
