@@ -406,67 +406,14 @@ class ProductoFlujoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # context.update({
-                #     'url_apiversat': 'app_index:appversat:ccta_appversat',
-                #     'url_importar': 'app_index:importar:ccta_importar',
-                #     'url_exportar': 'app_index:exportar:ccta_exportar',
-                # })
+                context.update({
+                    'url_apiversat': 'app_index:appversat:prod_appversat',
+                    # 'url_importar': 'app_index:importar:ccta_importar',
+                    # 'url_exportar': 'app_index:exportar:ccta_exportar',
+                })
                 return context
 
         return OFilterListView
-    # model = ProductoFlujo
-    #
-    # namespace = 'app_index:codificadores'
-    #
-    # fields = [
-    #     'id',
-    #     'codigo',
-    #     'descripcion',
-    #     'activo',
-    #     'medida',
-    #     'tipoproducto',
-    # ]
-    #
-    # # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # # y no distinga entre mayúsculas y minúsculas.
-    # # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    # search_fields = [
-    #     'id__contains',
-    #     'codigo__icontains',
-    #     'id__contains',
-    #     'descripcion__icontains',
-    #     'activo',
-    #     'medida__descripcion__icontains',
-    #     'tipoproducto__descripcion__icontains',
-    # ]
-    #
-    # add_form = ProductoFlujoForm
-    # update_form = ProductoFlujoForm
-    #
-    # list_fields = fields
-    #
-    # filter_fields = fields
-    #
-    # filterset_class = ProductoFlujoFilter
-    #
-    # # Table settings
-    # table_class = ProductoFlujoTable
-    #
-    # def get_filter_list_view(self):
-    #     view = super().get_filter_list_view()
-    #
-    #     class OFilterListView(view):
-    #         def get_context_data(self, *, object_list=None, **kwargs):
-    #             context = super().get_context_data(**kwargs)
-    #             # context.update({
-    #             #     'url_apiversat': '',
-    #             #     'url_importar': '',
-    #             #     'url_exportar': '',
-    #             # })
-    #             # return context
-    #
-    #     return OFilterListView
-
 
 # ------ ProductoFlujoClase / CRUD ------
 class ProductoFlujoClaseCRUD(CommonCRUDView):
