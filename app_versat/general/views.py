@@ -109,7 +109,6 @@ class ProductoFlujoList(APIView):
     """
     def get(self, request, format=None):
         try:
-            aa = 1
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
