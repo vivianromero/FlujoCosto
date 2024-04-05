@@ -4,7 +4,7 @@ from django.urls import resolve
 from django.utils.translation import gettext_lazy as _
 from dynamic_db_router import in_database
 
-from codificadores.models import Medida, MarcaSalida, Cuenta
+from codificadores.models import Medida, MarcaSalida, Cuenta, ProductoFlujo
 from configuracion.models import ConexionBaseDato
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_error
@@ -39,6 +39,8 @@ class DatabaseConectionMiddleware:
                     sistema = "SisGestMP"
                 case 'ccta_appversat':
                     object = Cuenta
+                case 'prod_appversat':
+                    object = ProductoFlujo
             try:
                 conection = ConexionBaseDato.objects.get(unidadcontable=user.ueb, sistema=sistema)
 

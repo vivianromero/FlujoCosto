@@ -301,7 +301,6 @@ class CuentaCRUD(CommonCRUDView):
 
         return OFilterListView
 
-
 # ------ CentroCosto / CRUD ------
 class CentroCostoCRUD(CommonCRUDView):
     model = CentroCosto
@@ -369,7 +368,6 @@ class ProductoFlujoCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-        'id',
         'codigo',
         'descripcion',
         'activo',
@@ -381,13 +379,10 @@ class ProductoFlujoCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',
-        'codigo__icontains',
-        'id__contains',
-        'descripcion__icontains',
-        'activo',
-        'medida__descripcion__icontains',
-        'tipoproducto__descripcion__icontains',
+        'codigo_icontains',
+        'descripcion_icontains',
+        'medida__descripcion__contains',
+        'tipoproducto__descripcion__contains',
     ]
 
     add_form = ProductoFlujoForm
@@ -396,6 +391,9 @@ class ProductoFlujoCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
 
     filterset_class = ProductoFlujoFilter
 
@@ -408,15 +406,14 @@ class ProductoFlujoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # context.update({
-                #     'url_apiversat': '',
-                #     'url_importar': '',
-                #     'url_exportar': '',
-                # })
-                # return context
+                context.update({
+                    'url_apiversat': 'app_index:appversat:prod_appversat',
+                    # 'url_importar': 'app_index:importar:ccta_importar',
+                    # 'url_exportar': 'app_index:exportar:ccta_exportar',
+                })
+                return context
 
         return OFilterListView
-
 
 # ------ ProductoFlujoClase / CRUD ------
 class ProductoFlujoClaseCRUD(CommonCRUDView):

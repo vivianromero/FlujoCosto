@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from rest_framework.views import APIView
 
-from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta
+from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from .serializers import *
@@ -102,3 +102,14 @@ class ConCuentanatList(APIView):
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
         return redirect(crud_url_name(Medida, 'list', 'app_index:codificadores:'))
+
+class ProductoFlujoList(APIView):
+    """
+    Devuelve los parametros para pedir los productos
+    """
+    def get(self, request, format=None):
+        try:
+            message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
+        except Exception as e:
+            message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
+        return redirect(crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'))
