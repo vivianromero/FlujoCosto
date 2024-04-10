@@ -8,8 +8,6 @@ medida_crud = views.MedidaCRUD()
 medida_conversion_crud = views.MedidaConversionCRUD()
 cuenta_crud = views.CuentaCRUD()
 producto_flujo_crud = views.ProductoFlujoCRUD()
-producto_flujo_clase_crud = views.ProductoFlujoClaseCRUD()
-producto_flujo_destino_crud = views.ProductoFlujoDestinoCRUD()
 producto_flujo_cuenta_crud = views.ProductoFlujoCuentaCRUD()
 marcasalida_crud = views.MarcaSalidaCRUD()
 vitola_crud = views.VitolaCRUD()
@@ -26,9 +24,7 @@ urlpatterns = [
     path("", include(medida_conversion_crud.get_urls())),
     path("", include(cuenta_crud.get_urls())),
     path("", include(producto_flujo_crud.get_urls())),
-    path("", include(producto_flujo_clase_crud.get_urls())),
-    path("", include(producto_flujo_destino_crud.get_urls())),
-    path("", include(producto_flujo_cuenta_crud.get_urls())),
+    path("", include(producto_flujo_crud.get_urls())),
     path("", include(marcasalida_crud.get_urls())),
     path("", include(vitola_crud.get_urls())),
     path("", include(motivoajuste_crud.get_urls())),
