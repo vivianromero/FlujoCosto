@@ -2,6 +2,7 @@ import json
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
 
@@ -9,6 +10,7 @@ from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
+from cruds_adminlte3.utils import crud_url_name
 
 
 # ------ Departamento / CRUD ------
@@ -424,6 +426,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ ProductoFlujoCuenta / CRUD ------
 class ProductoFlujoCuentaCRUD(CommonCRUDView):
     model = ProductoFlujoCuenta
@@ -616,6 +619,7 @@ class MotivoAjusteCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ Cambio de Producto / CRUD ------
 class CambioProductoCRUD(CommonCRUDView):
     model = CambioProducto
@@ -663,6 +667,7 @@ class CambioProductoCRUD(CommonCRUDView):
                 return context
 
         return OFilterListView
+
 
 class ObtenrDatosModalFormView(FormView):
     template_name = 'app_index/modals/modal_form.html'
