@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, ProductoFlujo, ProductoFlujoClase
+    Departamento, ProductoFlujo, ProductoFlujoClase, CambioProducto
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success
@@ -56,6 +56,9 @@ def dpto_exportar(request):
 def prod_exportar(request):
     return crear_export_file(request, 'PROD', ProductoFlujo)
 
+@adminempresa_required
+def cprod_exportar(request):
+    return crear_export_file(request, 'CambioPROD', CambioProducto)
 
 def json_info(opcion):
     version = obtener_version()

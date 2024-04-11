@@ -1,8 +1,4 @@
 import django_filters
-from django import forms
-from django.contrib.auth.models import Group
-from django.db import models
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from cruds_adminlte3.filter import MyGenericFilter
@@ -147,7 +143,7 @@ class MedidaConversionFilter(MyGenericFilter):
 
     factor_conversion = django_filters.RangeFilter(
         label=_('Convertion Factor'),
-        method='my_range_queryset',
+        field_name="factor_conversion",
     )
 
     class Meta:
@@ -248,6 +244,7 @@ class CentroCostoFilter(MyGenericFilter):
                 }
             },
         }
+
 
 # ------ ProductoFlujo / Filter ------
 class ProductoFlujoFilter(MyGenericFilter):
@@ -398,6 +395,7 @@ class MarcaSalidaFilter(MyGenericFilter):
             },
         }
 
+
 # ------ MotivoAjuste / Filter ------
 class MotivoAjusteFilter(MyGenericFilter):
     search_fields = [
@@ -420,6 +418,33 @@ class MotivoAjusteFilter(MyGenericFilter):
         ]
 
         form = MotivoAjusteFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+
+# ------ CambioProducto / Filter ------
+class CambioProductoFilter(MyGenericFilter):
+    search_fields = [
+        'productoo__descripcion__icontains',
+        'productod__descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = CambioProducto
+        fields = [
+            'productoo',
+            'productod',
+        ]
+
+        form = CambioProductoFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

@@ -72,6 +72,12 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
+                            "name": "Cambio de Productos",
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(CambioProducto, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
+                        {
                             "name": "Vitolas",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),

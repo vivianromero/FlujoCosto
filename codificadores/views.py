@@ -607,3 +607,51 @@ class MotivoAjusteCRUD(CommonCRUDView):
                 return context
 
         return OFilterListView
+
+# ------ Cambio de Producto / CRUD ------
+class CambioProductoCRUD(CommonCRUDView):
+    model = CambioProducto
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'productoo',
+        'productod',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'productoo__descripcion__contains',
+        'productod__descripcion__contains',
+    ]
+
+    add_form = CambioProductoForm
+    update_form = CambioProductoForm
+
+    list_fields = [
+        'productoo',
+        'productoo',
+    ]
+
+    filter_fields = list_fields
+
+    filterset_class = CambioProductoFilter
+
+    # Table settings
+    table_class = CambioProductoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:cprod_importar',
+                    'url_exportar': 'app_index:exportar:cprod_exportar',
+                })
+                return context
+
+        return OFilterListView

@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, ProductoFlujo
+    Departamento, ProductoFlujo, CambioProducto
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
@@ -63,6 +63,10 @@ def dpto_importar(request):
 def prod_importar(request):
     return importacion(request, 'PROD', ProductoFlujo)
 
+@login_required
+def cprod_importar(request):
+    return importacion(request, 'CambioPROD', CambioProducto)
+
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:
@@ -88,7 +92,7 @@ def importar_datos_desde_tar(request, archivo_tar, opcion):
     except FileNotFoundError:
         message_error(request, 'File not found', "The file doesn't exist")
     except Exception as e:
-        message_error(request, 'File not found', "The file doesn't exist")
+        message_error(request, 'Data Error', "Error en los datos a importar")
     except:
         message_error(request, 'File Error', "The file doesn't exist or is corrupt")
 

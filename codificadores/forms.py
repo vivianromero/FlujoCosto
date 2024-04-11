@@ -264,11 +264,13 @@ class MedidaConversionForm(forms.ModelForm):
         queryset_um = Medida.objects.filter(activa=True)
         self.fields['medidao'] = forms.ModelChoiceField(
             queryset=queryset_um if not instance else queryset_um | Medida.objects.filter(
-                pk=instance.medidao.pk, activa=False))
+                pk=instance.medidao.pk, activa=False),
+            label='Medida Origen')
 
         self.fields['medidad'] = forms.ModelChoiceField(
             queryset=queryset_um if not instance else queryset_um | Medida.objects.filter(
-                pk=instance.medidad.pk, activa=False))
+                pk=instance.medidad.pk, activa=False),
+            label='Medida Destino')
 
         self.helper.layout = Layout(
             TabHolder(
@@ -292,6 +294,7 @@ class MedidaConversionForm(forms.ModelForm):
                 )
             )
         )
+
 
 # ------------ MedidaConversión / Form Filter ------------
 class MedidaConversionFormFilter(forms.Form):
@@ -570,6 +573,7 @@ class ProductoFlujoForm(forms.ModelForm):
         label=_("Clase Materia Prima"),
         required=False,
     )
+
     class Meta:
         model = ProductoFlujo
         fields = [
@@ -598,7 +602,7 @@ class ProductoFlujoForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         if instance and instance.tipoproducto.pk == 2:
-            kwargs['initial'] = {'clase':instance.productoflujoclase_producto.get().clasemateriaprima}
+            kwargs['initial'] = {'clase': instance.productoflujoclase_producto.get().clasemateriaprima}
         super(ProductoFlujoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_productoflujo_Form'
@@ -627,7 +631,7 @@ class ProductoFlujoForm(forms.ModelForm):
                         Column('descripcion', css_class='form-group col-md-6 mb-0'),
                         Column('medida', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'),
-                     Row(
+                    Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
                         Column('clase', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'),
@@ -705,6 +709,7 @@ class ProductoFlujoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
 
 # ------------ ProductoFlujoCuenta / Form ------------
 class ProductoFlujoCuentaForm(forms.ModelForm):
@@ -1239,6 +1244,7 @@ class MotivoAjusteForm(forms.ModelForm):
             )
         )
 
+
 # ------------ MotivoAjuste / Form Filter ------------
 class MotivoAjusteFormFilter(forms.Form):
     class Meta:
@@ -1282,6 +1288,112 @@ class MotivoAjusteFormFilter(forms.Form):
                 ),
                 style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
             ),
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+
+# ------------ CambioProducto / Form ------------
+
+class CambioProductoForm(forms.ModelForm):
+    class Meta:
+        model = CambioProducto
+        fields = [
+            'productoo',
+            'productod',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(CambioProductoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_cambioproducto_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        queryset_prod = ProductoFlujo.objects.filter(activo=True)
+        self.fields['productoo'] = forms.ModelChoiceField(
+            queryset=queryset_prod if not instance else queryset_prod | ProductoFlujo.objects.filter(
+                pk=instance.productoo.pk, activo=False),
+            label='Producto Origen')
+
+        self.fields['productod'] = forms.ModelChoiceField(
+            queryset=queryset_prod if not instance else queryset_prod | ProductoFlujo.objects.filter(
+                pk=instance.productod.pk, activo=False),
+            label='Producto Destino')
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _('Cambio de Producto'),
+                    Row(
+                        Column('productoo', css_class='form-group col-md-5 mb-0'),
+                        Column('productod', css_class='form-group col-md-5 mb-0'),
+
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+
+# ------------ CambioProducto / Form Filter ------------
+class CambioProductoFormFilter(forms.Form):
+    class Meta:
+        model = CambioProducto
+        fields = [
+            'productoo',
+            'productod',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(CambioProductoFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_cambioproducto_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    _('Convert unit of measurement'),
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('productoo', css_class='form-group col-md-6 mb-0'),
+                        Column('productod', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
         )
 
         self.helper.layout.append(
