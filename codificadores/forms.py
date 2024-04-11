@@ -1405,3 +1405,44 @@ class CambioProductoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+class ObtenerDatosModalForm(forms.Form):
+    valor_inicial = forms.CharField()
+    clase_mat_prima = forms.ChoiceField(choices=ClaseMateriaPrima.CHOICE_CLASES)
+
+    class Meta:
+        fields = [
+            'valor_inicial',
+            'clase_mat_prima',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ObtenerDatosModalForm, self).__init__(*args, **kwargs)
+        self.fields['valor_inicial'].widget.attrs = {"placeholder": _("Initial value to search...")}
+        self.fields['clase_mat_prima'].widget.choices.pop(4)
+        # self.CHOICE_CLASES.pop(5)
+        self.helper = FormHelper(self)
+        # self.helper.form_id = 'id_obtener_datos_form'
+        self.helper.form_method = 'GET'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    _('Enter Data to Obtain'),
+                    Row(
+                        Column('valor_inicial', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )

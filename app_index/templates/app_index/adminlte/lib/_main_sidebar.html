@@ -15,7 +15,10 @@
     <ul class="nav nav-treeview">
     {% for menu in item.submenu %}
         <li class="nav-item">
-            <a href="{{ menu.url }}" class="nav-link {% if menu.selected %} active {% endif %}">
+            <a href="{{ menu.url }}" id="{{ menu.id }}" class="nav-link {% if menu.selected %} active {% endif %}"
+                {% if menu.hx_get %}hx-get="{{ menu.hx_get }}"{% endif %} 
+                {% if menu.hx_target %}hx-target="{{ menu.hx_target }}"{% endif %} 
+            >
                 <i class="{{ menu.icon_class }}"></i>
                 <p>
                     {{ menu.name }}
@@ -27,7 +30,10 @@
                     <ul class="nav nav-treeview">
                     {% for submenu in menu.submenu %}
                         <li class="nav-item">
-                            <a href="{{ submenu.url }}" class="nav-link {% if submenu.selected %} active {% endif %}">
+                            <a href="{{ submenu.url }}" id="{{ submenu.id }}" class="nav-link {% if submenu.selected %} active {% endif %}"
+                                {% if submenu.hx_get %}hx-get="{{ submenu.hx_get }}"{% endif %} 
+                                {% if submenu.hx_target %}hx-target="{{ submenu.hx_target }}"{% endif %} 
+                            >
                                 <i class="{{ submenu.icon_class }}"></i>
                                 <p>{{ submenu.name }}</p>
                             </a>

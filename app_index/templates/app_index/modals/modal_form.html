@@ -1,0 +1,66 @@
+{#{% extends 'app_index/cruds/base.html' %}#}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% load adminlte_helpers %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+
+<form id="id_form_modal" hx-post="{{ request.path }}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}' class="modal-content">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title">Obtener Datos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+        <div class="modal-body">
+            {% if form.helper %}
+                {% crispy form %}
+            {% else %}
+                {{ form|crispy }}
+            {% endif %}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Aceptar</button>
+        </div>
+    </div>
+    
+</form>
+
+<script>
+    function getContainer(){
+        return document.querySelector('#id_form_modal');
+    }     
+    
+    //let container = document.querySelector('#id_form_modal'); // <----- Fill in your div container here and its done
+
+    function getFocusable(context = 'document') {
+      return Array.from(context.querySelectorAll('button, [href], input:not([type="hidden"]), textarea, select, [tabindex]:not([tabindex="-1"])')).filter(function (el) { return !el.closest('[hidden]'); });
+    }
+    function getFocusableItems() {
+        return getFocusable(getContainer());
+    }
+    {#const focusableItems = getFocusable(getContainer());#}
+    document.addEventListener("keydown", function (e) {
+      if ( window.getComputedStyle(getContainer()).display === "none") {
+        return;
+      }
+      if (e.key === 'Tab') { // Tab & Shift+Tab
+        const focusedItem = e.target;
+        const focusedItemIndex = getFocusableItems().indexOf(focusedItem);
+        if (e.shiftKey) {
+          if (!getContainer().contains(e.target) || focusedItemIndex === 0) {
+            getFocusableItems()[getFocusableItems().length - 1].focus();
+            e.preventDefault();
+          }
+        } else {
+          if (!getContainer().contains(e.target) || focusedItemIndex === getFocusableItems().length - 1) {
+            getFocusableItems()[0].focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+</script>
