@@ -271,6 +271,12 @@ class ProductoFlujoFilter(MyGenericFilter):
         lookup_expr='icontains',
     )
 
+    get_clasemateriaprima = django_filters.ModelMultipleChoiceFilter(
+        label="Clase de Materia Prima",
+        queryset=ClaseMateriaPrima.objects.all(),
+        method="filter_by_clasemateriaprima",
+    )
+
     class Meta:
         model = ProductoFlujo
         fields = [
@@ -292,63 +298,11 @@ class ProductoFlujoFilter(MyGenericFilter):
             },
         }
 
-
-# ------ ProductoFlujoClase / Filter ------
-class ProductoFlujoClaseFilter(MyGenericFilter):
-    search_fields = [
-        'id__contains',
-        'clasemateriaprima__descripcion__icontains',
-        'producto__descripcion__icontains',
-    ]
-    split_space_search = ' '
-
-    class Meta:
-        model = ProductoFlujoClase
-        fields = [
-            'id',
-            'clasemateriaprima',
-            'producto',
-        ]
-
-        form = ProductoFlujoClaseFormFilter
-
-        filter_overrides = {
-            models.ForeignKey: {
-                'filter_class': django_filters.ModelMultipleChoiceFilter,
-                'extra': lambda f: {
-                    'queryset': django_filters.filterset.remote_queryset(f),
-                }
-            },
-        }
-
-
-# ------ ProductoFlujoDestino / Filter ------
-class ProductoFlujoDestinoFilter(MyGenericFilter):
-    search_fields = [
-        'id__contains',
-        'destino_icontains',
-        'producto__descripcion__icontains',
-    ]
-    split_space_search = ' '
-
-    class Meta:
-        model = ProductoFlujoDestino
-        fields = [
-            'id',
-            'destino',
-            'producto',
-        ]
-
-        form = ProductoFlujoClaseFormFilter
-
-        filter_overrides = {
-            models.ForeignKey: {
-                'filter_class': django_filters.ModelMultipleChoiceFilter,
-                'extra': lambda f: {
-                    'queryset': django_filters.filterset.remote_queryset(f),
-                }
-            },
-        }
+    def filter_by_clasemateriaprima(self, queryset, name, value):
+        if value:
+            prods = [p.producto.pk for p in ProductoFlujoClase.objects.filter(clasemateriaprima__in=value).all()]
+            return queryset.filter(pk__in=prods)
+        return queryset
 
 
 # ------ ProductoFlujoCuenta / Filter ------

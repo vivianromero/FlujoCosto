@@ -68,12 +68,9 @@ class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = Cuenta
 
         fields = (
-            # 'long_niv',
-            # 'posicion',
             'clave',
             'descripcion',
             'activa',
-            # 'parent',
         )
 
 
@@ -91,42 +88,18 @@ class CentroCostoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ ProductoFlujo / Table ------
 class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    get_clasemateriaprima = tables.Column(verbose_name='Clase Materia Prima')
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = ProductoFlujo
 
         fields = (
-            'id',
             'codigo',
             'descripcion',
-            'activo',
             'medida',
             'tipoproducto',
+            'activo',
+            'get_clasemateriaprima'
         )
-
-
-# ------ ProductoFlujoClase / Table ------
-class ProductoFlujoClaseTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ProductoFlujoClase
-
-        fields = (
-            'id',
-            'clasemateriaprima',
-            'producto',
-        )
-
-
-# ------ ProductoFlujoDestino / Table ------
-class ProductoFlujoDestinoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ProductoFlujoDestino
-
-        fields = (
-            'id',
-            'destino',
-            'producto',
-        )
-
 
 # ------ ProductoFlujoCuenta / Table ------
 class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):

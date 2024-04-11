@@ -383,6 +383,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
         'descripcion_icontains',
         'medida__descripcion__contains',
         'tipoproducto__descripcion__contains',
+        'get_clasemateriaprima__descripcion__contains'
     ]
 
     add_form = ProductoFlujoForm
@@ -408,80 +409,12 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 context = super().get_context_data(**kwargs)
                 context.update({
                     'url_apiversat': 'app_index:appversat:prod_appversat',
-                    # 'url_importar': 'app_index:importar:ccta_importar',
-                    # 'url_exportar': 'app_index:exportar:ccta_exportar',
+                    'url_importar': 'app_index:importar:prod_importar',
+                    'url_exportar': 'app_index:exportar:prod_exportar',
                 })
                 return context
 
         return OFilterListView
-
-# ------ ProductoFlujoClase / CRUD ------
-class ProductoFlujoClaseCRUD(CommonCRUDView):
-    model = ProductoFlujoClase
-
-    namespace = 'app_index:codificadores'
-
-    fields = [
-        'id',
-        'clasemateriaprima',
-        'producto',
-    ]
-
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'id__contains',
-        'clasemateriaprima__descripcion__icontains',
-        'producto__descripcion__icontains',
-    ]
-
-    add_form = ProductoFlujoClaseForm
-    update_form = ProductoFlujoClaseForm
-
-    list_fields = fields
-
-    filter_fields = fields
-
-    filterset_class = ProductoFlujoClaseFilter
-
-    # Table settings
-    table_class = ProductoFlujoClaseTable
-
-
-# ------ ProductoFlujoDestino / CRUD ------
-class ProductoFlujoDestinoCRUD(CommonCRUDView):
-    model = ProductoFlujoDestino
-
-    namespace = 'app_index:codificadores'
-
-    fields = [
-        'id',
-        'destino',
-        'producto',
-    ]
-
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'id__contains',
-        'destino_icontains',
-        'producto__descripcion__icontains',
-    ]
-
-    add_form = ProductoFlujoDestinoForm
-    update_form = ProductoFlujoDestinoForm
-
-    list_fields = fields
-
-    filter_fields = fields
-
-    filterset_class = ProductoFlujoDestinoFilter
-
-    # Table settings
-    table_class = ProductoFlujoDestinoTable
-
 
 # ------ ProductoFlujoCuenta / CRUD ------
 class ProductoFlujoCuentaCRUD(CommonCRUDView):

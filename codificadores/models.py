@@ -203,6 +203,9 @@ class ClaseMateriaPrima(models.Model):
         db_table = 'cla_clasemateriaprima'
         ordering = ['descripcion']
 
+    def __str__(self):
+        return self.descripcion
+
 
 class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -218,8 +221,12 @@ class ProductoFlujo(ObjectsManagerAbstract):
         db_table = 'cla_productoflujo'
         ordering = ['tipoproducto', 'descripcion']
 
+    @property
+    def get_clasemateriaprima(self):
+        return None if self.tipoproducto.pk != 2 else self.productoflujoclase_producto.get().clasemateriaprima
 
-class ProductoFlujoClase(models.Model):
+
+class ProductoFlujoClase(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
                                             related_name='productosflujoclase_clasemateriaprima')
