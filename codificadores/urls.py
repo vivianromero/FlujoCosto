@@ -31,5 +31,6 @@ urlpatterns = [
     path("", include(motivoajuste_crud.get_urls())),
     path("", include(centrocosto_crud.get_urls())),
     path("", include(cambioproducto_crud.get_urls())),
+    path("obtener_datos", views.ObtenrDatosModalFormView.as_view(), name='obtener_datos'),
 ]
 

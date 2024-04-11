@@ -1,7 +1,16 @@
+import json
+
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
+from django_htmx.http import HttpResponseLocation
+
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
+from cruds_adminlte3.utils import crud_url_name
 
 
 # ------ Departamento / CRUD ------
@@ -301,6 +310,7 @@ class CuentaCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ CentroCosto / CRUD ------
 class CentroCostoCRUD(CommonCRUDView):
     model = CentroCosto
@@ -415,6 +425,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 return context
 
         return OFilterListView
+
 
 # ------ ProductoFlujoCuenta / CRUD ------
 class ProductoFlujoCuentaCRUD(CommonCRUDView):
@@ -608,6 +619,7 @@ class MotivoAjusteCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ Cambio de Producto / CRUD ------
 class CambioProductoCRUD(CommonCRUDView):
     model = CambioProducto
@@ -655,3 +667,32 @@ class CambioProductoCRUD(CommonCRUDView):
                 return context
 
         return OFilterListView
+
+
+class ObtenrDatosModalFormView(FormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = ObtenerDatosModalForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            return HttpResponseLocation(
+                self.get_success_url(),
+                headers={"HX-Refresh": "true"},
+                target='#main_content_swap'
+            )
+            # return HttpResponse(
+            #     status=204,
+            #     headers={
+            #         'HX-Trigger': json.dumps({
+            #             "bookListChanged": None,
+            #             "showMessage": f"updated."
+            #         })
+            #     }
+            # )
+        else:
+            return render(self.request, 'app_index/modals/modal_form.html', {
+                'form': form,
+            })
+
+    def get_success_url(self):
+        return reverse_lazy(crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'))
