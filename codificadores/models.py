@@ -221,6 +221,9 @@ class ProductoFlujo(ObjectsManagerAbstract):
         db_table = 'cla_productoflujo'
         ordering = ['tipoproducto', 'descripcion']
 
+    def __str__(self):
+        return "%s | %s" % (self.codigo, self.descripcion)
+
     @property
     def get_clasemateriaprima(self):
         return None if self.tipoproducto.pk != 2 else self.productoflujoclase_producto.get().clasemateriaprima
@@ -599,3 +602,18 @@ class CambioProducto(models.Model):
         db_table = 'cla_cambioproducto'
         unique_together = (('productoo', 'productod'),)
         ordering = ['productoo__descripcion']
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'productoo',
+                    'productod',
+                ]
+            ),
+        ]
+
+        verbose_name_plural = "Cambio de Productos"
+        verbose_name = "Cambio de Producto"
+
+    def __str__(self):
+        return "%s | %s" % (self.productoo, self.productod)

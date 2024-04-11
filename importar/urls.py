@@ -12,5 +12,6 @@ urlpatterns = [
     path('ccta_importar/', views.ccta_importar, name='ccta_importar'),
     path('dpto_importar/', views.dpto_importar, name='dpto_importar'),
     path('prod_importar/', views.prod_importar, name='prod_importar'),
+    path('cprod_importar/', views.cprod_importar, name='cprod_importar'),
 ]
 

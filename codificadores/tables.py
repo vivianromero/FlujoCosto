@@ -138,7 +138,7 @@ class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'activa',
         )
 
-# ------ MedidaConversion / Table ------
+# ------ MotivoAjuste / Table ------
 class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = MotivoAjuste
@@ -147,4 +147,15 @@ class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'descripcion',
             'aumento',
             'activo',
+        )
+
+
+# ------ Cambio Producto / Table ------
+class CambioProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = CambioProducto
+
+        fields = (
+            'productoo',
+            'productod',
         )

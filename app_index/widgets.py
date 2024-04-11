@@ -1,11 +1,10 @@
 from datetime import date, timedelta
 
 from bootstrap_datepicker_plus.widgets import DatePickerInput
+from bootstrap_daterangepicker import widgets as drp_widgets
 from bootstrap_daterangepicker.widgets import format_to_js_re, format_to_js, add_month
-from django.forms.widgets import HiddenInput
-from django_filters.widgets import SuffixedMultiWidget, RangeWidget
-from bootstrap_daterangepicker import widgets as drp_widgets, fields
 from django.utils.translation import gettext as _
+from django_filters.widgets import SuffixedMultiWidget
 
 
 class MyRangeWidget(SuffixedMultiWidget):
@@ -64,7 +63,7 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
             self.picker_options['ranges'] = {
                 _('Today'): (start_date.strftime(formating), start_date.strftime(formating)),
                 _('Yesterday'): (
-                (start_date - one_day).strftime(formating), (start_date - one_day).strftime(formating)),
+                    (start_date - one_day).strftime(formating), (start_date - one_day).strftime(formating)),
                 _('This week'): ((start_date - timedelta(days=start_date.weekday())).strftime(formating),
                                  start_date.strftime(formating)),
                 _('Last week'): ((start_date - timedelta(days=start_date.weekday() + 7)).strftime(formating),
@@ -76,7 +75,7 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
                 _('3 months ago'): ((add_month(start_date, -3)).strftime(formating), start_date.strftime(formating)),
                 _('Year ago'): ((add_month(start_date, -12)).strftime(formating), start_date.strftime(formating)),
                 _('This year'): (
-                (start_date.replace(day=1, month=1)).strftime(formating), start_date.strftime(formating)),
+                    (start_date.replace(day=1, month=1)).strftime(formating), start_date.strftime(formating)),
                 _('Last year'): (
                     (start_date.replace(day=1, month=1, year=past_year)).strftime(formating),
                     (start_date.replace(day=31, month=12, year=past_year)).strftime(formating)

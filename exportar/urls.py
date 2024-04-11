@@ -12,5 +12,6 @@ urlpatterns = [
     path('ccta_exportar/', views.ccta_exportar, name='ccta_exportar'),
     path('dpto_exportar/', views.dpto_exportar, name='dpto_exportar'),
     path('prod_exportar/', views.prod_exportar, name='prod_exportar'),
+    path('cprod_exportar/', views.cprod_exportar, name='cprod_exportar'),
 ]
 
