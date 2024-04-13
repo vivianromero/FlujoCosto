@@ -54,16 +54,6 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "id": 'id_nav_link_obtener_datos',
-                            "name": _("Get Products data"),
-                            "icon_class": 'fa fa-university',
-                            "url": reverse_lazy('app_index:codificadores:obtener_datos'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                            "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
-                            "hx_target": '#dialog',
-                        },
-
-                        {
                             "id": 'id_nav_link_unidades_de_medida',
                             "name": "Unidades de Medida",
                             "icon_class": 'fa fa-university',
@@ -92,6 +82,7 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
+                            "id": 'id_nav_link_cambio_de_productos',
                             "name": "Cambio de Productos",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(CambioProducto, 'list', 'app_index:codificadores:'),
