@@ -117,9 +117,8 @@ class ProductoFlujoList(APIView):
     def get(self, request, format=None, valor_inicial=None, clase_mat_prima=None):
         try:
             tipo = TipoProducto.objects.get(pk=2)  # materia prima
-            clase = ClaseMateriaPrima.objects.get(pk=6)  # capa sin calsif
-            iniciocod = '2041'
-            data = GenProducto.objects.filter(codigo__startswith=iniciocod).all()
+            clase = ClaseMateriaPrima.objects.get(pk=clase_mat_prima)
+            data = GenProducto.objects.filter(codigo__startswith=valor_inicial).all()
             datos = []
             datos_clase = []
             cod_prod = []
