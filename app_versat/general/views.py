@@ -1,7 +1,9 @@
 from django.db import transaction
 from django.db.models import F
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 from rest_framework.views import APIView
 
 from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo, TipoProducto, \
@@ -112,7 +114,7 @@ class ProductoFlujoList(APIView):
     Devuelve los parametros para pedir los productos
     """
     @transaction.atomic
-    def get(self, request, format=None):
+    def get(self, request, format=None, valor_inicial=None, clase_mat_prima=None):
         try:
             tipo = TipoProducto.objects.get(pk=2)  # materia prima
             clase = ClaseMateriaPrima.objects.get(pk=6)  # capa sin calsif
@@ -143,4 +145,4 @@ class ProductoFlujoList(APIView):
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
-        return redirect(crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'))
+        return HttpResponseClientRedirect(reverse_lazy('app_index:codificadores:codificadores_productoflujo_list'))

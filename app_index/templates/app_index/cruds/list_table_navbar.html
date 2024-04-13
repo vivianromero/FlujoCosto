@@ -12,6 +12,8 @@
                    href="{% url url_apiversat %}"
             
                    class="nav-link"
+                   {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
+                   {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} 
             {#               hx-get="{{ url }}{{ getparams }}"#}
             {#               hx-trigger="click"#}
             {#               hx-target="#main_content_swap"#}
