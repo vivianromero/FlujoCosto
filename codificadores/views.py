@@ -12,6 +12,8 @@ from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.utils import crud_url_name
 
+from . import ChoiceTiposProd
+
 
 # ------ Departamento / CRUD ------
 class DepartamentoCRUD(CommonCRUDView):
@@ -74,9 +76,9 @@ class UnidadContableCRUD(CommonCRUDView):
     fields = [
         'codigo',
         'nombre',
-        'activo',
         'is_empresa',
         'is_comercializadora',
+        'activo',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -426,6 +428,11 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 })
                 return context
 
+            def get_queryset(self):
+                qset = super().get_queryset()
+                qset = qset.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA)
+                return qset
+
         return OFilterListView
 
 
@@ -470,26 +477,29 @@ class VitolaCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
+        'producto__codigo',
+        'producto__descripcion',
         'diametro',
         'longitud',
-        'destino',
         'cepo',
         'categoriavitola',
-        'producto',
         'tipovitola',
+        'destino',
+        'producto__activo',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
+        'producto__codigo__icontains',
+        'producto__descripcion__icontains',
         'diametro__contains',
         'longitud__contains',
-        'destino__icontains',
         'cepo__contains',
-        'categoriavitola__descripcion__icontains',
-        'producto__descripcion__icontains',
+        'categoriavitola__descripcion__contains',
         'tipovitola__descripcion__icontains',
+        'destino__icontains',
     ]
 
     add_form = VitolaForm
@@ -510,11 +520,11 @@ class VitolaCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # context.update({
-                #     'url_apiversat': '',
-                #     'url_importar': '',
-                #     'url_exportar': '',
-                # })
+                context.update({
+                    'url_apiversat': 'app_index:appversat:vit_appversat',
+                    'url_importar': 'app_index:importar:vit_importar',
+                    'url_exportar': 'app_index:exportar:vit_exportar',
+                })
                 return context
 
         return OFilterListView

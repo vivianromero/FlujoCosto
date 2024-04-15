@@ -131,3 +131,66 @@ class MPMarca(models.Model):
         managed = True
         db_table = 'Marca'
         ordering = ['descripcion']
+
+#Sispax
+class SisPaxTipoProductoFlujo(models.Model):
+    id = models.AutoField(primary_key=True)
+    descripcion = models.CharField(unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'fp_TipoProductoFlujo'
+
+class SisPaxMedida(models.Model):
+    idmedida = models.AutoField(primary_key=True)
+    clave = models.CharField(unique=True)
+    descripcion = models.CharField(unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'gen_medida'
+
+class SisPaxProductoFlujo(models.Model):
+    id = models.UUIDField(primary_key=True)
+    codigo = models.CharField(unique=True)
+    descripcion = models.CharField(unique=True)
+    activo = models.BooleanField(default=True)
+    tipo = models.ForeignKey(SisPaxTipoProductoFlujo, on_delete=models.DO_NOTHING, db_column="tipo")
+    fk_um = models.ForeignKey(SisPaxMedida, on_delete=models.DO_NOTHING, db_column="fk_um")
+
+    class Meta:
+        managed = True
+        db_table = 'fp_ProductoFlujo'
+
+class SisPaxCategoriaVitola(models.Model):
+    id = models.AutoField(primary_key=True)
+    descripcion = models.CharField(unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'fp_Categorias'
+
+class SisPaxTipoVitola(models.Model):
+    id = models.AutoField(primary_key=True)
+    descripcion = models.CharField(unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'fp_TipoVitola'
+
+class SisPaxVitola(models.Model):
+    id = models.UUIDField(primary_key=True)
+    diametro = models.DecimalField(max_digits=10, decimal_places=2)
+    longitud = models.IntegerField()
+    fk_cat = models.ForeignKey(SisPaxCategoriaVitola, models.DO_NOTHING, db_column="fk_cat")
+    destino = models.CharField(max_length=1)
+    fk_tipo = models.ForeignKey(SisPaxTipoVitola, models.DO_NOTHING, db_column="fk_tipo", related_name='vitola_producto')
+    fk_prod = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_prod")
+    cepo = models.IntegerField()
+    fk_capa = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_capa", related_name='vitola_productocapa')
+    fk_pesada = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_pesada", related_name='vitola_productopesada')
+
+    class Meta:
+        managed = True
+        db_table = 'fp_Vitolas'
+

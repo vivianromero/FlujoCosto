@@ -7,6 +7,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import gettext_lazy as _
 from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from django.core.validators import MinValueValidator
+from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
+    ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc
 
 
 class ObjectsManagerAbstract(models.Model):
@@ -139,7 +141,7 @@ class CentroCosto(ObjectsManagerAbstract):
         indexes = [
             models.Index(
                 fields=[
-                    'clave','descripcion'
+                    'clave', 'descripcion'
                 ]
             ),
         ]
@@ -152,33 +154,18 @@ class CentroCosto(ObjectsManagerAbstract):
 
 
 class TipoProducto(models.Model):
-    CHOICE_TIPOS_PROD = {
-        1: "Pesada",
-        2: "Materia Prima",
-        3: "Habilitación",
-        4: "Línea de Salida",
-        5: "Vitola",
-        6: "Subproducto",
-        7: "Línea sin Terminar",
-    }
-
-    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_PROD, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceTiposProd.CHOICE_TIPOS_PROD, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
 
     class Meta:
         db_table = 'cla_tipoproducto'
 
     def __str__(self):
-        return self.CHOICE_TIPOS_PROD[self.id]
+        return ChoiceTiposProd.CHOICE_TIPOS_PROD[self.id]
 
 
 class EstadoProducto(models.Model):
-    CHOICE_ESTADOS = {
-        1: 'Bueno',
-        2: 'Deficiente',
-        3: 'Rechazo',
-    }
-    id = models.AutoField(primary_key=True, choices=CHOICE_ESTADOS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceEstadosProd.CHOICE_ESTADOS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
 
     class Meta:
@@ -186,16 +173,7 @@ class EstadoProducto(models.Model):
 
 
 class ClaseMateriaPrima(models.Model):
-    CHOICE_CLASES = {
-        1: 'Capote',
-        2: 'F1',
-        3: 'F2',
-        4: 'F3',
-        5: 'Capa Clasificada',
-        6: 'Capa sin Clasificar',
-        7: 'F4',
-    }
-    id = models.AutoField(primary_key=True, choices=CHOICE_CLASES, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceClasesMatPrima.CHOICE_CLASES, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
     capote_fortaleza = models.CharField(max_length=1)
 
@@ -209,13 +187,13 @@ class ClaseMateriaPrima(models.Model):
 
 class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
-    descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
+    codigo = models.CharField(unique=True, max_length=50, verbose_name=_("Code"))
+    descripcion = models.CharField(unique=True, max_length=400, verbose_name=_("Description"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida',
-                                 verbose_name="U.M")
+                               verbose_name="U.M")
     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
-                                       verbose_name=_("Product Type"))
+                                     verbose_name=_("Product Type"))
 
     class Meta:
         db_table = 'cla_productoflujo'
@@ -226,13 +204,13 @@ class ProductoFlujo(ObjectsManagerAbstract):
 
     @property
     def get_clasemateriaprima(self):
-        return None if self.tipoproducto.pk != 2 else self.productoflujoclase_producto.get().clasemateriaprima
+        return None if self.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else self.productoflujoclase_producto.get().clasemateriaprima
 
 
 class ProductoFlujoClase(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     clasemateriaprima = models.ForeignKey(ClaseMateriaPrima, on_delete=models.PROTECT,
-                                            related_name='productosflujoclase_clasemateriaprima')
+                                          related_name='productosflujoclase_clasemateriaprima')
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujoclase_producto')
 
     class Meta:
@@ -250,10 +228,10 @@ class ProductoFlujoVitola(models.Model):
 
 class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'},
+    destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
                                verbose_name=_("Destination"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE,
-                                   related_name='productoflujodestino_producto')
+                                 related_name='productoflujodestino_producto')
 
     class Meta:
         db_table = 'cla_productoflujodestino'
@@ -269,16 +247,7 @@ class ProductoFlujoCuenta(models.Model):
 
 
 class CategoriaVitola(models.Model):
-    CHOICE_CATEGORIAS = {
-        5: 'IX',
-        6: 'ND',
-        7: 'V',
-        8: 'VI',
-        9: 'VII',
-        10: 'VIII',
-    }
-
-    id = models.AutoField(primary_key=True, choices=CHOICE_CATEGORIAS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceCategoriasVit.CHOICE_CATEGORIAS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
     orden = models.IntegerField(unique=True)
 
@@ -286,18 +255,19 @@ class CategoriaVitola(models.Model):
         db_table = 'cla_categoriavitola'
         ordering = ['orden']
 
+    def __str__(self):
+        return "%s" % (self.descripcion)
+
 
 class TipoVitola(models.Model):
-    CHOICE_TIPOS_VITOLA = {
-        1: 'Picadura',
-        2: 'Hoja',
-    }
-
-    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_VITOLA, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
 
     class Meta:
         db_table = 'cla_tipovitola'
+
+    def __str__(self):
+        return "%s" % (self.descripcion)
 
 
 class Vitola(ObjectsManagerAbstract):
@@ -305,16 +275,34 @@ class Vitola(ObjectsManagerAbstract):
     diametro = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,
                                    verbose_name=_("Diameter"))
     longitud = models.IntegerField(default=0, verbose_name=_("Length"))
-    destino = models.CharField(max_length=1, choices={'C': 'Consumo Nacional', 'E': 'Exportación'},
+    destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
                                verbose_name=_("Destination"))
     cepo = models.IntegerField(default=0)
     categoriavitola = models.ForeignKey(CategoriaVitola, on_delete=models.PROTECT, related_name='vitola_categotia')
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_producto')
     tipovitola = models.ForeignKey(TipoVitola, on_delete=models.PROTECT, related_name='vitola_tipo',
-                                     verbose_name=_("Type"))
+                                   verbose_name=_("Type"))
+    capa = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_productocapa')
+    pesada = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_productopesada')
 
     class Meta:
         db_table = 'cla_vitola'
+        ordering = ['destino', 'categoriavitola', 'producto__descripcion']
+
+    def __str__(self):
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+
+    @property
+    def get_codigo(self):
+        return self.producto.codigo
+
+    @property
+    def get_descripcion(self):
+        return self.producto.descripcion
+
+    @property
+    def get_um(self):
+        return self.producto.um
 
 
 class MarcaSalida(ObjectsManagerAbstract):
@@ -342,10 +330,10 @@ class LineaSalida(ObjectsManagerAbstract):
     peso_legal = models.DecimalField(max_digits=10, decimal_places=6, default=0.00,
                                      verbose_name=_("Legal Weight"))
     marcasalida = models.ForeignKey(MarcaSalida, on_delete=models.PROTECT, related_name='lineasalida_marcasalida',
-                                      verbose_name=_("Starting Mark"))
+                                    verbose_name=_("Starting Mark"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='lineasalida_producto')
     vitola = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='lineasalida_vitola',
-                                 verbose_name="Vitola")
+                               verbose_name="Vitola")
 
     class Meta:
         db_table = 'cla_lineasalida'
@@ -357,9 +345,9 @@ class Departamento(ObjectsManagerAbstract):
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
     inicializado = models.BooleanField(default=False)
     centrocosto = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name='departamento_centrocosto',
-                                      verbose_name=_("Cost Center"))
+                                    verbose_name=_("Cost Center"))
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
-                                              verbose_name="UEB")
+                                            verbose_name="UEB")
 
     relaciondepartamento = models.ManyToManyField('self',
                                                   blank=True, null=True,
@@ -391,24 +379,17 @@ class Departamento(ObjectsManagerAbstract):
 
 
 class NormaConsumo(ObjectsManagerAbstract):
-    CHOICE_TIPOS_NORMAS = {
-        1: 'Pesada',
-        2: 'Materia Prima',
-        4: 'Línea de Salida',
-        5: 'Vitola',
-        7: 'Habilitados'
-    }
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo = models.IntegerField(choices=CHOICE_TIPOS_NORMAS, editable=False, verbose_name=_("Type"))
+    tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, editable=False, verbose_name=_("Type"))
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                    verbose_name=_("Quantity"))
     activa = models.BooleanField(default=True, verbose_name=_("Active"))
     fecha_creacion = models.DateTimeField(db_default=Now(), verbose_name=_("Crate at"))
     fecha = models.DateField(verbose_name=_("Date"))
     medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida',
-                                 verbose_name="U.M")
+                               verbose_name="U.M")
     producto = models.ForeignKey(ProductoFlujo, models.PROTECT, related_name='normaconsumo_producto',
-                                   verbose_name=_("Product"))
+                                 verbose_name=_("Product"))
 
     class Meta:
         db_table = 'cla_normaconsumo'
@@ -424,24 +405,18 @@ class NormaconsumoDetalle(models.Model):
     operativo = models.BooleanField(default=False, db_comment='Si el producto es operativo o no',
                                     verbose_name=_("Operational"))
     normaconsumo = models.ForeignKey(NormaConsumo, on_delete=models.CASCADE,
-                                       related_name='normaconsumodetalle_normaconsumo')
+                                     related_name='normaconsumodetalle_normaconsumo')
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='normaconsumodetalle_producto',
-                                   verbose_name=_("Product"))
+                                 verbose_name=_("Product"))
     medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumodetalle_medida',
-                                 verbose_name="U.M")
+                               verbose_name="U.M")
 
     class Meta:
         db_table = 'cla_normaconsumodetalle'
 
 
 class MotivoAjuste(ObjectsManagerAbstract):
-    CHOICE_MOTIVOS = {
-        1: 'Merma',
-        2: 'Rotura',
-        3: 'Promoción',
-        4: 'SubProductos',
-    }
-    id = models.AutoField(primary_key=True, choices=CHOICE_MOTIVOS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceMotivosAjuste.CHOICE_MOTIVOS_AJUSTE, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128, verbose_name=_("Description"))
     aumento = models.BooleanField(default=False, db_comment='Ajuste de aumento True en otro caso False',
                                   verbose_name=_("Increase"))
@@ -453,29 +428,7 @@ class MotivoAjuste(ObjectsManagerAbstract):
 
 
 class TipoDocumento(models.Model):
-    CHOICE_TIPOS_DOC = {
-        1: 'Entrada Desde Versat',
-        2: 'Salida Hacia Versat',
-        3: 'Transferencia Hacia Departamento',
-        4: 'Transferencia Desde Departamento',
-        5: 'Ajuste de Aumento',
-        6: 'Ajuste de Disminución',
-        7: 'Recepción de Producción de Reproceso',
-        8: 'Recepción de Producción',
-        9: 'Devolución',
-        10: 'Sobrante Sujeto a Investigación',
-        11: 'Recepción de Rechazo',
-        12: 'Carga Inicial',
-        13: 'Devolución Recibida',
-        14: 'Cambio de Estado',
-        15: 'Transferencia Externa',
-        16: 'Recibir Transferencia Externa',
-        17: 'Venta a Trabajadores',
-        18: 'Reporte de SubProductos',
-        19: 'Cambio de Producto',
-    }
-
-    id = models.AutoField(primary_key=True, choices=CHOICE_TIPOS_DOC, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceTiposDoc.CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
     operacion = models.CharField(max_length=1, db_comment='Operación de Entrada (E) o Salida (S)')
     generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
@@ -487,12 +440,7 @@ class TipoDocumento(models.Model):
 
 
 class NumeracionDocumentos(ObjectsManagerAbstract):
-    CHOICE_TIPO_NUMERO = {
-        1: 'Número Consecutivo',
-        2: 'Número de Control',
-    }
-
-    tiponumeracion = models.CharField(unique=True, max_length=150, choices=CHOICE_TIPO_NUMERO,
+    tiponumeracion = models.CharField(unique=True, max_length=150, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,
                                       verbose_name=_("Enumeration Type"))
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema',
                                   verbose_name=_("System"))
@@ -512,7 +460,7 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
 class TipoDocumentoCuentaAbstract(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE,
-                                    verbose_name=_("Document Type"))
+                                  verbose_name=_("Document Type"))
 
     class Meta:
         abstract = True
@@ -524,17 +472,17 @@ class TipoDocumentoCuentaAbstract(models.Model):
 # Tranf entre departamentos
 class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
     cuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                          related_name='tipodocumentocuenta_cuenta_debe_exp',
-                                          verbose_name=_("Debit Count Exp"))
+                                        related_name='tipodocumentocuenta_cuenta_debe_exp',
+                                        verbose_name=_("Debit Count Exp"))
     cuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                         related_name='tipodocumentocuenta_cuenta_debe_cn',
-                                         verbose_name=_("Debit Count CN"))
+                                       related_name='tipodocumentocuenta_cuenta_debe_cn',
+                                       verbose_name=_("Debit Count CN"))
     cuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                           related_name='tipodocumentocuenta_cuenta_haber_exp',
-                                           verbose_name=_("Credit Count Exp"))
+                                         related_name='tipodocumentocuenta_cuenta_haber_exp',
+                                         verbose_name=_("Credit Count Exp"))
     cuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                          related_name='tipodocumentocuenta_cuenta_haber_cn',
-                                          verbose_name=_("Credit Count CN"))
+                                        related_name='tipodocumentocuenta_cuenta_haber_cn',
+                                        verbose_name=_("Credit Count CN"))
 
     class Meta:
         db_table = 'cla_tipodocumentocuenta'
@@ -543,16 +491,17 @@ class TipoDocumentoCuenta(TipoDocumentoCuentaAbstract):
 # Se va a configurar por unidad contable y los departamentos de la unidad contable
 class TipoDocumentoCuentaTransfExterna(TipoDocumentoCuentaAbstract):
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
-                                         related_name='tipodocumentocuentatransfexterna_unidadcontable',
-                                         db_comment='Esta es la unidad contable para la que se va a configurar el documento',
-                                         verbose_name="UEB")
+                                       related_name='tipodocumentocuentatransfexterna_unidadcontable',
+                                       db_comment='Esta es la unidad contable para la que se va a configurar el documento',
+                                       verbose_name="UEB")
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                       db_comment='Dpto de la unidad contable para la que se va a configurar el documento',
-                                       related_name='tipodocumentocuentatransfexterna_departamento',
-                                       verbose_name=_("Department"))
+                                     db_comment='Dpto de la unidad contable para la que se va a configurar el documento',
+                                     related_name='tipodocumentocuentatransfexterna_departamento',
+                                     verbose_name=_("Department"))
 
     class Meta:
         db_table = 'cla_tipodocumentocuentatransfexterna'
+
 
 # se configura la cuenta por unidad contable que realiza o recibe la transf.
 # en dependencia del tipo de documento
@@ -561,16 +510,16 @@ class TipoDocumentoCuentaTransfExternaUEB(models.Model):
     idtipodocumentocuentatransfexterna = models.ForeignKey(TipoDocumentoCuentaTransfExterna, on_delete=models.CASCADE,
                                                            related_name='tipodocumentocuentatransfexternadpto_ipodocumentocuentatransfexterna')
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
-                                         related_name='tipodocumentocuentatransfexternadpto_unidadcontable',
-                                         db_comment='Unidad contab que recibe o envía la transf, según el tipo de documento')
+                                       related_name='tipodocumentocuentatransfexternadpto_unidadcontable',
+                                       db_comment='Unidad contab que recibe o envía la transf, según el tipo de documento')
     cuenta_debe_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                          related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_exp')
+                                        related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_exp')
     cuenta_debe_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                         related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_cn')
+                                       related_name='tipodocumentocuentatransfexternadpto_cuenta_debe_cn')
     cuenta_haber_exp = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                           related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_exp')
+                                         related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_exp')
     cuenta_haber_cn = models.ForeignKey(Cuenta, on_delete=models.CASCADE,
-                                          related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_cn')
+                                        related_name='tipodocumentocuentatransfexternadpto_cuenta_haber_cn')
 
     class Meta:
         db_table = 'cla_tipodocumentocuentatransfexternaueb'

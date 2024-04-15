@@ -5,13 +5,10 @@ from django.db import models
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, NumeracionDocumentos
 from cruds_adminlte3.utils import crud_url
 from django.utils.translation import gettext_lazy as _
+from . import ChoiceSystems
 
 
 class ConexionBaseDato(models.Model):
-    CHOICE_SYSTEMS = {
-        "VersatSarasola": "VersatSarasola",
-        "SisGestMP": "SisGestMP",
-    }
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     database_name = models.CharField(max_length=250, verbose_name=_("Database Name"))
@@ -20,7 +17,7 @@ class ConexionBaseDato(models.Model):
     host = models.CharField(max_length=250, verbose_name=_("Host"))
     port = models.CharField(max_length=100, verbose_name=_("Port"))
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
-    sistema = models.CharField(choices=CHOICE_SYSTEMS, default=CHOICE_SYSTEMS["VersatSarasola"],
+    sistema = models.CharField(choices=ChoiceSystems.CHOICE_SYSTEMS, default=ChoiceSystems.VERSATSARASOLA,
                                   verbose_name=_("System"))
 
     class Meta:

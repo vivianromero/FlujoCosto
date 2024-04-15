@@ -4,10 +4,11 @@ from django.urls import resolve
 from django.utils.translation import gettext_lazy as _
 from dynamic_db_router import in_database
 
-from codificadores.models import Medida, MarcaSalida, Cuenta, ProductoFlujo
+from codificadores.models import Medida, MarcaSalida, Cuenta, ProductoFlujo, Vitola
 from configuracion.models import ConexionBaseDato
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_error
+from configuracion import ChoiceSystems
 
 
 class DatabaseConectionMiddleware:
@@ -22,7 +23,7 @@ class DatabaseConectionMiddleware:
         # Code to be executed for each request before
         # the view (and later middleware) are called.
         user = request.user
-        sistema = 'VersatSarasola'
+        sistema = ChoiceSystems.VERSATSARASOLA
         try:
             match = resolve(request.path)
             if not user.is_authenticated or not 'appversat' in match.namespaces:
@@ -36,11 +37,14 @@ class DatabaseConectionMiddleware:
                     object = Medida
                 case 'ms_appversat':
                     object = MarcaSalida
-                    sistema = "SisGestMP"
+                    sistema = ChoiceSystems.SISGESTMP
                 case 'ccta_appversat':
                     object = Cuenta
                 case 'prod_appversat':
                     object = ProductoFlujo
+                case 'vit_appversat':
+                    object = Vitola
+                    sistema = ChoiceSystems.SISPAX
             try:
                 conection = ConexionBaseDato.objects.get(unidadcontable=user.ueb, sistema=sistema)
 

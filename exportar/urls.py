@@ -13,5 +13,6 @@ urlpatterns = [
     path('dpto_exportar/', views.dpto_exportar, name='dpto_exportar'),
     path('prod_exportar/', views.prod_exportar, name='prod_exportar'),
     path('cprod_exportar/', views.cprod_exportar, name='cprod_exportar'),
+    path('vit_exportar/', views.vit_exportar, name='vit_exportar'),
 ]
 
