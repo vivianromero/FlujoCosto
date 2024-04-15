@@ -7,11 +7,13 @@ from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 from rest_framework.views import APIView
 
 from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo, TipoProducto, \
-    ClaseMateriaPrima, ProductoFlujoClase
+    ClaseMateriaPrima, ProductoFlujoClase, Vitola, CategoriaVitola, TipoVitola
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
-from .general import ConCuentanat, GenProducto
+from .general import ConCuentanat, GenProducto, SisPaxVitola, SisPaxProductoFlujo
 from .serializers import *
+
+from codificadores import ChoiceTiposProd
 
 
 class GenUnidadMedidaList(APIView):
@@ -113,10 +115,11 @@ class ProductoFlujoList(APIView):
     """
     Devuelve los parametros para pedir los productos
     """
+
     @transaction.atomic
     def get(self, request, format=None, valor_inicial=None, clase_mat_prima=None):
         try:
-            tipo = TipoProducto.objects.get(pk=2)  # materia prima
+            tipo = TipoProducto.objects.get(pk=ChoiceTiposProd.MATERIAPRIMA)  # materia prima
             clase = ClaseMateriaPrima.objects.get(pk=clase_mat_prima)
             data = GenProducto.objects.filter(codigo__startswith=valor_inicial).all()
             datos = []
@@ -125,7 +128,6 @@ class ProductoFlujoList(APIView):
             for item in data:
                 codigo = item.codigo.strip()
                 descripcion = item.descripcion.strip()
-                tipoproducto = tipo
                 clave_medida = item.idmedida.clave.strip()
                 medida = Medida.objects.filter(clave=clave_medida)
                 prod = ProductoFlujo(codigo=codigo, descripcion=descripcion, tipoproducto=tipo,
@@ -145,3 +147,50 @@ class ProductoFlujoList(APIView):
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
         return HttpResponseClientRedirect(reverse_lazy('app_index:codificadores:codificadores_productoflujo_list'))
+
+
+class VitolaList(APIView):
+    """
+    Vitolas
+    """
+
+    @transaction.atomic()
+    def get(self, request, format=None):
+        try:
+            tipoprodVit = TipoProducto.objects.get(pk=ChoiceTiposProd.VITOLA)
+            tipoprodPesada = TipoProducto.objects.get(pk=ChoiceTiposProd.PESADA)
+            tipoprodMP = TipoProducto.objects.get(pk=ChoiceTiposProd.MATERIAPRIMA)
+            data = SisPaxVitola.objects.select_related().all()
+            # data = SisPaxProductoFlujo.objects.select_related().filter(tipo.pk__in = [ChoiceTiposProd.VITOLA,
+            #                                                                           ChoiceTiposProd.PESADA]).all()
+            datos = []
+            cod_prod = []
+            datos_vitola = []
+            for item in data:
+                codigo = item.fk_prod.codigo
+                descripcion = item.fk_prod.descripcion
+                clave_medida = item.fk_prod.fk_um.clave.strip()
+                medida = Medida.objects.filter(clave=clave_medida)
+                prod = ProductoFlujo(codigo=codigo, descripcion=descripcion, tipoproducto=tipoprodVit,
+                                     medida=medida[0] if medida.exists() else Medida.objects.create(
+                                         clave=clave_medida, descripcion=item.fk_prod.fk_um.descripcion.strip()))
+
+                datos.append(prod)
+
+                categoriavitola = CategoriaVitola.objects.get(pk=item.fk_cat.id)
+                tipovitola = TipoVitola.objects.get(pk=item.fk_tipo.id)
+                vit = Vitola(diametro=item.diametro, longitud=item.longitud, destino=item.destino, cepo=item.cepo,
+                             categoriavitola=categoriavitola,
+                             producto=ProductoFlujo.objects.get(codigo=item.fk_prod.codigo), tipovitola=tipovitola)
+                datos_vitola.append(vit)
+
+            Vitola.objects.bulk_update_or_create(datos_vitola, ['diametro', 'longitud', 'destino', 'cepo',
+                                                                'categoriavitola', 'tipovitola'],
+                                                 match_field='producto')
+
+            ProductoFlujo.objects.bulk_update_or_create(datos, ['descripcion', 'tipoproducto', 'medida'],
+                                                        match_field='codigo')
+            message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
+        except Exception as e:
+            message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
+        return redirect(crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'))

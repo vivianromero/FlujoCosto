@@ -28,9 +28,9 @@ class UnidadContableTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         fields = (
             'codigo',
             'nombre',
-            'activo',
             'is_empresa',
             'is_comercializadora',
+            'activo',
         )
 
 
@@ -97,8 +97,8 @@ class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'descripcion',
             'medida',
             'tipoproducto',
+            'get_clasemateriaprima',
             'activo',
-            'get_clasemateriaprima'
         )
 
 # ------ ProductoFlujoCuenta / Table ------
@@ -117,13 +117,16 @@ class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = Vitola
 
         fields = (
+            'producto__codigo',
+            'producto__descripcion',
+            'producto__medida__clave',
+            'destino',
+            'categoriavitola',
+            'tipovitola',
             'diametro',
             'longitud',
-            'destino',
             'cepo',
-            'categoriavitola',
-            'producto',
-            'tipovitola',
+            'producto__activo'
         )
 
 

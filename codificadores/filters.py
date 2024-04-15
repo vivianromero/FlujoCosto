@@ -338,7 +338,7 @@ class VitolaFilter(MyGenericFilter):
         'longitud__contains',
         'destino__icontains',
         'cepo__contains',
-        'categoriavitola__descripcion__icontains',
+        'categoriavitola__descripcion__contains',
         'producto__descripcion__icontains',
         'tipovitola__descripcion__icontains',
     ]

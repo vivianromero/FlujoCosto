@@ -1,3 +1,4 @@
+from django.db import transaction
 from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
@@ -12,6 +13,7 @@ from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
+from . import ChoiceTiposProd, ChoiceClasesMatPrima
 
 
 # ------------ Unidad Contable / Form ------------
@@ -601,7 +603,7 @@ class ProductoFlujoForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
-        if instance and instance.tipoproducto.pk == 2:
+        if instance and instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA:
             kwargs['initial'] = {'clase': instance.productoflujoclase_producto.get().clasemateriaprima}
         super(ProductoFlujoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
@@ -614,7 +616,7 @@ class ProductoFlujoForm(forms.ModelForm):
         self.fields["medida"].disabled = True
         self.fields["tipoproducto"].disabled = True
         self.fields["clase"].disabled = True
-        self.fields["clase"].hidden = not self.instance.tipoproducto.pk == 2
+        self.fields["clase"].hidden = not self.instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
 
         self.fields["codigo"].required = False
         self.fields["descripcion"].required = False
@@ -817,26 +819,38 @@ class ProductoFlujoCuentaFormFilter(forms.Form):
 
 # ------------ Vitola / Form ------------
 class VitolaForm(forms.ModelForm):
+    codigo = forms.CharField(max_length=50, required=True, label=_("Code"))
+    descripcion = forms.CharField(max_length=400, required=True, label=_("Description"))
+    activo = forms.BooleanField(label=_("Active"))
+    um = forms.ModelChoiceField(
+        queryset=Medida.objects.all(),
+        label=_("U.M"),
+        required=True,
+    )
+
     class Meta:
         model = Vitola
         fields = [
+            'codigo',
+            'descripcion',
+            'um',
             'diametro',
             'longitud',
-            'destino',
             'cepo',
             'categoriavitola',
-            'producto',
             'tipovitola',
+            'destino',
+            'activo',
         ]
 
         widgets = {
             'categoriavitola': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'producto': SelectWidget(
+            'tipovitola': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'tipovitola': SelectWidget(
+            'um': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
         }
@@ -845,24 +859,44 @@ class VitolaForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {'activo': True}
+        if instance:
+            kwargs['initial'] = {'um': instance.producto.medida, 'codigo': instance.producto.codigo,
+                                 'descripcion': instance.producto.descripcion, 'activo': instance.producto.activo}
         super(VitolaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_vitola_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["activo"].required = False
+        self.fields["codigo"].disabled = True if self.instance.producto_id else False
+        self.fields["codigo"].required = False if self.instance.producto_id else True
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     'Vitola',
                     Row(
-                        Column('diametro', css_class='form-group col-md-3 mb-0'),
-                        Column('longitud', css_class='form-group col-md-3 mb-0'),
-                        Column('destino', css_class='form-group col-md-3 mb-0'),
-                        Column('cepo', css_class='form-group col-md-4 mb-3'),
+                        Column('codigo', css_class='form-group col-md-2 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        Column('um', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('destino', css_class='form-group col-md-4 mb-0'),
                         Column('categoriavitola', css_class='form-group col-md-4 mb-0'),
-                        Column('producto', css_class='form-group col-md-4 mb-0'),
                         Column('tipovitola', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('diametro', css_class='form-group col-md-4 mb-0'),
+                        Column('longitud', css_class='form-group col-md-4 mb-0'),
+                        Column('cepo', css_class='form-group col-md-4 mb-3'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -876,6 +910,27 @@ class VitolaForm(forms.ModelForm):
                 )
             )
         )
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self.instance.producto_id:
+                producto = ProductoFlujo.objects.get(id=self.instance.producto.id)
+                producto.codigo = self.cleaned_data.get("codigo")
+                producto.descripcion = self.cleaned_data.get("descripcion")
+                producto.medida = self.cleaned_data.get("um")
+                producto.activo = self.cleaned_data.get("activo")
+                producto.save()
+            else:
+                producto = ProductoFlujo.objects.create(codigo=self.cleaned_data.get("codigo"),
+                                                        descripcion=self.cleaned_data.get("descripcion"),
+                                                        medida=self.cleaned_data.get("um"),
+                                                        activo=self.cleaned_data.get("activo"),
+                                                        tipoproducto=TipoProducto.objects.get(id=ChoiceTiposProd.VITOLA)
+                                                        )
+                self.instance.producto_id = producto.id
+
+            instance = super().save(*args, **kwargs)
+        return instance
 
 
 # ------------ Vitola / Form Filter ------------
@@ -914,13 +969,13 @@ class VitolaFormFilter(forms.Form):
                             ),
                             css_class='form-group col-md-12 mb-0'
                         ),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        Column('destino', css_class='form-group col-md-3 mb-0'),
+                        Column('categoriavitola', css_class='form-group col-md-4 mb-0'),
+                        Column('tipovitola', css_class='form-group col-md-4 mb-0'),
                         Column('diametro', css_class='form-group col-md-3 mb-0'),
                         Column('longitud', css_class='form-group col-md-3 mb-0'),
-                        Column('destino', css_class='form-group col-md-3 mb-0'),
                         Column('cepo', css_class='form-group col-md-4 mb-3'),
-                        Column('categoriavitola', css_class='form-group col-md-4 mb-0'),
-                        Column('producto', css_class='form-group col-md-4 mb-0'),
-                        Column('tipovitola', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1409,7 +1464,7 @@ class CambioProductoFormFilter(forms.Form):
 
 class ObtenerDatosModalForm(forms.Form):
     valor_inicial = forms.CharField()
-    clase_mat_prima = forms.ChoiceField(choices=ClaseMateriaPrima.CHOICE_CLASES)
+    clase_mat_prima = forms.ChoiceField(choices=ChoiceClasesMatPrima.CHOICE_CLASES)
 
     class Meta:
         fields = [
@@ -1423,10 +1478,8 @@ class ObtenerDatosModalForm(forms.Form):
         self.post = kwargs.pop('post', None)
         super(ObtenerDatosModalForm, self).__init__(*args, **kwargs)
         self.fields['valor_inicial'].widget.attrs = {"placeholder": _("Initial value to search...")}
-        self.fields['clase_mat_prima'].widget.choices.pop(4)
-        # self.CHOICE_CLASES.pop(5)
+        self.fields['clase_mat_prima'].widget.choices.pop(ChoiceClasesMatPrima.CAPACLASIFICADA)
         self.helper = FormHelper(self)
-        # self.helper.form_id = 'id_obtener_datos_form'
         self.helper.form_method = 'GET'
         self.helper.form_tag = False
 
