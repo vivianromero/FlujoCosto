@@ -7,4 +7,3 @@
 /staticfiles/download/*.*
 /staticfiles/upload/*.*
 /importar/fixtures/*.json
-/config/.env.local
