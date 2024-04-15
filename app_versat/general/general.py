@@ -184,11 +184,11 @@ class SisPaxVitola(models.Model):
     longitud = models.IntegerField()
     fk_cat = models.ForeignKey(SisPaxCategoriaVitola, models.DO_NOTHING, db_column="fk_cat")
     destino = models.CharField(max_length=1)
-    fk_tipo = models.ForeignKey(SisPaxTipoVitola, models.DO_NOTHING, db_column="fk_tipo")
+    fk_tipo = models.ForeignKey(SisPaxTipoVitola, models.DO_NOTHING, db_column="fk_tipo", related_name='vitola_producto')
     fk_prod = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_prod")
     cepo = models.IntegerField()
-    # fk_capa = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_capa")
-    # fk_pesada = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_pesada")
+    fk_capa = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_capa", related_name='vitola_productocapa')
+    fk_pesada = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_pesada", related_name='vitola_productopesada')
 
     class Meta:
         managed = True
