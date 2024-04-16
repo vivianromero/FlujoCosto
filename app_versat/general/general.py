@@ -1,5 +1,8 @@
 from django.db import models
 
+from codificadores import ChoiceTiposProd
+
+
 class GenUnidadcontable(models.Model):
     idunidad = models.AutoField(primary_key=True)
     codigo = models.CharField(unique=True, max_length=10)
@@ -18,6 +21,7 @@ class GenUnidadcontable(models.Model):
         db_table = 'gen_unidadcontable'
         ordering = ['codigo']
 
+
 class GenFormato(models.Model):
     idformato = models.AutoField(primary_key=True)
     nombre = models.CharField(unique=True, max_length=30)
@@ -28,6 +32,7 @@ class GenFormato(models.Model):
     class Meta:
         managed = True
         db_table = 'gen_formato'
+
 
 class GenMascara(models.Model):
     idmascara = models.AutoField(primary_key=True)
@@ -40,6 +45,7 @@ class GenMascara(models.Model):
     class Meta:
         managed = True
         db_table = 'gen_mascara'
+
 
 class GenMedida(models.Model):
     idmedida = models.AutoField(primary_key=True)
@@ -99,6 +105,7 @@ class ConApertura(models.Model):
         managed = True
         db_table = 'con_apertura'
 
+
 class ConCuenta(models.Model):
     idcuenta = models.AutoField(primary_key=True)
     clave = models.CharField(unique=True, max_length=50)
@@ -108,6 +115,7 @@ class ConCuenta(models.Model):
     class Meta:
         managed = True
         db_table = 'con_cuenta'
+
 
 class ConCuentanat(models.Model):
     idcuenta = models.ForeignKey(ConCuenta, models.DO_NOTHING, db_column='idcuenta', primary_key=True)
@@ -132,7 +140,18 @@ class MPMarca(models.Model):
         db_table = 'Marca'
         ordering = ['descripcion']
 
-#Sispax
+
+# Sispax
+class SisPaxClaseProducto(models.Model):
+    id = models.AutoField(primary_key=True)
+    descripcion = models.CharField(unique=True)
+    capote_fortaleza = models.CharField(max_length=1)
+
+    class Meta:
+        managed = True
+        db_table = 'fp_ClaseProducto'
+
+
 class SisPaxTipoProductoFlujo(models.Model):
     id = models.AutoField(primary_key=True)
     descripcion = models.CharField(unique=True)
@@ -140,6 +159,7 @@ class SisPaxTipoProductoFlujo(models.Model):
     class Meta:
         managed = True
         db_table = 'fp_TipoProductoFlujo'
+
 
 class SisPaxMedida(models.Model):
     idmedida = models.AutoField(primary_key=True)
@@ -150,8 +170,9 @@ class SisPaxMedida(models.Model):
         managed = True
         db_table = 'gen_medida'
 
+
 class SisPaxProductoFlujo(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.CharField(primary_key=True, max_length=36)
     codigo = models.CharField(unique=True)
     descripcion = models.CharField(unique=True)
     activo = models.BooleanField(default=True)
@@ -162,6 +183,23 @@ class SisPaxProductoFlujo(models.Model):
         managed = True
         db_table = 'fp_ProductoFlujo'
 
+    @property
+    def get_clasemateriaprima(self):
+        return None if self.tipo.pk != ChoiceTiposProd.MATERIAPRIMA else self.productoclase_producto.get().fk_claseprod
+
+
+class SispaxProductoFlujoClase(models.Model):
+    id = models.CharField(primary_key=True, max_length=36)
+    fk_prod = models.ForeignKey(SisPaxProductoFlujo, on_delete=models.DO_NOTHING, db_column="fk_prod",
+                                related_name='productoclase_producto')
+    fk_claseprod = models.ForeignKey(SisPaxClaseProducto, on_delete=models.DO_NOTHING, db_column="fk_claseprod",
+                                     related_name='productoclase_clase')
+
+    class Meta:
+        managed = True
+        db_table = 'fp_ProductoFlujoClase'
+
+
 class SisPaxCategoriaVitola(models.Model):
     id = models.AutoField(primary_key=True)
     descripcion = models.CharField(unique=True)
@@ -169,6 +207,7 @@ class SisPaxCategoriaVitola(models.Model):
     class Meta:
         managed = True
         db_table = 'fp_Categorias'
+
 
 class SisPaxTipoVitola(models.Model):
     id = models.AutoField(primary_key=True)
@@ -178,19 +217,22 @@ class SisPaxTipoVitola(models.Model):
         managed = True
         db_table = 'fp_TipoVitola'
 
+
 class SisPaxVitola(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.CharField(primary_key=True, max_length=36)
     diametro = models.DecimalField(max_digits=10, decimal_places=2)
     longitud = models.IntegerField()
     fk_cat = models.ForeignKey(SisPaxCategoriaVitola, models.DO_NOTHING, db_column="fk_cat")
     destino = models.CharField(max_length=1)
-    fk_tipo = models.ForeignKey(SisPaxTipoVitola, models.DO_NOTHING, db_column="fk_tipo", related_name='vitola_producto')
+    fk_tipo = models.ForeignKey(SisPaxTipoVitola, models.DO_NOTHING, db_column="fk_tipo",
+                                related_name='vitola_producto')
     fk_prod = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_prod")
     cepo = models.IntegerField()
-    fk_capa = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_capa", related_name='vitola_productocapa')
-    fk_pesada = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="fk_pesada", related_name='vitola_productopesada')
+    prod_capa = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="prod_capa",
+                                  related_name='vitola_productocapa')
+    prod_pesada = models.ForeignKey(SisPaxProductoFlujo, models.DO_NOTHING, db_column="prod_pesada",
+                                    related_name='vitola_productopesada')
 
     class Meta:
         managed = True
         db_table = 'fp_Vitolas'
-

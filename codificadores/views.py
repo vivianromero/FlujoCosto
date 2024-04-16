@@ -1,8 +1,5 @@
-import json
-
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
 
@@ -10,8 +7,6 @@ from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
-from cruds_adminlte3.utils import crud_url_name
-
 from . import ChoiceTiposProd
 
 
@@ -430,7 +425,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 qset = super().get_queryset()
-                qset = qset.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA)
+                qset = qset.filter(tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.PESADA])
                 return qset
 
         return OFilterListView

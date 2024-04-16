@@ -1,19 +1,19 @@
 from django.db import transaction
 from django.db.models import F
+from django.db.models.query_utils import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
+from django_htmx.http import HttpResponseClientRedirect
 from rest_framework.views import APIView
 
+from codificadores import ChoiceTiposProd, ChoiceClasesMatPrima
 from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo, TipoProducto, \
     ClaseMateriaPrima, ProductoFlujoClase, Vitola, CategoriaVitola, TipoVitola
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
-from .general import ConCuentanat, GenProducto, SisPaxVitola, SisPaxProductoFlujo
+from .general import ConCuentanat, GenProducto, SisPaxVitola
 from .serializers import *
-
-from codificadores import ChoiceTiposProd
 
 
 class GenUnidadMedidaList(APIView):
@@ -160,13 +160,20 @@ class VitolaList(APIView):
             tipoprodVit = TipoProducto.objects.get(pk=ChoiceTiposProd.VITOLA)
             tipoprodPesada = TipoProducto.objects.get(pk=ChoiceTiposProd.PESADA)
             tipoprodMP = TipoProducto.objects.get(pk=ChoiceTiposProd.MATERIAPRIMA)
-            data = SisPaxVitola.objects.select_related().all()
-            # data = SisPaxProductoFlujo.objects.select_related().filter(tipo.pk__in = [ChoiceTiposProd.VITOLA,
-            #                                                                           ChoiceTiposProd.PESADA]).all()
+            claseCapa = ClaseMateriaPrima.objects.get(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
+            vitolas = SisPaxVitola.objects.select_related().all()
+
             datos = []
-            cod_prod = []
+            cod_prod_capa = []
+            cod_prod_pesada = []
+            cod_prod_vitola = []
             datos_vitola = []
-            for item in data:
+            clase_capa = []
+            all_prods = ProductoFlujo.objects.filter(
+                Q(tipoproducto__in=[ChoiceTiposProd.PESADA, ChoiceTiposProd.VITOLA]) |
+                Q(productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA))
+            for item in vitolas:
+                # producto vitola
                 codigo = item.fk_prod.codigo
                 descripcion = item.fk_prod.descripcion
                 clave_medida = item.fk_prod.fk_um.clave.strip()
@@ -175,21 +182,59 @@ class VitolaList(APIView):
                                      medida=medida[0] if medida.exists() else Medida.objects.create(
                                          clave=clave_medida, descripcion=item.fk_prod.fk_um.descripcion.strip()))
 
+                cod_prod_vitola.append(prod.codigo)
                 datos.append(prod)
+
+                # producto pesada
+                clave_medida = item.prod_pesada.fk_um.clave.strip()
+                medida = Medida.objects.filter(clave=clave_medida)
+                prod_pesada = ProductoFlujo(codigo=item.prod_pesada.codigo, descripcion=item.prod_pesada.descripcion,
+                                            tipoproducto=tipoprodPesada,
+                                            medida=medida[0] if medida.exists() else Medida.objects.create(
+                                                clave=clave_medida,
+                                                descripcion=item.prod_pesada.fk_um.descripcion.strip()))
+
+                cod_prod_pesada.append(prod_pesada.codigo)
+                datos.append(prod_pesada)
+
+                # producto capa clasificada
+                clave_medida = item.prod_capa.fk_um.clave.strip()
+                medida = Medida.objects.filter(clave=clave_medida)
+
+                prod_capa = ProductoFlujo(codigo=item.prod_capa.codigo, descripcion=item.prod_capa.descripcion,
+                                          tipoproducto=tipoprodMP,
+                                          medida=medida[0] if medida.exists() else Medida.objects.create(
+                                              clave=clave_medida, descripcion=item.prod_capa.fk_um.descripcion.strip()))
+
+                cod_prod_capa.append(prod_capa.codigo)
+                datos.append(prod_capa)
+
+                clase_capa = [ProductoFlujoClase(clasemateriaprima=claseCapa, producto=prod) for prod in
+                              ProductoFlujo.objects.filter(codigo__in=cod_prod_capa)]
 
                 categoriavitola = CategoriaVitola.objects.get(pk=item.fk_cat.id)
                 tipovitola = TipoVitola.objects.get(pk=item.fk_tipo.id)
+
+                prodVit = all_prods.filter(codigo=prod.codigo).first()
+                prodPesada = all_prods.filter(codigo=prod_pesada.codigo).first()
+                prodCapa = all_prods.filter(codigo=prod_capa.codigo).first()
                 vit = Vitola(diametro=item.diametro, longitud=item.longitud, destino=item.destino, cepo=item.cepo,
                              categoriavitola=categoriavitola,
-                             producto=ProductoFlujo.objects.get(codigo=item.fk_prod.codigo), tipovitola=tipovitola)
+                             producto=prod if not prodVit else prodVit, tipovitola=tipovitola,
+                             pesada=prod_pesada if not prodPesada else prodPesada,
+                             capa=prod_capa if not prodCapa else prodCapa)
                 datos_vitola.append(vit)
+
+            prod_flujo = ProductoFlujo.objects.bulk_update_or_create(datos, ['descripcion', 'tipoproducto', 'medida'],
+                                                                     match_field='codigo')
+
+            prod_class = ProductoFlujoClase.objects.bulk_update_or_create(clase_capa, ['clasemateriaprima'],
+                                                                          match_field='producto')
 
             Vitola.objects.bulk_update_or_create(datos_vitola, ['diametro', 'longitud', 'destino', 'cepo',
                                                                 'categoriavitola', 'tipovitola'],
                                                  match_field='producto')
 
-            ProductoFlujo.objects.bulk_update_or_create(datos, ['descripcion', 'tipoproducto', 'medida'],
-                                                        match_field='codigo')
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
