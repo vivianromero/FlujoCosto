@@ -1,10 +1,10 @@
-from django.db import transaction
 from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML, Field
 from django import forms
+from django.db import transaction
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -821,7 +821,7 @@ class ProductoFlujoCuentaFormFilter(forms.Form):
 class VitolaForm(forms.ModelForm):
     codigo = forms.CharField(max_length=50, required=True, label=_("Code"))
     descripcion = forms.CharField(max_length=400, required=True, label=_("Description"))
-    activo = forms.BooleanField(label=_("Active"))
+    activo = forms.BooleanField(label=_("Active"), initial=True)
     um = forms.ModelChoiceField(
         queryset=Medida.objects.all(),
         label=_("U.M"),
@@ -860,6 +860,7 @@ class VitolaForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         kwargs['initial'] = {'activo': True}
+        kwargs['initial'] = {'um': Medida.objects.get(clave='Tab')}
         if instance:
             kwargs['initial'] = {'um': instance.producto.medida, 'codigo': instance.producto.codigo,
                                  'descripcion': instance.producto.descripcion, 'activo': instance.producto.activo}
@@ -913,22 +914,59 @@ class VitolaForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
+            codigo = self.cleaned_data.get("codigo").strip()
+            descripcion = self.cleaned_data.get("descripcion").strip()
+            activo = self.cleaned_data.get("activo")
+
             if self.instance.producto_id:
                 producto = ProductoFlujo.objects.get(id=self.instance.producto.id)
-                producto.codigo = self.cleaned_data.get("codigo")
-                producto.descripcion = self.cleaned_data.get("descripcion")
+                producto.descripcion = descripcion
                 producto.medida = self.cleaned_data.get("um")
-                producto.activo = self.cleaned_data.get("activo")
+                producto.activo = activo
                 producto.save()
+                producto_capa = ProductoFlujo.objects.get(id=self.instance.capa.id)
+                producto_capa.descripcion = 'CAPA ' + descripcion
+                producto_capa.activo = activo
+                producto_capa.save()
+                producto_pesada = ProductoFlujo.objects.get(id=self.instance.pesada.id)
+                producto_pesada.descripcion = 'PESADA ' + descripcion
+                producto_pesada.activo = activo
+                producto_pesada.save()
             else:
-                producto = ProductoFlujo.objects.create(codigo=self.cleaned_data.get("codigo"),
-                                                        descripcion=self.cleaned_data.get("descripcion"),
+                producto = ProductoFlujo.objects.create(codigo=codigo,
+                                                        descripcion=descripcion,
                                                         medida=self.cleaned_data.get("um"),
-                                                        activo=self.cleaned_data.get("activo"),
-                                                        tipoproducto=TipoProducto.objects.get(id=ChoiceTiposProd.VITOLA)
-                                                        )
-                self.instance.producto_id = producto.id
+                                                        activo=activo,
+                                                        tipoproducto=TipoProducto.objects.get(
+                                                            id=ChoiceTiposProd.VITOLA))
+                medida = Medida.objects.filter(clave='Mh')
+                producto_capa = ProductoFlujo.objects.create(codigo='C' + codigo,
+                                                             descripcion='CAPA ' + descripcion,
+                                                             medida=medida[
+                                                                 0] if medida.exists() else Medida.objects.create(
+                                                                 clave='Mh', descripcion='Medias Hojas'),
+                                                             activo=activo,
+                                                             tipoproducto=TipoProducto.objects.get(
+                                                                 id=ChoiceTiposProd.MATERIAPRIMA)
+                                                             )
+                ProductoFlujoClase.objects.create(producto=producto_capa,
+                                                  clasemateriaprima=ClaseMateriaPrima.objects.get(
+                                                      id=ChoiceClasesMatPrima.CAPACLASIFICADA))
 
+                medida = Medida.objects.filter(clave='U')
+                producto_pesada = ProductoFlujo.objects.create(codigo='P' + codigo,
+                                                               descripcion='PESADA ' + descripcion,
+                                                               medida=medida[
+                                                                   0] if medida.exists() else Medida.objects.create(
+                                                                   clave='U', descripcion='Uno'),
+                                                               activo=activo,
+                                                               tipoproducto=TipoProducto.objects.get(
+                                                                   id=ChoiceTiposProd.PESADA)
+                                                               )
+
+                self.instance.producto_id = producto.id
+                self.instance.capa_id = producto_capa.id
+                self.instance.pesada_id = producto_pesada.id
             instance = super().save(*args, **kwargs)
         return instance
 
@@ -1255,7 +1293,7 @@ class DepartamentoFormFilter(forms.Form):
         return context
 
 
-# ------------ MedidaConversion / Form ------------
+# ------------ MotivoAjuste / Form ------------
 class MotivoAjusteForm(forms.ModelForm):
     class Meta:
         model = MotivoAjuste

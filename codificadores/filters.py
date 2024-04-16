@@ -268,6 +268,11 @@ class ProductoFlujoFilter(MyGenericFilter):
         lookup_expr='icontains',
     )
 
+    tipoproducto = django_filters.ModelMultipleChoiceFilter(
+        label="Tipo de Producto",
+        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.PESADA, ChoiceTiposProd.MATERIAPRIMA]),
+    )
+
     get_clasemateriaprima = django_filters.ModelMultipleChoiceFilter(
         label="Clase de Materia Prima",
         queryset=ClaseMateriaPrima.objects.all(),
@@ -333,6 +338,10 @@ class ProductoFlujoCuentaFilter(MyGenericFilter):
 
 # ------ Vitola / Filter ------
 class VitolaFilter(MyGenericFilter):
+    producto = django_filters.ModelMultipleChoiceFilter(
+        label="Producto",
+        queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.VITOLA]),
+    )
     search_fields = [
         'diametro__contains',
         'longitud__contains',
@@ -341,6 +350,7 @@ class VitolaFilter(MyGenericFilter):
         'categoriavitola__descripcion__contains',
         'producto__descripcion__icontains',
         'tipovitola__descripcion__icontains',
+        'producto__codigo__icontains'
     ]
     split_space_search = ' '
 
