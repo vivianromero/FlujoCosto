@@ -209,15 +209,16 @@ class VitolaList(APIView):
                 cod_prod_capa.append(prod_capa.codigo)
                 datos.append(prod_capa)
 
-                clase_capa = [ProductoFlujoClase(clasemateriaprima=claseCapa, producto=prod) for prod in
-                              ProductoFlujo.objects.filter(codigo__in=cod_prod_capa)]
+                prodCapa = all_prods.filter(codigo=prod_capa.codigo).first()
+
+                clase_capa.append(ProductoFlujoClase(clasemateriaprima=claseCapa, producto=prod_capa if not prodCapa else prodCapa))
 
                 categoriavitola = CategoriaVitola.objects.get(pk=item.fk_cat.id)
                 tipovitola = TipoVitola.objects.get(pk=item.fk_tipo.id)
 
                 prodVit = all_prods.filter(codigo=prod.codigo).first()
                 prodPesada = all_prods.filter(codigo=prod_pesada.codigo).first()
-                prodCapa = all_prods.filter(codigo=prod_capa.codigo).first()
+
                 vit = Vitola(diametro=item.diametro, longitud=item.longitud, destino=item.destino, cepo=item.cepo,
                              categoriavitola=categoriavitola,
                              producto=prod if not prodVit else prodVit, tipovitola=tipovitola,

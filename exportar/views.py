@@ -10,13 +10,11 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, ProductoFlujo, ProductoFlujoClase, CambioProducto, Vitola
+    Departamento, CambioProducto
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success
 from utiles.utils import obtener_version, codificar
-
-from codificadores import ChoiceTiposProd
 
 
 @adminempresa_required
@@ -55,16 +53,14 @@ def dpto_exportar(request):
 
 
 @adminempresa_required
-def prod_exportar(request):
-    return crear_export_file(request, 'PROD', ProductoFlujo, {'tipoproducto__id': ChoiceTiposProd.MATERIAPRIMA}, ProductoFlujoClase)
-
-@adminempresa_required
 def cprod_exportar(request):
     return crear_export_file(request, 'CambioPROD', CambioProducto)
 
-@adminempresa_required
-def vit_exportar(request):
-    return crear_export_file(request, 'VIT', ProductoFlujo, {'tipoproducto__id': ChoiceTiposProd.VITOLA}, Vitola)
+
+# @adminempresa_required
+# def vit_exportar(request):
+#     return crear_export_file(request, 'VIT', ProductoFlujo, {'tipoproducto__id': ChoiceTiposProd.VITOLA}, Vitola)
+
 
 def json_info(opcion):
     version = obtener_version()
@@ -75,14 +71,17 @@ def json_info(opcion):
     return dicc_valid
 
 
-def crear_export_file(request, opcion, modelo, filtro={}, modelo2=None, filtro2={}):
+def crear_export_file(request, opcion, modelo, datos, datos2=[]):
     dicc_verify = json_info(opcion)
     file_path = settings.STATIC_ROOT
-    json_data = serializers.serialize("json", modelo.objects.filter(**filtro).all()).replace("true", '"True"').replace("false", '"False"')
-    if modelo2:
-        json_data2 = serializers.serialize("json", modelo2.objects.filter(**filtro2).all()).replace("true", '"True"').replace("false",
-                                                                                                              '"False"')
-        json_data = json_data.replace(']','') + json_data2.replace('[',', ')
+    json_data = serializers.serialize("json", datos).replace("true", '"True"').replace(
+        "false", '"False"')
+    if datos2:
+        json_data2 = serializers.serialize("json", datos2).replace("true",
+                                                                                                    '"True"').replace(
+            "false",
+            '"False"')
+        json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
 
     check_sum_data = codificar(json_data)
     dicc_verify['check_sum_data'] = check_sum_data

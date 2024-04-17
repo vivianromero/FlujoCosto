@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
@@ -7,6 +8,7 @@ from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
+from exportar.views import crear_export_file
 from . import ChoiceTiposProd
 
 
@@ -459,6 +461,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
     filterset_class = ProductoFlujoFilter
 
     # Table settings
+    paginate_by = 20
+    page_length_menu = [10, 15, 20, 25]
     table_class = ProductoFlujoTable
 
     def get_filter_list_view(self):
@@ -470,7 +474,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 context.update({
                     'url_apiversat': 'app_index:codificadores:obtener_datos',
                     'url_importar': 'app_index:importar:prod_importar',
-                    'url_exportar': 'app_index:exportar:prod_exportar',
+                    'filtrar': True,
+                    'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
                     "hx_target": '#dialog',
                 })
@@ -480,6 +485,17 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 qset = super().get_queryset()
                 qset = qset.filter(tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.PESADA])
                 return qset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA).exclude(
+                        productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
+                    datos2 = [dat.productoflujoclase_producto.get() for dat in datos]
+                    return crear_export_file(request, "PROD", ProductoFlujo, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
@@ -571,9 +587,24 @@ class VitolaCRUD(CommonCRUDView):
                 context.update({
                     'url_apiversat': 'app_index:appversat:vit_appversat',
                     'url_importar': 'app_index:importar:vit_importar',
-                    'url_exportar': 'app_index:exportar:vit_exportar',
+                    'url_exportar': True,
+                    'filtrar': True
                 })
                 return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos2 = table.data.data
+                    datos = []
+                    for p in datos2:
+                        datos.append(p.producto)
+                        datos.append(p.capa)
+                        datos.append(p.pesada)
+                    return crear_export_file(request, "Vit", Vitola, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
