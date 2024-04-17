@@ -20,6 +20,21 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         )
 
 
+# ------ NormaConsumo / Table ------
+class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaConsumo
+
+        fields = (
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        )
+
+
 # ------ UnidadContable / Table ------
 class UnidadContableTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -89,6 +104,7 @@ class CentroCostoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 # ------ ProductoFlujo / Table ------
 class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     get_clasemateriaprima = tables.Column(verbose_name='Clase Materia Prima')
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = ProductoFlujo
 
@@ -101,6 +117,7 @@ class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'activo',
         )
 
+
 # ------ ProductoFlujoCuenta / Table ------
 class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -111,6 +128,7 @@ class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions
             'cuenta',
             'producto',
         )
+
 
 class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -140,6 +158,7 @@ class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'descripcion',
             'activa',
         )
+
 
 # ------ MotivoAjuste / Table ------
 class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):

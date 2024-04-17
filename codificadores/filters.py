@@ -50,6 +50,40 @@ class DepartamentoFilter(MyGenericFilter):
         }
 
 
+# ------ NormaConsumo / Filter ------
+class NormaConsumoFilter(MyGenericFilter):
+    search_fields = [
+        'tipo',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = NormaConsumo
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+        form = NormaConsumoFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+
 # ------ UnidadContable / Filter ------
 class UnidadContableFilter(MyGenericFilter):
     search_fields = [

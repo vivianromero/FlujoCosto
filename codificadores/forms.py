@@ -1286,6 +1286,109 @@ class DepartamentoFormFilter(forms.Form):
             common_filter_form_actions()
         )
 
+
+# ------------ NormaConsumo / Form ------------
+class NormaConsumoForm(forms.ModelForm):
+    class Meta:
+        model = NormaConsumo
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_normaconsumo_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Norma de Consumo',
+                    Row(
+                        Column('tipo', css_class='form-group col-md-4 mb-0'),
+                        Column('cantidad', css_class='form-group col-md-4 mb-0'),
+                        Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('fecha', css_class='form-group col-md-4 mb-0'),
+                        Column('medida', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+
+# ------------ NormaConsumo / Form Filter ------------
+class NormaConsumoFormFilter(forms.Form):
+    class Meta:
+        model = NormaConsumo
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_motivoajuste_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Normas de Consumo',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                    ),
+                    Row(
+                        Column('tipo', css_class='form-group col-md-4 mb-0'),
+                        Column('cantidad', css_class='form-group col-md-4 mb-0'),
+                        Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('fecha', css_class='form-group col-md-4 mb-0'),
+                        Column('medida', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
     def get_context(self):
         context = super().get_context()
         context['width_right_sidebar'] = '760px'
