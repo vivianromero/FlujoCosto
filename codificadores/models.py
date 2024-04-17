@@ -380,7 +380,7 @@ class Departamento(ObjectsManagerAbstract):
 
 class NormaConsumo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, editable=False, verbose_name=_("Type"))
+    tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, verbose_name=_("Type"))
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                    verbose_name=_("Quantity"))
     activa = models.BooleanField(default=True, verbose_name=_("Active"))
