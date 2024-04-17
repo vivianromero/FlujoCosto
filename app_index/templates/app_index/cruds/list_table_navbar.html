@@ -23,7 +23,7 @@
                 {# aquí se debe poner el link de importar#}
                 <a id="act_versat_link_url_div_a"
                    href="{% url url_apiversat %}"
-            
+
                    class="nav-link"
                    {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
                    {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} 
@@ -66,7 +66,7 @@
     {% if request.user.is_adminempresa and url_exportar %}
         <div id="export_link_url_div" style="display: flex; align-items: center">
             <a id="export_link_url_div_a"
-               href="{% url url_exportar %}"
+               href={% if filtrar %} "{% export_url "sisgest" %}" {% else %} "{% url url_exportar %}" {% endif %}
                class="nav-link"
             {#               hx-get="{{ url }}{{ getparams }}"#}
             {#               hx-trigger="click"#}
@@ -77,7 +77,7 @@
                 <i class="fa fa-file-export" title="{% trans 'Export' %}"></i>
             </a>
         </div>
-    {% endif %} 
+    {% endif %}
 {% endpartialdef %}
 
 <nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
