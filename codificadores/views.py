@@ -62,6 +62,59 @@ class DepartamentoCRUD(CommonCRUDView):
         return OFilterListView
 
 
+# ------ NormaConsumo / CRUD ------
+class NormaConsumoCRUD(CommonCRUDView):
+    model = NormaConsumo
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'tipo',
+        'cantidad',
+        'activa',
+        'fecha',
+        'medida',
+        'producto',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'tipo',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+
+    add_form = NormaConsumoForm
+    update_form = NormaConsumoForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = NormaConsumoFilter
+
+    # Table settings
+    table_class = NormaConsumoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    # 'url_importar': 'app_index:importar:dpto_importar',
+                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                })
+                return context
+
+        return OFilterListView
+
+
 # ------ UnidadContable / CRUD ------
 class UnidadContableCRUD(CommonCRUDView):
     model = UnidadContable

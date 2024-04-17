@@ -7,4 +7,8 @@
     <a href="{{ url_list }}" class="btn btn-secondary">
         <i class="fa fa-remove"></i> {% translate "Cancel" %}
     </a>
+{% elif previous_url %}
+    <a href="{{ previous_url }}" class="btn btn-secondary">
+        <i class="fa fa-remove"></i> {% translate "Cancel" %}
+    </a>
 {% endif %}
