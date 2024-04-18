@@ -111,6 +111,7 @@ class NormaConsumoCRUD(CommonCRUDView):
                 context.update({
                     # 'url_importar': 'app_index:importar:dpto_importar',
                     # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                    'url_list_normaconsumo': True,
                 })
                 return context
 
@@ -464,6 +465,10 @@ class ProductoFlujoCRUD(CommonCRUDView):
     paginate_by = 20
     page_length_menu = [10, 15, 20, 25]
     table_class = ProductoFlujoTable
+
+    paginate_by = 15
+
+    page_length_menu = [5, 10, 15, 20, 25]
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()

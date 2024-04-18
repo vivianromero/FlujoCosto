@@ -52,6 +52,17 @@ class DepartamentoFilter(MyGenericFilter):
 
 # ------ NormaConsumo / Filter ------
 class NormaConsumoFilter(MyGenericFilter):
+    tipo = django_filters.ModelChoiceFilter(
+        queryset=NormaConsumo.objects.all(),
+        widget=SelectWidget(
+                attrs={
+                    'style': 'width: 90%',
+                    'hx-get': crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
+                    'hx-target': '#main_content_swap',
+                    'hx-trigger': 'change',
+                }
+            ),
+    )
     search_fields = [
         'tipo',
         'cantidad__contains',
