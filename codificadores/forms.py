@@ -7,11 +7,12 @@ from django import forms
 from django.db import transaction
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
+from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 from codificadores.models import *
 from cruds_adminlte3.utils import (
-    common_filter_form_actions, )
+    common_filter_form_actions, crud_url_name, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
 
@@ -1300,6 +1301,7 @@ class NormaConsumoForm(forms.ModelForm):
             'producto',
         ]
 
+
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
@@ -1347,6 +1349,16 @@ class NormaConsumoFormFilter(forms.Form):
             'medida',
             'producto',
         ]
+        widgets = {
+            'tipo': SelectWidget(
+                attrs={
+                    'style': 'width: 90%',
+                    'hx-get': crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
+                    'hx-target': '#main_content_swap',
+                    'hx-trigger': 'change',
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1355,7 +1367,7 @@ class NormaConsumoFormFilter(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
         self.helper = FormHelper(self)
-        self.helper.form_id = 'id_motivoajuste_form_filter'
+        self.helper.form_id = 'id_normaconsumo_form_filter'
         self.helper.form_method = 'GET'
 
         self.helper.layout = Layout(

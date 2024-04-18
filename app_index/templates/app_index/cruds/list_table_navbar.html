@@ -6,6 +6,8 @@
 
 {% partialdef form_select_filter %}
     {% if request.user.is_adminempresa and url_list_normaconsumo %} {# si tiene permiso#}
+        <div style="align-items: center; font-size: x-large">&nbsp&#9474&nbsp</div>
+        <div class="my-auto" style="align-items: center">Tipo de Producto: </div>
         <div id="form_select_filter_div" style="display: flex; align-items: center">
             <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
                 {% csrf_token %}
