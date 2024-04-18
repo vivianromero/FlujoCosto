@@ -36,7 +36,26 @@
                             >
                                 <i class="{{ submenu.icon_class }}"></i>
                                 <p>{{ submenu.name }}</p>
+                                {% if submenu.submenu %}<i class="right fas fa-angle-left"></i>{% endif %}
                             </a>
+                            {% if submenu.submenu %}
+                                {% block main_sidebar_submenu_items_sub_submenus %}
+                                	<ul class="nav nav-treeview">
+                                        {% for sub_submenu in submenu.submenu %}
+                                            <li class="nav-item">
+                                                <a href="{{ sub_submenu.url }}" id="{{ sub_submenu.id }}" class="nav-link {% if sub_submenu.selected %} active {% endif %}"
+                                                    {% if sub_submenu.hx_get %}hx-get="{{ sub_submenu.hx_get }}"{% endif %} 
+                                                    {% if sub_submenu.hx_target %}hx-target="{{ sub_submenu.hx_target }}"{% endif %} 
+                                                >
+                                                    <i class="{{ sub_submenu.icon_class }}"></i>
+                                                    <p>{{ sub_submenu.name }}</p>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                {% endblock main_sidebar_submenu_items_sub_submenus %}
+                            	
+                            {% endif %} 
                         </li>
                     {% endfor %}
                     </ul>
