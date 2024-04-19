@@ -75,54 +75,53 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                         {
-                            "id": 'id_nav_link_productos',
-                            "name": "Productos",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                            "submenu": [
-                                {
-                                    "id": 'id_nav_link_productos',
-                                    "name": "Productos",
-                                    "icon_class": 'fa fa-university',
-                                    "url": crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
-                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                                },
-                            ]
-                        },
-                        {
-                            "name": "Vitolas",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                        },
-                        {
-                            "id": 'id_nav_link_normasconsumo',
-                            "name": "Normas",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                        },
-                        {
-                            "id": 'id_nav_link_cambio_de_productos',
-                            "name": "Cambio de Productos",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(CambioProducto, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                        },
-                        {
-                            "id": 'id_nav_link_vitolas',
-                            "name": "Vitolas",
-                            "icon_class": 'fa fa-university',
-                            "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),
-                            "validators": ["app_auth.usuarios.validators.is_admin"],
-                        },
-                        {
                             "id": 'id_nav_link_marcas_de_salida',
                             "name": "Marcas de Salida",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(MarcaSalida, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
+                        {
+                            "id": 'id_nav_link_productos',
+                            "name": "Productos",
+                            "icon_class": 'fa fa-university',
+                            "url":'#', #crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                            "submenu":[
+                                {
+                                    "id": 'id_nav_link_productos_mp',
+                                    "name": "Materias Primas y Materiales",
+                                    "icon_class": 'fa fa-university',
+                                    "url":crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
+                                    "name": "Vitolas",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
+                                    "name": "Líneas de Salida",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(LineaSalida, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
+                                    "id": 'id_nav_link_normasconsumo',
+                                    "name": "Normas",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
+                                    "id": 'id_nav_link_cambio_de_productos',
+                                    "name": "Cambio de Productos",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(CambioProducto, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                            ]
                         },
                     ]
                 },
