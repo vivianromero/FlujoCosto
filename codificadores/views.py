@@ -117,6 +117,60 @@ class NormaConsumoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+class NormaConsumoGroupedCRUD(NormaConsumoCRUD):
+    model = NormaConsumoGrouped
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'tipo',
+        'cantidad',
+        'activa',
+        'fecha',
+        'medida',
+        'producto',
+        'Producto',
+        'Cantidad_Normas',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'tipo',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+
+    add_form = NormaConsumoForm
+    update_form = NormaConsumoForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = NormaConsumoGroupedFilter
+
+    # Table settings
+    table_class = NormaConsumoGroupedTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    # 'url_importar': 'app_index:importar:dpto_importar',
+                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                    'url_list_normaconsumo': True,
+                })
+                return context
+
+        return OFilterListView
+
 
 # ------ UnidadContable / CRUD ------
 class UnidadContableCRUD(CommonCRUDView):
@@ -462,13 +516,9 @@ class ProductoFlujoCRUD(CommonCRUDView):
     filterset_class = ProductoFlujoFilter
 
     # Table settings
-    paginate_by = 20
-    page_length_menu = [10, 15, 20, 25]
-    table_class = ProductoFlujoTable
-
     paginate_by = 15
-
     page_length_menu = [5, 10, 15, 20, 25]
+    table_class = ProductoFlujoTable
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
@@ -480,7 +530,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:codificadores:obtener_datos',
                     'url_importar': 'app_index:importar:prod_importar',
                     'filtrar': True,
-                    'url_exportar': True,
+                    'url_exportar': '#',
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
                     "hx_target": '#dialog',
                 })

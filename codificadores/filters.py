@@ -52,12 +52,14 @@ class DepartamentoFilter(MyGenericFilter):
 
 # ------ NormaConsumo / Filter ------
 class NormaConsumoFilter(MyGenericFilter):
-    tipo = django_filters.ModelChoiceFilter(
-        queryset=NormaConsumo.objects.all(),
-        widget=SelectWidget(
+    tipo = django_filters.ChoiceFilter(
+        field_name='tipo',
+        choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
+        empty_label='Todas',
+        widget=forms.Select(
                 attrs={
                     'style': 'width: 90%',
-                    'hx-get': crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
+                    'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
                     'hx-target': '#main_content_swap',
                     'hx-trigger': 'change',
                 }
@@ -93,6 +95,54 @@ class NormaConsumoFilter(MyGenericFilter):
                 }
             },
         }
+
+
+# ------ NormaConsumo / Filter ------
+class NormaConsumoGroupedFilter(NormaConsumoFilter):
+    tipo = django_filters.ChoiceFilter(
+        field_name='tipo',
+        choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
+        empty_label='Todas',
+        widget=forms.Select(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:')),
+                    'hx-target': '#main_content_swap',
+                    'hx-trigger': 'change',
+                }
+            ),
+    )
+    search_fields = [
+        'tipo',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = NormaConsumo
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+        form = NormaConsumoGroupedFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
 
 
 # ------ UnidadContable / Filter ------

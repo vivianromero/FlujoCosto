@@ -1,6 +1,7 @@
 /.idea/
 /.venv/
 .venv/
+.vscode/
 /.env.local
 */__pycache__/*
 *.pyc

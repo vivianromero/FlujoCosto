@@ -1301,7 +1301,6 @@ class NormaConsumoForm(forms.ModelForm):
             'producto',
         ]
 
-
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
@@ -1349,16 +1348,16 @@ class NormaConsumoFormFilter(forms.Form):
             'medida',
             'producto',
         ]
-        widgets = {
-            'tipo': SelectWidget(
-                attrs={
-                    'style': 'width: 90%',
-                    'hx-get': crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
-                    'hx-target': '#main_content_swap',
-                    'hx-trigger': 'change',
-                }
-            ),
-        }
+        # widgets = {
+        #     'tipo': SelectWidget(
+        #         attrs={
+        #             'style': 'width: 90%',
+        #             'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
+        #             'hx-target': '#main_content_swap',
+        #             'hx-trigger': 'change',
+        #         }
+        #     ),
+        # }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1406,6 +1405,29 @@ class NormaConsumoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+class NormaConsumoGroupedFormFilter(NormaConsumoFormFilter):
+    class Meta:
+        model = NormaConsumoGrouped
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_normaconsumogrouped_form_filter'
+        self.helper.form_method = 'GET'
 
 
 # ------------ MotivoAjuste / Form ------------

@@ -110,7 +110,7 @@ class CRUDMixin(object):
 
         if active_filters:
             if self.view_type in ['detail', 'update'] and self.request.htmx:
-                filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i !='']
+                filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
             else:
                 filters = self.request.GET.urlencode().split('&')
             getparams = self.getparams.split('&') or []
@@ -118,7 +118,8 @@ class CRUDMixin(object):
                 for filter in filters:
                     value = filter.split('=')
                     if value[1] and (
-                            value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
+                            value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
+                        0] != 'set_visibility_value'
                     ):
                         param = filter
                         if param and param not in getparams:
@@ -962,14 +963,19 @@ class CRUDView(object):
                     for key in keys:
                         this_type = type(context['filter'].form.fields[key].widget)
                         if this_type == Select or this_type == SelectMultiple:
-                            context['filter'].form.fields[key].widget.attrs = {
-                                'class': 'form-control select2',
-                                'style': 'width: 100%',
-                            }
+                            if 'class' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'class': 'form-control select2'}
+                                )
+                            if 'style' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'style': 'width: 100%'}
+                                )
                         else:
-                            context['filter'].form.fields[key].widget.attrs = {
-                                'class': 'form-control',
-                            }
+                            if 'class' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'class': 'form-control'}
+                                )
 
                 return context
 
@@ -1045,8 +1051,8 @@ class CRUDView(object):
                     title = _('Cannot delete ')
                     text = _('This element is related to: ')
                     message_error(self.request,
-                        title + self.object.__str__() + '!',
-                        text=text + protected_details)
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     messages.success(self.request, self.success_message)
