@@ -492,6 +492,15 @@ class VitolaFilter(MyGenericFilter):
         label="Producto",
         queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.VITOLA]),
     )
+    activo = django_filters.ChoiceFilter(
+        label="Activo",
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+        method="filter_by_vitolaproductoactivo",
+    )
     search_fields = [
         'diametro__contains',
         'longitud__contains',
@@ -526,6 +535,11 @@ class VitolaFilter(MyGenericFilter):
                 }
             },
         }
+
+    def filter_by_vitolaproductoactivo(self, queryset, name, value):
+        if value:
+            return queryset.filter(producto__activo=value)
+        return queryset
 
 
 # ------ MarcaSalida / Filter ------
