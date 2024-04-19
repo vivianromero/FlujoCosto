@@ -47,7 +47,7 @@ class UnidadContable(ObjectsManagerAbstract):
 
 class Medida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clave = models.CharField(unique=True, max_length=6, verbose_name=_("Key"))
+    clave = models.CharField(unique=True, max_length=6, verbose_name=_("U.M"))
     descripcion = models.CharField(unique=True, max_length=50, verbose_name=_("Description"))
     activa = models.BooleanField(default=True, verbose_name=_("Active"))
 
@@ -157,9 +157,11 @@ class CentroCosto(ObjectsManagerAbstract):
 class TipoProducto(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposProd.CHOICE_TIPOS_PROD, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
+    orden = models.SmallIntegerField(default=1)
 
     class Meta:
         db_table = 'cla_tipoproducto'
+        ordering = ['orden','descripcion']
 
     def __str__(self):
         return ChoiceTiposProd.CHOICE_TIPOS_PROD[self.id]
@@ -189,7 +191,7 @@ class ClaseMateriaPrima(models.Model):
 class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=50, verbose_name=_("Code"))
-    descripcion = models.CharField(unique=True, max_length=400, verbose_name=_("Description"))
+    descripcion = models.CharField(max_length=400, verbose_name=_("Description"))
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='productoflujo_medida',
                                verbose_name="U.M")
@@ -305,6 +307,10 @@ class Vitola(ObjectsManagerAbstract):
     def get_um(self):
         return self.producto.um
 
+    @property
+    def get_productoactivo(self):
+        return self.producto.activo
+
 
 class MarcaSalida(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -315,6 +321,9 @@ class MarcaSalida(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cla_marcasalida'
         ordering = ['descripcion']
+
+    def __str__(self):
+        return "%s | %s" % (self.codigo, self.descripcion)
 
 
 class LineaSalida(ObjectsManagerAbstract):
@@ -338,6 +347,14 @@ class LineaSalida(ObjectsManagerAbstract):
 
     class Meta:
         db_table = 'cla_lineasalida'
+        ordering = ['producto__descripcion']
+
+    def __str__(self):
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+
+    @property
+    def get_productoactivo(self):
+        return self.producto.activo
 
 
 class Departamento(ObjectsManagerAbstract):

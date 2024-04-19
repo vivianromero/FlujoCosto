@@ -220,6 +220,7 @@ class UnidadContableCRUD(CommonCRUDView):
     filterset_class = UnidadContableFilter
 
     # Table settings
+    paginate_by = 15
     table_class = UnidadContableTable
 
     def get_filter_list_view(self):
@@ -277,6 +278,7 @@ class MedidaCRUD(CommonCRUDView):
     filterset_class = MedidaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = MedidaTable
 
     def get_filter_list_view(self):
@@ -400,6 +402,7 @@ class CuentaCRUD(CommonCRUDView):
     filterset_class = CuentaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = CuentaTable
 
     def get_filter_list_view(self):
@@ -517,7 +520,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
     # Table settings
     paginate_by = 15
-    page_length_menu = [5, 10, 15, 20, 25]
+
     table_class = ProductoFlujoTable
 
     def get_filter_list_view(self):
@@ -530,7 +533,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:codificadores:obtener_datos',
                     'url_importar': 'app_index:importar:prod_importar',
                     'filtrar': True,
-                    'url_exportar': '#',
+                    'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
                     "hx_target": '#dialog',
                 })
@@ -631,6 +634,7 @@ class VitolaCRUD(CommonCRUDView):
     filterset_class = VitolaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = VitolaTable
 
     def get_filter_list_view(self):
@@ -691,12 +695,13 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create']
+    view_type = ['list', 'update', 'create']
 
     filterset_class = MarcaSalidaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = MarcaSalidaTable
 
     def get_filter_list_view(self):
@@ -812,6 +817,78 @@ class CambioProductoCRUD(CommonCRUDView):
                 })
                 return context
 
+        return OFilterListView
+
+# ------ LineaSalida / CRUD ------
+class LineaSalidaCRUD(CommonCRUDView):
+    model = LineaSalida
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'producto__codigo',
+        'producto__descripcion',
+        'envase',
+        'vol_cajam3',
+        'peso_bruto',
+        'peso_neto',
+        'peso_legal',
+        'marcasalida',
+        'vitola',
+        'producto__activo'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'producto__codigo__icontains',
+        'producto__descripcion__icontains',
+        'envase__contains',
+        'vol_cajam3__contains',
+        'peso_bruto__contains',
+        'peso_neto__contains',
+        'peso_legal__contains',
+        'marcasalida__descripcion__contains',
+    ]
+
+    add_form = LineaSalidaForm
+    update_form = LineaSalidaForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = LineaSalidaFilter
+
+    # Table settings
+    paginate_by = 15
+    table_class = LineaSalidaTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:ls_importar',
+                    'url_exportar': True,
+                    'filtrar': True
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos2 = table.data.data
+                    datos = []
+                    for p in datos2:
+                        datos.append(p.producto)
+                    return crear_export_file(request, "LS", LineaSalida, datos, datos2)
+                else:
+                    return super().get(request=request)
         return OFilterListView
 
 

@@ -193,8 +193,6 @@ class UsuarioCRUD(CommonCRUDView):
 
     page_length = 10
 
-    page_length_menu = [5, 10, 15, 20]
-
     # Table settings
     table_class = UserTable
     template_name = "app_index/cruds/list_table.html"
