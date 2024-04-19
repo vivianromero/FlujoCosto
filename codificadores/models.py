@@ -1,7 +1,8 @@
 import uuid
 
 from django.db import models
-from django.db.models.functions import Now
+from django.db.models import Count, F, Value
+from django.db.models.functions import Now, Concat
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import gettext_lazy as _
@@ -413,6 +414,21 @@ class NormaconsumoDetalle(models.Model):
 
     class Meta:
         db_table = 'cla_normaconsumodetalle'
+
+
+class NormaConsumoGroupedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().values(
+            Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion'))
+        ).annotate(Cantidad_Normas=Count('producto'))
+
+
+class NormaConsumoGrouped(NormaConsumo):
+    objects = NormaConsumoGroupedManager()
+
+    class Meta:
+        proxy = True
+        ordering = ['tipo', 'producto__descripcion', 'fecha']
 
 
 class MotivoAjuste(ObjectsManagerAbstract):

@@ -27,11 +27,29 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
         fields = (
             'tipo',
-            'cantidad',
-            'activa',
-            'fecha',
-            'medida',
+            # 'cantidad',
+            # 'activa',
+            # 'fecha',
+            # 'medida',
             'producto',
+        )
+
+
+# ------ NormaConsumo / Table ------
+class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    check_box_column = tables.CheckBoxColumn()
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaConsumoGrouped
+
+        fields = (
+            'check_box_column',
+            'Producto',
+            # 'cantidad',
+            # 'activa',
+            # 'fecha',
+            # 'medida',
+            'Cantidad_Normas',
         )
 
 
