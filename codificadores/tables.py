@@ -181,3 +181,21 @@ class CambioProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'productoo',
             'productod',
         )
+
+class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = LineaSalida
+
+        fields = (
+            'producto__codigo',
+            'producto__descripcion',
+            'producto__medida__clave',
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'marcasalida',
+            'vitola',
+            'producto__activo'
+        )

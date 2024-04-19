@@ -1,51 +1,58 @@
 [
 {
     "model": "codificadores.tipoproducto",
-    "pk": 1,
-    "fields": {
-        "descripcion": "Pesada"
-    }
-},
-{
-    "model": "codificadores.tipoproducto",
     "pk": 2,
     "fields": {
-        "descripcion": "Materia Prima"
-    }
-},
-{
-    "model": "codificadores.tipoproducto",
-    "pk": 3,
-    "fields": {
-        "descripcion": "Habilitación"
-    }
-},
-{
-    "model": "codificadores.tipoproducto",
-    "pk": 4,
-    "fields": {
-        "descripcion": "Línea de Salida"
-    }
-},
-{
-    "model": "codificadores.tipoproducto",
-    "pk": 5,
-    "fields": {
-        "descripcion": "Vitola"
+        "descripcion": "Materia Prima",
+        "orden": 1
     }
 },
 {
     "model": "codificadores.tipoproducto",
     "pk": 6,
     "fields": {
-        "descripcion": "Subproducto"
+        "descripcion": "Subproducto",
+        "orden": 2
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 3,
+    "fields": {
+        "descripcion": "Habilitación",
+        "orden": 3
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 1,
+    "fields": {
+        "descripcion": "Pesada",
+        "orden": 4
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 4,
+    "fields": {
+        "descripcion": "Línea de Salida",
+        "orden": 5
+    }
+},
+{
+    "model": "codificadores.tipoproducto",
+    "pk": 5,
+    "fields": {
+        "descripcion": "Vitola",
+        "orden": 6
     }
 },
 {
     "model": "codificadores.tipoproducto",
     "pk": 7,
     "fields": {
-        "descripcion": "Línea sin Terminar"
+        "descripcion": "Línea sin Terminar",
+        "orden": 7
     }
 },
 {
@@ -402,8 +409,8 @@
     "pk": "1",
     "fields": {
         "name":"Administrador",
-        "permissions": [148, 96, 100, 60, 162, 163, 164, 165, 158, 159, 160, 161, 12, 157, 158, 159, 160,
-                        64, 84, 88, 92, 108, 120, 156]
+        "permissions": [148, 96, 100, 60, 162, 163, 164, 165, 161, 12, 157, 158, 159, 160,
+                        64, 84, 88, 92, 108, 120, 156, 104, 116]
     }
 },
 {
@@ -432,9 +439,9 @@
     "pk": "5",
     "fields": {
         "name":"Administrador Empresa",
-        "permissions": [146, 148, 94, 96, 97, 98, 99, 100, 58, 60, 162, 163, 164, 165, 158, 159, 160, 161, 12,
+        "permissions": [146, 148, 94, 96, 97, 98, 99, 100, 57, 58, 60, 162, 163, 164, 165, 161, 12,
             157, 158, 159, 160, 61, 62, 64, 84, 82, 86, 88, 89, 90, 91, 92, 105, 106, 108, 117, 118, 119, 120,
-            153, 154, 155, 156]
+            153, 154, 155, 156, 101, 102, 103, 104, 113, 114, 115, 116]
     }
 },
 {

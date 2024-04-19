@@ -26,7 +26,7 @@ class GenUnidadMedidaList(APIView):
             medida = GenMedida.objects.all()
             serializer = GenUnidadMedidaSerializer(medida, many=True)
             data = serializer.data
-            datos = [Medida(clave=item['clave'].strip(), descripcion=item['descripcion']) for item in data]
+            datos = [Medida(clave=item['clave'].strip(), descripcion=item['descripcion'].strip()) for item in data]
             Medida.objects.bulk_update_or_create(datos, ['descripcion'], match_field='clave')
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
         except Exception as e:
@@ -44,7 +44,7 @@ class GenUnidadContableList(APIView):
             medida = GenUnidadcontable.objects.all()
             serializer = GenUnidadcontableSerializer(medida, many=True)
             data = serializer.data
-            datos = [UnidadContable(codigo=item['codigo'], nombre=item['nombre'], activo=item['activo']) for item in
+            datos = [UnidadContable(codigo=item['codigo'].strip(), nombre=item['nombre'].strip(), activo=item['activo']) for item in
                      data_json]
             UnidadContable.objects.bulk_update_or_create(datos, ['nombre', 'activo'], match_field='codigo')
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
@@ -63,7 +63,7 @@ class MPMarcaList(APIView):
             marca = MPMarca.objects.all()
             serializer = MPMarcaSerializer(marca, many=True)
             data = serializer.data
-            datos = [MarcaSalida(codigo=item['codigoMarca'].strip(), descripcion=item['descripcion']) for item in data]
+            datos = [MarcaSalida(codigo=item['codigoMarca'].strip(), descripcion=item['descripcion'].strip()) for item in data]
             MarcaSalida.objects.bulk_update_or_create(datos, ['descripcion'], match_field='codigo')
             message_success(request=request, title=_("Success"), text=_('Data importation was successful'))
         except Exception as e:
@@ -175,7 +175,7 @@ class VitolaList(APIView):
             for item in vitolas:
                 # producto vitola
                 codigo = item.fk_prod.codigo
-                descripcion = item.fk_prod.descripcion
+                descripcion = item.fk_prod.descripcion.strip()
                 clave_medida = item.fk_prod.fk_um.clave.strip()
                 medida = Medida.objects.filter(clave=clave_medida)
                 prod = ProductoFlujo(codigo=codigo, descripcion=descripcion, tipoproducto=tipoprodVit,

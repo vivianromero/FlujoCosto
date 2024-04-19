@@ -6,6 +6,13 @@ from .forms import *
 from .models import *
 
 
+ACTIVO_CHOICES = (
+    (1, "Si"),
+    (0, "No"),
+)
+
+EMPTY_LABEL = '-- Todos --'
+
 # ------ Departamento / Filter ------
 class DepartamentoFilter(MyGenericFilter):
     search_fields = [
@@ -115,6 +122,30 @@ class UnidadContableFilter(MyGenericFilter):
         lookup_expr='icontains',
     )
 
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    is_empresa = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    is_comercializadora = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
     class Meta:
         model = UnidadContable
         fields = [
@@ -155,6 +186,14 @@ class MedidaFilter(MyGenericFilter):
         label=_("Description"),
         widget=forms.TextInput(),
         lookup_expr='icontains',
+    )
+
+    activa = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
     )
 
     class Meta:
@@ -271,6 +310,14 @@ class CentroCostoFilter(MyGenericFilter):
         lookup_expr='icontains',
     )
 
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
     class Meta:
         model = CentroCosto
         fields = [
@@ -316,6 +363,14 @@ class ProductoFlujoFilter(MyGenericFilter):
     tipoproducto = django_filters.ModelMultipleChoiceFilter(
         label="Tipo de Producto",
         queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.PESADA, ChoiceTiposProd.MATERIAPRIMA]),
+    )
+
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
     )
 
     get_clasemateriaprima = django_filters.ModelMultipleChoiceFilter(
@@ -431,6 +486,14 @@ class MarcaSalidaFilter(MyGenericFilter):
     ]
     split_space_search = ' '
 
+    activa = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
     class Meta:
         model = MarcaSalida
         fields = [
@@ -462,6 +525,22 @@ class MotivoAjusteFilter(MyGenericFilter):
         label=_("Description"),
         widget=forms.TextInput(),
         lookup_expr='icontains',
+    )
+
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    aumento = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
     )
 
     class Meta:
@@ -509,3 +588,67 @@ class CambioProductoFilter(MyGenericFilter):
                 }
             },
         }
+
+# ------ Vitola / Filter ------
+class LineaSalidaFilter(MyGenericFilter):
+
+    producto = django_filters.ModelMultipleChoiceFilter(
+        label="Producto",
+        queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.LINEASALIDA]),
+    )
+    vitola = django_filters.ModelMultipleChoiceFilter(
+        label="Vitola",
+        queryset=ProductoFlujo.objects.filter(tipoproducto=ChoiceTiposProd.VITOLA),
+    )
+
+    activo = django_filters.ChoiceFilter(
+        label="Activo",
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+                    'style': 'width: 100%',
+                    }),
+        method="filter_by_productoactivo",
+    )
+
+    search_fields = [
+        'producto__codigo__icontains',
+        'producto__descripcion__icontains',
+        'envase__contains',
+        'vol_cajam3__contains',
+        'peso_bruto__contains',
+        'peso_neto__contains',
+        'peso_legal__contains',
+        'marcasalida__descripcion__contains',
+        'vitola__descripcion__contains'
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = LineaSalida
+        fields = [
+            'producto',
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'marcasalida',
+            'vitola',
+        ]
+
+        form = LineaSalidaFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+    def filter_by_productoactivo(self, queryset, name, value):
+        if value:
+            return queryset.filter(producto__activo=value)
+        return queryset

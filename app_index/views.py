@@ -155,7 +155,7 @@ class CommonCRUDView(CRUDView):
 
     page_length = 15
 
-    page_length_menu = [5, 10, 15, 20]
+    page_length_menu = [5, 10, 15, 20, 25]
 
     # Table settings
     table_class = None  # Must be filled in descendant classes

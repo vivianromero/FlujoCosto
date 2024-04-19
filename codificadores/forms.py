@@ -496,7 +496,7 @@ class CentroCostoForm(forms.ModelForm):
                         css_class='form-row'
                     ),
                     Row(
-                        Column('activo', css_class='form-group col-md-4 mb-0'),
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -617,8 +617,6 @@ class ProductoFlujoForm(forms.ModelForm):
         self.fields["medida"].disabled = True
         self.fields["tipoproducto"].disabled = True
         self.fields["clase"].disabled = True
-        self.fields["clase"].hidden = not self.instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
-
         self.fields["codigo"].required = False
         self.fields["descripcion"].required = False
         self.fields["medida"].required = False
@@ -636,7 +634,8 @@ class ProductoFlujoForm(forms.ModelForm):
                         css_class='form-row'),
                     Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                        Column('clase', css_class='form-group col-md-2 mb-0'),
+                        Column('clase', css_class='form-group col-md-2 mb-0',
+                               hidden=not self.instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -1036,6 +1035,8 @@ class VitolaFormFilter(forms.Form):
 
 # ------------ MarcaSalida / Form ------------
 class MarcaSalidaForm(forms.ModelForm):
+    descripcion = forms.CharField(widget=forms.TextInput(attrs={'oninput': 'this.value = this.value.toUpperCase()'}))
+
     class Meta:
         model = MarcaSalida
         fields = [
@@ -1054,11 +1055,8 @@ class MarcaSalidaForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["codigo"].disabled = True
-        self.fields["descripcion"].disabled = True
-
-        self.fields["codigo"].required = False
-        self.fields["descripcion"].required = False
+        self.fields["codigo"].disabled = instance
+        self.fields["codigo"].required = not instance
 
         self.helper.layout = Layout(
             TabHolder(
@@ -1144,7 +1142,6 @@ class MarcaSalidaFormFilter(forms.Form):
 
 
 # ------------- Departamento / Form --------------
-
 class DepartamentoForm(forms.ModelForm):
     class Meta:
         model = Departamento
@@ -1652,3 +1649,195 @@ class ObtenerDatosModalForm(forms.Form):
                 ),
             ),
         )
+
+# ------------ LineaSalida / Form ------------
+class LineaSalidaForm(forms.ModelForm):
+    codigo = forms.CharField(max_length=50, required=True, label=_("Code"))
+    descripcion = forms.CharField(max_length=400, required=True, label=_("Description"))
+    activo = forms.BooleanField(label=_("Active"), initial=True)
+    um = forms.ModelChoiceField(
+        queryset=Medida.objects.all(),
+        label=_("U.M"),
+        required=True,
+    )
+
+    class Meta:
+        model = LineaSalida
+        fields = [
+            'codigo',
+            'descripcion',
+            'um',
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'marcasalida',
+            'vitola',
+            'activo'
+        ]
+
+        widgets = {
+            'marcasalida': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'vitola': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'um': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {'activo': True}
+        if instance:
+            kwargs['initial'] = {'um': instance.producto.medida, 'codigo': instance.producto.codigo,
+                                 'descripcion': instance.producto.descripcion, 'activo': instance.producto.activo,
+                                 'vitola':instance.vitola, 'marcasalida':instance.marcasalida}
+        super(LineaSalidaForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_lineasalida_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        queryset_vitola = ProductoFlujo.objects.filter(tipoproducto=ChoiceTiposProd.VITOLA, activo=True)
+        self.fields['vitola'] = forms.ModelChoiceField(
+            queryset=queryset_vitola if not instance else queryset_vitola | ProductoFlujo.objects.filter(
+                pk=instance.vitola.pk, activo=False),
+            label='Vitola')
+
+        self.fields["activo"].required = False
+        self.fields["codigo"].disabled = True if self.instance.producto_id else False
+        self.fields["codigo"].required = False if self.instance.producto_id else True
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Línea de Salida',
+                    Row(
+                        Column('codigo', css_class='form-group col-md-2 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-8 mb-0'),
+                        Column('um', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('marcasalida', css_class='form-group col-md-6 mb-0'),
+                        Column('vitola', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('emvase', css_class='form-group col-md-2 mb-0'),
+                        Column('vol_cajam3', css_class='form-group col-md-2 mb-0'),
+                        Column('peso_bruto', css_class='form-group col-md-2 mb-0'),
+                        Column('peso_neto', css_class='form-group col-md-2 mb-3'),
+                        Column('peso_legal', css_class='form-group col-md-2 mb-3'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            codigo = self.cleaned_data.get("codigo").strip()
+            descripcion = self.cleaned_data.get("descripcion").strip()
+            activo = self.cleaned_data.get("activo")
+
+            if self.instance.producto_id:
+                producto = ProductoFlujo.objects.get(id=self.instance.producto.id)
+                producto.descripcion = descripcion
+                producto.medida = self.cleaned_data.get("um")
+                producto.activo = activo
+                producto.save()
+            else:
+                producto = ProductoFlujo.objects.create(codigo=codigo,
+                                                        descripcion=descripcion,
+                                                        medida=self.cleaned_data.get("um"),
+                                                        activo=activo,
+                                                        tipoproducto=TipoProducto.objects.get(
+                                                            id=ChoiceTiposProd.LINEASALIDA))
+                self.instance.producto_id = producto.id
+            instance = super().save(*args, **kwargs)
+        return instance
+
+
+# ------------ LineaSalida / Form Filter ------------
+class LineaSalidaFormFilter(forms.Form):
+    class Meta:
+        model = LineaSalida
+        fields = [
+        'envase',
+        'vol_cajam3',
+        'peso_bruto',
+        'peso_neto',
+        'peso_legal',
+        'producto',
+        'marcasalida',
+        'vitola',
+    ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(LineaSalidaFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_lineasalida_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Línea de Salida',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('producto', css_class='form-group col-md-12 mb-0'),
+                        Column('marcasalida', css_class='form-group col-md-6 mb-0'),
+                        Column('vitola', css_class='form-group col-md-6 mb-0'),
+                        Column('envase', css_class='form-group col-md-2 mb-0'),
+                        Column('vol_cajam3', css_class='form-group col-md-2 mb-0'),
+                        Column('peso_bruto', css_class='form-group col-md-2 mb-0'),
+                        Column('peso_neto', css_class='form-group col-md-3 mb-0'),
+                        Column('peso_legal', css_class='form-group col-md-3 mb-0'),
+                        Column('activo', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+
+                    ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+
+        ),
+        )
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
