@@ -8,7 +8,7 @@ from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
-from exportar.views import crear_export_file
+from exportar.views import crear_export_datos_table
 from . import ChoiceTiposProd
 
 
@@ -551,7 +551,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     datos = table.data.data.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA).exclude(
                         productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
                     datos2 = [dat.productoflujoclase_producto.get() for dat in datos]
-                    return crear_export_file(request, "PROD", ProductoFlujo, datos, datos2)
+                    return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
                 else:
                     return super().get(request=request)
 
@@ -661,7 +661,7 @@ class VitolaCRUD(CommonCRUDView):
                         datos.append(p.producto)
                         datos.append(p.capa)
                         datos.append(p.pesada)
-                    return crear_export_file(request, "Vit", Vitola, datos, datos2)
+                    return crear_export_datos_table(request, "Vit", Vitola, datos, datos2)
                 else:
                     return super().get(request=request)
 
@@ -886,9 +886,51 @@ class LineaSalidaCRUD(CommonCRUDView):
                     datos = []
                     for p in datos2:
                         datos.append(p.producto)
-                    return crear_export_file(request, "LS", LineaSalida, datos, datos2)
+                    return crear_export_datos_table(request, "LS", LineaSalida, datos, datos2)
                 else:
                     return super().get(request=request)
+        return OFilterListView
+
+# ------ NumeracionDocumentos / CRUD ------
+class NumeracionDocumentosCRUD(CommonCRUDView):
+    model = NumeracionDocumentos
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'tiponumeracion',
+        'sistema',
+        'departamento',
+        'tipo_documento',
+        'prefijo'
+    ]
+
+    add_form = NumeracionDocumentosForm
+    update_form = NumeracionDocumentosForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update', 'create']
+    view_type = ['list', 'update', 'create']
+
+    # Table settings
+    paginate_by = 5
+    table_class = NumeracionDocumentosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'filter': False,
+                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                })
+                return context
         return OFilterListView
 
 

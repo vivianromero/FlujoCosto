@@ -123,8 +123,16 @@ MENUS = {
                                 },
                             ]
                         },
+                        {
+                            "id": 'id_nav_link_usonumeraciodoc',
+                            "name": "Numeración de los documentos",
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(NumeracionDocumentos, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
                     ]
                 },
+
                 {
                     "id": 'id_nav_link_costo',
                     "name": _("Cost"),

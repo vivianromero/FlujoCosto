@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida
+    Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida, NumeracionDocumentos
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
@@ -74,6 +74,10 @@ def vit_importar(request):
 @login_required
 def ls_importar(request):
     return importacion(request, 'LS', LineaSalida)
+
+@login_required
+def numdoc_importar(request):
+    return importacion(request, 'NumDoc', NumeracionDocumentos)
 
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):

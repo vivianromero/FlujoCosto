@@ -17,6 +17,7 @@ cambioproducto_crud = views.CambioProductoCRUD()
 normaconsumo_crud = views.NormaConsumoCRUD()
 normaconsumogrouped_crud = views.NormaConsumoGroupedCRUD()
 lineasalida_crud = views.LineaSalidaCRUD()
+numeraciondocumentos_crud = views.NumeracionDocumentosCRUD()
 
 app_name = 'codificadores'
 
@@ -38,5 +39,6 @@ urlpatterns = [
     path("", include(normaconsumogrouped_crud.get_urls())),
     path("obtener_datos", views.ObtenrDatosModalFormView.as_view(), name='obtener_datos'),
     path("", include(lineasalida_crud.get_urls())),
+    path("", include(numeraciondocumentos_crud.get_urls())),
 ]
 
