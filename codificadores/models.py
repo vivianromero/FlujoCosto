@@ -473,17 +473,17 @@ class TipoDocumento(models.Model):
 
 
 class NumeracionDocumentos(ObjectsManagerAbstract):
-    tiponumeracion = models.CharField(unique=True, max_length=150, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,
-                                      verbose_name=_("Enumeration Type"))
+    tiponumeracion = models.IntegerField(unique=True, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,
+                                      verbose_name=_("Tipo de Enumeración"))
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema',
-                                  verbose_name=_("System"))
+                                  verbose_name=_("Controlada por el sistema"))
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento',
-                                       verbose_name=_("Department"))
+                                       verbose_name=_("Por Departmento"))
     tipo_documento = models.BooleanField(default=False, db_comment='Si el número es por tipo de documento',
-                                         verbose_name=_("Document Type"))
-    prefijo = models.CharField(max_length=3, blank=True, null=True,
+                                         verbose_name=_("Por tipo de Documento"))
+    prefijo = models.BooleanField(default=False,
                                db_comment='Si el número de documento va a contener un prefijo',
-                               verbose_name=_("Prefix"))
+                               verbose_name=_("Usar Prefijo"))
 
     class Meta:
         db_table = 'cla_numeraciondocumentos'

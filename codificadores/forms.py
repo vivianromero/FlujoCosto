@@ -1864,3 +1864,56 @@ class LineaSalidaFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+# ------------ NumeracionDocumentos / Form ------------
+class NumeracionDocumentosForm(forms.ModelForm):
+    class Meta:
+        model = NumeracionDocumentos
+        fields = [
+            'tiponumeracion',
+            'sistema',
+            'departamento',
+            'tipo_documento',
+            'prefijo'
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(NumeracionDocumentosForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_numeraciondocumentosform_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["tiponumeracion"].disabled = True
+        self.fields["tiponumeracion"].required = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _('Numeración de los documentos'),
+                    Row(
+                        Column('tiponumeracion', css_class='form-group col-md-5 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('sistema', css_class='form-group col-md-5 mb-0'),
+                        Column('departamento', css_class='form-group col-md-5 mb-0'),
+                        Column('tipo_documento', css_class='form-group col-md-5 mb-0'),
+                        Column('prefijo', css_class='form-group col-md-5 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )

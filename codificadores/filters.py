@@ -653,7 +653,7 @@ class CambioProductoFilter(MyGenericFilter):
             },
         }
 
-# ------ Vitola / Filter ------
+# ------ LineaSalida / Filter ------
 class LineaSalidaFilter(MyGenericFilter):
 
     producto = django_filters.ModelMultipleChoiceFilter(
@@ -716,3 +716,5 @@ class LineaSalidaFilter(MyGenericFilter):
         if value:
             return queryset.filter(producto__activo=value)
         return queryset
+
+

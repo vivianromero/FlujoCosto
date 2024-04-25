@@ -217,3 +217,17 @@ class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'vitola',
             'producto__activo'
         )
+
+# ------ NumeracionDocumentos / Table ------
+class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NumeracionDocumentos
+
+        fields = (
+            'tiponumeracion',
+            'sistema',
+            'departamento',
+            'tipo_documento',
+            'prefijo'
+        )

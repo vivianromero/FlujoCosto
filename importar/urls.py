@@ -15,5 +15,6 @@ urlpatterns = [
     path('cprod_importar/', views.cprod_importar, name='cprod_importar'),
     path('vit_importar/', views.vit_importar, name='vit_importar'),
     path('ls_importar/', views.ls_importar, name='ls_importar'),
+    path('numdoc_importar/', views.numdoc_importar, name='numdoc_importar'),
 ]
 
