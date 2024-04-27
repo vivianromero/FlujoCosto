@@ -410,7 +410,7 @@
     "fields": {
         "name":"Administrador",
         "permissions": [148, 96, 100, 60, 162, 163, 164, 165, 161, 12, 157, 158, 159, 160,
-                        64, 84, 88, 92, 108, 120, 156, 104, 116, 68]
+                        64, 84, 88, 92, 108, 120, 156, 104, 116, 68, 268]
     }
 },
 {
@@ -441,7 +441,7 @@
         "name":"Administrador Empresa",
         "permissions": [146, 148, 94, 96, 97, 98, 99, 100, 57, 58, 60, 162, 163, 164, 165, 161, 12,
             157, 158, 159, 160, 61, 62, 64, 84, 82, 86, 88, 89, 90, 91, 92, 105, 106, 108, 117, 118, 119, 120,
-            153, 154, 155, 156, 101, 102, 103, 104, 113, 114, 115, 116, 66, 68]
+            153, 154, 155, 156, 101, 102, 103, 104, 113, 114, 115, 116, 66, 68, 266, 268]
     }
 },
 {
@@ -588,6 +588,92 @@
     "fields": {
         "codigo":"24",
         "nombre":"UEB SERVICIOS"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotros",
+    "pk": 1,
+    "fields": {
+        "clave":"Centros de Costo"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotros",
+    "pk": 2,
+    "fields": {
+        "clave":"Elementos de Gasto"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 1,
+    "fields": {
+        "clave":1,
+        "descripcion":"Subproductos"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 2,
+    "fields": {
+        "clave":1,
+        "descripcion":"Defectuosos"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 3,
+    "fields": {
+        "clave":1,
+        "descripcion":"Rechazo"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 4,
+    "fields": {
+        "clave":1,
+        "descripcion":"Calidad"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 5,
+    "fields": {
+        "clave":1,
+        "descripcion":"Administración"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 6,
+    "fields": {
+        "clave":2,
+        "descripcion":"Traspasos de la Producción"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 7,
+    "fields": {
+        "clave":2,
+        "descripcion":"Traspasos de Rechazos"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 8,
+    "fields": {
+        "clave":2,
+        "descripcion":"Traspasos de Defectuosos"
+    }
+},
+{
+    "model": "codificadores.confcentroselementosotrosdetalle",
+    "pk": 9,
+    "fields": {
+        "clave":2,
+        "descripcion":"Traspasos de Costos de Calidad"
     }
 }
 ]

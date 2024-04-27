@@ -9,7 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from django.core.validators import MinValueValidator
 from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
-    ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc
+    ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
+    ChoiceConfCentrosElementosOtros
 
 
 class ObjectsManagerAbstract(models.Model):
@@ -161,7 +162,7 @@ class TipoProducto(models.Model):
 
     class Meta:
         db_table = 'cla_tipoproducto'
-        ordering = ['orden','descripcion']
+        ordering = ['orden', 'descripcion']
 
     def __str__(self):
         return ChoiceTiposProd.CHOICE_TIPOS_PROD[self.id]
@@ -474,7 +475,7 @@ class TipoDocumento(models.Model):
 
 class NumeracionDocumentos(ObjectsManagerAbstract):
     tiponumeracion = models.IntegerField(unique=True, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,
-                                      verbose_name=_("Tipo de Enumeración"))
+                                         verbose_name=_("Tipo de Enumeración"))
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema',
                                   verbose_name=_("Controlada por el sistema"))
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento',
@@ -482,8 +483,8 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
     tipo_documento = models.BooleanField(default=False, db_comment='Si el número es por tipo de documento',
                                          verbose_name=_("Por tipo de Documento"))
     prefijo = models.BooleanField(default=False,
-                               db_comment='Si el número de documento va a contener un prefijo',
-                               verbose_name=_("Usar Prefijo"))
+                                  db_comment='Si el número de documento va a contener un prefijo',
+                                  verbose_name=_("Usar Prefijo"))
 
     class Meta:
         db_table = 'cla_numeraciondocumentos'
@@ -599,3 +600,45 @@ class CambioProducto(models.Model):
 
     def __str__(self):
         return "%s | %s" % (self.productoo, self.productod)
+
+
+# Configurar centros de costos, elementos de gastos
+# contiene los campos
+# clave: Clave que identifica que se configura (CentrosCosto, Elementos)
+# descripcion: Elemento que se configura
+# valor: El valor de la configuración
+class ConfCentrosElementosOtros(models.Model):
+    id = models.AutoField(primary_key=True, choices=ChoiceConfCentrosElementosOtros.CHOICE_CONF_CC_ELEM_OTROS, editable=False, )
+    clave = models.CharField(unique=True, max_length=80, verbose_name="Configurar Centros y Elementos")
+
+    class Meta:
+        db_table = 'cla_confcentroselementosotros'
+        ordering = ['clave']
+
+    def __str__(self):
+        return self.clave
+
+
+class ConfCentrosElementosOtrosDetalle(models.Model):
+    id = models.IntegerField(primary_key=True, editable=False, )
+    clave = models.ForeignKey(ConfCentrosElementosOtros, on_delete=models.PROTECT, related_name='confccelem_clave',
+                                     verbose_name="Configurar")
+    descripcion = models.CharField(max_length=250)
+    valor = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        db_table = 'cla_confcentroselementosotrosdetalle'
+        ordering = ['clave', 'descripcion']
+        unique_together = (('clave', 'descripcion'),)
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'clave',
+                    'descripcion',
+                ]
+            ),
+        ]
+
+    def __str__(self):
+        return "%s | %s" % (self.clave, self.descripcion)

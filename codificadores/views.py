@@ -1,6 +1,4 @@
-from django.db.models import Q
 from django.shortcuts import render
-from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
 
@@ -931,6 +929,45 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
                     'url_exportar': 'app_index:exportar:numdoc_exportar'
                 })
                 return context
+        return OFilterListView
+
+
+# ------ ConfCentrosElementosOtros / CRUD ------
+class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
+    model = ConfCentrosElementosOtros
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'clave'
+    ]
+
+    add_form = ConfCentrosElementosOtrosForm
+    update_form = ConfCentrosElementosOtrosForm
+
+    list_fields = fields
+
+    views_available = ['update', 'list']
+    view_type = ['update', 'list']
+
+    # Table settings
+    paginate_by = 5
+    table_class = ConfCentrosElementosOtrosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'filter': False,
+                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                })
+                return context
+
         return OFilterListView
 
 

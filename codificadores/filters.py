@@ -716,5 +716,3 @@ class LineaSalidaFilter(MyGenericFilter):
         if value:
             return queryset.filter(producto__activo=value)
         return queryset
-
-
