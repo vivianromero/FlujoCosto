@@ -15,7 +15,7 @@ from django.forms import Select, SelectMultiple
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import re_path
+from django.urls import re_path, include
 from django.urls.base import reverse_lazy, reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -250,7 +250,7 @@ class CRUDMixin(object):
         context.update({'blocks': self.template_blocks})
 
         if self.view_type in ['create', 'update', 'detail']:
-            context['crud_inlines'] = self.inlines
+            context['inlines'] = self.inlines
 
         if 'object' not in context:
             context['object'] = self.model
@@ -274,6 +274,8 @@ class CRUDMixin(object):
                 context['page_length_menu'] = [5, 10, 25, 50, 100]
 
         context['template_father'] = self.template_father
+
+        context['inline_tables'] = self.inline_tables
 
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
@@ -554,6 +556,7 @@ class CRUDView(object):
     display_fields = None
     list_fields = None
     inlines = None
+    inline_tables = None
     views_available = None
     template_father = "cruds/base.html"
     search_method = None
@@ -600,10 +603,10 @@ class CRUDView(object):
     #  GET GENERIC CLASS
 
     def get_create_view_class(self):
-        if self.inlines:
-            return CreateWithInlinesView
-        else:
-            return CreateView
+        # if self.inlines:
+        #     return CreateWithInlinesView
+        # else:
+        return CreateView
 
     def get_create_view(self):
         CreateViewClass = self.get_create_view_class()
@@ -612,7 +615,7 @@ class CRUDView(object):
             self.mixin,
             SuccessMessageMixin,
             LoginRequiredMixin,
-            CreateViewClass
+            CreateViewClass,
         ):
             namespace = self.namespace
             template_name_base = self.template_name_base
@@ -622,6 +625,7 @@ class CRUDView(object):
             form_class = self.add_form
             view_type = 'create'
             inlines = self.inlines
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -666,6 +670,7 @@ class CRUDView(object):
             view_type = 'detail'
             display_fields = self.display_fields
             inlines = self.inlines
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -682,10 +687,10 @@ class CRUDView(object):
         return ODetailView
 
     def get_update_view_class(self):
-        if self.inlines:
-            return UpdateWithInlinesView
-        else:
-            return UpdateView
+        # if self.inlines:
+        #     return UpdateWithInlinesView
+        # else:
+        return UpdateView
 
     def get_update_view(self):
         EditViewClass = self.get_update_view_class()
@@ -706,6 +711,7 @@ class CRUDView(object):
             all_perms = self.perms
             view_type = 'update'
             inlines = self.inlines
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -746,6 +752,7 @@ class CRUDView(object):
             all_perms = self.perms
             table_class = self.table_class
             table_data = self.table_data
+            inline_tables = self.inline_tables
             list_fields = self.list_fields
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -848,6 +855,7 @@ class CRUDView(object):
             all_perms = self.perms
             list_fields = self.list_fields
             table_class = self.table_class
+            inline_tables = self.inline_tables
             table_data = self.table_data
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -1291,33 +1299,25 @@ class CRUDView(object):
                                       self.model, 'delete', prefix=self.urlprefix))
                           )
 
-        # myurls += self.add_inlines(base_name)
+        myurls += self.add_inlines(base_name)
         return myurls
 
-    # def add_inlines(self, base_name):
-    #     dev = []
-    #     if self.inlines:
-    #         for i, inline in enumerate(self.inlines):
-    #             klass = inline
-    #             if isinstance(klass, type):
-    #                 # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-    #                 #        as those mean that inline is a type instance not a class from
-    #                 #        the second run onwars.
-    #                 klass = klass()
-    #             self.inlines[i] = klass
-    #             if self.namespace:
-    #                 dev.append(
-    #                     re_path('^inline/',
-    #                         include(klass.get_urls(),
-    #                                 # namespace=self.namespace
-    #                                 ))
-    #                 )
-    #             else:
-    #                 dev.append(
-    #                     re_path('^inline/', include(klass.get_urls()))
-    #
-    #                 )
-    #     return dev
+    def add_inlines(self, base_name):
+        dev = []
+        if self.inlines:
+            for i, inline in enumerate(self.inlines):
+                klass = inline
+                if isinstance(klass, type):
+                    # FIXME: This is a dirty hack to act on repeated calls to get_urls()
+                    #        as those mean that inline is a type instance not a class from
+                    #        the second run onwars.
+                    klass = klass()
+                self.inlines[i] = klass
+                if self.namespace:
+                    dev.append(re_path('^inline/', include(klass.get_urls(), )))
+                else:
+                    dev.append(re_path('^inline/', include(klass.get_urls())))
+        return dev
 
 
 class UserCRUDView(CRUDView):

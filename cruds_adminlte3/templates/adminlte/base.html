@@ -22,9 +22,12 @@
   {% block stylesheets %}
   {% include 'adminlte/lib/_styles.html' %}
   {% endblock %}
-  {% block javascript %}
-  {% include 'adminlte/lib/_scripts.html' %}
-{% endblock javascript %}
+    {% block javascript %}
+        {% include 'adminlte/lib/_scripts.html' %}
+        <script type="text/javascript" src="{% static 'plugins/jquery-cookie/jquery.cookie.js' %}"></script>
+        <script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax.js' %}"></script>
+        <script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax-plugin.js' %}"></script>
+    {% endblock javascript %}
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -108,7 +111,7 @@
 {% sweetify %}
 {% block modal_dialogs_forms %}
     <div id="modal" class="modal fade" tabindex="-1" role="dialog">
-        <div id="dialog" class="modal-dialog" hx-target="#main_content_swap" role="document"></div>
+        <div id="dialog" class="modal-dialog" role="document"></div>
     </div>
 {% endblock modal_dialogs_forms %}
 <script type="text/javascript">

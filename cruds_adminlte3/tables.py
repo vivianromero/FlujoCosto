@@ -162,6 +162,10 @@ class CommonColumnShiftTableBootstrap4ResponsiveActions(ColumnShiftTableBootstra
 
     getparams = None
 
+    hx_target = "#main_content_swap"
+    hx_swap = "outerHTML"
+    hx_replace_url = "true"
+
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_template.html',
         verbose_name=_('Actions'),
@@ -181,7 +185,7 @@ class CommonColumnShiftTableBootstrap4ResponsiveActions(ColumnShiftTableBootstra
         }
         model = None  # Must be filled in descendant classes
 
-        fields = None # Must be filled in descendant classes
+        fields = None  # Must be filled in descendant classes
 
         template_name = "django_tables2/bootstrap4.html"
         table_pagination = {

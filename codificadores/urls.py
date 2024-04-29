@@ -40,6 +40,11 @@ urlpatterns = [
     path("", include(normaconsumo_crud.get_urls())),
     path("", include(normaconsumogrouped_crud.get_urls())),
     path("obtener_datos", views.ObtenrDatosModalFormView.as_view(), name='obtener_datos'),
+    path(
+        "obtener_normaconsumodetalle_datos",
+        views.NormaConsumoDetalleModalFormView.as_view(),
+        name='obtener_normaconsumodetalle_datos'
+    ),
     path("", include(lineasalida_crud.get_urls())),
     path("", include(numeraciondocumentos_crud.get_urls())),
     path("", include(confcentroselementosotros_crud.get_urls())),

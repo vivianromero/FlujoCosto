@@ -29,15 +29,43 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'tipo',
             # 'cantidad',
             # 'activa',
-            # 'fecha',
+            'fecha',
             # 'medida',
             'producto',
         )
 
+    # ------ NormaConsumo / Table ------
 
-# ------ NormaConsumo / Table ------
+
+class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaconsumoDetalle
+
+        fields = (
+            'norma_ramal',
+            'norma_empresarial',
+            'operativo',
+            'normaconsumo',
+            'producto',
+            'medida'
+        )
+
+    # hx_target = "#normaconsumodetalle_father"
+    # hx_swap = "innerHTML"
+    # hx_replace_url = "true"
+
+
+# ------ NormaConsumoGrouped / Table ------
 class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     check_box_column = tables.CheckBoxColumn()
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_normaconsumogrouped_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
 
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NormaConsumoGrouped
@@ -195,6 +223,7 @@ class CambioProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'productoo',
             'productod',
         )
+
 
 class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):

@@ -450,6 +450,7 @@ class NormaConsumoGroupedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().values(
             Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion'))
+            # Producto="%s | %s" % (F('producto__codigo'), F('producto__descripcion'))
         ).annotate(Cantidad_Normas=Count('producto'))
 
 

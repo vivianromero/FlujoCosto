@@ -1,0 +1,30 @@
+
+{% load django_tables2 %}
+{% load i18n %}
+{% load crud_tags %}
+<!DOCTYPE html>
+
+<div class="row">
+    <div class="col-12">
+        {% block datatable %}
+            <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                {% render_table table %}
+            </div>
+        {% endblock datatable %}
+    </div>
+</div>
+
+
+<div class="modal in" id="delete_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" id="delete_modal_inner">
+    </div>
+  </div>
+</div>
+
+<div class="modal in" id="edit_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" id="edit_modal_inner">
+    </div>
+  </div>
+</div>
