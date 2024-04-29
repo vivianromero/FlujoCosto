@@ -121,10 +121,6 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Cuenta / Table ------
 class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    shifter_template = "cruds/django_tables2_column_shifter/my-tree-hx-bootstrap4-responsive.html"
-
-    descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node.html')
-
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = Cuenta
 
@@ -246,3 +242,42 @@ class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'vitola',
             'producto__activo'
         )
+
+# ------ NumeracionDocumentos / Table ------
+class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NumeracionDocumentos
+
+        fields = (
+            'tiponumeracion',
+            'sistema',
+            'departamento',
+            'tipo_documento',
+            'prefijo'
+        )
+
+# ------ ConfCentrosElementosOtros / Table ------
+class ConfCentrosElementosOtrosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConfCentrosElementosOtros
+
+        fields = (
+            'clave',
+        )
+
+# ------ ProductsCapasClaPesadas / Table ------
+class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ProductsCapasClaPesadas
+
+        fields = (
+            'codigo',
+            'descripcion',
+            'medida',
+            'tipoproducto',
+            'activo',
+        )
+
+    actions = None

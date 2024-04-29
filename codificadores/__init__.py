@@ -156,3 +156,12 @@ class ChoiceTipoNumeroDoc:
         NUMERO_CONSECUTIVO: 'Número Consecutivo',
         NUMERO_CONTROL: 'Número de Control',
     }
+
+class ChoiceConfCentrosElementosOtros:
+    CENTROSCOSTO = 1
+    ELEMENTOSGASTO = 2
+
+    CHOICE_CONF_CC_ELEM_OTROS = {
+        CENTROSCOSTO: 'Centros de Costo',
+        ELEMENTOSGASTO: 'Elementos de Gastos',
+    }
