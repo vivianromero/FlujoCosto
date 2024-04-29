@@ -3,7 +3,6 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from cruds_adminlte3.filter import MyGenericFilter
-from cruds_adminlte3.utils import crud_url_name
 from .forms import *
 from .models import *
 
@@ -13,6 +12,7 @@ ACTIVO_CHOICES = (
 )
 
 EMPTY_LABEL = '-- Todos --'
+
 
 # ------ Departamento / Filter ------
 class DepartamentoFilter(MyGenericFilter):
@@ -65,13 +65,13 @@ class NormaConsumoFilter(MyGenericFilter):
         choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
         empty_label='Todas',
         widget=forms.Select(
-                attrs={
-                    'style': 'width: 90%',
-                    'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
-                    'hx-target': '#main_content_swap',
-                    'hx-trigger': 'change',
-                }
-            ),
+            attrs={
+                'style': 'width: 90%',
+                'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
+                'hx-target': '#main_content_swap',
+                'hx-trigger': 'change',
+            }
+        ),
     )
     search_fields = [
         'tipo',
@@ -150,7 +150,6 @@ class NormaConsumoGroupedFilter(NormaConsumoFilter):
                 }
             },
         }
-
 
 
 # ------ UnidadContable / Filter ------
