@@ -1,0 +1,111 @@
+{% load static %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load crud_tags %}
+
+<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
+     style="padding-bottom: 0; padding-top: 0; height: 35px; display: none" hx-swap-oob="true"></nav>
+
+<div id="main_content_swap">
+    <div class="row" style="padding: 0;">
+        <div class="col-md-12 col-md-offset-1">
+            {% if crud_perms.list %}
+                <a href="{{ url_list }}{{getparams}}" class="btn btn-primary"
+                   hx-get="{{ url_list }}{{getparams}}"
+                   hx-trigger="click"
+                   hx-target="#main_content_swap"
+                   hx-swap="outerHTML"
+                   hx-replace-url="true">
+                    <i class="fa fa-angle-double-left"></i>
+                    {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+                </a>
+            {% endif %}
+            <div class="card mx-auto" style="width: 100%; padding: 0; margin-top: 8px; margin-bottom: 0">
+    {#            <div class="card-header with-border border-primary" style="background-color: lightgreen">#}
+    {#                <h3 class="card-title">{% trans "Edit" %} {{ model_verbose_name }}</h3>#}
+    {#            </div>#}
+                <script>
+                    window.data = {
+                        filterTextClear: '{{ filterTextClear|safe }}',
+                        filterPlaceHolder: '{{ filterPlaceHolder|safe }}',
+                        moveSelectedLabel: '{{ moveSelectedLabel|safe }}',
+                        moveAllLabel: '{{ moveAllLabel|safe }}',
+                        removeSelectedLabel: '{{ removeSelectedLabel|safe }}',
+                        removeAllLabel: '{{ removeAllLabel|safe }}',
+                        infoText1: '{{ infoText1|safe }}',
+                        infoText2: '{{ infoText2|safe }}',
+                        infoTextFiltered: '{{ infoTextFiltered|safe }}',
+                        infoTextEmpty: '{{ infoTextEmpty|safe }}',
+                        today: '{{ today|safe }}',
+                        clear: '{{ clear|safe }}',
+                        close: '{{ close|safe }}',
+                        selectMonth: '{{ selectMonth|safe }}',
+                        prevMonth: '{{ prevMonth|safe }}',
+                        nextMonth: '{{ nextMonth|safe }}',
+                        selectYear: '{{ selectYear|safe }}',
+                        prevYear: '{{ prevYear|safe }}',
+                        nextYear: '{{ nextYear|safe }}',
+                        selectDecade: '{{ selectDecade|safe }}',
+                        prevDecade: '{{ prevDecade|safe }}',
+                        nextDecade: '{{ nextDecade|safe }}',
+                        prevCentury: '{{ prevCentury|safe }}',
+                        nextCentury: '{{ nextCentury|safe }}',
+                        pickHour: '{{ pickHour|safe }}',
+                        incrementHour: '{{ incrementHour|safe }}',
+                        decrementHour: '{{ decrementHour|safe }}',
+                        pickMinute: '{{ pickMinute|safe }}',
+                        incrementMinute: '{{ incrementMinute|safe }}',
+                        decrementMinute: '{{ decrementMinute|safe }}',
+                        pickSecond: '{{ pickSecond|safe }}',
+                        incrementSecond: '{{ incrementSecond|safe }}',
+                        decrementSecond: '{{ decrementSecond|safe }}',
+                        togglePeriod: '{{ togglePeriod|safe }}',
+                        selectTime: '{{ selectTime|safe }}'
+                    }
+                </script>
+
+                {% include "cruds/_form.html" with action='update' %}
+
+                {% if inlines %}
+                    <div id="main_content_swap_inline_all" style="margin-left: 15px; margin-right: 15px;">
+                    <div class="row">
+                        <div class="col-12">
+                            {% for inline in inlines %}
+                                <div id="{{inline.name}}_father">
+                                    <div class="card" style="padding: 0;">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{inline.title}}</h3>
+                                        </div>
+                                        <div class="card-header" style="padding: 0;">
+                                            <a href="{{ url_list }}{{getparams}}" class="btn btn-primary"
+                                               hx-get="{{ url_list }}{{getparams}}"
+                                               hx-trigger="click"
+                                               hx-target="#main_content_swap"
+                                               hx-swap="outerHTML"
+                                               hx-replace-url="true"
+                                                style="margin-bottom: 10px;">
+                                                <i class="fa fa-plus"></i>
+                                                Adicionar {{ model_verbose_name_plural|lower }}
+                                            </a>
+                                            <h3 class="card-title">{{inline_table.title}}</h3>
+                                        </div>
+                                        <div class="card-body" style="padding: 0;">
+                                            {% block datatable %}
+                                                <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                                    {% render_table inline.table %}
+                                                </div>
+                                            {% endblock datatable %}
+                                        </div>
+                                        <div class="card-footer"></div>
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
