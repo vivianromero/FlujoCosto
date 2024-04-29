@@ -594,8 +594,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
 
     filterset_class = ProductoFlujoFilter
 
