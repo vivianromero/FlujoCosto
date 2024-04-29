@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from cruds_adminlte3.filter import MyGenericFilter
+from cruds_adminlte3.utils import crud_url_name
 from .forms import *
 from .models import *
 
