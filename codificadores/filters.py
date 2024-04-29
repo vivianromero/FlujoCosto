@@ -3,7 +3,6 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from cruds_adminlte3.filter import MyGenericFilter
-from cruds_adminlte3.utils import crud_url_name
 from .forms import *
 from .models import *
 
@@ -113,13 +112,13 @@ class NormaConsumoGroupedFilter(NormaConsumoFilter):
         choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
         empty_label='Todas',
         widget=forms.Select(
-            attrs={
-                'style': 'width: 100%',
-                'hx-get': reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:')),
-                'hx-target': '#main_content_swap',
-                'hx-trigger': 'change',
-            }
-        ),
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:')),
+                    'hx-target': '#main_content_swap',
+                    'hx-trigger': 'change',
+                }
+            ),
     )
     search_fields = [
         'tipo',
@@ -654,9 +653,9 @@ class CambioProductoFilter(MyGenericFilter):
             },
         }
 
-
 # ------ LineaSalida / Filter ------
 class LineaSalidaFilter(MyGenericFilter):
+
     producto = django_filters.ModelMultipleChoiceFilter(
         label="Producto",
         queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.LINEASALIDA]),
@@ -671,8 +670,8 @@ class LineaSalidaFilter(MyGenericFilter):
         choices=ACTIVO_CHOICES,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
-            'style': 'width: 100%',
-        }),
+                    'style': 'width: 100%',
+                    }),
         method="filter_by_productoactivo",
     )
 
@@ -717,7 +716,6 @@ class LineaSalidaFilter(MyGenericFilter):
         if value:
             return queryset.filter(producto__activo=value)
         return queryset
-
 
 # ------ ProductsCapasClaPesadas / Filter ------
 class ProductsCapasClaPesadasFilter(MyGenericFilter):
