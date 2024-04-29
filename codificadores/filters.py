@@ -153,6 +153,7 @@ class NormaConsumoGroupedFilter(NormaConsumoFilter):
         }
 
 
+
 # ------ UnidadContable / Filter ------
 class UnidadContableFilter(MyGenericFilter):
     search_fields = [
