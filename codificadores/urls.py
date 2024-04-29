@@ -19,6 +19,7 @@ normaconsumogrouped_crud = views.NormaConsumoGroupedCRUD()
 lineasalida_crud = views.LineaSalidaCRUD()
 numeraciondocumentos_crud = views.NumeracionDocumentosCRUD()
 confcentroselementosotros_crud = views.ConfCentrosElementosOtrosCRUD()
+producto_capas_pesadas_crud = views.ProductsCapasClaPesadasCRUD()
 
 app_name = 'codificadores'
 
@@ -42,4 +43,5 @@ urlpatterns = [
     path("", include(lineasalida_crud.get_urls())),
     path("", include(numeraciondocumentos_crud.get_urls())),
     path("", include(confcentroselementosotros_crud.get_urls())),
+    path("", include(producto_capas_pesadas_crud.get_urls())),
 ]

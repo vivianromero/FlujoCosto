@@ -8,6 +8,7 @@ urlpatterns = [
     path('um_importar/', views.um_importar, name='um_importar'),
     path('umc_importar/', views.umc_importar, name='umc_importar'),
     path('ms_importar/', views.ms_importar, name='ms_importar'),
+    path('ma_importar/', views.ma_importar, name='ma_importar'),
     path('cc_importar/', views.cc_importar, name='cc_importar'),
     path('ccta_importar/', views.ccta_importar, name='ccta_importar'),
     path('dpto_importar/', views.dpto_importar, name='dpto_importar'),
@@ -16,5 +17,6 @@ urlpatterns = [
     path('vit_importar/', views.vit_importar, name='vit_importar'),
     path('ls_importar/', views.ls_importar, name='ls_importar'),
     path('numdoc_importar/', views.numdoc_importar, name='numdoc_importar'),
+    path('confccelemg_importar/', views.confccelemg_importar, name='confccelemg_importar'),
 ]
 

@@ -100,6 +100,13 @@ MENUS = {
                                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                                 },
                                 {
+                                    "id": 'id_nav_link_productos_cap_pes',
+                                    "name": "Pesadas y Capas Clasificadas",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(ProductsCapasClaPesadas, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
                                     "name": "Líneas de Salida",
                                     "icon_class": 'fa fa-university',
                                     "url": crud_url_name(LineaSalida, 'list', 'app_index:codificadores:'),

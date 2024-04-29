@@ -1951,3 +1951,60 @@ class ConfCentrosElementosOtrosForm(forms.ModelForm):
                 )
             )
         )
+
+# ------------ ProductsCapasClaPesadas / Form Filter ------------
+class ProductsCapasClaPesadasFormFilter(forms.Form):
+    class Meta:
+        model = ProductsCapasClaPesadas
+        fields = [
+            'codigo',
+            'descripcion',
+            'activo',
+            'medida',
+            'tipoproducto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ProductsCapasClaPesadasFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_productoflujo_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Pesadas y Capas Clasificadas',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('medida', css_class='form-group col-md-3 mb-0'),
+                        Column('tipoproducto', css_class='form-group col-md-6 mb-0'),
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context

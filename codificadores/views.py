@@ -539,15 +539,15 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 qset = super().get_queryset()
-                qset = qset.filter(tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.PESADA])
+                qset = qset.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA).exclude(
+                    productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
                 return qset
 
             def get(self, request, *args, **kwargs):
                 myexport = request.GET.get("_export", None)
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
-                    datos = table.data.data.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA).exclude(
-                        productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
+                    datos = table.data.data
                     datos2 = [dat.productoflujoclase_producto.get() for dat in datos]
                     return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
                 else:
@@ -663,6 +663,23 @@ class VitolaCRUD(CommonCRUDView):
                 else:
                     return super().get(request=request)
 
+            def post(self, request, *args, **kwargs):
+                self.object = self.get_object()
+                try:
+                    self.object.delete()
+                except ProtectedError as e:
+                    protected_details = ", ".join([str(obj) for obj in e.protected_objects])
+                    # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
+                    title = _('Cannot delete ')
+                    text = _('This element is related to: ')
+                    message_error(self.request,
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
+                    return HttpResponseRedirect(self.get_success_url())
+                if self.success_message:
+                    messages.success(self.request, self.success_message)
+                return HttpResponseRedirect(self.get_success_url())
+
         return OFilterListView
 
 
@@ -693,8 +710,8 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update', 'create']
-    view_type = ['list', 'update', 'create']
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
 
     filterset_class = MarcaSalidaFilter
 
@@ -746,8 +763,8 @@ class MotivoAjusteCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
 
     filterset_class = MotivoAjusteFilter
 
@@ -761,8 +778,8 @@ class MotivoAjusteCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    'url_importar': 'app_index:importar:ms_importar',
-                    'url_exportar': 'app_index:exportar:ms_exportar',
+                    'url_importar': 'app_index:importar:ma_importar',
+                    'url_exportar': 'app_index:exportar:ma_exportar',
                 })
                 return context
 
@@ -816,6 +833,7 @@ class CambioProductoCRUD(CommonCRUDView):
                 return context
 
         return OFilterListView
+
 
 # ------ LineaSalida / CRUD ------
 class LineaSalidaCRUD(CommonCRUDView):
@@ -887,7 +905,9 @@ class LineaSalidaCRUD(CommonCRUDView):
                     return crear_export_datos_table(request, "LS", LineaSalida, datos, datos2)
                 else:
                     return super().get(request=request)
+
         return OFilterListView
+
 
 # ------ NumeracionDocumentos / CRUD ------
 class NumeracionDocumentosCRUD(CommonCRUDView):
@@ -929,6 +949,7 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
                     'url_exportar': 'app_index:exportar:numdoc_exportar'
                 })
                 return context
+
         return OFilterListView
 
 
@@ -947,6 +968,8 @@ class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
 
     list_fields = fields
 
+    filter_fields = fields
+
     views_available = ['update', 'list']
     view_type = ['update', 'list']
 
@@ -962,11 +985,26 @@ class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'url_importar': 'app_index:importar:confccelemg_importar',
                     'filter': False,
-                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                    'filtrar': True,
+                    'url_exportar': True,
                 })
                 return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    datos2 = [dat.confccelem_clave.all() for dat in datos]
+                    # for p in datos2:
+                    #     datos.append(p.producto)
+                    #     datos.append(p.capa)
+                    #     datos.append(p.pesada)
+                    return crear_export_datos_table(request, "ConfCCEleG", ConfCentrosElementosOtros, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
@@ -996,3 +1034,52 @@ class ObtenrDatosModalFormView(FormView):
             return render(self.request, 'app_index/modals/modal_form.html', {
                 'form': form,
             })
+
+
+# ------ ProductsCapasClaPesadas / CRUD ------
+class ProductsCapasClaPesadasCRUD(CommonCRUDView):
+    model = ProductsCapasClaPesadas
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'codigo',
+        'descripcion',
+        'activo',
+        'medida',
+        'tipoproducto',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'codigo_icontains',
+        'descripcion_icontains',
+        'medida__descripcion__contains',
+        'tipoproducto__descripcion__contains',
+    ]
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list']
+    view_type = ['list']
+
+    filterset_class = ProductsCapasClaPesadasFilter
+
+    # Table settings
+    paginate_by = 20
+
+    table_class = ProductsCapasClaPesadasTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({})
+                return context
+        return OFilterListView

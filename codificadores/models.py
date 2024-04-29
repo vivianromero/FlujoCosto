@@ -1,13 +1,15 @@
 import uuid
 
-from django.db import models
-from django.db.models import Count, F, Value
-from django.db.models.functions import Now, Concat
-from mptt.managers import TreeManager
-from mptt.models import MPTTModel, TreeForeignKey
-from django.utils.translation import gettext_lazy as _
 from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from django.core.validators import MinValueValidator
+from django.db import models, transaction
+from django.db.models import Count, F, Value
+from django.db.models.functions import Now, Concat
+from django.db.models.query_utils import Q
+from django.utils.translation import gettext_lazy as _
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
+
 from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
     ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
     ChoiceConfCentrosElementosOtros
@@ -220,6 +222,9 @@ class ProductoFlujoClase(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cla_productoflujoclase'
 
+    def __str__(self):
+        return self.clasemateriaprima.descripcion
+
 
 class ProductoFlujoVitola(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -295,6 +300,13 @@ class Vitola(ObjectsManagerAbstract):
 
     def __str__(self):
         return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            self.producto.delete()
+            self.capa.delete()
+            self.pesada.delete()
+
 
     @property
     def get_codigo(self):
@@ -459,6 +471,9 @@ class MotivoAjuste(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cla_motivoajuste'
         ordering = ['aumento', 'descripcion']
+
+    def __str__(self):
+        return self.descripcion
 
 
 class TipoDocumento(models.Model):
@@ -642,3 +657,16 @@ class ConfCentrosElementosOtrosDetalle(models.Model):
 
     def __str__(self):
         return "%s | %s" % (self.clave, self.descripcion)
+
+class ProductsCapasClaPesadasManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(tipoproducto=ChoiceTiposProd.PESADA) |
+            Q(productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA))
+
+class ProductsCapasClaPesadas(ProductoFlujo):
+    objects = ProductsCapasClaPesadasManager()
+
+    class Meta:
+        proxy = True
+        ordering = ['tipoproducto', 'descripcion']

@@ -235,5 +235,20 @@ class ConfCentrosElementosOtrosTable(CommonColumnShiftTableBootstrap4ResponsiveA
         model = ConfCentrosElementosOtros
 
         fields = (
-            'descripcion',
+            'clave',
         )
+
+# ------ ProductsCapasClaPesadas / Table ------
+class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ProductsCapasClaPesadas
+
+        fields = (
+            'codigo',
+            'descripcion',
+            'medida',
+            'tipoproducto',
+            'activo',
+        )
+
+    actions = None
