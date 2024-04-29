@@ -413,7 +413,7 @@ class ProductoFlujoFilter(MyGenericFilter):
 
     tipoproducto = django_filters.ModelMultipleChoiceFilter(
         label="Tipo de Producto",
-        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.MATERIAPRIMA]),
+        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.SUBPRODUCTO]),
     )
 
     activo = django_filters.ChoiceFilter(
@@ -426,7 +426,7 @@ class ProductoFlujoFilter(MyGenericFilter):
 
     get_clasemateriaprima = django_filters.ModelMultipleChoiceFilter(
         label="Clase de Materia Prima",
-        queryset=ClaseMateriaPrima.objects.all(),
+        queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
         method="filter_by_clasemateriaprima",
     )
 
