@@ -571,7 +571,7 @@ class CentroCostoFormFilter(forms.Form):
 # ------------ ProductoFlujo / Form ------------
 class ProductoFlujoForm(forms.ModelForm):
     clase = forms.ModelChoiceField(
-        queryset=ClaseMateriaPrima.objects.all(),
+        queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
         label=_("Clase Materia Prima"),
         required=False,
     )
@@ -611,16 +611,18 @@ class ProductoFlujoForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["codigo"].disabled = True
-        self.fields["descripcion"].disabled = True
-        self.fields["medida"].disabled = True
-        self.fields["tipoproducto"].disabled = True
-        self.fields["clase"].disabled = True
-        self.fields["codigo"].required = False
-        self.fields["descripcion"].required = False
-        self.fields["medida"].required = False
-        self.fields["tipoproducto"].required = False
-        self.fields["clase"].required = False
+        if instance:
+            self.fields["codigo"].disabled = True
+            self.fields["codigo"].required = False
+        # self.fields["descripcion"].disabled = True
+        # self.fields["medida"].disabled = True
+        # self.fields["tipoproducto"].disabled = True
+        # self.fields["clase"].disabled = True
+        # self.fields["codigo"].required = False
+        # self.fields["descripcion"].required = False
+        # self.fields["medida"].required = False
+        # self.fields["tipoproducto"].required = False
+        # self.fields["clase"].required = False
 
         self.helper.layout = Layout(
             TabHolder(
@@ -633,8 +635,7 @@ class ProductoFlujoForm(forms.ModelForm):
                         css_class='form-row'),
                     Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                        Column('clase', css_class='form-group col-md-2 mb-0',
-                               hidden=not self.instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA),
+                        Column('clase', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),

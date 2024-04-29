@@ -511,8 +511,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
 
     filterset_class = ProductoFlujoFilter
 
@@ -539,7 +539,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 qset = super().get_queryset()
-                qset = qset.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA).exclude(
+                qset = qset.filter(tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.SUBPRODUCTO]).exclude(
                     productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
                 return qset
 
