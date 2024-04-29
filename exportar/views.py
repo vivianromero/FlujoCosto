@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, CambioProducto, NumeracionDocumentos
+    Departamento, CambioProducto, NumeracionDocumentos, MotivoAjuste
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success
@@ -35,6 +35,10 @@ def umc_exportar(request):
 @adminempresa_required
 def ms_exportar(request):
     return crear_export_datos(request, 'MS', MarcaSalida)
+
+@adminempresa_required
+def ma_exportar(request):
+    return crear_export_datos(request, 'MotAjus', MotivoAjuste)
 
 
 @adminempresa_required
@@ -73,15 +77,14 @@ def json_info(opcion):
 def crear_export_datos(request, opcion, modelo):
     json_data = serializers.serialize("json",  modelo.objects.all()).replace("true", '"True"').replace(
         "false", '"False"')
-
     return crear_export_file(request, json_data, opcion, modelo)
 
 def crear_export_datos_table(request, opcion, modelo, datos, datos2=[]):
     json_data = serializers.serialize("json", datos).replace("true", '"True"').replace("false", '"False"')
     if datos2:
-        json_data2 = serializers.serialize("json", datos2).replace("true",'"True"').replace("false",'"False"')
-        json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
-
+        for dat in datos2:
+            json_data2 = serializers.serialize("json", dat).replace("true",'"True"').replace("false",'"False"')
+            json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
     return crear_export_file(request, json_data, opcion, modelo)
 
 

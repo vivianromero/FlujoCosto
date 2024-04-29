@@ -1,6 +1,4 @@
-from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import get_user_model
-from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import *
@@ -85,20 +83,27 @@ MENUS = {
                             "id": 'id_nav_link_productos',
                             "name": "Productos",
                             "icon_class": 'fa fa-university',
-                            "url":'#', #crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
+                            "url": '#',  # crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
-                            "submenu":[
+                            "submenu": [
                                 {
                                     "id": 'id_nav_link_productos_mp',
                                     "name": "Materias Primas y Materiales",
                                     "icon_class": 'fa fa-university',
-                                    "url":crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
+                                    "url": crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'),
                                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                                 },
                                 {
                                     "name": "Vitolas",
                                     "icon_class": 'fa fa-university',
                                     "url": crud_url_name(Vitola, 'list', 'app_index:codificadores:'),
+                                    "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                                },
+                                {
+                                    "id": 'id_nav_link_productos_cap_pes',
+                                    "name": "Pesadas y Capas Clasificadas",
+                                    "icon_class": 'fa fa-university',
+                                    "url": crud_url_name(ProductsCapasClaPesadas, 'list', 'app_index:codificadores:'),
                                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                                 },
                                 {
@@ -152,6 +157,13 @@ MENUS = {
                             "name": "Centros de Costo",
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(CentroCosto, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
+                        },
+                        {
+                            "id": 'id_nav_link_elementos_centros_de_costo',
+                            "name": "Centros de Costo y Elemntos de Gasto",
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(ConfCentrosElementosOtros, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                         },
                     ]

@@ -2,17 +2,16 @@ from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML, Field
+from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
 from django.db import transaction
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
-from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 from codificadores.models import *
 from cruds_adminlte3.utils import (
-    common_filter_form_actions, crud_url_name, )
+    common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
 
@@ -1673,6 +1672,7 @@ class ObtenerDatosModalForm(forms.Form):
             ),
         )
 
+
 # ------------ LineaSalida / Form ------------
 class LineaSalidaForm(forms.ModelForm):
     codigo = forms.CharField(max_length=50, required=True, label=_("Code"))
@@ -1720,7 +1720,7 @@ class LineaSalidaForm(forms.ModelForm):
         if instance:
             kwargs['initial'] = {'um': instance.producto.medida, 'codigo': instance.producto.codigo,
                                  'descripcion': instance.producto.descripcion, 'activo': instance.producto.activo,
-                                 'vitola':instance.vitola, 'marcasalida':instance.marcasalida}
+                                 'vitola': instance.vitola, 'marcasalida': instance.marcasalida}
         super(LineaSalidaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_lineasalida_form'
@@ -1805,15 +1805,15 @@ class LineaSalidaFormFilter(forms.Form):
     class Meta:
         model = LineaSalida
         fields = [
-        'envase',
-        'vol_cajam3',
-        'peso_bruto',
-        'peso_neto',
-        'peso_legal',
-        'producto',
-        'marcasalida',
-        'vitola',
-    ]
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'producto',
+            'marcasalida',
+            'vitola',
+        ]
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1849,11 +1849,10 @@ class LineaSalidaFormFilter(forms.Form):
                         css_class='form-row',
 
                     ),
-                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+                    style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+                ),
+
             ),
-
-
-        ),
         )
         self.helper.layout.append(
             common_filter_form_actions()
@@ -1917,3 +1916,95 @@ class NumeracionDocumentosForm(forms.ModelForm):
                 )
             )
         )
+
+
+class ConfCentrosElementosOtrosForm(forms.ModelForm):
+    class Meta:
+        model = ConfCentrosElementosOtros
+        fields = ['clave']
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ConfCentrosElementosOtrosForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_confcentroselementosotrosform_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Centros de Costo',
+                    Row(
+                        Column('valor', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+# ------------ ProductsCapasClaPesadas / Form Filter ------------
+class ProductsCapasClaPesadasFormFilter(forms.Form):
+    class Meta:
+        model = ProductsCapasClaPesadas
+        fields = [
+            'codigo',
+            'descripcion',
+            'activo',
+            'medida',
+            'tipoproducto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ProductsCapasClaPesadasFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_productoflujo_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Pesadas y Capas Clasificadas',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('medida', css_class='form-group col-md-3 mb-0'),
+                        Column('tipoproducto', css_class='form-group col-md-6 mb-0'),
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
