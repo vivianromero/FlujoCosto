@@ -1,10 +1,11 @@
 import django_filters
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from cruds_adminlte3.filter import MyGenericFilter
+from cruds_adminlte3.utils import crud_url_name
 from .forms import *
 from .models import *
-
 
 ACTIVO_CHOICES = (
     (1, "Si"),
@@ -12,6 +13,7 @@ ACTIVO_CHOICES = (
 )
 
 EMPTY_LABEL = '-- Todos --'
+
 
 # ------ Departamento / Filter ------
 class DepartamentoFilter(MyGenericFilter):
@@ -64,13 +66,13 @@ class NormaConsumoFilter(MyGenericFilter):
         choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
         empty_label='Todas',
         widget=forms.Select(
-                attrs={
-                    'style': 'width: 90%',
-                    'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
-                    'hx-target': '#main_content_swap',
-                    'hx-trigger': 'change',
-                }
-            ),
+            attrs={
+                'style': 'width: 90%',
+                'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
+                'hx-target': '#main_content_swap',
+                'hx-trigger': 'change',
+            }
+        ),
     )
     search_fields = [
         'tipo',
@@ -111,13 +113,13 @@ class NormaConsumoGroupedFilter(NormaConsumoFilter):
         choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
         empty_label='Todas',
         widget=forms.Select(
-                attrs={
-                    'style': 'width: 100%',
-                    'hx-get': reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:')),
-                    'hx-target': '#main_content_swap',
-                    'hx-trigger': 'change',
-                }
-            ),
+            attrs={
+                'style': 'width: 100%',
+                'hx-get': reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:')),
+                'hx-target': '#main_content_swap',
+                'hx-trigger': 'change',
+            }
+        ),
     )
     search_fields = [
         'tipo',
@@ -149,7 +151,6 @@ class NormaConsumoGroupedFilter(NormaConsumoFilter):
                 }
             },
         }
-
 
 
 # ------ UnidadContable / Filter ------
@@ -412,7 +413,7 @@ class ProductoFlujoFilter(MyGenericFilter):
 
     tipoproducto = django_filters.ModelMultipleChoiceFilter(
         label="Tipo de Producto",
-        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.PESADA, ChoiceTiposProd.MATERIAPRIMA]),
+        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.MATERIAPRIMA]),
     )
 
     activo = django_filters.ChoiceFilter(
@@ -492,6 +493,15 @@ class VitolaFilter(MyGenericFilter):
         label="Producto",
         queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.VITOLA]),
     )
+    activo = django_filters.ChoiceFilter(
+        label="Activo",
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+        method="filter_by_vitolaproductoactivo",
+    )
     search_fields = [
         'diametro__contains',
         'longitud__contains',
@@ -526,6 +536,11 @@ class VitolaFilter(MyGenericFilter):
                 }
             },
         }
+
+    def filter_by_vitolaproductoactivo(self, queryset, name, value):
+        if value:
+            return queryset.filter(producto__activo=value)
+        return queryset
 
 
 # ------ MarcaSalida / Filter ------
@@ -639,9 +654,9 @@ class CambioProductoFilter(MyGenericFilter):
             },
         }
 
-# ------ Vitola / Filter ------
-class LineaSalidaFilter(MyGenericFilter):
 
+# ------ LineaSalida / Filter ------
+class LineaSalidaFilter(MyGenericFilter):
     producto = django_filters.ModelMultipleChoiceFilter(
         label="Producto",
         queryset=ProductoFlujo.objects.filter(tipoproducto__id__in=[ChoiceTiposProd.LINEASALIDA]),
@@ -656,8 +671,8 @@ class LineaSalidaFilter(MyGenericFilter):
         choices=ACTIVO_CHOICES,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
-                    'style': 'width: 100%',
-                    }),
+            'style': 'width: 100%',
+        }),
         method="filter_by_productoactivo",
     )
 
@@ -702,3 +717,60 @@ class LineaSalidaFilter(MyGenericFilter):
         if value:
             return queryset.filter(producto__activo=value)
         return queryset
+
+
+# ------ ProductsCapasClaPesadas / Filter ------
+class ProductsCapasClaPesadasFilter(MyGenericFilter):
+    search_fields = [
+        'codigo__icontains',
+        'descripcion__icontains',
+        'medida__descripcion__icontains',
+        'tipoproducto__descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    codigo = django_filters.CharFilter(
+        label=_("Code"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label=_("Description"),
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    tipoproducto = django_filters.ModelMultipleChoiceFilter(
+        label="Tipo de Producto",
+        queryset=TipoProducto.objects.filter(id__in=[ChoiceTiposProd.PESADA, ChoiceTiposProd.MATERIAPRIMA]),
+    )
+
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    class Meta:
+        model = ProductsCapasClaPesadas
+        fields = [
+            'codigo',
+            'descripcion',
+            'activo',
+            'medida',
+            'tipoproducto',
+        ]
+
+        form = ProductsCapasClaPesadasFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
