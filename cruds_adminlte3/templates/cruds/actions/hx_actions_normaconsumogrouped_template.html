@@ -1,0 +1,38 @@
+{% load i18n l10n crud_tags %}
+{% crud_nurl object2 "list" namespace as nurl %}
+{% if nurl and 'list' in views_available and crud_perms.list %}
+    <a hx-get="{% url nurl %}?Producto={{ record.Producto|safe }}"
+       hx-trigger="click"
+       hx-target="#main_content_swap"
+       hx-swap="outerHTML"
+{#       hx-replace-url="true"#}
+        href="{% url nurl %}?Producto={{ record.Producto|safe }}"
+       title="Listar normas asociadas al producto">
+        <i class="fa-1x fa fa-list-alt"
+           style="margin-right: 5px;"></i>
+    </a>
+{% endif %}
+
+{% crud_nurl object2 "update" namespace as nurl %}
+{% if nurl and 'update' in views_available and crud_perms.update %}
+    <a hx-get="{% url nurl record.Producto %}"
+       hx-trigger="click"
+       hx-target="#main_content_swap"
+       hx-swap="outerHTML"
+       hx-replace-url="true"
+       href="{% url nurl record.Producto %}"
+       title="{% trans 'Edit' %}">
+        <i class="fa-1x fa fa-edit"
+           style="margin-right: 5px;"></i>
+    </a>
+{% endif %}
+{% crud_nurl object2 "delete" namespace as nurl %}
+{% if nurl and 'delete' in views_available and crud_perms.delete %}
+    <a id="delete_href" href="{% url nurl record.Producto %}{{ getparams }}"
+       is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+       class="delete_href"
+       title="{% trans 'Delete' %}">
+        <i id="trash_icon" class="fa-1x fa fa-trash">
+        </i>
+    </a>
+{% endif %}
