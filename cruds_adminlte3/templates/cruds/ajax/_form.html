@@ -1,3 +1,4 @@
+{% load crispy_forms_filters %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load crud_tags %}
@@ -15,7 +16,7 @@
     data-success="success"
     onsubmit="return false;">
     {% csrf_token %}
-    <div class="box-body row">
+    <div class="card-body row">
         <div class="col-md-12">
             {% if form.helper %}
                 {% crispy form %}
@@ -26,7 +27,7 @@
     </div>
 
 
-    <div class="box-footer">
+    <div class="card-footer">
         <div class="form-group">
             <div class="controls">
                 <button
@@ -45,8 +46,8 @@
 
 <script>
     {% if form.helper %}
-    $(".modal select:first").val(1).trigger('change.select2');
-    $(".modal select:first").parent().parent().hide();
+    {#$(".modal select:first").val(1).trigger('change.select2');#}
+    {#$(".modal select:first").parent().parent().hide();#}
     {% endif %}
 
     function success() {

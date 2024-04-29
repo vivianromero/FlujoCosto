@@ -111,7 +111,7 @@ MENUS = {
                                     "id": 'id_nav_link_normasconsumo',
                                     "name": "Normas",
                                     "icon_class": 'fa fa-university',
-                                    "url": crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'),
+                                    "url": crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'),
                                     "validators": ["app_auth.usuarios.validators.is_adminempresaoradmin"],
                                 },
                                 {

@@ -2,7 +2,9 @@ from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML, Field
+from crispy_forms.layout import Layout, Row, Column, HTML, Field, Fieldset, Div
+from crispy_formset_modal.helper import ModalEditFormHelper
+from crispy_formset_modal.layout import ModalEditLayout, ModalEditFormsetLayout
 from django import forms
 from django.db import transaction
 from django.template.loader import get_template
@@ -1345,16 +1347,6 @@ class NormaConsumoFormFilter(forms.Form):
             'medida',
             'producto',
         ]
-        # widgets = {
-        #     'tipo': SelectWidget(
-        #         attrs={
-        #             'style': 'width: 90%',
-        #             'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
-        #             'hx-target': '#main_content_swap',
-        #             'hx-trigger': 'change',
-        #         }
-        #     ),
-        # }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1402,6 +1394,69 @@ class NormaConsumoFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+class NormaConsumoDetalleForm(forms.ModelForm):
+    class Meta:
+        model = NormaconsumoDetalle
+        fields = [
+            'norma_ramal',
+            'norma_empresarial',
+            'operativo',
+            'producto',
+            'medida',
+        ]
+        widgets = {
+            'producto': SelectWidget(
+                attrs={
+                    'style': 'width: 100%; dislay: block',
+                },
+            ),
+            'medida': SelectWidget(
+                attrs={
+                    'style': 'width: 100%; dislay: block',
+                },
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        # self.fields['producto'].required = False
+        # self.fields['medida'].required = False
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_normaconsumodetalle_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Dettales Norma de Consumo',
+                    Row(
+
+                        Column('norma_ramal', css_class='form-group col-md-4 mb-0'),
+                        Column('norma_empresarial', css_class='form-group col-md-4 mb-0'),
+
+                        Column('producto', css_class='form-group col-md-4 mb-0'),
+
+                        Column('operativo', css_class='form-group col-md-4 mb-0'),
+                        Column('medida', css_class='form-group col-md-4 mb-0'),
+
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        # self.helper.layout.append(
+        #     FormActions(
+        #         HTML(
+        #             get_template('cruds/actions/hx_common_form_actions.html').template.source
+        #         )
+        #     )
+        # )
 
 
 class NormaConsumoGroupedFormFilter(NormaConsumoFormFilter):
@@ -1672,6 +1727,7 @@ class ObtenerDatosModalForm(forms.Form):
             ),
         )
 
+
 # ------------ LineaSalida / Form ------------
 class LineaSalidaForm(forms.ModelForm):
     codigo = forms.CharField(max_length=50, required=True, label=_("Code"))
@@ -1719,7 +1775,7 @@ class LineaSalidaForm(forms.ModelForm):
         if instance:
             kwargs['initial'] = {'um': instance.producto.medida, 'codigo': instance.producto.codigo,
                                  'descripcion': instance.producto.descripcion, 'activo': instance.producto.activo,
-                                 'vitola':instance.vitola, 'marcasalida':instance.marcasalida}
+                                 'vitola': instance.vitola, 'marcasalida': instance.marcasalida}
         super(LineaSalidaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_lineasalida_form'
@@ -1804,15 +1860,15 @@ class LineaSalidaFormFilter(forms.Form):
     class Meta:
         model = LineaSalida
         fields = [
-        'envase',
-        'vol_cajam3',
-        'peso_bruto',
-        'peso_neto',
-        'peso_legal',
-        'producto',
-        'marcasalida',
-        'vitola',
-    ]
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'producto',
+            'marcasalida',
+            'vitola',
+        ]
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1848,11 +1904,10 @@ class LineaSalidaFormFilter(forms.Form):
                         css_class='form-row',
 
                     ),
-                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+                    style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+                ),
+
             ),
-
-
-        ),
         )
         self.helper.layout.append(
             common_filter_form_actions()

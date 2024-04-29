@@ -3,6 +3,38 @@
 {% load crud_tags %}
 {% load partials %}
 
+{% partialdef back_button %}
+    {% if return_url %}
+        <a hx-get="{{ return_url }}{{getparams}}"
+           hx-trigger="click"
+           hx-target="#main_content_swap"
+           hx-swap="outerHTML"
+           hx-replace-url="true"
+           href="{{ return_url }}{{getparams}}"
+           class="nav-link"
+           role="button"
+        >
+            <i class="fa fa-arrow-left "></i>
+            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+        </a>
+    {% endif %}
+{% endpartialdef %}
+
+{% partialdef form_select_filter %}
+    {% if request.user.is_adminempresa and url_list_normaconsumo %} {# si tiene permiso#}
+        <div style="align-items: center; font-size: x-large">&nbsp&#9474&nbsp</div>
+        <div class="my-auto" style="align-items: center">Tipo de Producto: </div>
+        <div id="form_select_filter_div" style="display: flex; align-items: center">
+            <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
+                {% csrf_token %}
+                <div class="input-group input-group-sm">
+                    {{ filter.form.tipo }}
+                </div>
+            </form>
+        </div>
+    {% endif %}
+{% endpartialdef %}
+
 {% partialdef act_versat_link_url_partial_hx %}
     {% if request.user.is_adminempresa and url_apiversat %} {# si tiene permiso#}
         <div id="act_versat_link_url_div" style="display: flex; align-items: center">
@@ -96,6 +128,14 @@
                     {% endif %}
                 </div>
             {% endblock left_table_navbar_links_change_menu %}
+            {% block left_table_navbar_links_other %}
+                {% if object_list %}
+                    {% partial form_select_filter %}
+                {% endif %} 
+            {% endblock left_table_navbar_links_other %}
+            {% block left_table_navbar_links_back_button %}
+                {% partial back_button %}
+            {% endblock %}
         </ul>
     {% endblock left_table_navbar_links %}
     <!-- Right table navbar links -->

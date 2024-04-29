@@ -1,0 +1,22 @@
+{% extends 'app_index/cruds/base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %}{% translate "Error 403" %}{% endblock %}
+{#{% block page_name %} {% translate "Error 403" %} {% endblock %}#}
+{% block content %}
+
+<img src="{% static 'dist/img/no_access_transparent.png' %}"
+        alt="Acceso no autorizado"
+        class="brand-image mx-auto d-block"
+         width="200" height="150"
+         style="opacity: .8; text-align: center">
+
+<h1 style="text-align: center"> {% translate "You are not authorized to view this page" %}</h1>
+<p style="text-align: center"> {% translate "Please check with the site admin if you believe this is a mistake." %}</p>
+<div class="col-md-12 text-center">
+    <a class="btn btn-success mx-auto" href="/">{% translate "Return to Main Page" %} </a>
+</div>
+
+{% endblock %}

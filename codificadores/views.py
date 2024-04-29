@@ -3,13 +3,16 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
+from extra_views import CreateWithInlinesView
 
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
+from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from exportar.views import crear_export_file
 from . import ChoiceTiposProd
+from .inlines import NormaconsumoDetalleInline
 
 
 # ------ Departamento / CRUD ------
@@ -64,6 +67,25 @@ class DepartamentoCRUD(CommonCRUDView):
         return OFilterListView
 
 
+# ------ NormaConsumoDetalle / AjaxCRUD ------
+class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
+    model = NormaconsumoDetalle
+    base_model = NormaConsumo
+    namespace = 'app_index:codificadores'
+    inline_field = 'normaconsumo'
+    add_form = NormaConsumoDetalleForm
+    update_form = NormaConsumoDetalleForm
+    list_fields = [
+        'norma_ramal',
+        'norma_empresarial',
+        'operativo',
+        'producto',
+        'medida',
+    ]
+    title = "Detalles de normas de consumo"
+    table_class = NormaConsumoDetalleTable
+
+
 # ------ NormaConsumo / CRUD ------
 class NormaConsumoCRUD(CommonCRUDView):
     model = NormaConsumo
@@ -102,22 +124,67 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
+    inlines = [NormaConsumoDetalleAjaxCRUD]
+
+    inline_tables = [NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())]
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                return_url = reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'))
+                table = NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())
                 context.update({
                     # 'url_importar': 'app_index:importar:dpto_importar',
                     # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'url_list_normaconsumo': True,
+                    'return_url': return_url,
+                    'inline_tables': [table]
                 })
                 return context
 
+            def get_queryset(self):
+                queryset = super(OFilterListView, self).get_queryset()
+                return queryset
+
         return OFilterListView
 
-class NormaConsumoGroupedCRUD(NormaConsumoCRUD):
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                if 'pk' in self.kwargs:
+                    inline_object_list = NormaconsumoDetalle.objects.filter(normaconsumo__id=self.kwargs['pk'])
+                else:
+                    inline_object_list = NormaconsumoDetalle.objects.all()
+                table = self.inlines[0].table_class(inline_object_list)
+                self.inlines[0].table = table
+                ctx.update({
+                    'inline_tables': [table],
+                    'table': table,
+                    'inline_object_list': inline_object_list,
+                    'inline_object': NormaconsumoDetalle,
+                    'inline_url_list': reverse_lazy(
+                        crud_url_name(NormaconsumoDetalle, 'list', 'app_index:codificadores:')
+                    ),
+                    "add_button_href": 'app_index:codificadores:obtener_normaconsumodetalle_datos',
+                    "add_button_hx_get": reverse_lazy('app_index:codificadores:obtener_normaconsumodetalle_datos'),
+                    "add_button_hx_target": '#dialog_form',
+                })
+                return ctx
+
+        return OEditView
+
+
+class NormaConsumoGroupedCRUD(CommonCRUDView):
+    env = {
+        'normaconsumo': NormaConsumo
+    }
     model = NormaConsumoGrouped
 
     namespace = 'app_index:codificadores'
@@ -131,6 +198,14 @@ class NormaConsumoGroupedCRUD(NormaConsumoCRUD):
         'producto',
         'Producto',
         'Cantidad_Normas',
+    ]
+
+    views_available = [
+        'create',
+        'list',
+        'detail',
+        'delete',
+        'update',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -166,8 +241,14 @@ class NormaConsumoGroupedCRUD(NormaConsumoCRUD):
                     # 'url_importar': 'app_index:importar:dpto_importar',
                     # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'url_list_normaconsumo': True,
+                    'object2': self.env['normaconsumo'],
+                    'return_url': None,
                 })
                 return context
+
+            def get_queryset(self):
+                queryset = super().get_queryset()
+                return queryset
 
         return OFilterListView
 
@@ -819,6 +900,7 @@ class CambioProductoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ LineaSalida / CRUD ------
 class LineaSalidaCRUD(CommonCRUDView):
     model = LineaSalida
@@ -889,6 +971,7 @@ class LineaSalidaCRUD(CommonCRUDView):
                     return crear_export_file(request, "LS", LineaSalida, datos, datos2)
                 else:
                     return super().get(request=request)
+
         return OFilterListView
 
 
@@ -905,6 +988,39 @@ class ObtenrDatosModalFormView(FormView):
                 kwargs={
                     'valor_inicial': valor_inicial,
                     'clase_mat_prima': clase_mat_prima,
+                }
+            )
+
+            return HttpResponseLocation(
+                self.get_success_url(),
+                target='#main_content_swap',
+
+            )
+        else:
+            return render(self.request, 'app_index/modals/modal_form.html', {
+                'form': form,
+            })
+
+
+class NormaConsumoDetalleModalFormView(FormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = NormaConsumoDetalleForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            norma_ramal = form.cleaned_data['norma_ramal']
+            norma_empresarial = form.cleaned_data['norma_empresarial']
+            operativo = form.cleaned_data['operativo']
+            producto = form.cleaned_data['producto']
+            medida = form.cleaned_data['medida']
+            self.success_url = reverse_lazy(
+                'app_index:appversat:prod_appversat',
+                kwargs={
+                    'norma_ramal': norma_ramal,
+                    'norma_empresarial': norma_empresarial,
+                    'operativo': operativo,
+                    'producto': producto,
+                    'medida': medida,
                 }
             )
 
