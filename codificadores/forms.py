@@ -604,7 +604,7 @@ class ProductoFlujoForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         if instance and instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA:
-            kwargs['initial'] = {'clase': instance.productoflujoclase_producto.get().clasemateriaprima}
+            kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
         super(ProductoFlujoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_productoflujo_Form'
@@ -614,15 +614,6 @@ class ProductoFlujoForm(forms.ModelForm):
         if instance:
             self.fields["codigo"].disabled = True
             self.fields["codigo"].required = False
-        # self.fields["descripcion"].disabled = True
-        # self.fields["medida"].disabled = True
-        # self.fields["tipoproducto"].disabled = True
-        # self.fields["clase"].disabled = True
-        # self.fields["codigo"].required = False
-        # self.fields["descripcion"].required = False
-        # self.fields["medida"].required = False
-        # self.fields["tipoproducto"].required = False
-        # self.fields["clase"].required = False
 
         self.helper.layout = Layout(
             TabHolder(

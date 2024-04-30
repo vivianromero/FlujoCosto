@@ -1,10 +1,12 @@
 # views.py
 import json
 import os
+import sys
 import tarfile
 
 from django.conf import settings
 from django.core import serializers
+from django.core.management import call_command
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
@@ -65,6 +67,15 @@ def cprod_exportar(request):
 def numdoc_exportar(request):
     return crear_export_datos(request, 'NumDoc', NumeracionDocumentos)
 
+@adminempresa_required
+def all_conf_exportar(request):
+    ruta_archivo = os.path.join('codificadores', 'fixtures', 'ConfigTodas.json')
+    output = open(ruta_archivo, "w+")
+    call_command('dumpdata', 'codificadores', indent=2, stdout=output)
+    output.close()
+    json_file = open(ruta_archivo, 'r')
+    datos_json = json.dumps(json.load(json_file),ensure_ascii=False)
+    return crear_export_file(request, datos_json, 'ALL_CONF', None)
 
 def json_info(opcion):
     version = obtener_version()
@@ -82,9 +93,11 @@ def crear_export_datos(request, opcion, modelo):
 def crear_export_datos_table(request, opcion, modelo, datos, datos2=[]):
     json_data = serializers.serialize("json", datos).replace("true", '"True"').replace("false", '"False"')
     if datos2:
-        for dat in datos2:
-            json_data2 = serializers.serialize("json", dat).replace("true",'"True"').replace("false",'"False"')
-            json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
+        json_data2 = serializers.serialize("json", datos2).replace("true", '"True"').replace("false", '"False"')
+        json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
+        # for dat in datos2:
+        #     json_data2 = serializers.serialize("json", dat).replace("true",'"True"').replace("false",'"False"')
+        #     json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
     return crear_export_file(request, json_data, opcion, modelo)
 
 
@@ -96,7 +109,7 @@ def crear_export_file(request, json_data, opcion, modelo):
 
     if len(json_data) <= 2:
         message_success(request=request, title=_("Warning"), text=_("There aren't data to export"))
-        return redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
+        return redirect('app_index:index') if model==None else redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
     encoder = json.encoder.JSONEncoder()
     json_verify = encoder.encode(dicc_verify)
