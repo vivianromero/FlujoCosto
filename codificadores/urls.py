@@ -49,4 +49,5 @@ urlpatterns = [
     path("", include(numeraciondocumentos_crud.get_urls())),
     path("", include(confcentroselementosotros_crud.get_urls())),
     path("", include(producto_capas_pesadas_crud.get_urls())),
+    path('classmatprima/', views.classmatprima, name='classmatprima')
 ]

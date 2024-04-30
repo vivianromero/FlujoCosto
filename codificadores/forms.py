@@ -14,6 +14,7 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
+from django.urls import reverse_lazy
 
 
 # ------------ Unidad Contable / Form ------------
@@ -588,14 +589,20 @@ class ProductoFlujoForm(forms.ModelForm):
         ]
 
         widgets = {
+            'tipoproducto': SelectWidget(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy('app_index:codificadores:classmatprima'),
+                    'hx-target': '#div_id_clase',
+                    'hx-trigger': 'load, change',
+                    'hx-include': '[name="clase"]',  # Incluido para obtener el 'id' del clase seleccionado en el GET
+                }
+            ),
             'medida': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
-            'tipoproducto': SelectWidget(
-                attrs={'style': 'width: 100%'}
-            ),
             'clase': SelectWidget(
-                attrs={'style': 'width: 100%'}
+                attrs={'style': 'width: 100%',}
             ),
         }
 
@@ -611,9 +618,13 @@ class ProductoFlujoForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        if instance:
-            self.fields["codigo"].disabled = True
-            self.fields["codigo"].required = False
+        self.fields["codigo"].disabled = instance
+        self.fields["codigo"].required = not instance
+        # self.fields["tipoproducto"].disabled = instance
+        # self.fields["tipoproducto"].widget.attrs = {"readonly":True}
+        # self.fields["tipoproducto"].required = not instance
+        # self.fields["clase"].disabled = instance
+        # self.fields["clase"].required = not instance
 
         self.helper.layout = Layout(
             TabHolder(
