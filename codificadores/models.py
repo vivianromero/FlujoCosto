@@ -307,7 +307,6 @@ class Vitola(ObjectsManagerAbstract):
             self.capa.delete()
             self.pesada.delete()
 
-
     @property
     def get_codigo(self):
         return self.producto.codigo
@@ -426,6 +425,14 @@ class NormaConsumo(ObjectsManagerAbstract):
         db_table = 'cla_normaconsumo'
         ordering = ['tipo', 'producto__descripcion']
 
+    def __str__(self):
+        return "%s del %s %s | %s" % (
+            ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[self.tipo],
+            self.fecha,
+            self.producto.codigo,
+            self.producto.descripcion
+        )
+
 
 class NormaconsumoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -445,10 +452,18 @@ class NormaconsumoDetalle(models.Model):
     class Meta:
         db_table = 'cla_normaconsumodetalle'
 
+    def __str__(self):
+        return "%s | %s de la norma %s" % (
+            self.producto.codigo,
+            self.producto.descripcion,
+            self.normaconsumo.__str__()
+        )
+
 
 class NormaConsumoGroupedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().values(
+            Tipo=F('tipo'),
             Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion'))
             # Producto="%s | %s" % (F('producto__codigo'), F('producto__descripcion'))
         ).annotate(Cantidad_Normas=Count('producto'))
@@ -624,7 +639,8 @@ class CambioProducto(models.Model):
 # descripcion: Elemento que se configura
 # valor: El valor de la configuración
 class ConfCentrosElementosOtros(models.Model):
-    id = models.AutoField(primary_key=True, choices=ChoiceConfCentrosElementosOtros.CHOICE_CONF_CC_ELEM_OTROS, editable=False, )
+    id = models.AutoField(primary_key=True, choices=ChoiceConfCentrosElementosOtros.CHOICE_CONF_CC_ELEM_OTROS,
+                          editable=False, )
     clave = models.CharField(unique=True, max_length=80, verbose_name="Configurar Centros y Elementos")
 
     class Meta:
@@ -638,7 +654,7 @@ class ConfCentrosElementosOtros(models.Model):
 class ConfCentrosElementosOtrosDetalle(models.Model):
     id = models.IntegerField(primary_key=True, editable=False, )
     clave = models.ForeignKey(ConfCentrosElementosOtros, on_delete=models.PROTECT, related_name='confccelem_clave',
-                                     verbose_name="Configurar")
+                              verbose_name="Configurar")
     descripcion = models.CharField(max_length=250)
     valor = models.CharField(max_length=100, null=True, blank=True)
 
@@ -659,11 +675,13 @@ class ConfCentrosElementosOtrosDetalle(models.Model):
     def __str__(self):
         return "%s | %s" % (self.clave, self.descripcion)
 
+
 class ProductsCapasClaPesadasManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(
             Q(tipoproducto=ChoiceTiposProd.PESADA) |
             Q(productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA))
+
 
 class ProductsCapasClaPesadas(ProductoFlujo):
     objects = ProductsCapasClaPesadasManager()

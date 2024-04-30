@@ -22,10 +22,13 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ NormaConsumo / Table ------
 class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    check_box_column = tables.CheckBoxColumn(accessor='pk')
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NormaConsumo
 
         fields = (
+            'check_box_column',
             'tipo',
             # 'cantidad',
             # 'activa',
@@ -57,8 +60,6 @@ class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions
 
 # ------ NormaConsumoGrouped / Table ------
 class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    check_box_column = tables.CheckBoxColumn()
-
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_normaconsumogrouped_template.html',
         verbose_name=_('Actions'),
@@ -67,11 +68,14 @@ class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions
         attrs=attrs_center_center
     )
 
+    column_excluded = ['Tipo', ]
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NormaConsumoGrouped
 
         fields = (
-            'check_box_column',
+            # 'check_box_column',
+            # 'Tipo',
             'Producto',
             # 'cantidad',
             # 'activa',
@@ -243,9 +247,9 @@ class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'producto__activo'
         )
 
+
 # ------ NumeracionDocumentos / Table ------
 class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NumeracionDocumentos
 
@@ -257,15 +261,16 @@ class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveAction
             'prefijo'
         )
 
+
 # ------ ConfCentrosElementosOtros / Table ------
 class ConfCentrosElementosOtrosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = ConfCentrosElementosOtros
 
         fields = (
             'clave',
         )
+
 
 # ------ ProductsCapasClaPesadas / Table ------
 class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):

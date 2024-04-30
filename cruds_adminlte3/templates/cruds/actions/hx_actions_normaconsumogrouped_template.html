@@ -1,12 +1,12 @@
 {% load i18n l10n crud_tags %}
 {% crud_nurl object2 "list" namespace as nurl %}
 {% if nurl and 'list' in views_available and crud_perms.list %}
-    <a hx-get="{% url nurl %}?Producto={{ record.Producto|safe }}"
+    <a hx-get="{% url nurl %}?Producto={{ record.Producto|safe }}&Tipo={{ record.Tipo|safe }}"
        hx-trigger="click"
        hx-target="#main_content_swap"
        hx-swap="outerHTML"
-{#       hx-replace-url="true"#}
-        href="{% url nurl %}?Producto={{ record.Producto|safe }}"
+       hx-replace-url="true"
+        href="{% url nurl %}?Producto={{ record.Producto|safe }}&Tipo={{ record.Tipo|safe }}"
        title="Listar normas asociadas al producto">
         <i class="fa-1x fa fa-list-alt"
            style="margin-right: 5px;"></i>

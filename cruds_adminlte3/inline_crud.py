@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 from django.urls import re_path
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_htmx.http import HttpResponseLocation
 
 from cruds_adminlte3 import utils
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
