@@ -1047,6 +1047,8 @@ class CRUDView(object):
             # Esta redefinición de los métodos 'get' y 'post, para eliminar, obedece al uso de sweetalert2,
             # si no se va a usar, eliminar estas funciones
             def get(self, *args, **kwargs):
+                # if 'model_id' in kwargs:
+                #     return super().get(self.request)
                 return self.post(*args, **kwargs)
 
             def post(self, request, *args, **kwargs):

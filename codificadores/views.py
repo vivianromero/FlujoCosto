@@ -147,6 +147,21 @@ class NormaConsumoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 queryset = super(OFilterListView, self).get_queryset()
+                qfilter = {}
+                producto = self.request.GET.get('Producto', None)
+                tipo = self.request.GET.get('Tipo', None)
+                if producto is not None:
+                    p = producto.split(' | ')
+                    qfilter.update({
+                        'producto__codigo': p[0],
+                        'producto__descripcion': p[1]
+                         })
+                    queryset = queryset.filter(**qfilter)
+                if tipo is not None:
+                    qfilter.update({
+                        'tipo': tipo
+                    })
+                    queryset = queryset.filter(**qfilter)
                 return queryset
 
         return OFilterListView

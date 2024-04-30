@@ -197,6 +197,6 @@ class CommonColumnShiftTableBootstrap4ResponsiveActions(ColumnShiftTableBootstra
         Método para gestionar el visionado de columnas.
         Si la columna aparece en la lista 'col_vis' entonces se ocultará dicha columna
         """
-        if request.htmx:
-            for col in self.col_vis:
-                self.columns.hide(col)
+        # if request.htmx:
+        for col in self.col_vis:
+            self.columns.hide(col)

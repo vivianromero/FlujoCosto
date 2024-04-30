@@ -6,7 +6,7 @@
 
 {% partialdef back_button %}
     {% if return_url %}
-        <a hx-get="{{ return_url }}{{getparams}}"
+        <a hx-get="{{ return_url }}"
            hx-trigger="click"
            hx-target="#main_content_swap"
            hx-swap="outerHTML"
