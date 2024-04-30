@@ -21,7 +21,7 @@ def importacion(request, opcion, modelo):
     archivo_importar = obtener_fichero()
     if archivo_importar:
         data = importar_datos_desde_tar(request, archivo_importar, opcion)
-    return redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
+    return redirect('app_index:index') if modelo==None else redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
 
 @login_required
@@ -87,6 +87,9 @@ def numdoc_importar(request):
 def confccelemg_importar(request):
     return importacion(request, 'ConfCCEleG', ConfCentrosElementosOtros)
 
+@login_required
+def all_conf_importar(request):
+    return importacion(request, 'ALL_CONF', None)
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:

@@ -5,7 +5,9 @@ def is_adminempresaoradmin(request):
     """
     Retorna verdadero si el usuario es 'Administrator', si no devuelve falso
     """
-    return is_authenticated(request) and (request.user.is_admin or request.user.is_superuser or request.user.is_adminempresa)
+    return is_authenticated(request) and (
+                request.user.is_admin or request.user.is_superuser or request.user.is_adminempresa)
+
 
 def is_admin(request):
     """
@@ -47,3 +49,11 @@ def is_consultoremp(request):
     Retorna verdadero si el usuario es consultor de empresa, si no devuelve falso
     """
     return is_authenticated(request) and request.user.is_consultoremp
+
+
+def is_adminoroperador(request):
+    """
+    Retorna verdadero si el usuario es 'Administrator', si no devuelve falso
+    """
+    return is_authenticated(request) and (
+                request.user.is_admin or request.user.is_superuser or request.user.is_adminempresa or request.user.is_opercosto or request.user.is_operflujo)

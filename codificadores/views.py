@@ -10,7 +10,7 @@ from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
-from exportar.views import crear_export_file
+from exportar.views import crear_export_datos_table
 from . import ChoiceTiposProd
 from .inlines import NormaconsumoDetalleInline
 
@@ -631,7 +631,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
-                    datos2 = [dat.productoflujoclase_producto.get() for dat in datos]
+                    datos2 = [dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None for dat in datos]
+                    datos2.remove(None)
                     return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
                 else:
                     return super().get(request=request)
@@ -742,9 +743,26 @@ class VitolaCRUD(CommonCRUDView):
                         datos.append(p.producto)
                         datos.append(p.capa)
                         datos.append(p.pesada)
-                    return crear_export_file(request, "Vit", Vitola, datos, datos2)
+                    return crear_export_datos_table(request, "Vit", Vitola, datos, datos2)
                 else:
                     return super().get(request=request)
+
+            def post(self, request, *args, **kwargs):
+                self.object = self.get_object()
+                try:
+                    self.object.delete()
+                except ProtectedError as e:
+                    protected_details = ", ".join([str(obj) for obj in e.protected_objects])
+                    # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
+                    title = _('Cannot delete ')
+                    text = _('This element is related to: ')
+                    message_error(self.request,
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
+                    return HttpResponseRedirect(self.get_success_url())
+                if self.success_message:
+                    messages.success(self.request, self.success_message)
+                return HttpResponseRedirect(self.get_success_url())
 
         return OFilterListView
 
@@ -968,7 +986,7 @@ class LineaSalidaCRUD(CommonCRUDView):
                     datos = []
                     for p in datos2:
                         datos.append(p.producto)
-                    return crear_export_file(request, "LS", LineaSalida, datos, datos2)
+                    return crear_export_datos_table(request, "LS", LineaSalida, datos, datos2)
                 else:
                     return super().get(request=request)
 
@@ -1109,11 +1127,7 @@ class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
-                    datos2 = [dat.confccelem_clave.all() for dat in datos]
-                    # for p in datos2:
-                    #     datos.append(p.producto)
-                    #     datos.append(p.capa)
-                    #     datos.append(p.pesada)
+                    datos2 = ConfCentrosElementosOtrosDetalle.objects.all()
                     return crear_export_datos_table(request, "ConfCCEleG", ConfCentrosElementosOtros, datos, datos2)
                 else:
                     return super().get(request=request)

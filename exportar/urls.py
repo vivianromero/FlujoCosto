@@ -14,6 +14,6 @@ urlpatterns = [
     path('dpto_exportar/', views.dpto_exportar, name='dpto_exportar'),
     path('cprod_exportar/', views.cprod_exportar, name='cprod_exportar'),
     path('numdoc_exportar/', views.numdoc_exportar, name='numdoc_exportar'),
-    # path('confcceg_exportar/', views.onfcceg_exportar, name='onfcceg_exportar'),
+    path('all_conf_exportar/', views.all_conf_exportar, name='all_conf_exportar'),
 ]
 
