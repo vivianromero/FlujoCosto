@@ -1,0 +1,42 @@
+{% load i18n %}
+<label for="div_id_clase" style="{% if not esmatprim %}display:none{%else%} {%endif%}" class= "{% if esmatprim %}requiredField{%else%} {%endif%}">{% translate 'Clase Materia Prima' %}{% if esmatprim %}<span class="asteriskField">*</span>{% endif %}</label>
+<div style="{% if not esmatprim %}display:none{%else%} {%endif%}">
+    <select name="clase" style="width: 100%" class="selectwidget custom-select" "{% if esmatprim %}required{%else%} {%endif%}" id="id_clase">
+        {% if not clase_seleccionada %}
+            <option value="" selected>---------</option>
+            {% for clase in clases_mp %}
+                <option value="{{ clase.pk }}">{{ clase.descripcion }}</option>
+            {% endfor %}
+        {% else %}
+            {% for clase in clases_mp %}
+                <option
+                        value="{{ clase.pk }}"
+                        {% if clase_seleccionada.pk == clase.pk %}selected{% endif %}>
+                    {{ clase.descripcion }}
+                </option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+
+<div id="div_id_tipoproducto" class="form-group" hx-swap-oob="True">
+<label for="div_id_tipoproducto" class= "requiredField">{% translate 'Tipo de Producto' %}<span class="asteriskField">*</span></label>
+<div>
+    <select name="tipoproducto" style="width: 100%" class="selectwidget custom-select" required id="id_tipoproducto">
+        {% if not tipo_selecc %}
+            <option value="" selected>---------</option>
+            {% for tipo in tipoprod %}
+                <option value="{{ tipo.pk }}">{{ tipo.descripcion }}</option>
+            {% endfor %}
+        {% else %}
+            {% for tipo in tipoprod %}
+                <option
+                        value="{{ tipo.pk }}"
+                        {% if tipo_selecc.pk == tipo.pk %}selected{%else%}disabled{% endif %}>
+                    {{ tipo.descripcion }}
+                </option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+</div>

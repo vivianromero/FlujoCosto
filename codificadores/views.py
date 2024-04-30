@@ -647,7 +647,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
                     datos2 = [dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None for dat in datos]
-                    datos2.remove(None)
+                    if None in datos2:
+                        datos2.remove(None)
                     return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
                 else:
                     return super().get(request=request)
@@ -1207,3 +1208,17 @@ class NormaConsumoDetalleModalFormView(FormView):
             return render(self.request, 'app_index/modals/modal_form.html', {
                 'form': form,
             })
+
+def classmatprima(request):
+    tipoproducto = request.GET.get('tipoproducto')
+    clasemp = request.GET.get('clase')
+    clases_mp = ClaseMateriaPrima.objects.all()
+    tipoprod = TipoProducto.objects.all()
+    context = {
+        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
+        'clases_mp': clases_mp,
+        'clase_seleccionada':None if not clasemp else clases_mp.get(pk=clasemp),
+        'tipoprod':tipoprod,
+        'tipo_selecc':None if not tipoproducto else tipoprod.get(pk=tipoproducto),
+    }
+    return render(request, 'app_index/partials/productclases.html', context)
