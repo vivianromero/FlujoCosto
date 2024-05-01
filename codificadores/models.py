@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
+from cruds_adminlte3.utils import crud_url
 from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
     ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
     ChoiceConfCentrosElementosOtros
@@ -432,6 +433,9 @@ class NormaConsumo(ObjectsManagerAbstract):
             self.producto.codigo,
             self.producto.descripcion
         )
+
+    def get_absolute_url(self):
+        return crud_url(self, 'update', namespace='app_index:codificadores')
 
 
 class NormaconsumoDetalle(models.Model):

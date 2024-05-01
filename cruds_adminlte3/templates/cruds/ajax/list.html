@@ -52,15 +52,17 @@
                           {%  crud_inline_url base_model object 'delete' namespace as url %}
                           {% if url and 'delete' in views_available %}
                             <a
+
                                     data-ajax=""
                                     data-success="function(){}"
                               id="#{{ name }}_{{ object.pk }}_delete"
                               data-refresh-inner="#{{name}}_myList"
-{#                              data-replace-inner="#delete_modal_inner"#}
+                              data-replace-inner="#delete_modal_inner"
                               href="{{ url }}"
                                is="{{ object }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
                                 class="delete_href"
                               title="{% trans 'Delete' %}"
+                                    role="button"
                               >
                                 <i class="fa-1x fa fa-trash"></i>
                             </a>
@@ -80,45 +82,45 @@
 </div>
 
 
-<div class="modal in" id="delete_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" style="max-width: 800px" role="document">
-    <div class="modal-content" id="delete_modal_inner">
-    </div>
-  </div>
-</div>
+{#<div class="modal in" id="delete_modal" tabindex="-1" role="dialog">#}
+{#  <div class="modal-dialog" role="document">#}
+{#    <div class="modal-content" id="delete_modal_inner">#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="modal in" id="edit_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" style="max-width: 800px" role="document">
-    <div class="modal-content" id="edit_modal_inner">
-    </div>
-  </div>
-</div>
+{#<div class="modal in" id="edit_modal" tabindex="-1" role="dialog">#}
+{#  <div class="modal-dialog" style="max-width: 800px" role="document">#}
+{#    <div class="modal-content" id="edit_modal_inner">#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
 <script>
-    document.querySelectorAll("a.delete_href").forEach((ref) => {
-            ref.addEventListener("click", function (e) {
-                e.preventDefault()
-                console.log(e.target.parentElement.href)
-                console.log(window.location)
-                let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
-                swal.fire({
-                    title: 'Está seguro que desea eliminar este elemento: ' + record + '?',
-                    text: 'Esta acción es irreversible!',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Confirmar Eliminar',
-                    cancelButtonText: 'Cancelar',
-                    backdrop: true,
-                    showLoaderOnConfirm: true,
-                    preConfirm:()=>{
-                        $(this).trigger('click');
-                        location.href = window.location.href
-                    },
-                    allowOutsideClick:()=>false,
-                    allowEscapeKey:()=>false
-                })
-            })
-        })
+    {#document.querySelectorAll("a.delete_href").forEach((ref) => {#}
+    {#        ref.addEventListener("click", function (e) {#}
+    {#            e.preventDefault()#}
+    {#            console.log(e.target.parentElement.href)#}
+    {#            console.log($(ref))#}
+    {#            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue#}
+    {#            swal.fire({#}
+    {#                title: 'Está seguro que desea eliminar este elemento: ' + record + '?',#}
+    {#                text: 'Esta acción es irreversible!',#}
+    {#                icon: 'question',#}
+    {#                showCancelButton: true,#}
+    {#                confirmButtonColor: '#3085d6',#}
+    {#                cancelButtonColor: '#d33',#}
+    {#                confirmButtonText: 'Confirmar Eliminar',#}
+    {#                cancelButtonText: 'Cancelar',#}
+    {#                backdrop: true,#}
+    {#                showLoaderOnConfirm: true,#}
+    {#                preConfirm:()=>{#}
+    {#                    $(ref).unbind();#}
+    {#                    location.href = window.location.href#}
+    {#                },#}
+    {#                allowOutsideClick:()=>false,#}
+    {#                allowEscapeKey:()=>false#}
+    {#            })#}
+    {#        })#}
+    {#    })#}
 </script>

@@ -1,5 +1,8 @@
-from django.db.models import Q
+from django.contrib import messages
+from django.db.models import Q, ProtectedError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
@@ -11,6 +14,7 @@ from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from exportar.views import crear_export_datos_table
+from utiles.utils import message_error
 from . import ChoiceTiposProd
 from .inlines import NormaconsumoDetalleInline
 
@@ -155,7 +159,7 @@ class NormaConsumoCRUD(CommonCRUDView):
                     qfilter.update({
                         'producto__codigo': p[0],
                         'producto__descripcion': p[1]
-                         })
+                    })
                     queryset = queryset.filter(**qfilter)
                 if tipo is not None:
                     qfilter.update({
@@ -637,7 +641,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 qset = super().get_queryset()
-                qset = qset.filter(tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.SUBPRODUCTO]).exclude(
+                qset = qset.filter(
+                    tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.SUBPRODUCTO]).exclude(
                     productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
                 return qset
 
@@ -646,7 +651,9 @@ class ProductoFlujoCRUD(CommonCRUDView):
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
-                    datos2 = [dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None for dat in datos]
+                    datos2 = [
+                        dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None
+                        for dat in datos]
                     if None in datos2:
                         datos2.remove(None)
                     return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
@@ -1008,6 +1015,7 @@ class LineaSalidaCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ ProductsCapasClaPesadas / CRUD ------
 class ProductsCapasClaPesadasCRUD(CommonCRUDView):
     model = ProductsCapasClaPesadas
@@ -1054,7 +1062,10 @@ class ProductsCapasClaPesadasCRUD(CommonCRUDView):
                 context = super().get_context_data(**kwargs)
                 context.update({})
                 return context
+
         return OFilterListView
+
+
 # ------ NumeracionDocumentos / CRUD ------
 class NumeracionDocumentosCRUD(CommonCRUDView):
     model = NumeracionDocumentos
@@ -1150,6 +1161,7 @@ class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 class ObtenrDatosModalFormView(FormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDatosModalForm
@@ -1209,6 +1221,7 @@ class NormaConsumoDetalleModalFormView(FormView):
                 'form': form,
             })
 
+
 def classmatprima(request):
     tipoproducto = request.GET.get('tipoproducto')
     clasemp = request.GET.get('clase')
@@ -1217,8 +1230,8 @@ def classmatprima(request):
     context = {
         'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
         'clases_mp': clases_mp,
-        'clase_seleccionada':None if not clasemp else clases_mp.get(pk=clasemp),
-        'tipoprod':tipoprod,
-        'tipo_selecc':None if not tipoproducto else tipoprod.get(pk=tipoproducto),
+        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
+        'tipoprod': tipoprod,
+        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)

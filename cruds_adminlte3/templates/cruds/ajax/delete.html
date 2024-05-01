@@ -3,15 +3,15 @@
 
 <!-- Modal -->
 <div class="modal-header">
-    <h4 class="modal-title">{% trans "Remove" %} {{ object }}?</h4>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <h4 class="modal-title">{% trans "Remove" %}</h4>
+    <button type="button" class="close" data-dismiss="modal" data-backdrop="false" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 
 </div>
 
 <div class="modal-body">
-    <p class="text-centered">{% trans "Do you really want to remove:" %} "{{ object }}"?</p>
+    <p class="text-centered" style="font-size: medium">Seguro desea eliminar este elemento: {{ object }}?</p>
 </div>
 
 <div class="modal-footer">
@@ -22,21 +22,33 @@
       action="{% crud_inline_url base_model object 'delete' namespace %}" method="POST">
         {% csrf_token %}
         <button
-          id="{{name}}_{{object.pk}}_delete_submit"
-          type="submit"
-          class="btn btn-danger">{% trans "Confirm remove" %}</button>
+                hx-get="{{ url_father }}"
+                hx-trigger="click"
+                hx-target="#main_content_swap"
+                hx-swap="outerHTML"
+                hx-replace-url="true"
+              id="{{name}}_{{object.pk}}_delete_submit"
+              type="submit"
+              class="btn btn-danger">
+                <i class="fa fa-trash"></i>
+                {% trans "Confirm remove" %}
+        </button>
         <a data-href="{% crud_inline_url base_model object 'list' namespace %}"
           data-ajax="" data-success="function(){}"
           data-replace-inner="#{{name}}_myList"
-          class="btn btn-warning"
-          data-dismiss="modal">{% trans "Cancel" %}
+          class="btn btn-secondary"
+          data-dismiss="modal">
+            <i class="fa fa-remove"></i>
+            {% trans "Cancel" %}
         </a>
     </form>
 </div>
 
 <script>
     $('#delete_modal').modal('show');
-    $('#{{name}}_{{object.pk}}_delete_submit').click( function() {
+    $('#{{name}}_{{object.pk}}_delete_submit').click( function(evt) {
         $('#delete_modal').modal('hide');
+            console.log(evt.detail.path)
+            {#evt.detail.path = "/whatever"#}
     });
 </script>

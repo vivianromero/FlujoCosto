@@ -11,13 +11,14 @@ from __future__ import unicode_literals
 from django.urls import re_path
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
-from django_htmx.http import HttpResponseLocation
+from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 
 from cruds_adminlte3 import utils
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from django_ajax.decorators import ajax
 
 from .crud import CRUDView
+from .utils import crud_url_name
 
 
 class InlineAjaxCRUD(CRUDView):
@@ -173,21 +174,37 @@ class InlineAjaxCRUD(CRUDView):
                 context['inline_model'] = self.object
                 context['name'] = self.name
                 context['views_available'] = self.views_available
+                if self.model_id:
+                    url_father = self.base_model.get_absolute_url(self=self.model_id)
+                else:
+                    url_father = self.get_success_url()
+                context['url_father'] = url_father
                 return context
 
             def get(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id'])
-                return djDeleteView.get(self, request, *args, **kwargs)
+                return super().get(self, request, *args, **kwargs)
 
             def get_success_url(self):
                 return "/"
 
             def post(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
-                    self.base_model, pk=kwargs['model_id'])
+                    self.base_model, pk=kwargs['model_id']
+                )
+                if self.model_id:
+                    url_father = self.base_model.get_absolute_url(self=self.model_id)
+                else:
+                    url_father = self.get_success_url()
                 response = djDeleteView.post(self, request, *args, **kwargs)
+                # return HttpResponseLocation(
+                #     url_father,
+                #     target='#main_content_swap',
+                #
+                # )
                 return HttpResponse(" ")
+
         return DeleteView
 
     def __init__(self, *args, **kwargs):

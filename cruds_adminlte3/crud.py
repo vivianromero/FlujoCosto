@@ -1029,6 +1029,7 @@ class CRUDView(object):
             perms = self.perms['delete']
             all_perms = self.perms
             view_type = 'delete'
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -1047,8 +1048,8 @@ class CRUDView(object):
             # Esta redefinición de los métodos 'get' y 'post, para eliminar, obedece al uso de sweetalert2,
             # si no se va a usar, eliminar estas funciones
             def get(self, *args, **kwargs):
-                # if 'model_id' in kwargs:
-                #     return super().get(self.request)
+                if 'model_id' in kwargs:
+                    return super().get(self.request)
                 return self.post(*args, **kwargs)
 
             def post(self, request, *args, **kwargs):
