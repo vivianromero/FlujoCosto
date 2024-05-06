@@ -16,7 +16,6 @@ ACTIVO_CHOICES = (
 
 EMPTY_LABEL = '-- Todos --'
 
-
 # ------ Departamento / Filter ------
 class DepartamentoFilter(MyGenericFilter):
     search_fields = [
@@ -262,14 +261,14 @@ class UnidadContableFilter(MyGenericFilter):
 
         form = UnidadContableFormFilter
 
-        filter_overrides = {
-            models.ForeignKey: {
-                'filter_class': django_filters.ModelMultipleChoiceFilter,
-                'extra': lambda f: {
-                    'queryset': django_filters.filterset.remote_queryset(f),
-                }
-            },
-        }
+        # filter_overrides = {
+        #     models.ForeignKey: {
+        #         'filter_class': django_filters.ModelMultipleChoiceFilter,
+        #         'extra': lambda f: {
+        #             'queryset': django_filters.filterset.remote_queryset(f),
+        #         }
+        #     },
+        # }
 
 
 # ------ Medida / Filter ------
@@ -818,6 +817,56 @@ class ProductsCapasClaPesadasFilter(MyGenericFilter):
         ]
 
         form = ProductsCapasClaPesadasFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+# ------ ConfCentrosElementosOtrosDetalleGrouped / Filter ------
+class ConfCentrosElementosOtrosDetalleGroupedFilter(MyGenericFilter):
+    search_fields = [
+        'clave__clave__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = ConfCentrosElementosOtrosDetalleGrouped
+        fields = [
+            'clave',
+        ]
+
+        form = ConfCentrosElementosOtrosDetalleGroupedFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+class ConfCentrosElementosOtrosDetalleFilter(MyGenericFilter):
+
+    search_fields = [
+        'valor__contains',
+        'descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    class Meta:
+        model = ConfCentrosElementosOtrosDetalle
+        fields = [
+            'valor',
+            'descripcion',
+        ]
+
+        form = ConfCentrosElementosOtrosDetalleFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

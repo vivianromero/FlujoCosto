@@ -895,8 +895,8 @@ msgstr "Destino"
 #: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:24
 #: codificadores/templates/codificadores/unidadcontable/cruds/list_table_navbar.html:24
 #: codificadores/templates/codificadores/vitola/cruds/list_table_navbar.html:24
-msgid "Update from VERSAT"
-msgstr "Actualizar desde VERSAT"
+msgid "Update from "
+msgstr "Actualizar desde "
 
 #: codificadores/templates/codificadores/marcasalida/cruds/list_table_navbar.html:24
 #: codificadores/templates/codificadores/medida/cruds/list_table_navbar.html:24

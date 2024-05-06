@@ -164,7 +164,7 @@ MENUS = {
                             "id": 'id_nav_link_elementos_centros_de_costo',
                             "name": "Centros de Costo y Elemntos de Gasto",
                             "icon_class": 'fa fa-university',
-                            "url": crud_url_name(ConfCentrosElementosOtros, 'list', 'app_index:codificadores:'),
+                            "url": crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
                     ]

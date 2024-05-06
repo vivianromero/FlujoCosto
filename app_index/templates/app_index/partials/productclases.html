@@ -19,24 +19,3 @@
     </select>
 </div>
 
-<div id="div_id_tipoproducto" class="form-group" hx-swap-oob="True">
-<label for="div_id_tipoproducto" class= "requiredField">{% translate 'Tipo de Producto' %}<span class="asteriskField">*</span></label>
-<div>
-    <select name="tipoproducto" style="width: 100%" class="selectwidget custom-select" required id="id_tipoproducto">
-        {% if not tipo_selecc %}
-            <option value="" selected>---------</option>
-            {% for tipo in tipoprod %}
-                <option value="{{ tipo.pk }}">{{ tipo.descripcion }}</option>
-            {% endfor %}
-        {% else %}
-            {% for tipo in tipoprod %}
-                <option
-                        value="{{ tipo.pk }}"
-                        {% if tipo_selecc.pk == tipo.pk %}selected{%else%}disabled{% endif %}>
-                    {{ tipo.descripcion }}
-                </option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
-</div>

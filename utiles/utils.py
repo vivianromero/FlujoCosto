@@ -3,6 +3,7 @@ import base64
 import sweetify
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+import json
 
 KEY_ENCRIP="DATAZUCAR-ETTVC-SISGESFC"
 
@@ -69,6 +70,21 @@ def message_warning(request, title, text):
         persistent=_("Close"),
     )
 
+def json_response(message=None, success=True, **data):
+    """
+    Args:
+        message:
+        success:
+        **data:
+    """
+    if not message:
+        json_object = {'success': success}
+    else:
+        json_object = {'success': success, 'message': message}
+
+    json_object.update(data)
+    return json.dumps(json_object)
+
 
 
 # #TODO ver si se va a usar
@@ -86,7 +102,3 @@ def message_warning(request, title, text):
 #     else:
 #         msg = "Superusuario - %(email)s ya existe " % credentials
 #     return msg
-
-
-
-

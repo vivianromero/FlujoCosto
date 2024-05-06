@@ -7,7 +7,6 @@ from cruds_adminlte3.utils import crud_url
 from django.utils.translation import gettext_lazy as _
 from . import ChoiceSystems
 
-
 class ConexionBaseDato(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -21,7 +20,7 @@ class ConexionBaseDato(models.Model):
                                   verbose_name=_("System"))
 
     class Meta:
-        db_table = 'cfg_conexionasedato'
+        db_table = 'cfg_conexionbasedato'
         indexes = [
             models.Index(
                 fields=[

@@ -9,6 +9,7 @@ from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
 from django.db import transaction
 from django.template.loader import get_template
+from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -18,7 +19,6 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-from django.urls import reverse_lazy
 
 
 # ------------ Unidad Contable / Form ------------
@@ -115,9 +115,9 @@ class UnidadContableFormFilter(forms.Form):
                         ),
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('nombre', css_class='form-group col-md-8 mb-0'),
-                        Column('activo', css_class='form-group col-md-3 mb-0'),
-                        Column('is_empresa', css_class='form-group col-md-3 mb-0'),
-                        Column('is_comercializadora', css_class='form-group col-md-3 mb-0'),
+                        Column('activo', css_class='form-group col-md-4 mb-0'),
+                        Column('is_empresa', css_class='form-group col-md-4 mb-0'),
+                        Column('is_comercializadora', css_class='form-group col-md-4 mb-0'),
 
                         css_class='form-row',
                     ),
@@ -606,7 +606,7 @@ class ProductoFlujoForm(forms.ModelForm):
                 attrs={'style': 'width: 100%'}
             ),
             'clase': SelectWidget(
-                attrs={'style': 'width: 100%',}
+                attrs={'style': 'width: 100%', }
             ),
         }
 
@@ -621,14 +621,6 @@ class ProductoFlujoForm(forms.ModelForm):
         self.helper.form_id = 'id_productoflujo_Form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
-
-        self.fields["codigo"].disabled = instance
-        self.fields["codigo"].required = not instance
-        # self.fields["tipoproducto"].disabled = instance
-        # self.fields["tipoproducto"].widget.attrs = {"readonly":True}
-        # self.fields["tipoproducto"].required = not instance
-        # self.fields["clase"].disabled = instance
-        # self.fields["clase"].required = not instance
 
         self.helper.layout = Layout(
             TabHolder(
@@ -658,6 +650,113 @@ class ProductoFlujoForm(forms.ModelForm):
                 )
             )
         )
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            instance = super().save(commit=True)
+            clase = self.cleaned_data.get('clase')
+            if clase:
+                producto_flujo_clase = ProductoFlujoClase.objects.create(
+                    clasemateriaprima=clase,
+                    producto=instance
+                )
+                if commit:
+                    producto_flujo_clase.save()
+        return instance
+
+
+# ------------ ProductoFlujo / Update Form ------------
+class ProductoFlujoUpdateForm(forms.ModelForm):
+    clase = forms.ModelChoiceField(
+        queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
+        label=_("Clase Materia Prima"),
+        required=False,
+    )
+
+    class Meta:
+        model = ProductoFlujo
+        fields = [
+            'codigo',
+            'descripcion',
+            'activo',
+            'medida',
+            'tipoproducto',
+            'clase',
+        ]
+
+        widgets = {
+            'tipoproducto': SelectWidget(
+                attrs={
+                    'style': 'width: 100%',
+                }
+            ),
+            'medida': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'clase': SelectWidget(
+                attrs={'style': 'width: 100%', }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        if instance and instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA:
+            kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
+        super(ProductoFlujoUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_productoflujo_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["codigo"].disabled = True
+        self.fields["codigo"].required = False
+        self.fields["tipoproducto"].disabled = True
+        self.fields["tipoproducto"].required = False
+        self.fields["clase"].widget.attrs = {
+            "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay'}
+        self.fields["clase"].required = instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Actualizar Producto Flujo',
+                    Row(
+                        Column('codigo', css_class='form-group col-md-2 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('medida', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'),
+                    Row(
+                        Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
+                        Column('clase', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'),
+                    Row(
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            instance = super().save(commit=True)
+            clase = self.cleaned_data.get('clase')
+            if clase:
+                producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
+                                                                                   defaults={'clasemateriaprima':clase})
+                # if commit:
+                #     producto_flujo_clase.save()
+        return instance
 
 
 # ------------ ProductoFlujo / Form Filter ------------
@@ -1376,7 +1475,6 @@ class NormaConsumoFormFilter(forms.Form):
         self.post = kwargs.pop('post', None)
         super().__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
-        # self.fields['tipo'].disabled = True
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_normaconsumo_form_filter'
         self.helper.form_method = 'GET'
@@ -2045,39 +2143,6 @@ class NumeracionDocumentosForm(forms.ModelForm):
         )
 
 
-class ConfCentrosElementosOtrosForm(forms.ModelForm):
-    class Meta:
-        model = ConfCentrosElementosOtros
-        fields = ['clave']
-
-    def __init__(self, *args, **kwargs) -> None:
-        instance = kwargs.get('instance', None)
-        self.user = kwargs.pop('user', None)
-        self.post = kwargs.pop('post', None)
-        super(ConfCentrosElementosOtrosForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
-        self.helper.form_id = 'id_confcentroselementosotrosform_Form'
-        self.helper.form_method = 'post'
-        self.helper.form_tag = False
-
-        self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Centros de Costo',
-                    Row(
-                        Column('valor', css_class='form-group col-md-4 mb-0'),
-                        css_class='form-row'
-                    ),
-                ),
-            ),
-        )
-        self.helper.layout.append(
-            FormActions(
-                HTML(
-                    get_template('cruds/actions/hx_common_form_actions.html').template.source
-                )
-            )
-        )
 
 # ------------ ProductsCapasClaPesadas / Form Filter ------------
 class ProductsCapasClaPesadasFormFilter(forms.Form):
@@ -2135,3 +2200,162 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
+    class Meta:
+        model = ConfCentrosElementosOtrosDetalle
+        fields = [
+            'valor',
+            'descripcion',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_confcentroselementosotrosdetalle_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Configurar Centros y Elementos',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                    ),
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-4 mb-0'),
+                        Column('valor', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
+    class Meta:
+        model = ConfCentrosElementosOtrosDetalleGrouped
+        fields = [
+            'clave',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_confcentroselementosotrosdetallegrouped_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Configuración Elementos y Centros',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        Column('clave', css_class='form-group col-md-4 mb-0'),
+                        # Column('valor', css_class='form-group col-md-8 mb-0'),
+
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+# ------------ ConfCentrosElementosOtrosDetalle / Form ------------
+class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
+    class Meta:
+        model = ConfCentrosElementosOtrosDetalle
+        fields = [
+            'descripcion',
+            'valor',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ConfCentrosElementosOtrosDetalleForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_confCentroselementosotrosfetalleform_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["descripcion"].disabled = True
+        self.fields["descripcion"].required = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _('Configuración Centros y Elementos'),
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
+                        Column('valor', css_class='form-group col-md-5 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        valor = cleaned_data.get('valor')
+        valor = valor.strip() if valor else valor
+        if valor and len(valor)>0:
+            elem = ConfCentrosElementosOtrosDetalle.objects.filter(clave=self.instance.clave,
+                                                            valor=valor)
+
+            if elem and elem.first() != self.instance:
+                msg = _('Valor esxistente')
+                self.add_error('valor', msg)
+
+        return cleaned_data
+
