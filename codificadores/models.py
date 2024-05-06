@@ -467,8 +467,8 @@ class NormaconsumoDetalle(models.Model):
 class NormaConsumoGroupedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().values(
-            Tipo=F('tipo'),
-            Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion'))
+            # Tipo=F('tipo'),
+            Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion')),
             # Producto="%s | %s" % (F('producto__codigo'), F('producto__descripcion'))
         ).annotate(Cantidad_Normas=Count('producto'))
 
@@ -479,6 +479,9 @@ class NormaConsumoGrouped(NormaConsumo):
     class Meta:
         proxy = True
         ordering = ['tipo', 'producto__descripcion', 'fecha']
+
+    def __str__(self):
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
 
 
 class MotivoAjuste(ObjectsManagerAbstract):

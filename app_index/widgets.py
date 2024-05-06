@@ -4,7 +4,7 @@ from bootstrap_datepicker_plus.widgets import DatePickerInput
 from bootstrap_daterangepicker import widgets as drp_widgets
 from bootstrap_daterangepicker.widgets import format_to_js_re, format_to_js, add_month
 from django.utils.translation import gettext as _
-from django_filters.widgets import SuffixedMultiWidget
+from django_filters.widgets import SuffixedMultiWidget, RangeWidget
 
 
 class MyRangeWidget(SuffixedMultiWidget):
@@ -38,7 +38,12 @@ class MyRangeWidget(SuffixedMultiWidget):
         return [None, None]
 
 
+class MyCustomRangeWidget(RangeWidget):
+    template_name = "app_index/widgets/my_custom_range_widget.html"
+
+
 class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
+    template_name = 'app_index/daterangepicker/daterangepicker.html'
 
     def get_context(self, name, value, attrs):
         date_format = format_to_js_re.sub(lambda m: format_to_js[m.group()], self._get_format())
@@ -47,10 +52,10 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
                 'locale':
                     {
                         'format': date_format,
-                        'applyLabel': _('Apply'),
-                        'cancelLabel': _("Clear"),
-                        'weekLabel': _('W'),
-                        'customRangeLabel': _('Custom Range')
+                        'applyLabel': 'Aceptar',
+                        'cancelLabel': "Limpiar",
+                        'weekLabel': _('S'),
+                        'customRangeLabel': 'Rango personalizado'
                     }
             }
         )
@@ -61,22 +66,22 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
             past_year = start_date.year - 1
             formating = '%d/%m/%Y'
             self.picker_options['ranges'] = {
-                _('Today'): (start_date.strftime(formating), start_date.strftime(formating)),
-                _('Yesterday'): (
+                'Hoy': (start_date.strftime(formating), start_date.strftime(formating)),
+                'Ayer': (
                     (start_date - one_day).strftime(formating), (start_date - one_day).strftime(formating)),
-                _('This week'): ((start_date - timedelta(days=start_date.weekday())).strftime(formating),
+                'Esta semana': ((start_date - timedelta(days=start_date.weekday())).strftime(formating),
                                  start_date.strftime(formating)),
-                _('Last week'): ((start_date - timedelta(days=start_date.weekday() + 7)).strftime(formating),
+                'Última semana': ((start_date - timedelta(days=start_date.weekday() + 7)).strftime(formating),
                                  (start_date - timedelta(days=start_date.weekday() + 1)).strftime(formating)),
-                _('Week ago'): ((start_date - timedelta(days=7)).strftime(formating), start_date.strftime(formating)),
-                _('This month'): ((start_date.replace(day=1)).strftime(formating), start_date.strftime(formating)),
-                _('Last month'): ((add_month(start_date.replace(day=1), -1)).strftime(formating),
+                'Semana atrás': ((start_date - timedelta(days=7)).strftime(formating), start_date.strftime(formating)),
+                'Este mes': ((start_date.replace(day=1)).strftime(formating), start_date.strftime(formating)),
+                'Últim mes': ((add_month(start_date.replace(day=1), -1)).strftime(formating),
                                   (start_date.replace(day=1) - one_day).strftime(formating)),
-                _('3 months ago'): ((add_month(start_date, -3)).strftime(formating), start_date.strftime(formating)),
-                _('Year ago'): ((add_month(start_date, -12)).strftime(formating), start_date.strftime(formating)),
-                _('This year'): (
+                '3 meses atrás': ((add_month(start_date, -3)).strftime(formating), start_date.strftime(formating)),
+                'Año atrás': ((add_month(start_date, -12)).strftime(formating), start_date.strftime(formating)),
+                'Este año': (
                     (start_date.replace(day=1, month=1)).strftime(formating), start_date.strftime(formating)),
-                _('Last year'): (
+                _('Año pasado'): (
                     (start_date.replace(day=1, month=1, year=past_year)).strftime(formating),
                     (start_date.replace(day=31, month=12, year=past_year)).strftime(formating)
                 ),

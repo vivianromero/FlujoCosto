@@ -60,6 +60,7 @@
 <script src="{% static 'js/fusioncharts/themes/fusioncharts.theme.fusion.js' %}"></script>
 <!-- HTMX -->
 <script src="{% static 'js/htmx/htmx.min.js' %}"></script>
+<script src="{% static 'js/htmx/ext/head-support.js' %}"></script>
 <!-- HYPERSCRIPT -->
 <script src="{% static 'js/hyperscript/_hyperscript.min.js' %}"></script>
 <script src="{% static 'js/hyperscript/worker.js' %}"></script>
@@ -75,6 +76,10 @@
 <script src="{% static 'js/notifications/notify.js' %}" type="text/javascript"></script>
 <!-- Ion-range sliders -->
 <script src="{% static 'plugins/ion-rangeslider/js/ion.rangeSlider.js' %}" type="text/javascript"></script>
+<!-- django-ajax -->
+<script type="text/javascript" src="{% static 'plugins/jquery-cookie/jquery.cookie.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax-plugin.js' %}"></script>
 <script>
 window.data = {
     language_code : '{{ LANGUAGE_CODE }}'

@@ -30,10 +30,10 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         fields = (
             'check_box_column',
             'tipo',
-            # 'cantidad',
-            # 'activa',
+            'cantidad',
+            'activa',
             'fecha',
-            # 'medida',
+            'medida',
             'producto',
         )
 

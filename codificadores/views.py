@@ -139,34 +139,50 @@ class NormaConsumoCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 return_url = reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'))
-                table = NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())
+                # table = NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())
                 context.update({
                     # 'url_importar': 'app_index:importar:dpto_importar',
                     # 'url_exportar': 'app_index:exportar:dpto_exportar',
-                    'url_list_normaconsumo': True,
+                    'url_list_normaconsumo': False,
                     'return_url': return_url,
-                    'inline_tables': [table]
+                    # 'inline_tables': [table]
                 })
+                pfilter = self.get_filter_dict()
+                if 'producto__codigo' and 'producto__descripcion' in pfilter:
+                    producto = ProductoFlujo.objects.get(
+                        codigo=pfilter['producto__codigo'],
+                        descripcion=pfilter['producto__descripcion']
+                    )
+                else:
+                    producto = None
+                context.update(self.get_filter_dict())
+                context.update({'producto': producto})
                 return context
 
             def get_queryset(self):
                 queryset = super(OFilterListView, self).get_queryset()
+                qfilter = self.get_filter_dict()
+                return queryset.filter(**qfilter)
+
+            def get_filter_dict(self):
                 qfilter = {}
+                active_filters = self.filterset_class(self.request.GET).form.changed_data != []
+                if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
+                    tipo = self.request.GET.get('tipo', None)
+                else:
+                    tipo = None
                 producto = self.request.GET.get('Producto', None)
-                tipo = self.request.GET.get('Tipo', None)
                 if producto is not None:
                     p = producto.split(' | ')
                     qfilter.update({
                         'producto__codigo': p[0],
                         'producto__descripcion': p[1]
                     })
-                    queryset = queryset.filter(**qfilter)
                 if tipo is not None:
                     qfilter.update({
                         'tipo': tipo
                     })
-                    queryset = queryset.filter(**qfilter)
-                return queryset
+                return qfilter
 
         return OFilterListView
 
@@ -256,12 +272,17 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                tipo = None
+                active_filters = self.filterset_class(self.request.GET).form.changed_data != []
+                if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
+                    tipo = self.filterset_class(self.request.GET).form.data.get('tipo', None)
                 context.update({
                     # 'url_importar': 'app_index:importar:dpto_importar',
                     # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'url_list_normaconsumo': True,
                     'object2': self.env['normaconsumo'],
                     'return_url': None,
+                    'tipo': tipo,
                 })
                 return context
 

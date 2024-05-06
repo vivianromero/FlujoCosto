@@ -4,11 +4,12 @@
 </button>
 
 <a
-        hx-get="{{ url_list }}"
+        hx-get="{{ url_list }}{% if producto %}?Producto={{ producto }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}"
         hx-trigger="click"
         hx-target="#main_content_swap"
         hx-swap="outerHTML"
         hx-replace-url="true"
-        href="{{ url_list }}" class="btn btn-secondary">
+        href="{{ url_list }}{% if producto %}?Producto={{ producto }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}"
+        class="btn btn-secondary">
     <i class="fa fa-remove"></i> {% translate "Clean filter" %}
 </a>
