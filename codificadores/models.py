@@ -645,7 +645,7 @@ class CambioProducto(models.Model):
 # clave: Clave que identifica que se configura (CentrosCosto, Elementos)
 # descripcion: Elemento que se configura
 # valor: El valor de la configuración
-class ConfCentrosElementosOtros(models.Model):
+class ConfCentrosElementosOtros(ObjectsManagerAbstract):
     id = models.AutoField(primary_key=True, choices=ChoiceConfCentrosElementosOtros.CHOICE_CONF_CC_ELEM_OTROS,
                           editable=False, )
     clave = models.CharField(unique=True, max_length=80, verbose_name="Configurar Centros y Elementos")
@@ -658,7 +658,7 @@ class ConfCentrosElementosOtros(models.Model):
         return self.clave
 
 
-class ConfCentrosElementosOtrosDetalle(models.Model):
+class ConfCentrosElementosOtrosDetalle(ObjectsManagerAbstract):
     id = models.IntegerField(primary_key=True, editable=False, )
     clave = models.ForeignKey(ConfCentrosElementosOtros, on_delete=models.PROTECT, related_name='confccelem_clave',
                               verbose_name="Configurar")
@@ -667,8 +667,8 @@ class ConfCentrosElementosOtrosDetalle(models.Model):
 
     class Meta:
         db_table = 'cla_confcentroselementosotrosdetalle'
-        ordering = ['clave', 'descripcion']
-        unique_together = (('clave', 'descripcion'),)
+        ordering = ['clave__clave', 'descripcion']
+        unique_together = (('clave', 'valor'))
 
         indexes = [
             models.Index(
@@ -681,6 +681,21 @@ class ConfCentrosElementosOtrosDetalle(models.Model):
 
     def __str__(self):
         return "%s | %s" % (self.clave, self.descripcion)
+
+class ConfCentrosElementosOtrosDetalleGroupedManager(models.Manager):
+    def get_queryset(self):
+        obj = super().get_queryset().values(Clave=F('clave__clave'),
+                                                              Clave_id=F('clave__id')).annotate(
+            Elementos=Count('clave')).order_by('clave__clave')
+        return obj
+
+
+class ConfCentrosElementosOtrosDetalleGrouped(ConfCentrosElementosOtrosDetalle):
+    objects = ConfCentrosElementosOtrosDetalleGroupedManager()
+
+    class Meta:
+        proxy = True
+        ordering = ['clave__clave', 'descripcion']
 
 
 class ProductsCapasClaPesadasManager(models.Manager):

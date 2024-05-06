@@ -59,7 +59,7 @@
             {#                        class="icon"#}
             {#                        style="height: 20px;"#}
             {#                        alt="{% translate 'Update from Versat' %}"/>#}
-                    <i class="fa fa-database" title="{% trans 'Update from VERSAT' %}"></i>
+                    <i class="fa fa-database" title="{% trans 'Update from ' %}{{sistema}}"></i>
                 </a>
         </div>
     {% endif %}
@@ -77,7 +77,7 @@
         {#               hx-swap="outerHTML"#}
         {#               hx-replace-url="true"#}
                role="button" hx-select-oob="true">
-                <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
+                <i class="fa fa-file-import" title="{% trans 'Import2' %}"></i>
             </a>
         </div>
     {% endif %}
@@ -220,7 +220,7 @@
         {% endif %}
 
         <div id="search_header_div" style="display: flex; align-items: center" hx-swap-oob="rue">
-            {% if search %}
+            {% if search and showsearch %}
                 {% block right_table_navbar_links_toggle_right_search_menu %}
                     <li class="nav-item">
                         <a class="nav-link"

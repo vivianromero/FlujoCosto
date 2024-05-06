@@ -354,6 +354,7 @@ class UnidadContableCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:apiversat:uc_apiversat',
                     'url_importar': 'app_index:importar:uc_importar',
                     'url_exportar': 'app_index:exportar:uc_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -412,6 +413,7 @@ class MedidaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:um_appversat',
                     'url_importar': 'app_index:importar:um_importar',
                     'url_exportar': 'app_index:exportar:um_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -536,6 +538,7 @@ class CuentaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:ccta_appversat',
                     'url_importar': 'app_index:importar:ccta_importar',
                     'url_exportar': 'app_index:exportar:ccta_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -596,6 +599,7 @@ class CentroCostoCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:apiversat:cc_apiversat',
                     'url_importar': 'app_index:importar:cc_importar',
                     'url_exportar': 'app_index:exportar:cc_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -628,7 +632,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
     ]
 
     add_form = ProductoFlujoForm
-    update_form = ProductoFlujoForm
+    update_form = ProductoFlujoUpdateForm
 
     list_fields = fields
 
@@ -657,6 +661,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
                     "hx_target": '#dialog',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -773,7 +778,8 @@ class VitolaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:vit_appversat',
                     'url_importar': 'app_index:importar:vit_importar',
                     'url_exportar': True,
-                    'filtrar': True
+                    'filtrar': True,
+                    'sistema': 'Sispax'
                 })
                 return context
 
@@ -857,6 +863,7 @@ class MarcaSalidaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:ms_appversat',
                     'url_importar': 'app_index:importar:ms_importar',
                     'url_exportar': 'app_index:exportar:ms_exportar',
+                    'sistema': 'SisGestMP',
                 })
                 return context
 
@@ -906,8 +913,8 @@ class MotivoAjusteCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    'url_importar': 'app_index:importar:ms_importar',
-                    'url_exportar': 'app_index:exportar:ms_exportar',
+                    'url_importar': 'app_index:importar:ma_importar',
+                    'url_exportar': 'app_index:exportar:ma_exportar',
                 })
                 return context
 
@@ -1130,55 +1137,142 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
 
         return OFilterListView
 
-
-# ------ ConfCentrosElementosOtros / CRUD ------
-class ConfCentrosElementosOtrosCRUD(CommonCRUDView):
-    model = ConfCentrosElementosOtros
+class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
+    env = {
+        'confdetalle': ConfCentrosElementosOtrosDetalle
+    }
+    model = ConfCentrosElementosOtrosDetalleGrouped
 
     namespace = 'app_index:codificadores'
 
     fields = [
-        'clave'
+        'descripcion',
+        'valor',
+        'clave',
+        'Clave',
+        'Elementos',
     ]
 
-    add_form = ConfCentrosElementosOtrosForm
-    update_form = ConfCentrosElementosOtrosForm
+    views_available = [
+        'create',
+        'list',
+        'detail',
+        'delete',
+        'update',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'clave__clave__icontains',
+    ]
 
     list_fields = fields
 
     filter_fields = fields
 
-    views_available = ['update', 'list']
-    view_type = ['update', 'list']
+    filterset_class = ConfCentrosElementosOtrosDetalleGroupedFilter
 
     # Table settings
-    paginate_by = 5
-    table_class = ConfCentrosElementosOtrosTable
+    table_class = ConfCentrosElementosOtrosDetalleGroupedTable
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
         class OFilterListView(view):
-
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
                     'url_importar': 'app_index:importar:confccelemg_importar',
-                    'filter': False,
                     'filtrar': True,
+                    'filter': False,
                     'url_exportar': True,
+                    'object2': self.env['confdetalle'],
+                    'return_url': None,
                 })
                 return context
+
+            def get_queryset(self):
+                queryset = super().get_queryset()
+                return queryset
 
             def get(self, request, *args, **kwargs):
                 myexport = request.GET.get("_export", None)
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
-                    datos = table.data.data
-                    datos2 = ConfCentrosElementosOtrosDetalle.objects.all()
-                    return crear_export_datos_table(request, "ConfCCEleG", ConfCentrosElementosOtros, datos, datos2)
+                    # datos = list(ConfCentrosElementosOtros.objects.all())
+                    # datos2 = ConfCentrosElementosOtrosDetalle.objects.all()
+                    datos = ConfCentrosElementosOtrosDetalle.objects.all()
+                    datos2 = []
+                    return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped, datos, datos2)
                 else:
                     return super().get(request=request)
+
+        return OFilterListView
+
+# ------ ConfCentrosElementosOtrosDetalle / CRUD ------
+class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
+    model = ConfCentrosElementosOtrosDetalle
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+        'valor',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'valor__contains',
+        'descripcion__icontains',
+    ]
+
+    # add_form = ConfCentrosElementosOtrosDetalleForm
+    update_form = ConfCentrosElementosOtrosDetalleForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    filterset_class = ConfCentrosElementosOtrosDetalleFilter
+
+    # Table settings
+    table_class = ConfCentrosElementosOtrosDetalleTable
+
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return_url = reverse_lazy(crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
+                context.update({
+                    # 'url_importar': 'app_index:importar:dpto_importar',
+                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                    'return_url': return_url,
+                })
+                return context
+
+            def get_queryset(self):
+                queryset = super(OFilterListView, self).get_queryset()
+
+                qfilter = {}
+                clave = self.request.GET.get('Clave', None)
+
+                if clave is not None:
+                    qfilter.update({
+                        'clave_id': clave,
+                    })
+                    queryset = queryset.filter(**qfilter)
+
+                return queryset
 
         return OFilterListView
 

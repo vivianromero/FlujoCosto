@@ -11,7 +11,8 @@ from django.core.management import call_command
 from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
-    Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida, NumeracionDocumentos, ConfCentrosElementosOtros, MotivoAjuste
+    Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida, NumeracionDocumentos, MotivoAjuste, \
+    ConfCentrosElementosOtros, ConfCentrosElementosOtrosDetalleGrouped
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
@@ -21,7 +22,8 @@ def importacion(request, opcion, modelo):
     archivo_importar = obtener_fichero()
     if archivo_importar:
         data = importar_datos_desde_tar(request, archivo_importar, opcion)
-    return redirect('app_index:index') if modelo==None else redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
+    return redirect('app_index:index') if modelo == None else redirect(
+        crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
 
 @login_required
@@ -37,6 +39,7 @@ def um_importar(request):
 @login_required
 def ms_importar(request):
     return importacion(request, 'MS', MarcaSalida)
+
 
 @login_required
 def ma_importar(request):
@@ -67,29 +70,36 @@ def dpto_importar(request):
 def prod_importar(request):
     return importacion(request, 'PROD', ProductoFlujo)
 
+
 @login_required
 def cprod_importar(request):
     return importacion(request, 'CambioPROD', CambioProducto)
+
 
 @login_required
 def vit_importar(request):
     return importacion(request, 'VIT', Vitola)
 
+
 @login_required
 def ls_importar(request):
     return importacion(request, 'LS', LineaSalida)
+
 
 @login_required
 def numdoc_importar(request):
     return importacion(request, 'NumDoc', NumeracionDocumentos)
 
+
 @login_required
 def confccelemg_importar(request):
-    return importacion(request, 'ConfCCEleG', ConfCentrosElementosOtros)
+    return importacion(request, 'CONF_CC_ELEM', ConfCentrosElementosOtrosDetalleGrouped)
+
 
 @login_required
 def all_conf_importar(request):
     return importacion(request, 'ALL_CONF', None)
+
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:

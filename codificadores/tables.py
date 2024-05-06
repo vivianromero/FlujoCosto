@@ -262,15 +262,14 @@ class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveAction
         )
 
 
-# ------ ConfCentrosElementosOtros / Table ------
-class ConfCentrosElementosOtrosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+class ConfCentrosElementosOtrosDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ConfCentrosElementosOtros
+        model = ConfCentrosElementosOtrosDetalle
 
         fields = (
-            'clave',
+            'descripcion',
+            'valor',
         )
-
 
 # ------ ProductsCapasClaPesadas / Table ------
 class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
@@ -286,3 +285,20 @@ class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveAct
         )
 
     actions = None
+
+class ConfCentrosElementosOtrosDetalleGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_confcentroselementos_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConfCentrosElementosOtrosDetalleGrouped
+
+        fields = (
+            'Clave',
+            'Elementos',
+        )
