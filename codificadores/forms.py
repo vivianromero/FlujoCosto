@@ -1,3 +1,6 @@
+from datetime import date
+
+from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, )
@@ -9,6 +12,7 @@ from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from app_index.widgets import MyCustomDateRangeWidget
 from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
@@ -111,9 +115,9 @@ class UnidadContableFormFilter(forms.Form):
                         ),
                         Column('codigo', css_class='form-group col-md-4 mb-0'),
                         Column('nombre', css_class='form-group col-md-8 mb-0'),
-                        Column('activo', css_class='form-group col-md-2 mb-0'),
-                        Column('is_empresa', css_class='form-group col-md-2 mb-0'),
-                        Column('is_comercializadora', css_class='form-group col-md-2 mb-0'),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        Column('is_empresa', css_class='form-group col-md-3 mb-0'),
+                        Column('is_comercializadora', css_class='form-group col-md-3 mb-0'),
 
                         css_class='form-row',
                     ),
@@ -1287,6 +1291,12 @@ class DepartamentoFormFilter(forms.Form):
             common_filter_form_actions()
         )
 
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
 
 # ------------ NormaConsumo / Form ------------
 class NormaConsumoForm(forms.ModelForm):
@@ -1300,6 +1310,17 @@ class NormaConsumoForm(forms.ModelForm):
             'medida',
             'producto',
         ]
+
+        widgets = {
+            'fecha': MyCustomDateRangeWidget(
+                format='%Y-%m-%d',
+                picker_options={
+                    'format': 'DD/MM/YYYY',
+                    'singleDatePicker': True,
+                    'maxDate': str(date.today()), # TODO Fecha no puede ser mayor que la fecha actual
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -1355,6 +1376,7 @@ class NormaConsumoFormFilter(forms.Form):
         self.post = kwargs.pop('post', None)
         super().__init__(*args, **kwargs)
         self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        # self.fields['tipo'].disabled = True
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_normaconsumo_form_filter'
         self.helper.form_method = 'GET'
@@ -1373,12 +1395,13 @@ class NormaConsumoFormFilter(forms.Form):
                         ),
                     ),
                     Row(
-                        Column('tipo', css_class='form-group col-md-4 mb-0'),
-                        Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
-                        Column('fecha', css_class='form-group col-md-4 mb-0'),
-                        Column('medida', css_class='form-group col-md-4 mb-0'),
-                        Column('producto', css_class='form-group col-md-4 mb-0'),
+                        Column('tipo', css_class='form-group col-md-3 mb-0'),
+                        Column('fecha', css_class='form-group col-md-3 mb-0'),
+                        Column('cantidad', css_class='form-group col-md-3 mb-0'),
+                        Column('activa', css_class='form-group col-md-3 mb-0'),
+
+                        Column('medida', css_class='form-group col-md-12 mb-0'),
+                        # Column('producto', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1387,11 +1410,17 @@ class NormaConsumoFormFilter(forms.Form):
         )
 
         self.helper.layout.append(
-            common_filter_form_actions()
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_filter_form_actions_normaconsumo.html').template.source
+                )
+            )
         )
 
     def get_context(self):
         context = super().get_context()
+        if 'tipo' in context['form'].data and context['form'].data['tipo'] is not '0':
+            self.fields['tipo'].disabled = True
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
@@ -1460,7 +1489,7 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         # )
 
 
-class NormaConsumoGroupedFormFilter(NormaConsumoFormFilter):
+class NormaConsumoGroupedFormFilter(forms.Form):
     class Meta:
         model = NormaConsumoGrouped
         fields = [
@@ -1470,6 +1499,9 @@ class NormaConsumoGroupedFormFilter(NormaConsumoFormFilter):
             'fecha',
             'medida',
             'producto',
+            # 'Tipo',
+            'Producto',
+            'Cantidad_Normas',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1481,6 +1513,45 @@ class NormaConsumoGroupedFormFilter(NormaConsumoFormFilter):
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_normaconsumogrouped_form_filter'
         self.helper.form_method = 'GET'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Normas de Consumo Agrupadas',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                    ),
+                    Row(
+                        Column('tipo', css_class='form-group col-md-4 mb-0'),
+                        Column('Cantidad_Normas', css_class='form-group col-md-4 mb-0'),
+                        # Column('cantidad', css_class='form-group col-md-4 mb-0'),
+                        # Column('activa', css_class='form-group col-md-2 mb-0'),
+                        # Column('fecha', css_class='form-group col-md-4 mb-0'),
+                        # Column('medida', css_class='form-group col-md-4 mb-0'),
+                        Column('Producto', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
 
 
 # ------------ MotivoAjuste / Form ------------

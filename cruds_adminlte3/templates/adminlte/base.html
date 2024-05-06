@@ -19,20 +19,17 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   {% endblock meta %}
 
-  {% block stylesheets %}
-  {% include 'adminlte/lib/_styles.html' %}
-  {% endblock %}
+    {% block stylesheets %}
+        {% include 'adminlte/lib/_styles.html' %}
+    {% endblock %}
     {% block javascript %}
         {% include 'adminlte/lib/_scripts.html' %}
-        <script type="text/javascript" src="{% static 'plugins/jquery-cookie/jquery.cookie.js' %}"></script>
-        <script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax.js' %}"></script>
-        <script type="text/javascript" src="{% static 'plugins/django_ajax/js/jquery.ajax-plugin.js' %}"></script>
     {% endblock javascript %}
 
   {% block extra_head %}{% endblock %}
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="hold-transition skin-blue sidebar-mini sidebar-collapse layout-footer-fixed layout-navbar-fixed {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="hold-transition skin-blue sidebar-mini sidebar-collapse layout-footer-fixed layout-navbar-fixed {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}" hx-ext="head-support">
 {% block body %}
 <section>
 <div class="wrapper" hx-history-elt>
@@ -100,7 +97,7 @@
   {% block right_sidebar %}
   {% include 'adminlte/lib/_main_right_sidebar.html' %}
   {% include 'adminlte/lib/_main_right_sidebar2.html' %}
-  {% endblock right_sidebar%}
+  {% endblock right_sidebar %}
 
 </div>
 </section>

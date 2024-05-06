@@ -22,11 +22,6 @@
       action="{% crud_inline_url base_model object 'delete' namespace %}" method="POST">
         {% csrf_token %}
         <button
-                hx-get="{{ url_father }}"
-                hx-trigger="click"
-                hx-target="#main_content_swap"
-                hx-swap="outerHTML"
-                hx-replace-url="true"
               id="{{name}}_{{object.pk}}_delete_submit"
               type="submit"
               class="btn btn-danger">

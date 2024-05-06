@@ -1,3 +1,5 @@
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
 {% load static %}
 {% load django_tables2 %}
 {% load i18n %}
@@ -237,19 +239,89 @@
     <div id="filter_header_div" style="display: flex; align-items: center">
         {% if filter %}
             {% block right_table_navbar_links_toggle_right_filter_menu %}
+                <style>
+                    #filtersModal>.modal-backdrop.show
+                    {
+                        opacity: .1; 
+                    }
+                </style>  
                 <li class="nav-item">
                     <a class="nav-link"
                        data-widget="control-sidebar"
                        data-slide="true"
                        data-target="#filter-sidebar"
+{#                       data-toggle="modal" #}
+{#                       data-target="#filterModal"#}
                        href="#"
                        role="button">
                         <i class="fas fa-filter" title={% translate 'Filter' %}></i>
                     </a>
+                
                 </li>
             {% endblock right_table_navbar_links_toggle_right_filter_menu %}
         {% endif %}
     </div>
 </ul>
+{#    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">#}
+{#        <link href="{% static 'plugins/select2/css/select2.min.css' %}" rel="stylesheet">#}
+{#        <link href="{% static 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}" rel="stylesheet">#}
+{#        <div class="modal-dialog" #}
+{#             {% if width_right_sidebar and height_right_sidebar %}style="max-width: {{ width_right_sidebar }}; max-height: {{ height_right_sidebar }}; left: 270px; top: 70px;" {% endif %} #}
+{#             role="document">#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header">#}
+{#                    <h5 class="modal-title" id="exampleModalLabel">Filtro</h5>#}
+{#                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">#}
+{#                        <span aria-hidden="true">&times;</span>#}
+{#                    </button>#}
+{#                    </div>#}
+{#                <div class="modal-body">#}
+{#                    <div class="card-body" style="padding: 0.5rem;">#}
+{#                        <form class="form-horizontal" method="get" role="form">#}
+{#                            {% csrf_token %}#}
+{#                            {% if width_right_sidebar and height_right_sidebar %}#}
+{#                                {% if filter.form.helper %}#}
+{#                                    {% crispy filter.form %}#}
+{#                                {% else %}#}
+{#                                    {{ filter.form|crispy }}#}
+{#                                {% endif %}#}
+{#                            {% else %}#}
+{#                                {% for field in filter.form %}#}
+{#                                <div class="row">#}
+{#                                    <div class="form-group">#}
+{#                                        <label for="{{ field.id_for_label }}"#}
+{#                                            class="col-lg-12 control-label">{{ field.label }}</label>#}
+{#                                        <div class="col-lg-12 form-group">#}
+{#                                            {{ field }}#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                                {% endfor %}#}
+{#                                <br/>#}
+{#                                <input type="submit" class="btn btn-info filter"#}
+{#                                    value="{% trans 'Filter' %}"/>#}
+{#                                <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>#}
+{#                            {% endif %}#}
+{#                        </form>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="modal-footer">#}
+{#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
 {% endblock right_table_navbar_links %}
+    <script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
+    <script>
+         $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+    
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+              theme: 'bootstrap4'
+            })
+        })
+    </script>
 </nav>

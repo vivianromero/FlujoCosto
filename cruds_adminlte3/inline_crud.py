@@ -198,11 +198,6 @@ class InlineAjaxCRUD(CRUDView):
                 else:
                     url_father = self.get_success_url()
                 response = djDeleteView.post(self, request, *args, **kwargs)
-                # return HttpResponseLocation(
-                #     url_father,
-                #     target='#main_content_swap',
-                #
-                # )
                 return HttpResponse(" ")
 
         return DeleteView

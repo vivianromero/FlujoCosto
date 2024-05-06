@@ -2,6 +2,8 @@ import django_filters
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
+from app_index.filters import CustomDateFromToRangeFilter
+from app_index.widgets import MyCustomDateRangeWidget, MyCustomRangeWidget
 from cruds_adminlte3.filter import MyGenericFilter
 from cruds_adminlte3.utils import crud_url_name
 from .forms import *
@@ -61,21 +63,47 @@ class DepartamentoFilter(MyGenericFilter):
 
 # ------ NormaConsumo / Filter ------
 class NormaConsumoFilter(MyGenericFilter):
-    # tipo = django_filters.ChoiceFilter(
-    #     field_name='tipo',
-    #     choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
-    #     empty_label='Todas',
-    #     widget=forms.Select(
-    #         attrs={
-    #             'style': 'width: 90%',
-    #             'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
-    #             'hx-target': '#main_content_swap',
-    #             'hx-trigger': 'change',
-    #         }
-    #     ),
-    # )
+    tipo = django_filters.ChoiceFilter(
+        field_name='tipo',
+        choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
+        empty_label='Todas',
+        widget=forms.Select(
+            attrs={
+                'style': 'width: 90%',
+                'hx-get': reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')),
+                'hx-target': '#main_content_swap',
+                'hx-trigger': 'change',
+            }
+        ),
+    )
+
+    fecha = CustomDateFromToRangeFilter(
+        label='Fecha',
+        field_name='fecha',
+        widget=MyCustomDateRangeWidget(
+            format='%d/%m/%Y',
+            picker_options={
+                'use_ranges': True,
+            }
+        ),
+    )
+
+    activa = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    cantidad = django_filters.RangeFilter(
+        label='Cantidad',
+        method='my_range_queryset',
+        widget=MyCustomRangeWidget()
+    )
+
     search_fields = [
-        # 'tipo',
+        'tipo',
         'cantidad__contains',
         'fecha',
         'medida__descripcion__icontains',
@@ -86,7 +114,7 @@ class NormaConsumoFilter(MyGenericFilter):
     class Meta:
         model = NormaConsumo
         fields = [
-            # 'tipo',
+            'tipo',
             'cantidad',
             'activa',
             'fecha',
@@ -111,7 +139,7 @@ class NormaConsumoGroupedFilter(MyGenericFilter):
     tipo = django_filters.ChoiceFilter(
         field_name='tipo',
         choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
-        empty_label='Todas',
+        empty_label=EMPTY_LABEL,
         widget=forms.Select(
             attrs={
                 'style': 'width: 100%',
@@ -121,6 +149,31 @@ class NormaConsumoGroupedFilter(MyGenericFilter):
             }
         ),
     )
+
+    # Tipo = django_filters.CharFilter(
+    #     label="Tipo",
+    #     widget=forms.TextInput(),
+    #     lookup_expr='icontains',
+    # )
+
+    Cantidad_Normas = django_filters.RangeFilter(
+        label='Cantidad de Normas',
+        method='my_range_queryset',
+        widget=MyCustomRangeWidget()
+    )
+
+    Producto = django_filters.CharFilter(
+        label="Producto",
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    # Producto = django_filters.ModelMultipleChoiceFilter(
+    #     label="Producto",
+    #     field_name='Producto',
+    #     queryset=NormaConsumoGrouped.objects.all(),
+    # )
+
     search_fields = [
         'tipo',
         'cantidad__contains',
