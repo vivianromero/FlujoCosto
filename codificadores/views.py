@@ -132,6 +132,38 @@ class NormaConsumoCRUD(CommonCRUDView):
 
     inline_tables = [NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())]
 
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def form_valid(self, form):
+                if not self.related_fields:
+                    return super(OCreateView, self).form_valid(form)
+
+                self.object = form.save(commit=False)
+                for key, value in self.context_rel.items():
+                    setattr(self.object, key, value)
+                self.object.save()
+                edit_url = reverse_lazy(
+                    crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'), args=[self.object.pk]
+                )
+                return HttpResponseLocation(
+                    edit_url,
+                    target='#main_content_swap',
+                )
+
+            def get_success_url(self):
+                if "another" in self.request.POST:
+                    url = self.request.path
+                else:
+                    url = super(OCreateView, self).get_success_url()
+                if self.getparams:
+                    url += '?' + self.getparams
+                return url
+
+        return OCreateView
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -173,6 +205,8 @@ class NormaConsumoCRUD(CommonCRUDView):
                     tipo = None
                 producto = self.request.GET.get('Producto', None)
                 if producto is not None:
+                    if '?' in producto:
+                        producto = producto.split('?')[0]
                     p = producto.split(' | ')
                     qfilter.update({
                         'producto__codigo': p[0],
