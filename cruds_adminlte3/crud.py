@@ -116,6 +116,8 @@ class CRUDMixin(object):
             getparams = self.getparams.split('&') or []
             if filters[0]:
                 for filter in filters:
+                    if '%3F' in filter:
+                        filter = filter.split('%3F')[0]
                     value = filter.split('=')
                     if value[1] and (
                             value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
@@ -302,6 +304,8 @@ class CRUDMixin(object):
                     related, str(self.context_rel[related].pk)))
         if params and params[0] != '':
             for param in params:
+                if '%3F' in param:
+                    param = param.split('%3F')[0]
                 value = param.split('=')
                 if value[1] and (
                         value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
