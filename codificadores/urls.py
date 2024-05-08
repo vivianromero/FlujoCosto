@@ -21,6 +21,7 @@ numeraciondocumentos_crud = views.NumeracionDocumentosCRUD()
 confcentroselementosotrosdetalle_crud = views.ConfCentrosElementosOtrosDetalleCRUD()
 confcentroselementosotrosdetallegrouped_crud = views.ConfCentrosElementosOtrosDetalleGroupedCRUD()
 producto_capas_pesadas_crud = views.ProductsCapasClaPesadasCRUD()
+tipodocumento_crud = views.TipoDocumentoCRUD()
 
 app_name = 'codificadores'
 
@@ -51,5 +52,8 @@ urlpatterns = [
     path("", include(confcentroselementosotrosdetallegrouped_crud.get_urls())),
     path("", include(confcentroselementosotrosdetalle_crud.get_urls())),
     path("", include(producto_capas_pesadas_crud.get_urls())),
-    path('classmatprima/', views.classmatprima, name='classmatprima')
+    path('classmatprima/', views.classmatprima, name='classmatprima'),
+    path("", include(tipodocumento_crud.get_urls())),
+    path(r"^(?P<pk>\d+)/confirm_nc/$", views.confirm_nc, name='codificadores_normaconsumo_confirm'),
+    path(r"^(?P<pk>\d+)/activar_nc/$", views.activar_nc, name='codificadores_normaconsumo_activar'),
 ]

@@ -165,3 +165,12 @@ class ChoiceConfCentrosElementosOtros:
         CENTROSCOSTO: 'Centros de Costo',
         ELEMENTOSGASTO: 'Elementos de Gastos',
     }
+
+class ChoiceOperacionDocum:
+    ENTRADA = 'E'
+    SALIDA = 'S'
+
+    CHOICE_OPERACION_DOCUM = {
+        ENTRADA: "Entrada",
+        SALIDA: 'Salida',
+    }

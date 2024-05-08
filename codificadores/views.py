@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
 from extra_views import CreateWithInlinesView
+from django.shortcuts import redirect
 
 from app_index.views import CommonCRUDView
 from codificadores.filters import *
@@ -97,12 +98,21 @@ class NormaConsumoCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-        'tipo',
-        'cantidad',
-        'activa',
         'fecha',
-        'medida',
+        'tipo',
         'producto',
+        'cantidad',
+        'medida',
+        'confirmada',
+        'activa',
+    ]
+
+    views_available = [
+        'list',
+        'create',
+        'update',
+        'delete',
+        'detail',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -171,13 +181,13 @@ class NormaConsumoCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 return_url = reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'))
-                # table = NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())
                 context.update({
-                    # 'url_importar': 'app_index:importar:dpto_importar',
-                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'url_list_normaconsumo': False,
                     'return_url': return_url,
-                    # 'inline_tables': [table]
+                    'confirm': True,
+                    'activar': True,
+                    'texto_confirm': "Al confirmar no podrá modificar la norma.!Esta acción no podrá revertirse!",
+                    'texto_activar': "Las demás normas de este producto serán desactivadas",
                 })
                 pfilter = self.get_filter_dict()
                 if 'producto__codigo' and 'producto__descripcion' in pfilter:
@@ -270,11 +280,8 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
     ]
 
     views_available = [
-        'create',
         'list',
-        'detail',
-        'delete',
-        'update',
+        'create',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1370,7 +1377,6 @@ class NormaConsumoDetalleModalFormView(FormView):
                 'form': form,
             })
 
-
 def classmatprima(request):
     tipoproducto = request.GET.get('tipoproducto')
     clasemp = request.GET.get('clase')
@@ -1384,3 +1390,67 @@ def classmatprima(request):
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)
+
+# ------ TipoDocumento / CRUD ------
+class TipoDocumentoCRUD(CommonCRUDView):
+    model = TipoDocumento
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+        'operacion',
+        'generado',
+        'prefijo'
+    ]
+
+    add_form = TipoDocumentoForm
+    update_form = TipoDocumentoForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    # Table settings
+    paginate_by = 25
+    table_class = TipoDocumentoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'filter': False,
+                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                })
+                return context
+
+        return OFilterListView
+
+def confirm_nc(request, pk):
+    obj = NormaConsumo.objects.get(pk=pk)
+    if obj.normaconsumodetalle_normaconsumo.count()>0:
+        obj.confirmada = True
+        obj.save()
+    else:
+        title = 'No puede ser confrimada la norma de consumo '
+        text = 'No tiene productos asociados'
+        message_error(request,
+                      title + obj.__str__() + '!',
+                      text=text)
+    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))
+
+def activar_nc(request, pk):
+    with transaction.atomic():
+        obj = NormaConsumo.objects.get(pk=pk)
+        product = obj.producto
+        objs = NormaConsumo.objects.filter(producto=product).update(activa=False)
+        obj.activa = True
+        obj.save()
+    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))

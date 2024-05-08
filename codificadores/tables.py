@@ -23,18 +23,26 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 # ------ NormaConsumo / Table ------
 class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     check_box_column = tables.CheckBoxColumn(accessor='pk')
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_normasconsumo_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
 
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NormaConsumo
 
         fields = (
             'check_box_column',
-            'tipo',
-            'cantidad',
-            'activa',
             'fecha',
-            'medida',
+            'tipo',
             'producto',
+            'cantidad',
+            'medida',
+            'confirmada',
+            'activa',
         )
 
     # ------ NormaConsumo / Table ------
@@ -74,13 +82,7 @@ class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions
         model = NormaConsumoGrouped
 
         fields = (
-            # 'check_box_column',
-            # 'Tipo',
             'Producto',
-            # 'cantidad',
-            # 'activa',
-            # 'fecha',
-            # 'medida',
             'Cantidad_Normas',
         )
 
@@ -301,4 +303,16 @@ class ConfCentrosElementosOtrosDetalleGroupedTable(CommonColumnShiftTableBootstr
         fields = (
             'Clave',
             'Elementos',
+        )
+
+# ------ TipoDocumento / Table ------
+class TipoDocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = TipoDocumento
+
+        fields = (
+            'descripcion',
+            'operacion',
+            'generado',
+            'prefijo',
         )

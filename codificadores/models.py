@@ -13,7 +13,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from cruds_adminlte3.utils import crud_url
 from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
     ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
-    ChoiceConfCentrosElementosOtros
+    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum
 
 
 class ObjectsManagerAbstract(models.Model):
@@ -414,7 +414,8 @@ class NormaConsumo(ObjectsManagerAbstract):
     tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, verbose_name=_("Type"))
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                    verbose_name=_("Quantity"))
-    activa = models.BooleanField(default=True, verbose_name=_("Active"))
+    activa = models.BooleanField(default=False, verbose_name=_("Active"))
+    confirmada = models.BooleanField(default=False, verbose_name=_("Confirmada"))
     fecha_creacion = models.DateTimeField(db_default=Now(), verbose_name=_("Crate at"))
     fecha = models.DateField(verbose_name=_("Date"))
     medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='normaconsumo_medida',
@@ -502,9 +503,10 @@ class MotivoAjuste(ObjectsManagerAbstract):
 class TipoDocumento(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposDoc.CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
-    operacion = models.CharField(max_length=1, db_comment='Operación de Entrada (E) o Salida (S)')
+    operacion = models.CharField(max_length=1, choices=ChoiceOperacionDocum.CHOICE_OPERACION_DOCUM, db_comment='Operación de Entrada (E) o Salida (S)')
     generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
                                    verbose_name=_("Generado"))
+    prefijo = models.CharField(max_length=5, db_comment='Prefijo para el número de control', null=True, blank=True)
 
     class Meta:
         db_table = 'cla_tipodocumento'

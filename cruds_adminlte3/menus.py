@@ -67,6 +67,13 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
                         {
+                            "id": 'id_nav_link_tipodocumento_de_ajuste',
+                            "name": _("Tipo de Documento"),
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(TipoDocumento, 'list', 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                        },
+                        {
                             "id": 'id_nav_link_motivos_de_ajuste',
                             "name": _("Reasons for Adjustment"),
                             "icon_class": 'fa fa-university',

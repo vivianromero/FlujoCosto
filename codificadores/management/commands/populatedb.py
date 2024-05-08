@@ -7,6 +7,7 @@ from configuracion.models import UserUeb,UnidadContable
 DICC_GROUP_PERMISSION = {
         (1, 2, 3, 4, 5):
             {
+                'tipodocumento': ['view'],
                 'cuenta': ['view'],
                 'unidadcontable': ['view'],
                 'cambioproducto': ['view'],
@@ -36,6 +37,7 @@ DICC_GROUP_PERMISSION = {
              },
         (5,):
             {
+                'tipodocumento': ['change'],
                 'cuenta': ['change'],
                 'unidadcontable': ['change'],
                 'cambioproducto': ['change', 'delete', 'add'],
