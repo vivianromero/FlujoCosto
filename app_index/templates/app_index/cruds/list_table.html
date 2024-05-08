@@ -75,6 +75,54 @@
                 })
             })
         })
+
+        document.querySelectorAll("a.activar_href").forEach((ref) => {
+            ref.addEventListener("click", function (e) {
+                e.preventDefault()
+                let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                swal.fire({
+                    title: "Está seguro que desea activar " + record,
+                    text: e.target.parentElement.attributes['texto'].nodeValue,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: window.data.js_swal_confirmButtonText,
+                    cancelButtonText: window.data.js_swal_cancelButtonText,
+                    backdrop: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm:()=>{
+                        location.href = e.target.parentElement.href
+                    },
+                    allowOutsideClick:()=>false,
+                    allowEscapeKey:()=>false
+                })
+            })
+        })
+
+        document.querySelectorAll("a.confirm_href").forEach((ref) => {
+            ref.addEventListener("click", function (e) {
+                e.preventDefault()
+                let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                swal.fire({
+                    title: "Está seguro que desea confirmar " + record,
+                    text: e.target.parentElement.attributes['texto'].nodeValue,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: window.data.js_swal_confirmButtonText,
+                    cancelButtonText: window.data.js_swal_cancelButtonText,
+                    backdrop: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm:()=>{
+                        location.href = e.target.parentElement.href
+                    },
+                    allowOutsideClick:()=>false,
+                    allowEscapeKey:()=>false
+                })
+            })
+        })
     </script>
     <!-- django_tables2_column_shifter -->
 {#    <script src="{% static 'js/django_tables2_column_shifter.js' %}"></script>#}

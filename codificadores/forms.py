@@ -21,8 +21,11 @@ from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
 
 
-# ------------ Unidad Contable / Form ------------
+class UpperField(forms.CharField):
+    def to_python(self, value):
+        return value.upper()
 
+# ------------ Unidad Contable / Form ------------
 class UnidadContableForm(forms.ModelForm):
     class Meta:
         model = UnidadContable
@@ -1404,7 +1407,7 @@ class NormaConsumoForm(forms.ModelForm):
         fields = [
             'tipo',
             'cantidad',
-            'activa',
+            # 'activa',
             'fecha',
             'medida',
             'producto',
@@ -1438,7 +1441,7 @@ class NormaConsumoForm(forms.ModelForm):
                     Row(
                         Column('tipo', css_class='form-group col-md-4 mb-0'),
                         Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
+                        # Column('activa', css_class='form-group col-md-2 mb-0'),
                         Column('fecha', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
@@ -1597,7 +1600,6 @@ class NormaConsumoGroupedFormFilter(forms.Form):
             'fecha',
             'medida',
             'producto',
-            # 'Tipo',
             'Producto',
             'Cantidad_Normas',
         ]
@@ -2358,4 +2360,62 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
                 self.add_error('valor', msg)
 
         return cleaned_data
+
+
+# ------------ TipoDocumento / Form ------------
+class TipoDocumentoForm(forms.ModelForm):
+    prefijo = UpperField()
+
+    class Meta:
+        model = TipoDocumento
+        fields = [
+            'descripcion',
+            'operacion',
+            'generado',
+            'prefijo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(TipoDocumentoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_tipodocumento_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["descripcion"].disabled = True
+        self.fields["operacion"].disabled = True
+        self.fields["generado"].disabled = True
+
+        self.fields["descripcion"].required = False
+        self.fields["operacion"].required = False
+        self.fields["generado"].required = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Tipo de Documento',
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('operacion', css_class='form-group col-md-2 mb-0'),
+                        Column('prefijo', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('generado', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
 
