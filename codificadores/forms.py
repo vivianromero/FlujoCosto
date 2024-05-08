@@ -26,6 +26,7 @@ class UpperField(forms.CharField):
         return value.upper()
 
 # ------------ Unidad Contable / Form ------------
+
 class UnidadContableForm(forms.ModelForm):
     class Meta:
         model = UnidadContable
@@ -756,7 +757,8 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             clase = self.cleaned_data.get('clase')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
-                                                                                   defaults={'clasemateriaprima':clase})
+                                                                                   defaults={
+                                                                                       'clasemateriaprima': clase})
                 # if commit:
                 #     producto_flujo_clase.save()
         return instance
@@ -1407,7 +1409,7 @@ class NormaConsumoForm(forms.ModelForm):
         fields = [
             'tipo',
             'cantidad',
-            # 'activa',
+            'activa',
             'fecha',
             'medida',
             'producto',
@@ -1441,7 +1443,7 @@ class NormaConsumoForm(forms.ModelForm):
                     Row(
                         Column('tipo', css_class='form-group col-md-4 mb-0'),
                         Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        # Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('activa', css_class='form-group col-md-2 mb-0'),
                         Column('fecha', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
@@ -1600,6 +1602,7 @@ class NormaConsumoGroupedFormFilter(forms.Form):
             'fecha',
             'medida',
             'producto',
+            # 'Tipo',
             'Producto',
             'Cantidad_Normas',
         ]
@@ -2145,7 +2148,6 @@ class NumeracionDocumentosForm(forms.ModelForm):
         )
 
 
-
 # ------------ ProductsCapasClaPesadas / Form Filter ------------
 class ProductsCapasClaPesadasFormFilter(forms.Form):
     class Meta:
@@ -2203,6 +2205,7 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalle
@@ -2254,6 +2257,7 @@ class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalleGrouped
@@ -2304,6 +2308,7 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 # ------------ ConfCentrosElementosOtrosDetalle / Form ------------
 class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
     class Meta:
@@ -2351,7 +2356,7 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
         cleaned_data = super().clean()
         valor = cleaned_data.get('valor')
         valor = valor.strip() if valor else valor
-        if valor and len(valor)>0:
+        if valor and len(valor) > 0:
             elem = ConfCentrosElementosOtrosDetalle.objects.filter(clave=self.instance.clave,
                                                             valor=valor)
 
