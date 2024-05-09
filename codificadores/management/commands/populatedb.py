@@ -8,6 +8,7 @@ DICC_GROUP_PERMISSION = {
         (1, 2, 3, 4, 5):
             {
                 'tipodocumento': ['view'],
+                'documento': ['view'],
                 'cuenta': ['view'],
                 'unidadcontable': ['view'],
                 'cambioproducto': ['view'],
@@ -59,7 +60,10 @@ DICC_GROUP_PERMISSION = {
                 'productoflujovitola': ['change', 'delete', 'add'],
                 'productscapasclapesadas': ['change', 'delete', 'add'],
                 'vitola': ['change', 'delete', 'add'],
-            }
+            },
+        (2,):{
+                'documento': ['change', 'delete', 'add'],
+            },
     }
 
 class Command(BaseCommand):
@@ -247,7 +251,6 @@ class Command(BaseCommand):
         except Exception as e:
             print("USUARIOS YA EXISTEN")
 
-
         print("ASIGNANDO PERMISOS A LOS GRUPOS")
         try:
             keys_dicc = DICC_GROUP_PERMISSION.keys()
@@ -255,6 +258,7 @@ class Command(BaseCommand):
             for k in keys_dicc:
                 models = DICC_GROUP_PERMISSION[k].keys()
                 list_keys_groups = list(k)
+                list_permiss = []
                 for m in models:
                     permiss = DICC_GROUP_PERMISSION[k][m]
                     for p in permiss:
@@ -263,7 +267,6 @@ class Command(BaseCommand):
                 for permission in query_permiss:
                     for g in list_keys_groups:
                         group = Group.objects.get(pk=g)
-                        # group.permissions.delete()
                         group.permissions.add(permission)
         except Exception as e:
             print("PERMISOS A LOS GRUPOS YA EXISTEN")
