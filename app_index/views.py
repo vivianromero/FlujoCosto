@@ -6,6 +6,8 @@ from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
 
 from cruds_adminlte3.crud import CRUDView, MyTableExport
+
+
 # from cruds_adminlte3.config import CONFIG
 
 
@@ -269,6 +271,27 @@ class CommonCRUDView(CRUDView):
                 return form_kwargs
 
         return OCreateView
+
+    def get_detail_view(self):
+        view = super().get_detail_view()
+
+        class ODetailView(view):
+
+            def get_template_names(self):
+                template = 'detail.html'
+                template_partial = 'detail_partial.html'
+                if self.request.htmx:
+                    template_name = "%s/%s" % (
+                        self.partial_template_name_base, template_partial
+                    )
+                else:
+                    template_name = "%s/%s" % (
+                        self.template_name_base, template
+                    )
+
+                return template_name
+
+        return ODetailView
 
 
 class Noauthorized(TemplateView):

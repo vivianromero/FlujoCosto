@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import *
 from configuracion.models import *
+from flujo.models import *
 from .utils import crud_url_name
 from django.urls import reverse_lazy
 
@@ -143,6 +144,14 @@ MENUS = {
                             "url": crud_url_name(NumeracionDocumentos, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
+                        {
+                            "id": 'id_nav_link_movimientos',
+                            "name": "Movimientos",
+                            "icon_class": 'fa fa-university',
+                            # "url": reverse_lazy('app_index:flujo:movimientos'),
+                            "url": crud_url_name(Documento, 'list', 'app_index:flujo:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                        },
                     ]
                 },
 
@@ -171,7 +180,8 @@ MENUS = {
                             "id": 'id_nav_link_elementos_centros_de_costo',
                             "name": "Centros de Costo y Elemntos de Gasto",
                             "icon_class": 'fa fa-university',
-                            "url": crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'),
+                            "url": crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list',
+                                                 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
                     ]

@@ -22,7 +22,7 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ NormaConsumo / Table ------
 class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    check_box_column = tables.CheckBoxColumn(accessor='pk')
+
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_normasconsumo_template.html',
         verbose_name=_('Actions'),
@@ -35,7 +35,6 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = NormaConsumo
 
         fields = (
-            'check_box_column',
             'fecha',
             'tipo',
             'producto',

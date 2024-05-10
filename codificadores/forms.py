@@ -3,7 +3,7 @@ from datetime import date
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.bootstrap import (
     TabHolder,
-    Tab, AppendedText, FormActions, )
+    Tab, AppendedText, FormActions, UneditableField, )
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
@@ -25,7 +25,9 @@ class UpperField(forms.CharField):
     def to_python(self, value):
         return value.upper()
 
+
 # ------------ Unidad Contable / Form ------------
+
 class UnidadContableForm(forms.ModelForm):
     class Meta:
         model = UnidadContable
@@ -756,7 +758,8 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             clase = self.cleaned_data.get('clase')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
-                                                                                   defaults={'clasemateriaprima':clase})
+                                                                                   defaults={
+                                                                                       'clasemateriaprima': clase})
                 # if commit:
                 #     producto_flujo_clase.save()
         return instance
@@ -1407,7 +1410,7 @@ class NormaConsumoForm(forms.ModelForm):
         fields = [
             'tipo',
             'cantidad',
-            # 'activa',
+            'activa',
             'fecha',
             'medida',
             'producto',
@@ -1419,7 +1422,7 @@ class NormaConsumoForm(forms.ModelForm):
                 picker_options={
                     'format': 'DD/MM/YYYY',
                     'singleDatePicker': True,
-                    'maxDate': str(date.today()), # TODO Fecha no puede ser mayor que la fecha actual
+                    'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
                 }
             ),
         }
@@ -1441,7 +1444,7 @@ class NormaConsumoForm(forms.ModelForm):
                     Row(
                         Column('tipo', css_class='form-group col-md-4 mb-0'),
                         Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        # Column('activa', css_class='form-group col-md-2 mb-0'),
+                        Column('activa', css_class='form-group col-md-2 mb-0'),
                         Column('fecha', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
@@ -1457,6 +1460,56 @@ class NormaConsumoForm(forms.ModelForm):
                 )
             )
         )
+
+
+# ------------ NormaConsumo / Form ------------
+class NormaConsumoDetailForm(NormaConsumoForm):
+    class Meta:
+        model = NormaConsumo
+        fields = [
+            'tipo',
+            'cantidad',
+            'activa',
+            'fecha',
+            'medida',
+            'producto',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_normaconsumo_detail_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+        for field_name in self.fields:
+            self.fields[field_name].required = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Norma de Consumo',
+                    Row(
+                        Column(UneditableField('tipo'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('cantidad'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('activa'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('fecha'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('medida'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('producto'), css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        # self.helper.layout.append(
+        #     FormActions(
+        #         HTML(
+        #             get_template('cruds/actions/hx_common_form_actions.html').template.source
+        #         )
+        #     )
+        # )
 
 
 # ------------ NormaConsumo / Form Filter ------------
@@ -1600,6 +1653,7 @@ class NormaConsumoGroupedFormFilter(forms.Form):
             'fecha',
             'medida',
             'producto',
+            # 'Tipo',
             'Producto',
             'Cantidad_Normas',
         ]
@@ -2145,7 +2199,6 @@ class NumeracionDocumentosForm(forms.ModelForm):
         )
 
 
-
 # ------------ ProductsCapasClaPesadas / Form Filter ------------
 class ProductsCapasClaPesadasFormFilter(forms.Form):
     class Meta:
@@ -2203,6 +2256,7 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalle
@@ -2254,6 +2308,7 @@ class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalleGrouped
@@ -2304,6 +2359,7 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 # ------------ ConfCentrosElementosOtrosDetalle / Form ------------
 class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
     class Meta:
@@ -2351,9 +2407,9 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
         cleaned_data = super().clean()
         valor = cleaned_data.get('valor')
         valor = valor.strip() if valor else valor
-        if valor and len(valor)>0:
+        if valor and len(valor) > 0:
             elem = ConfCentrosElementosOtrosDetalle.objects.filter(clave=self.instance.clave,
-                                                            valor=valor)
+                                                                   valor=valor)
 
             if elem and elem.first() != self.instance:
                 msg = _('Valor esxistente')
@@ -2418,4 +2474,3 @@ class TipoDocumentoForm(forms.ModelForm):
                 )
             )
         )
-

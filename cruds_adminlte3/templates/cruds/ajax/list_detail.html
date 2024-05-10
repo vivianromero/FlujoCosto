@@ -1,0 +1,41 @@
+{% load django_tables2 %}
+<!DOCTYPE html>
+{% load i18n %}
+{% load crud_tags %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+            <table id="datatable" class="table display table-sm table-bordered table-striped table-hover">
+            {% if object_list %}
+                <thead>
+                    {% block thead %}
+                    {% for field, field_name in fields.items %}
+                    <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
+                    {% endfor %}
+                    {% endblock thead %}
+                </thead>
+                <tbody>
+                  {% block tbody %}
+                  {% for object in object_list %}
+                    <tr>
+                      {% for field, field_name in fields.items %}
+                      <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
+                        {% with column=field_name.1|lower|add:".html" %}
+                            {% include "cruds/columns/"|add:column %}
+                        {% endwith %}
+                      </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                  {% endblock tbody %}
+                </tbody>
+            {% else %}
+              <thead><th></th></thead>
+              <tbody><tr><td>{% trans "No items yet." %}</td></tr></tbody>
+            {% endif %}
+            </table>
+        </div>
+    </div>
+</div>
+
