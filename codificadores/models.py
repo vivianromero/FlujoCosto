@@ -512,6 +512,9 @@ class TipoDocumento(models.Model):
         db_table = 'cla_tipodocumento'
         ordering = ['operacion', 'descripcion']
 
+    def __str__(self):
+        return self.descripcion
+
 
 class NumeracionDocumentos(ObjectsManagerAbstract):
     tiponumeracion = models.IntegerField(unique=True, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,

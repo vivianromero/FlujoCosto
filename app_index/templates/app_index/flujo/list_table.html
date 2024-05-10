@@ -30,11 +30,17 @@
                                             {% csrf_token %}
                                             <div class="card-body row">
                                                 <div class="col-md-12">
-                                                    {% if departamento_documentos_form.helper %}
-                                                        {% crispy departamento_documentos_form %}
-                                                    {% else %}
-                                                        {{ departamento_documentos_form|crispy }}
-                                                    {% endif %}
+{#                                                    {% if departamento_documentos_form.helper %}#}
+{#                                                        {% crispy departamento_documentos_form %}#}
+{#                                                    {% else %}#}
+{#                                                        {{ departamento_documentos_form|crispy }}#}
+{#                                                    {% endif %}#}
+                                                       <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
+                                                            {% csrf_token %}
+                                                            <div class="input-group input-group-sm">
+                                                                {{ form.departamento|as_crispy_field }}
+                                                            </div>
+                                                        </form> 
                                                 </div>
                                             </div>
                                         </form>

@@ -55,18 +55,20 @@ class DocumentoForm(forms.ModelForm):
                 Tab(
                     'Documento',
                     Row(
-                        Column('fecha', css_class='form-group col-md-3 mb-0'),
-                        Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-                        Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
-                        Column('suma_importe', css_class='form-group col-md-3 mb-0'),
+                        Column('fecha', css_class='form-group col-md-1 mb-0'),
+                        Column('numerocontrol', css_class='form-group col-md-1 mb-0'),
+                        Column('numeroconsecutivo', css_class='form-group col-md-1 mb-0'),
+                        Column('suma_importe', css_class='form-group col-md-1 mb-0'),
+                        Column('estado', css_class='form-group col-md-1 mb-0'),
+                        Column('comprob', css_class='form-group col-md-1 mb-0'),
+                        Column('departamento', css_class='form-group col-md-2 mb-0'),
+                        Column('tipodocumento', css_class='form-group col-md-2 mb-0'),
+                        Column('ueb', css_class='form-group col-md-2 mb-0'),
                         Column('observaciones', css_class='form-group col-md-3 mb-0'),
-                        Column('estado', css_class='form-group col-md-3 mb-0'),
                         Column('reproceso', css_class='form-group col-md-3 mb-0'),
                         Column('editar_nc', css_class='form-group col-md-3 mb-0'),
-                        Column('comprob', css_class='form-group col-md-5 mb-0'),
-                        Column('departamento', css_class='form-group col-md-5 mb-0'),
-                        Column('tipodocumento', css_class='form-group col-md-5 mb-0'),
-                        Column('ueb', css_class='form-group col-md-5 mb-0'),
+
+
                         css_class='form-row'
                     ),
                 ),
@@ -113,7 +115,7 @@ class DepartamentoDocumentosForm(DocumentoForm):
 
 
 # ------------ Documento / Form Filter------------
-class DocumentoFormFilter(forms.ModelForm):
+class DocumentoFormFilter(forms.Form):
     class Meta:
         model = Documento
         fields = [
@@ -130,6 +132,9 @@ class DocumentoFormFilter(forms.ModelForm):
             'tipodocumento',
             'ueb',
         ]
+        widgets = {
+            'departamento': forms.RadioSelect(),
+        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -137,6 +142,7 @@ class DocumentoFormFilter(forms.ModelForm):
         self.post = kwargs.pop('post', None)
         super(DocumentoFormFilter, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
+        self.fields['departamento'].label = False
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
