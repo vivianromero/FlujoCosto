@@ -25,9 +25,7 @@ class UpperField(forms.CharField):
     def to_python(self, value):
         return value.upper()
 
-
 # ------------ Unidad Contable / Form ------------
-
 class UnidadContableForm(forms.ModelForm):
     class Meta:
         model = UnidadContable
@@ -758,10 +756,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             clase = self.cleaned_data.get('clase')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
-                                                                                   defaults={
-                                                                                       'clasemateriaprima': clase})
-                # if commit:
-                #     producto_flujo_clase.save()
+                                                                                   defaults={'clasemateriaprima':clase})
         return instance
 
 
@@ -1405,12 +1400,15 @@ class DepartamentoFormFilter(forms.Form):
 
 # ------------ NormaConsumo / Form ------------
 class NormaConsumoForm(forms.ModelForm):
+    medida = forms.ModelChoiceField(
+        queryset=Medida.objects.all(),
+        label=_("Medida"),
+        required=False,
+    )
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
             'cantidad',
-            'activa',
             'fecha',
             'medida',
             'producto',
@@ -1425,29 +1423,48 @@ class NormaConsumoForm(forms.ModelForm):
                     'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
                 }
             ),
+            'producto': SelectWidget(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy('app_index:codificadores:productmedida'),
+                    'hx-target': '#div_id_medida',
+                    'hx-trigger': 'change',
+                }
+            ),
+            'medida': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
         }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
+        self.producto = kwargs.pop('producto', None)
         self.post = kwargs.pop('post', None)
+        producto = ProductoFlujo.objects.get(codigo=self.producto.split('|')[0].strip()) if self.producto else None
+        if producto:
+            kwargs['initial'] = {'producto': producto, 'medida': producto.medida}
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_normaconsumo_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        self.fields["producto"].disabled = True if self.producto else False
+        self.fields["medida"].disabled = True if self.producto else False
+
+        self.fields["producto"].required = True if not self.producto else False
+        self.fields["medida"].required = True if not self.producto else False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     'Norma de Consumo',
                     Row(
-                        Column('tipo', css_class='form-group col-md-4 mb-0'),
-                        Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
-                        Column('fecha', css_class='form-group col-md-4 mb-0'),
-                        Column('medida', css_class='form-group col-md-4 mb-0'),
+                        Column('fecha', css_class='form-group col-md-2 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
+                        Column('medida', css_class='form-group col-md-2 mb-0'),
+                        Column('cantidad', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -1461,13 +1478,24 @@ class NormaConsumoForm(forms.ModelForm):
             )
         )
 
+    def clean_cantidad(self):  # Validar que que la cantidad>0
+        cantidad = self.cleaned_data.get('cantidad')
+        if float(cantidad)<=0:
+            raise forms.ValidationError('Debe introducir un valor>0')
+        return cantidad
+
+    def save(self, commit=True):
+
+        medida = self.cleaned_data.get('medida')
+        self.instance.medida = medida
+        instance = super().save(commit=True)
+        return instance
 
 # ------------ NormaConsumo / Form ------------
 class NormaConsumoDetailForm(NormaConsumoForm):
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
             'cantidad',
             'activa',
             'fecha',
@@ -1484,32 +1512,22 @@ class NormaConsumoDetailForm(NormaConsumoForm):
         self.helper.form_id = 'id_normaconsumo_detail_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
-        for field_name in self.fields:
-            self.fields[field_name].required = False
-
+        self.fields['activa'].disabled = True
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     'Norma de Consumo',
                     Row(
-                        Column(UneditableField('tipo'), css_class='form-group col-md-4 mb-0'),
-                        Column(UneditableField('cantidad'), css_class='form-group col-md-4 mb-0'),
-                        Column(UneditableField('activa'), css_class='form-group col-md-2 mb-0'),
-                        Column(UneditableField('fecha'), css_class='form-group col-md-4 mb-0'),
-                        Column(UneditableField('medida'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('fecha'), css_class='form-group col-md-2 mb-0'),
                         Column(UneditableField('producto'), css_class='form-group col-md-4 mb-0'),
+                        Column(UneditableField('medida'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('cantidad'), css_class='form-group col-md-2 mb-0'),
+                        Column('activa', css_class='form-group col align-self-end col-md-2 mb-0'),
                         css_class='form-row'
                     ),
                 ),
             ),
         )
-        # self.helper.layout.append(
-        #     FormActions(
-        #         HTML(
-        #             get_template('cruds/actions/hx_common_form_actions.html').template.source
-        #         )
-        #     )
-        # )
 
 
 # ------------ NormaConsumo / Form Filter ------------
@@ -1517,7 +1535,6 @@ class NormaConsumoFormFilter(forms.Form):
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
             'cantidad',
             'activa',
             'fecha',
@@ -1549,13 +1566,9 @@ class NormaConsumoFormFilter(forms.Form):
                         ),
                     ),
                     Row(
-                        Column('tipo', css_class='form-group col-md-3 mb-0'),
                         Column('fecha', css_class='form-group col-md-3 mb-0'),
                         Column('cantidad', css_class='form-group col-md-3 mb-0'),
                         Column('activa', css_class='form-group col-md-3 mb-0'),
-
-                        Column('medida', css_class='form-group col-md-12 mb-0'),
-                        # Column('producto', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1573,7 +1586,7 @@ class NormaConsumoFormFilter(forms.Form):
 
     def get_context(self):
         context = super().get_context()
-        if 'tipo' in context['form'].data and context['form'].data['tipo'] is not '0':
+        if 'tipo' in context['form'].data and int(context['form'].data['tipo']) != 0:
             self.fields['tipo'].disabled = True
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
@@ -1608,8 +1621,6 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         super().__init__(*args, **kwargs)
-        # self.fields['producto'].required = False
-        # self.fields['medida'].required = False
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_normaconsumodetalle_form'
         self.helper.form_method = 'post'
@@ -1634,13 +1645,6 @@ class NormaConsumoDetalleForm(forms.ModelForm):
                 ),
             ),
         )
-        # self.helper.layout.append(
-        #     FormActions(
-        #         HTML(
-        #             get_template('cruds/actions/hx_common_form_actions.html').template.source
-        #         )
-        #     )
-        # )
 
 
 class NormaConsumoGroupedFormFilter(forms.Form):
@@ -1653,7 +1657,6 @@ class NormaConsumoGroupedFormFilter(forms.Form):
             'fecha',
             'medida',
             'producto',
-            # 'Tipo',
             'Producto',
             'Cantidad_Normas',
         ]
@@ -1685,10 +1688,6 @@ class NormaConsumoGroupedFormFilter(forms.Form):
                     Row(
                         Column('tipo', css_class='form-group col-md-4 mb-0'),
                         Column('Cantidad_Normas', css_class='form-group col-md-4 mb-0'),
-                        # Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        # Column('activa', css_class='form-group col-md-2 mb-0'),
-                        # Column('fecha', css_class='form-group col-md-4 mb-0'),
-                        # Column('medida', css_class='form-group col-md-4 mb-0'),
                         Column('Producto', css_class='form-group col-md-8 mb-0'),
                         css_class='form-row',
                     ),
@@ -2256,7 +2255,6 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
-
 class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalle
@@ -2308,7 +2306,6 @@ class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
-
 class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalleGrouped
@@ -2339,8 +2336,6 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
                             css_class='form-group col-md-12 mb-0'
                         ),
                         Column('clave', css_class='form-group col-md-4 mb-0'),
-                        # Column('valor', css_class='form-group col-md-8 mb-0'),
-
                         css_class='form-row',
                     ),
                 ),
@@ -2358,7 +2353,6 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
-
 
 # ------------ ConfCentrosElementosOtrosDetalle / Form ------------
 class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):

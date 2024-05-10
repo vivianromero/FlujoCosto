@@ -56,4 +56,5 @@ urlpatterns = [
     path("", include(tipodocumento_crud.get_urls())),
     path(r"^(?P<pk>\d+)/confirm_nc/$", views.confirm_nc, name='codificadores_normaconsumo_confirm'),
     path(r"^(?P<pk>\d+)/activar_nc/$", views.activar_nc, name='codificadores_normaconsumo_activar'),
+    path('productmedida/', views.productmedida, name='productmedida'),
 ]

@@ -38,7 +38,7 @@
 {% endif %}
 {% if confirm and not record.confirmada and crud_perms.update %}
     {% crud_nurl object "confirm" namespace as nurl %}
-        <a id="confirm_href" href="{% url nurl pk=record.pk %}"
+        <a id="confirm_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="confirm_href"
             texto="{{ texto_confirm }}"

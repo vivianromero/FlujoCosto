@@ -109,7 +109,7 @@ class NormaConsumoCRUD(CommonCRUDView):
 
     fields = [
         'fecha',
-        'tipo',
+        'producto__tipoproducto',
         'producto',
         'cantidad',
         'medida',
@@ -129,7 +129,7 @@ class NormaConsumoCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'tipo',
+        'producto__tipoproducto',
         'cantidad__contains',
         'fecha',
         'medida__descripcion__icontains',
@@ -175,6 +175,16 @@ class NormaConsumoCRUD(CommonCRUDView):
                     edit_url,
                     target='#main_content_swap',
                 )
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                        "producto": self.request.GET['Producto'] if 'Producto' in self.request.GET else None,
+                    }
+                )
+                return form_kwargs
 
             def get_success_url(self):
                 if "another" in self.request.POST:
@@ -305,6 +315,7 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
         'medida',
         'producto',
         'Producto',
+        'Tipo',
         'Cantidad_Normas',
     ]
 
@@ -347,8 +358,9 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
                 if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
                     tipo = self.filterset_class(self.request.GET).form.data.get('tipo', None)
                 context.update({
-                    # 'url_importar': 'app_index:importar:dpto_importar',
-                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                    'url_exportar': True,
+                    'filtrar': True,
+                    'url_importar': 'app_index:importar:nc_importar',
                     'url_list_normaconsumo': True,
                     'object2': self.env['normaconsumo'],
                     'return_url': None,
@@ -359,6 +371,22 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
             def get_queryset(self):
                 queryset = super().get_queryset()
                 return queryset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datostable = table.data.data
+                    idprods = [p['idprod'] for p in datostable]
+                    datos = NormaConsumo.objects.select_related().filter(producto__id__in=idprods,
+                                                                 confirmada=True)
+                    datosdet = []
+                    for d in datos:
+                        datosdet.append(d.normaconsumodetalle_normaconsumo.all())
+                    datos2 = [p.get() for p in datosdet]
+                    return crear_export_datos_table(request, "NC", NormaConsumoGrouped, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
@@ -1271,8 +1299,6 @@ class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
                 myexport = request.GET.get("_export", None)
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
-                    # datos = list(ConfCentrosElementosOtros.objects.all())
-                    # datos2 = ConfCentrosElementosOtrosDetalle.objects.all()
                     datos = ConfCentrosElementosOtrosDetalle.objects.all()
                     datos2 = []
                     return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped, datos, datos2)
@@ -1300,7 +1326,6 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
         'descripcion__icontains',
     ]
 
-    # add_form = ConfCentrosElementosOtrosDetalleForm
     update_form = ConfCentrosElementosOtrosDetalleForm
 
     list_fields = fields
@@ -1324,8 +1349,6 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
                 context = super().get_context_data(**kwargs)
                 return_url = reverse_lazy(crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
                 context.update({
-                    # 'url_importar': 'app_index:importar:dpto_importar',
-                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'return_url': return_url,
                 })
                 return context
@@ -1473,7 +1496,7 @@ def confirm_nc(request, pk):
         message_error(request,
                       title + obj.__str__() + '!',
                       text=text)
-    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))
+    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
 
 def activar_nc(request, pk):
     with transaction.atomic():
@@ -1482,4 +1505,15 @@ def activar_nc(request, pk):
         objs = NormaConsumo.objects.filter(producto=product).update(activa=False)
         obj.activa = True
         obj.save()
-    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))
+    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
+
+def productmedida(request):
+    pk_prod = request.GET.get('producto')
+    producto = ProductoFlujo.objects.get(pk=pk_prod)
+    medida_seleccionada = producto.medida
+    medidas = Medida.objects.filter(activa=True).exclude(clave='U')
+    context = {
+        'medidas': medidas,
+        'medida_seleccionada': medida_seleccionada,
+    }
+    return render(request, 'app_index/partials/productmedida.html', context)

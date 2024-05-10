@@ -1,0 +1,15 @@
+{% load i18n %}
+<label for="id_medida" class="requiredField">{% translate 'Medida' %}<span class="asteriskField">*</span></label>
+<div>
+    <select name="medida" style="width: 100%" class="select custom-select" required id="id_medida">
+
+        {% for medida in medidas %}
+            <option
+                    value="{{ medida.pk }}"
+                    {% if medida_seleccionada.pk == medida.pk %}selected{% endif %}>
+                {{ medida.clave }}|{{ medida.descripcion }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
