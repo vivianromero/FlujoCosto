@@ -36,7 +36,7 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
         fields = (
             'fecha',
-            'tipo',
+            # 'tipo',
             'producto',
             'cantidad',
             'medida',
@@ -82,6 +82,7 @@ class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions
 
         fields = (
             'Producto',
+            'Tipo',
             'Cantidad_Normas',
         )
 

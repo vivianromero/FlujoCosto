@@ -3,7 +3,7 @@ import uuid
 from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
-from django.db.models import Count, F, Value
+from django.db.models import Count, F, Value, Case, When
 from django.db.models.functions import Now, Concat
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
@@ -411,7 +411,7 @@ class Departamento(ObjectsManagerAbstract):
 
 class NormaConsumo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, verbose_name=_("Type"))
+    # tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, verbose_name=_("Type"))
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                    verbose_name=_("Quantity"))
     activa = models.BooleanField(default=False, verbose_name=_("Active"))
@@ -425,11 +425,11 @@ class NormaConsumo(ObjectsManagerAbstract):
 
     class Meta:
         db_table = 'cla_normaconsumo'
-        ordering = ['tipo', 'producto__descripcion']
+        ordering = ['producto__tipoproducto', 'producto__descripcion']
 
     def __str__(self):
-        return "%s del %s %s | %s" % (
-            ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[self.tipo],
+        return "%s %s | %s" % (
+            # ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[self.producto.tipoproducto],
             self.fecha,
             self.producto.codigo,
             self.producto.descripcion
@@ -468,18 +468,24 @@ class NormaconsumoDetalle(models.Model):
 class NormaConsumoGroupedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().values(
-            # Tipo=F('tipo'),
+            idprod=F('producto__id'),
+            tipo=F('producto__tipoproducto'),
             Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion')),
-            # Producto="%s | %s" % (F('producto__codigo'), F('producto__descripcion'))
-        ).annotate(Cantidad_Normas=Count('producto'))
-
+        ).annotate(Cantidad_Normas=Count('producto'),
+                   Tipo=Case(
+                       When(tipo=1, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[1])),
+                       When(tipo=2, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[2])),
+                       When(tipo=4, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[4])),
+                       When(tipo=5, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[5])),
+                       When(tipo=7, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[7])),
+                   ), )
 
 class NormaConsumoGrouped(NormaConsumo):
     objects = NormaConsumoGroupedManager()
 
     class Meta:
         proxy = True
-        ordering = ['tipo', 'producto__descripcion', 'fecha']
+        ordering = ['producto__tipoproducto', 'producto__descripcion', 'fecha']
 
     def __str__(self):
         return "%s | %s" % (self.producto.codigo, self.producto.descripcion)

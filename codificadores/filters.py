@@ -113,7 +113,7 @@ class NormaConsumoFilter(MyGenericFilter):
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
+            # 'tipo',
             'cantidad',
             'activa',
             'fecha',

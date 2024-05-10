@@ -25,9 +25,7 @@ class UpperField(forms.CharField):
     def to_python(self, value):
         return value.upper()
 
-
 # ------------ Unidad Contable / Form ------------
-
 class UnidadContableForm(forms.ModelForm):
     class Meta:
         model = UnidadContable
@@ -758,8 +756,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             clase = self.cleaned_data.get('clase')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
-                                                                                   defaults={
-                                                                                       'clasemateriaprima': clase})
+                                                                                   defaults={'clasemateriaprima':clase})
                 # if commit:
                 #     producto_flujo_clase.save()
         return instance
@@ -1408,9 +1405,9 @@ class NormaConsumoForm(forms.ModelForm):
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
+            # 'tipo',
             'cantidad',
-            'activa',
+            # 'activa',
             'fecha',
             'medida',
             'producto',
@@ -1444,7 +1441,7 @@ class NormaConsumoForm(forms.ModelForm):
                     Row(
                         Column('tipo', css_class='form-group col-md-4 mb-0'),
                         Column('cantidad', css_class='form-group col-md-4 mb-0'),
-                        Column('activa', css_class='form-group col-md-2 mb-0'),
+                        # Column('activa', css_class='form-group col-md-2 mb-0'),
                         Column('fecha', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-4 mb-0'),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
@@ -1517,7 +1514,7 @@ class NormaConsumoFormFilter(forms.Form):
     class Meta:
         model = NormaConsumo
         fields = [
-            'tipo',
+            # 'tipo',
             'cantidad',
             'activa',
             'fecha',
@@ -1549,13 +1546,11 @@ class NormaConsumoFormFilter(forms.Form):
                         ),
                     ),
                     Row(
-                        Column('tipo', css_class='form-group col-md-3 mb-0'),
+                        # Column('tipo', css_class='form-group col-md-3 mb-0'),
                         Column('fecha', css_class='form-group col-md-3 mb-0'),
                         Column('cantidad', css_class='form-group col-md-3 mb-0'),
                         Column('activa', css_class='form-group col-md-3 mb-0'),
-
                         Column('medida', css_class='form-group col-md-12 mb-0'),
-                        # Column('producto', css_class='form-group col-md-12 mb-0'),
                         css_class='form-row',
                     ),
                 ),
@@ -1573,7 +1568,7 @@ class NormaConsumoFormFilter(forms.Form):
 
     def get_context(self):
         context = super().get_context()
-        if 'tipo' in context['form'].data and context['form'].data['tipo'] is not '0':
+        if 'tipo' in context['form'].data and int(context['form'].data['tipo']) != 0:
             self.fields['tipo'].disabled = True
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
@@ -1653,7 +1648,6 @@ class NormaConsumoGroupedFormFilter(forms.Form):
             'fecha',
             'medida',
             'producto',
-            # 'Tipo',
             'Producto',
             'Cantidad_Normas',
         ]
@@ -2256,7 +2250,6 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
-
 class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalle
@@ -2308,7 +2301,6 @@ class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
-
 class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalleGrouped
@@ -2358,7 +2350,6 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
-
 
 # ------------ ConfCentrosElementosOtrosDetalle / Form ------------
 class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):

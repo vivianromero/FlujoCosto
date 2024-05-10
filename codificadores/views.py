@@ -109,7 +109,7 @@ class NormaConsumoCRUD(CommonCRUDView):
 
     fields = [
         'fecha',
-        'tipo',
+        'producto__tipoproducto',
         'producto',
         'cantidad',
         'medida',
@@ -129,7 +129,7 @@ class NormaConsumoCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'tipo',
+        'producto__tipoproducto',
         'cantidad__contains',
         'fecha',
         'medida__descripcion__icontains',
@@ -305,6 +305,7 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
         'medida',
         'producto',
         'Producto',
+        'Tipo',
         'Cantidad_Normas',
     ]
 
@@ -347,8 +348,9 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
                 if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
                     tipo = self.filterset_class(self.request.GET).form.data.get('tipo', None)
                 context.update({
-                    # 'url_importar': 'app_index:importar:dpto_importar',
-                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
+                    'url_exportar': True,
+                    'filtrar': True,
+                    'url_importar': 'app_index:importar:nc_importar',
                     'url_list_normaconsumo': True,
                     'object2': self.env['normaconsumo'],
                     'return_url': None,
@@ -359,6 +361,22 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
             def get_queryset(self):
                 queryset = super().get_queryset()
                 return queryset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datostable = table.data.data
+                    idprods = [p['idprod'] for p in datostable]
+                    datos = NormaConsumo.objects.select_related().filter(producto__id__in=idprods,
+                                                                 confirmada=True)
+                    datosdet = []
+                    for d in datos:
+                        datosdet.append(d.normaconsumodetalle_normaconsumo.all())
+                    datos2 = [p.get() for p in datosdet]
+                    return crear_export_datos_table(request, "NC", NormaConsumoGrouped, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
@@ -1271,8 +1289,6 @@ class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
                 myexport = request.GET.get("_export", None)
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
-                    # datos = list(ConfCentrosElementosOtros.objects.all())
-                    # datos2 = ConfCentrosElementosOtrosDetalle.objects.all()
                     datos = ConfCentrosElementosOtrosDetalle.objects.all()
                     datos2 = []
                     return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped, datos, datos2)
