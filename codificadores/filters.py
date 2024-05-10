@@ -113,11 +113,9 @@ class NormaConsumoFilter(MyGenericFilter):
     class Meta:
         model = NormaConsumo
         fields = [
-            # 'tipo',
             'cantidad',
             'activa',
             'fecha',
-            'medida',
             'producto',
         ]
 
@@ -149,12 +147,6 @@ class NormaConsumoGroupedFilter(MyGenericFilter):
         ),
     )
 
-    # Tipo = django_filters.CharFilter(
-    #     label="Tipo",
-    #     widget=forms.TextInput(),
-    #     lookup_expr='icontains',
-    # )
-
     Cantidad_Normas = django_filters.RangeFilter(
         label='Cantidad de Normas',
         method='my_range_queryset',
@@ -166,12 +158,6 @@ class NormaConsumoGroupedFilter(MyGenericFilter):
         widget=forms.TextInput(),
         lookup_expr='icontains',
     )
-
-    # Producto = django_filters.ModelMultipleChoiceFilter(
-    #     label="Producto",
-    #     field_name='Producto',
-    #     queryset=NormaConsumoGrouped.objects.all(),
-    # )
 
     search_fields = [
         'tipo',
@@ -260,16 +246,6 @@ class UnidadContableFilter(MyGenericFilter):
         ]
 
         form = UnidadContableFormFilter
-
-        # filter_overrides = {
-        #     models.ForeignKey: {
-        #         'filter_class': django_filters.ModelMultipleChoiceFilter,
-        #         'extra': lambda f: {
-        #             'queryset': django_filters.filterset.remote_queryset(f),
-        #         }
-        #     },
-        # }
-
 
 # ------ Medida / Filter ------
 class MedidaFilter(MyGenericFilter):

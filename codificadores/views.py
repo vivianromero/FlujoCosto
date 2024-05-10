@@ -176,6 +176,16 @@ class NormaConsumoCRUD(CommonCRUDView):
                     target='#main_content_swap',
                 )
 
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                        "producto": self.request.GET['Producto'] if 'Producto' in self.request.GET else None,
+                    }
+                )
+                return form_kwargs
+
             def get_success_url(self):
                 if "another" in self.request.POST:
                     url = self.request.path
@@ -1316,7 +1326,6 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
         'descripcion__icontains',
     ]
 
-    # add_form = ConfCentrosElementosOtrosDetalleForm
     update_form = ConfCentrosElementosOtrosDetalleForm
 
     list_fields = fields
@@ -1340,8 +1349,6 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
                 context = super().get_context_data(**kwargs)
                 return_url = reverse_lazy(crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
                 context.update({
-                    # 'url_importar': 'app_index:importar:dpto_importar',
-                    # 'url_exportar': 'app_index:exportar:dpto_exportar',
                     'return_url': return_url,
                 })
                 return context
@@ -1489,7 +1496,7 @@ def confirm_nc(request, pk):
         message_error(request,
                       title + obj.__str__() + '!',
                       text=text)
-    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))
+    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
 
 def activar_nc(request, pk):
     with transaction.atomic():
@@ -1498,4 +1505,15 @@ def activar_nc(request, pk):
         objs = NormaConsumo.objects.filter(producto=product).update(activa=False)
         obj.activa = True
         obj.save()
-    return redirect(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))
+    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
+
+def productmedida(request):
+    pk_prod = request.GET.get('producto')
+    producto = ProductoFlujo.objects.get(pk=pk_prod)
+    medida_seleccionada = producto.medida
+    medidas = Medida.objects.filter(activa=True).exclude(clave='U')
+    context = {
+        'medidas': medidas,
+        'medida_seleccionada': medida_seleccionada,
+    }
+    return render(request, 'app_index/partials/productmedida.html', context)
