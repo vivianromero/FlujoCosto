@@ -18,7 +18,7 @@ class DocumentoFilter(MyGenericFilter):
     departamento = django_filters.ModelChoiceFilter(
         queryset=Departamento.objects.all(),
         field_name='departamento',
-        empty_label=EMPTY_LABEL,
+        # empty_label=EMPTY_LABEL,
         widget=forms.RadioSelect(
             attrs={
                 'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),

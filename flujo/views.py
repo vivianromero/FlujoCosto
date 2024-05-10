@@ -66,11 +66,20 @@ class DocumentoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                # departamento_documentos_form = DepartamentoDocumentosForm()
                 context.update({
+                    # 'departamento_documentos_form': departamento_documentos_form,
                     'url_importar': 'app_index:importar:numdoc_importar',
                     'filter': False,
                     'url_exportar': 'app_index:exportar:numdoc_exportar'
                 })
                 return context
+            
+            def get_queryset(self):
+                queryset = super().get_queryset()
+                # departamento = self.request.GET.get('departamento', None)
+                # if departamento is not None:
+                #     queryset = queryset.filter(departamento=departamento)
+                return queryset
 
         return OFilterListView
