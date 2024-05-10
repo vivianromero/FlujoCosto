@@ -5,26 +5,37 @@ from django.urls import reverse_lazy
 
 from app_index.filters import CustomDateFromToRangeFilter
 from app_index.widgets import MyCustomDateRangeWidget, MyCustomRangeWidget
-from codificadores import ChoiceTiposNormas
 from codificadores.filters import EMPTY_LABEL
+from codificadores.models import Departamento
 from cruds_adminlte3.filter import MyGenericFilter
 from cruds_adminlte3.utils import crud_url_name
-from flujo.models import Documento
+from flujo.forms import DocumentoFormFilter
+from flujo.models import *
 
 
 # ------ Documento / Filter ------
 class DocumentoFilter(MyGenericFilter):
-    deparetamento = django_filters.ModelChoiceFilter(
+    departamento = django_filters.ModelChoiceFilter(
+        queryset=Departamento.objects.all(),
         field_name='departamento',
-        empty_label='Todas',
+        empty_label=EMPTY_LABEL,
         widget=forms.RadioSelect(
             attrs={
-                'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:codificadores:')),
+                'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
                 'hx-target': '#main_content_swap',
                 'hx-trigger': 'change',
             }
         ),
     )
+    # tipodocumento = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=TipoDocumento.objects.all(),
+    #     field_name='tipodocumento',
+    #     widget=forms.Select(
+    #         attrs={
+    #             'style': 'width: 100%',
+    #         }
+    #     ),
+    # )
 
     fecha = CustomDateFromToRangeFilter(
         label='Fecha',
@@ -65,9 +76,9 @@ class DocumentoFilter(MyGenericFilter):
         'suma_importe__contains',
         'observaciones__icontains',
         'comprob__icontains',
-        'departamento',
-        'tipodocumento',
-        'ueb',
+        'departamento__descripcion__icontains',
+        'tipodocumento__descripcion__icontains',
+        'ueb__nombre__icontains',
     ]
     split_space_search = ' '
 
@@ -84,11 +95,11 @@ class DocumentoFilter(MyGenericFilter):
             'editar_nc',
             'comprob',
             'departamento',
-            'tipodocumento',
-            'ueb',
+            # 'tipodocumento',
+            # 'ueb',
         ]
 
-        form = Documento
+        form = DocumentoFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

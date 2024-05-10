@@ -13,7 +13,7 @@
                     {% for field, field_name in fields.items %}
                     <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
                     {% endfor %}
-                    <th>{% trans "Actions" %}</th>
+                        <th>{% trans "Actions" %}</th>
                     {% endblock thead %}
                 </thead>
                 <tbody>
@@ -27,7 +27,7 @@
                         {% endwith %}
                       </td>
                       {% endfor %}
-                      <td style="text-align: center">
+                        <td style="text-align: center">
                           {%  crud_inline_url base_model object 'detail' namespace as url  %}
                           {% if url and 'detail' in views_available %}
                             <a data-ajax="" data-success="function(){}"
@@ -51,10 +51,7 @@
 
                           {%  crud_inline_url base_model object 'delete' namespace as url %}
                           {% if url and 'delete' in views_available %}
-                            <a
-
-                                    data-ajax=""
-                                    data-success="function(){}"
+                            <a  data-ajax="" data-success="function(){}"
                               id="#{{ name }}_{{ object.pk }}_delete"
                               data-refresh-inner="#{{name}}_myList"
                               data-replace-inner="#delete_modal_inner"

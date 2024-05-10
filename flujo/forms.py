@@ -130,9 +130,6 @@ class DocumentoFormFilter(forms.ModelForm):
             'tipodocumento',
             'ueb',
         ]
-        widgets = {
-            'departamento': forms.RadioSelect(),
-        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -166,7 +163,7 @@ class DocumentoFormFilter(forms.ModelForm):
                         Column('reproceso', css_class='form-group col-md-3 mb-0'),
                         Column('editar_nc', css_class='form-group col-md-3 mb-0'),
                         Column('comprob', css_class='form-group col-md-5 mb-0'),
-                        Column('departamento', css_class='form-group col-md-12 mb-0',),
+                        Column('departamento', css_class='form-group col-md-12 mb-0', ),
                         Column('tipodocumento', css_class='form-group col-md-5 mb-0'),
                         Column('ueb', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'

@@ -87,6 +87,16 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
         'producto',
         'medida',
     ]
+
+    views_available = [
+        'list',
+        'list_detail',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
     title = "Detalles de normas de consumo"
     table_class = NormaConsumoDetalleTable
 
@@ -128,6 +138,7 @@ class NormaConsumoCRUD(CommonCRUDView):
 
     add_form = NormaConsumoForm
     update_form = NormaConsumoForm
+    detail_form = NormaConsumoDetailForm
 
     list_fields = fields
 
@@ -141,6 +152,8 @@ class NormaConsumoCRUD(CommonCRUDView):
     inlines = [NormaConsumoDetalleAjaxCRUD]
 
     inline_tables = [NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())]
+
+    inline_actions = False
 
     def get_create_view(self):
         view = super().get_create_view()
@@ -258,6 +271,22 @@ class NormaConsumoCRUD(CommonCRUDView):
                 return ctx
 
         return OEditView
+
+    def get_detail_view(self):
+        view = super().get_detail_view()
+
+        class ODetailView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                if 'pk' in kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    ctx['form'] = self.form_class(instance=obj)
+                elif 'object' in kwargs:
+                    ctx['form'] = self.form_class(instance=kwargs['object'])
+                return ctx
+
+        return ODetailView
 
 
 class NormaConsumoGroupedCRUD(CommonCRUDView):

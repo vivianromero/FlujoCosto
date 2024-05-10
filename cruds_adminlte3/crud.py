@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import (ListView, CreateView, DeleteView,
                                   UpdateView, DetailView)
+from django.views.generic.edit import FormMixin, ModelFormMixin
 from django_filters.views import FilterView
 from django_tables2 import RequestConfig
 from django_tables2.export import ExportMixin, TableExport
@@ -256,6 +257,10 @@ class CRUDMixin(object):
 
         if 'object' not in context:
             context['object'] = self.model
+        if 'view_type' not in context:
+            context['view_type'] = self.view_type
+        if 'inline_actions' not in context:
+            context['inline_actions'] = self.inline_actions
 
         self.get_urls_and_fields(context)
         self.get_check_perms(context)
@@ -311,7 +316,7 @@ class CRUDMixin(object):
                         value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
                 ):
                     temp = param
-                    if temp:
+                    if temp and temp not in getparams:
                         getparams.append(param)
         if getparams:
             self.getparams = "&".join(getparams)
@@ -554,6 +559,7 @@ class CRUDView(object):
     paginate_position = 'Bottom'
     update_form = None
     add_form = None
+    detail_form = None
     table_class = None
     table_data = None
     col_vis = []
@@ -561,6 +567,7 @@ class CRUDView(object):
     list_fields = None
     inlines = None
     inline_tables = None
+    inline_actions = True
     views_available = None
     template_father = "cruds/base.html"
     search_method = None
@@ -629,6 +636,7 @@ class CRUDView(object):
             form_class = self.add_form
             view_type = 'create'
             inlines = self.inlines
+            inline_actions = self.inline_actions
             inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
@@ -665,7 +673,7 @@ class CRUDView(object):
     def get_detail_view(self):
         ODetailViewClass = self.get_detail_view_class()
 
-        class ODetailView(self.mixin, ODetailViewClass):
+        class ODetailView(self.mixin, ModelFormMixin, ODetailViewClass):
             namespace = self.namespace
             template_name_base = self.template_name_base
             partial_template_name_base = self.partial_template_name_base
@@ -674,6 +682,8 @@ class CRUDView(object):
             view_type = 'detail'
             display_fields = self.display_fields
             inlines = self.inlines
+            inline_actions = self.inline_actions
+            form_class = self.detail_form
             inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
@@ -687,6 +697,11 @@ class CRUDView(object):
                 if (self.getparams):  # fixed filter detail action
                     url += '?' + self.getparams
                 return url
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                ctx['form'] = self.form_class()
+                return ctx
 
         return ODetailView
 
@@ -715,6 +730,7 @@ class CRUDView(object):
             all_perms = self.perms
             view_type = 'update'
             inlines = self.inlines
+            inline_actions = self.inline_actions
             inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
@@ -757,6 +773,7 @@ class CRUDView(object):
             table_class = self.table_class
             table_data = self.table_data
             inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             list_fields = self.list_fields
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -860,6 +877,7 @@ class CRUDView(object):
             list_fields = self.list_fields
             table_class = self.table_class
             inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             table_data = self.table_data
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -1034,6 +1052,7 @@ class CRUDView(object):
             all_perms = self.perms
             view_type = 'delete'
             inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -1095,10 +1114,14 @@ class CRUDView(object):
 
     def initialize_detail(self, basename):
         ODetailView = self.get_detail_view()
+        fields = self.fields
+        if self.detail_form:
+            fields = None
         self.detail = self.decorator_detail(
             ODetailView.as_view(
                 model=self.model,
-                template_name=basename
+                template_name=basename,
+                form_class=self.detail_form
             ))
 
     def initialize_update(self, basename):
@@ -1124,6 +1147,13 @@ class CRUDView(object):
             template_name=basename
         ))
 
+    def initialize_list_detail(self, basename):
+        OListView = self.get_list_view()
+        self.list_detail = self.decorator_list(OListView.as_view(
+            model=self.model,
+            template_name=basename
+        ))
+
     def initialize_delete(self, basename):
         ODeleteView = self.get_delete_view()
         url = utils.crud_url_name(
@@ -1139,6 +1169,13 @@ class CRUDView(object):
     def initialize_filter_list(self, basename):
         OFilterListView = self.get_filter_list_view()
         self.list = self.decorator_list(OFilterListView.as_view(
+            model=self.model,
+            template_name=basename
+        ))
+
+    def initialize_filter_list_detail(self, basename):
+        OFilterListView = self.get_filter_list_view()
+        self.list_detail = self.decorator_list(OFilterListView.as_view(
             model=self.model,
             template_name=basename
         ))
@@ -1262,6 +1299,15 @@ class CRUDView(object):
                 else:
                     self.initialize_filter_list(basename + '/list_table.html')
 
+        if 'list_detail' in self.views_available:
+            if self.filter_fields is None:
+                self.initialize_list_detail(basename + '/list_detail.html')
+            else:
+                if self.table_class is None:
+                    self.initialize_filter_list_detail(basename + '/list.html')
+                else:
+                    self.initialize_filter_list_detail(basename + '/list_detail_table.html')
+
         if 'delete' in self.views_available:
             self.initialize_delete(basename + '/delete.html')
 
@@ -1281,6 +1327,11 @@ class CRUDView(object):
                                   self.list,
                                   name=utils.crud_url_name(
                                       self.model, 'list', prefix=self.urlprefix)))
+        if 'list_detail' in self.views_available:
+            myurls.append(re_path("^%s/list_detail$" % (base_name,),
+                                  self.list_detail,
+                                  name=utils.crud_url_name(
+                                      self.model, 'list_detail', prefix=self.urlprefix)))
         if 'create' in self.views_available:
             myurls.append(re_path("^%s/create$" % (base_name,),
                                   self.create,

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from app_index.views import CommonCRUDView
+from flujo.filters import DocumentoFilter
 from flujo.forms import DepartamentoDocumentosForm, DocumentoForm, DocumentoFormFilter
 from flujo.models import Documento
 from flujo.tables import DocumentoTable
@@ -53,7 +54,7 @@ class DocumentoCRUD(CommonCRUDView):
     views_available = ['list', 'update', 'create']
     view_type = ['list', 'update', 'create']
 
-    filterset_class = DocumentoFormFilter
+    filterset_class = DocumentoFilter
 
     # Table settings
     paginate_by = 5
