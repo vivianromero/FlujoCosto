@@ -82,6 +82,20 @@
                                     </div>
                                     <div class="card-body">
                                         <div id="{{inline.name}}_father">
+                                            {% if 'create' in inline.views_available %}
+                                            <button class="btn btn-success"
+                                                data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
+
+                                                id="#{{ name }}_{{ object.pk }}_add"
+                                                data-replace-inner="#edit_modal_inner"
+
+
+                                                data-replace-inner="#{{inline.name}}_editList"
+                                                data-ajax="" data-success="function(){}"
+                                                style="margin-top: 0px; margin-bottom: 5px;">
+                                                {% trans 'Create2' %}
+                                            </button>
+                                            {% endif %}
                                             {% if 'list' in inline.views_available %}
                                             <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">
 
@@ -96,20 +110,7 @@
                                             </div>
                                             {% endif %}
                                             <div id="{{inline.name}}_editList"></div>
-                                            {% if 'create' in inline.views_available %}
-                                            <button class="btn btn-success"
-                                                data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
 
-                                                id="#{{ name }}_{{ object.pk }}_add"
-                                                data-replace-inner="#edit_modal_inner"
-
-
-                                                data-replace-inner="#{{inline.name}}_editList"
-                                                data-ajax="" data-success="function(){}"
-                                                style="margin-top: 10px;">
-                                                {% trans 'Create' %}
-                                            </button>
-                                            {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}

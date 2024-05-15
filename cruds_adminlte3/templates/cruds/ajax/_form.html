@@ -45,14 +45,29 @@
 
 
 <script>
-    {% if form.helper %}
+    {#{% if form.helper %}#}
     {#$(".modal select:first").val(1).trigger('change.select2');#}
     {#$(".modal select:first").parent().parent().hide();#}
-    {% endif %}
+    {#{% endif %}#}
 
     function success() {
         $('#edit_modal').modal('hide');
     }
+
+    function productoMedida(){
+        var idproducto = document.getElementById("id_productodetalle").value;
+        var url = "/productmedidadetalle/";
+          $.ajax({
+            url: url,
+            data: {
+              'idproducto': idproducto
+            },
+            dataType: 'json',
+            success: function (data) {
+                 document.getElementById("id_medidadetalle").value = data["results"]["id"]
+            }
+          });
+        }
 
     $('.modal #submit-id-submit').parent().parent().remove(); // FIXME: Remove the crispy buttons
     $('#edit_modal').modal('show');
