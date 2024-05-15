@@ -456,6 +456,7 @@ class NormaconsumoDetalle(models.Model):
 
     class Meta:
         db_table = 'cla_normaconsumodetalle'
+        unique_together = (('normaconsumo', 'producto'),)
 
     def __str__(self):
         return "%s | %s de la norma %s" % (

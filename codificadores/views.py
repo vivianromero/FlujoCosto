@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db.models import Q, ProtectedError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
@@ -1511,9 +1511,16 @@ def productmedida(request):
     pk_prod = request.GET.get('producto')
     producto = ProductoFlujo.objects.get(pk=pk_prod)
     medida_seleccionada = producto.medida
-    medidas = Medida.objects.filter(activa=True).exclude(clave='U')
+    medidas = Medida.objects.filter(activa=True)
     context = {
         'medidas': medidas,
         'medida_seleccionada': medida_seleccionada,
     }
     return render(request, 'app_index/partials/productmedida.html', context)
+
+def productmedidadetalle(request):
+    pk_prod = request.GET.get('idproducto')
+    producto = ProductoFlujo.objects.get(pk=pk_prod)
+    medida_seleccionada = producto.medida
+    result = {"id": medida_seleccionada.pk}
+    return JsonResponse({"results": result})

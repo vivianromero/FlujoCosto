@@ -19,6 +19,7 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
+from django.db.models import Q
 
 
 class UpperField(forms.CharField):
@@ -1606,12 +1607,15 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         widgets = {
             'producto': SelectWidget(
                 attrs={
-                    'style': 'width: 100%; dislay: block',
-                },
+                    'style': 'width: 100%',
+                    'id':'id_productodetalle',
+                    "onChange": 'productoMedida()',
+                }
             ),
             'medida': SelectWidget(
                 attrs={
                     'style': 'width: 100%; dislay: block',
+                    'id':'id_medidadetalle',
                 },
             ),
         }
@@ -1629,23 +1633,42 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
-                    'Dettales Norma de Consumo',
+                    'Detalles Norma de Consumo',
                     Row(
-
-                        Column('norma_ramal', css_class='form-group col-md-4 mb-0'),
+                        Column('producto', css_class='form-group col-md-8 mb-0', css_id='productodetalle'),
+                        Column('medida', css_class='form-group col-md-4 mb-0', css_id='medidadetalle'),
+                        css_class='form-row'
+                    ),
+                    Row(Column('norma_ramal', css_class='form-group col-md-4 mb-0'),
                         Column('norma_empresarial', css_class='form-group col-md-4 mb-0'),
-
-                        Column('producto', css_class='form-group col-md-4 mb-0'),
-
-                        Column('operativo', css_class='form-group col-md-4 mb-0'),
-                        Column('medida', css_class='form-group col-md-4 mb-0'),
-
+                        css_class='form-row'),
+                    Row(
+                        Column('operativo', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'
                     ),
                 ),
             ),
         )
 
+    def clean_producto(self):
+        producto = self.cleaned_data.get('producto')
+        detallenc = NormaconsumoDetalle.objects.filter(~Q(pk=self.instance.pk), producto=producto)
+
+        if detallenc.exists():
+            raise forms.ValidationError('Ya existe este producto para la norma')
+        return producto
+
+    def clean_norma_ramal(self):  # Validar que que la cantidad>0
+        norma_ramal = self.cleaned_data.get('norma_ramal')
+        if float(norma_ramal)<=0:
+            raise forms.ValidationError('Debe introducir un valor>0')
+        return norma_ramal
+
+    def clean_norma_empresarial(self):  # Validar que que la cantidad>0
+        norma_empresarial = self.cleaned_data.get('norma_empresarial')
+        if float(norma_empresarial)<=0:
+            raise forms.ValidationError('Debe introducir un valor>0')
+        return norma_empresarial
 
 class NormaConsumoGroupedFormFilter(forms.Form):
     class Meta:
