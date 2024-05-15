@@ -11,9 +11,10 @@
 
     //! moment.js locale configuration
 
-    var monthsShortDot = 'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
-            '_'
-        ),
+    var monthsShortDot =
+            'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
+                '_'
+            ),
         monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
         monthsParse = [
             /^ene/i,
@@ -29,7 +30,8 @@
             /^nov/i,
             /^dic/i,
         ],
-        monthsRegex = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
+        monthsRegex =
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
 
     var es = moment.defineLocale('es', {
         months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
@@ -46,8 +48,10 @@
         },
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
-        monthsShortStrictRegex: /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
+        monthsStrictRegex:
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+        monthsShortStrictRegex:
+            /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
@@ -110,33 +114,6 @@
             doy: 4, // The week that contains Jan 4th is the first week of the year.
         },
         invalidDate: 'Fecha inválida',
-        tooltips: {
-            today: 'Ir a hoy',
-            clear: 'Borrar selección',
-            close: 'Cerrar el selector',
-            selectMonth: 'Seleccionar Mes',
-            prevMonth: 'Mes Anterior',
-            nextMonth: 'Próximo Mes',
-            selectYear: 'Seleccionar Año',
-            prevYear: 'Año Anterior',
-            nextYear: 'Próximo Año',
-            selectDecade: 'Seleccionar Década',
-            prevDecade: 'Década anterior',
-            nextDecade: 'Próxima Década',
-            prevCentury: 'Siglo Anterior',
-            nextCentury: 'Próximo Siglo',
-            pickHour: 'Seleccionar Hora',
-            incrementHour: 'Incrementar Hora',
-            decrementHour: 'Disminuir Hora',
-            pickMinute: 'Seleccionar Minuto',
-            incrementMinute: 'Incrementar Minuto',
-            decrementMinute: 'Disminuir Minuto',
-            pickSecond: 'Seleccionar Segundo',
-            incrementSecond: 'Incrementar Segundo',
-            decrementSecond: 'Disminuir Segundo',
-            togglePeriod: 'Alternar Período',
-            selectTime: 'Seleccionar Hora'
-        },
     });
 
     return es;

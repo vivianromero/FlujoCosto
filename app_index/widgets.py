@@ -53,12 +53,15 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
                     {
                         'format': date_format,
                         'applyLabel': 'Aceptar',
-                        'cancelLabel': "Limpiar",
+                        'cancelLabel': "Cancelar",
                         'weekLabel': _('S'),
                         'customRangeLabel': 'Rango personalizado'
                     }
             }
         )
+
+        if 'singleDatePicker' in self.picker_options and self.picker_options['singleDatePicker']:
+            value = self._format_date_value(value)
 
         if 'use_ranges' in self.picker_options and self.picker_options['use_ranges']:
             start_date = date.today()

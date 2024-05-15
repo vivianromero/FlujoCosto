@@ -113,6 +113,9 @@ THUMBNAIL_PROCESSORS = (
 TIME_FORMAT = 'h:i A'
 DATETIME_FORMAT = 'd/m/Y H:i:s'
 DATE_FORMAT = 'd/m/Y'
+DATE_INPUT_FORMATS = [
+    '%d/%m/%Y',
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -306,10 +309,10 @@ BOOTSTRAP_DATEPICKER_PLUS = {
             "format": "DD/MM/YYYY",
         },
     },
-    "datetimepicker_js_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.js",
-    "datetimepicker_css_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.css",
-    "bootstrap_icon_css_url": "/static/plugins/bootstrap-icons/font/bootstrap-icons.css",
-    "app_static_url": "/static/plugins/bootstrap_datepicker_plus/",
+    # "datetimepicker_js_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.js",
+    # "datetimepicker_css_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.css",
+    # "bootstrap_icon_css_url": "/static/plugins/bootstrap-icons/font/bootstrap-icons.css",
+    # "app_static_url": "/static/plugins/bootstrap_datepicker_plus/",
     "momentjs_url": None,  # If you already have momentjs added into your template
 }
 

@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 
 {#{% if not form.helper %}#}
-{#    {{ form.media }}#}
+    {{ form.media }}
 {#{% endif %}#}
 
 <form action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}" method="POST" enctype="multipart/form-data">
@@ -61,6 +61,10 @@
     $(function () {
     //Initialize Select2 Elements
         $('.select2').select2()
-        {#$('.datepickerinput').datetimepicker();#}
-})
+
+    })
+    {#document.addEventListener('htmx:afterSwap', function(event) {#}
+    {#    // Reinitialize the datepicker on the newly swapped content#}
+    {#    $('.datepickerinput').datepicker();#}
+    {#})#}
 </script>
