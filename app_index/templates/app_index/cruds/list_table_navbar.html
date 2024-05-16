@@ -148,23 +148,52 @@
         {# aquí se debe poner el link de importar#}
         {% partial act_versat_link_url_partial %}
     {% endblock list_act_versat_table_main_header %}
-    {% block list_import_table_main_header %}
-        {# aquí se debe poner el link de importar#}
-        {% partial import_link_url_partial %}
-    {% endblock list_import_table_main_header %}
+    <div id="create_link_url_div" style="display: flex; align-items: center">
+        {% if url_create %}
+            {% block list_create_table_main_header %}
+                {% crud_url object "create" namespace as url %}
+                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+                    <a id="id_create_url"
+                       href="{{ url }}{{ getparams }}"
+                       class="nav-link"
+                       hx-get="{{ url }}{{ getparams }}"
+                       hx-trigger="click"
+                       hx-target="#main_content_swap"
+                       hx-swap="outerHTML"
+                       hx-replace-url="true"
+                       role="button">
+                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
+                    </a>
+                {% endif %}
+            {% endblock list_create_table_main_header %}
+        {% endif %}
+    </div>
     {% block list_export_table_main_header %}
         {# aquí se debe poner el link de exportar#}
         {% partial export_link_url_partial %}
     {% endblock list_export_table_main_header %}
+    {% block list_import_table_main_header %}
+        {# aquí se debe poner el link de importar#}
+        {% partial import_link_url_partial %}
+    {% endblock list_import_table_main_header %}
+    {% if object_list %}
+        <a id="table_export_url" class="nav-link" href="{% export_url "xlsx" %}&excluded_columns={{ col_vis }}" role="button">
+            <i class="fa fa-file-excel" title="{% translate 'Export to excel' %}"></i>
+        </a>
+    {% endif %}
     {% if table.shift_table_column %}
-        <div id="table_visibility_link_dropdown_menu" class="btn-group">
+        <div id="table_visibility_link_dropdown_menu" class="btn-group dropdown keep-open" hx-preserve="true">
             {% block table_button_group_head %}
                 <a id="table_visibility_columns_link" class="nav-link" data-toggle="dropdown" href="#">
                     <i class="fa fa-eye-slash" title="{% translate 'Visibility columns' %}"></i>
                 </a>
             {% endblock table_button_group_head %}
             {% block table_button_group_dropdown_menu %}
-                <ul id="table_vibility_menu" role="listbox" tabindex="0" aria-label="visibility_menu" class="dropdown-menu" style="min-width:250px; padding:5px; cursor:pointer;">
+                <ul id="table_vibility_menu" role="listbox" 
+                    tabindex="0" 
+                    aria-label="visibility_menu" 
+                    class="dropdown-menu dropdown-menu-right" 
+                    style="min-width:200px; padding:5px; cursor:pointer;">
                     {% for column in table.columns %}
                         {% if column.attrs.td.class not in table.get_column_excluded %}
                             {% if column.name in table.get_column_default_show %}
@@ -193,49 +222,6 @@
             {% endblock table_button_group_dropdown_menu %}
         </div>
     {% endif %}
-    <div id="create_link_url_div" style="display: flex; align-items: center">
-        {% if url_create %}
-            {% block list_create_table_main_header %}
-                {% crud_url object "create" namespace as url %}
-                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
-                    <a id="id_create_url"
-                       href="{{ url }}{{ getparams }}"
-                       class="nav-link"
-                       hx-get="{{ url }}{{ getparams }}"
-                       hx-trigger="click"
-                       hx-target="#main_content_swap"
-                       hx-swap="outerHTML"
-                       hx-replace-url="true"
-                       role="button">
-                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
-                    </a>
-                {% endif %}
-            {% endblock list_create_table_main_header %}
-        {% endif %}
-    </div>
-    {% if object_list %}
-        <a id="table_export_url" class="nav-link" href="{% export_url "xlsx" %}&excluded_columns={{ col_vis }}" role="button">
-            <i class="fa fa-file-excel" title="{% translate 'Export to excel' %}"></i>
-        </a>
-    {% endif %}
-
-    <!-- <div id="search_header_div" style="display: flex; align-items: center">
-        {% if search %}
-            {% block right_table_navbar_links_toggle_right_search_menu %}
-                <li class="nav-item">
-                    <a class="nav-link"
-                       data-widget="control-sidebar"
-                       data-slide="true"
-                       data-target="#search-sidebar"
-                       href="#"
-                       role="button"
-                    >
-                        <i class="fas fa-search" title={% translate 'Search' %}></i>
-                    </a>
-                </li>
-            {% endblock right_table_navbar_links_toggle_right_search_menu %}
-        {% endif %}
-    </div> -->
     <div id="filter_header_div" style="display: flex; align-items: center">
         {% if filter %}
             {% block right_table_navbar_links_toggle_right_filter_menu %}
