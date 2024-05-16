@@ -7,7 +7,9 @@ from crispy_forms.bootstrap import (
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
+from django.contrib.admin.widgets import AdminDateWidget
 from django.db import transaction
+from django.forms import DateInput
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
@@ -17,7 +19,7 @@ from app_index.widgets import MyCustomDateRangeWidget
 from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
-from cruds_adminlte3.widgets import SelectWidget
+from cruds_adminlte3.widgets import SelectWidget, DatePicker
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
 from django.db.models import Q
 
@@ -25,6 +27,7 @@ from django.db.models import Q
 class UpperField(forms.CharField):
     def to_python(self, value):
         return value.upper()
+
 
 # ------------ Unidad Contable / Form ------------
 class UnidadContableForm(forms.ModelForm):
@@ -757,7 +760,8 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             clase = self.cleaned_data.get('clase')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
-                                                                                   defaults={'clasemateriaprima':clase})
+                                                                                   defaults={
+                                                                                       'clasemateriaprima': clase})
         return instance
 
 
@@ -1406,6 +1410,21 @@ class NormaConsumoForm(forms.ModelForm):
         label=_("Medida"),
         required=False,
     )
+
+    fecha = forms.DateField(
+        widget=MyCustomDateRangeWidget(
+            # format='%Y/%m/%d',
+            format='%d/%m/%Y',
+            picker_options={
+                'showDropdowns': True,
+                'format': 'DD/MM/YYYY',
+                'singleDatePicker': True,
+                'maxDate': date.today().strftime('%d/%m/%Y'),  # TODO Fecha no puede ser mayor que la fecha actual
+            },
+        ),
+        input_formats=['%d/%m/%Y'],
+    )
+
     class Meta:
         model = NormaConsumo
         fields = [
@@ -1416,14 +1435,32 @@ class NormaConsumoForm(forms.ModelForm):
         ]
 
         widgets = {
-            'fecha': MyCustomDateRangeWidget(
-                format='%Y-%m-%d',
-                picker_options={
-                    'format': 'DD/MM/YYYY',
-                    'singleDatePicker': True,
-                    'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
-                }
-            ),
+            # 'fecha': AdminDateWidget(),
+            # 'fecha': DatePicker(
+            #     options={
+            #         'endDate': date.today().strftime("%d/%m/%Y"),
+            #     },
+            #     attrs={
+            #         'append': 'fa fa-calendar',
+            #         'icon_toggle': True,
+            #     }
+            # ),
+            # 'fecha': DatePickerInput(
+            #     options={
+            #         "format": "DD/MM/YYYY",
+            #         # "locale": "es",
+            #         "showTodayButton": False,
+            #         "maxDate": date.today(),  # Fecha de ocurrencia no puede ser mayor que la fecha actual
+            #     },
+            # ),
+            # 'fecha': MyCustomDateRangeWidget(
+            #     # format='%d/%m/%Y',
+            #     picker_options={
+            #         # 'format': 'DD/MM/YYYY',
+            #         'singleDatePicker': True,
+            #         'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
+            #     }
+            # ),
             'producto': SelectWidget(
                 attrs={
                     'style': 'width: 100%',
@@ -1481,7 +1518,7 @@ class NormaConsumoForm(forms.ModelForm):
 
     def clean_cantidad(self):  # Validar que que la cantidad>0
         cantidad = self.cleaned_data.get('cantidad')
-        if float(cantidad)<=0:
+        if float(cantidad) <= 0:
             raise forms.ValidationError('Debe introducir un valor>0')
         return cantidad
 
@@ -1491,6 +1528,7 @@ class NormaConsumoForm(forms.ModelForm):
         self.instance.medida = medida
         instance = super().save(commit=True)
         return instance
+
 
 # ------------ NormaConsumo / Form ------------
 class NormaConsumoDetailForm(NormaConsumoForm):
@@ -2278,6 +2316,7 @@ class ProductsCapasClaPesadasFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalle
@@ -2329,6 +2368,7 @@ class ConfCentrosElementosOtrosDetalleFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
 class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
     class Meta:
         model = ConfCentrosElementosOtrosDetalleGrouped
@@ -2376,6 +2416,7 @@ class ConfCentrosElementosOtrosDetalleGroupedFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
 
 # ------------ ConfCentrosElementosOtrosDetalle / Form ------------
 class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
