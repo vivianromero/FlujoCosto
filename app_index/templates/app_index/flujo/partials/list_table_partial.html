@@ -4,6 +4,9 @@
 {% load static %}
 {% load i18n %}
 
+<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
+    {% include 'adminlte/lib/_messages.html' %}
+</div>
 
 <div id="main_content_swap">
     <div class="row">

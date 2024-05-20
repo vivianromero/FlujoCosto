@@ -78,11 +78,9 @@ class DocumentoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # departamento_documentos_form = DepartamentoDocumentosForm()
-                dpto =  self.request.GET.get('departamento', None)
 
                 tableversat = None
-                if dpto:
+                if self.dep:
                     datostableversat = dame_documentos_versat(self.request)
                     tableversat = DocumentosVersatTable(datostableversat)
 
@@ -97,30 +95,35 @@ class DocumentoCRUD(CommonCRUDView):
             
             def get_queryset(self):
                 queryset = super().get_queryset()
-                dep = self.request.GET.get('departamento', None)
-                if dep is not None:
-                    queryset = queryset.filter(departamento=dep)
+                self.dep = self.request.GET.get('departamento', None)
+                if self.dep is not None:
+                    queryset = queryset.filter(departamento=self.dep)
                 elif self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
                     depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                     if len(depx) > 0:
                         depxs = depx[0].split('=')
                         if depxs[0] == 'departamento':
                             queryset = queryset.filter(departamento=depxs[1])
+                            self.dep = depxs[1]
                 else:
                     queryset = queryset.none()
                 return queryset
 
         return OFilterListView
 
-    def dame_documentos_versat(request):
-        unidadcontable = request.user.ueb
-        departamento = request.GET.get('departamento', None)
-        title_error = _("Couldn't update")
-        text_error = _('Connection error')
+def dame_documentos_versat(request):
+    unidadcontable = request.user.ueb
+    departamento = request.GET.get('departamento', None)
+    title_error = _("Couldn't update")
+    text_error = _('Connection error')
 
+    try:
         response = getAPI('documentogasto', {'fecha_desde': '2023-01-18', 'fecha_hasta': '2023-01-18'})
 
         if response and response.status_code == 200:
             datos = response.json()['results']
+            return datos
+    except Exception as e:
+        message_error(request=request, title=title_error, text=text_error)
+        return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
-        return datos
