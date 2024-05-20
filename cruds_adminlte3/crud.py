@@ -106,27 +106,30 @@ class CRUDMixin(object):
             else:
                 active_filters = self.filterset_class(self.request.GET).form.data != []
 
-        elif self.view_type in ['detail', 'update'] and self.request.htmx:
+        elif self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
             active_filters = self.request.htmx.current_url_abs_path.split('?').__len__() > 1
 
         if active_filters:
-            if self.view_type in ['detail', 'update'] and self.request.htmx:
-                filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+            filters = []
+            if self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
+                if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
             else:
                 filters = self.request.GET.urlencode().split('&')
             getparams = self.getparams.split('&') or []
-            if filters[0]:
-                for filter in filters:
-                    if '%3F' in filter:
-                        filter = filter.split('%3F')[0]
-                    value = filter.split('=')
-                    if value[1] and (
-                            value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
-                        0] != 'set_visibility_value'
-                    ):
-                        param = filter
-                        if param and param not in getparams:
-                            filter_params.append(param)
+            if filters:
+                if filters[0]:
+                    for filter in filters:
+                        if '%3F' in filter:
+                            filter = filter.split('%3F')[0]
+                        value = filter.split('=')
+                        if value[1] and (
+                                value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
+                            0] != 'set_visibility_value'
+                        ):
+                            param = filter
+                            if param and param not in getparams:
+                                filter_params.append(param)
 
         if filter_params:
             if self.getparams:

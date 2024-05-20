@@ -211,7 +211,8 @@
                                         hx-trigger="click"
                                         hx-target="#main_content_swap"
                                         hx-swap="outerHTML"
-                                        hx-replace-url="true">
+{#                                        hx-replace-url="true"#}
+                                    >
                                     <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>
                                     <input type="hidden" name="visibility" value={{ column.name }}>
                                 </li>

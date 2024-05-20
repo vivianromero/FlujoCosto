@@ -66,20 +66,27 @@ class DocumentoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # departamento_documentos_form = DepartamentoDocumentosForm()
                 context.update({
                     # 'departamento_documentos_form': departamento_documentos_form,
-                    'url_importar': 'app_index:importar:numdoc_importar',
+                    # 'url_importar': 'app_index:importar:numdoc_importar',
                     'filter': False,
-                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                    # 'url_exportar': 'app_index:exportar:numdoc_exportar'
                 })
                 return context
             
             def get_queryset(self):
                 queryset = super().get_queryset()
-                # departamento = self.request.GET.get('departamento', None)
-                # if departamento is not None:
-                #     queryset = queryset.filter(departamento=departamento)
+                dep = self.request.GET.get('departamento', None)
+                if dep is not None:
+                    queryset = queryset.filter(departamento=dep)
+                elif self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                    if len(depx) > 0:
+                        depxs = depx[0].split('=')
+                        if depxs[0] == 'departamento':
+                            queryset = queryset.filter(departamento=depxs[1])
+                else:
+                    queryset = queryset.none()
                 return queryset
 
         return OFilterListView
