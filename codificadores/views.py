@@ -1389,7 +1389,6 @@ class ObtenrDatosModalFormView(FormView):
             return HttpResponseLocation(
                 self.get_success_url(),
                 target='#main_content_swap',
-
             )
         else:
             return render(self.request, 'app_index/modals/modal_form.html', {

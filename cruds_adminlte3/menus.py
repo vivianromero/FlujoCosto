@@ -150,7 +150,7 @@ MENUS = {
                             "icon_class": 'fa fa-university',
                             # "url": reverse_lazy('app_index:flujo:movimientos'),
                             "url": crud_url_name(Documento, 'list', 'app_index:flujo:'),
-                            "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                            "validators": ["app_auth.usuarios.validators.is_operflujo"],
                         },
                     ]
                 },

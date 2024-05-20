@@ -10,10 +10,16 @@ from rest_framework.views import APIView
 from codificadores import ChoiceTiposProd, ChoiceClasesMatPrima
 from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo, TipoProducto, \
     ClaseMateriaPrima, ProductoFlujoClase, Vitola, CategoriaVitola, TipoVitola
+from flujo.models import Documento
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
-from .general import ConCuentanat, GenProducto, SisPaxVitola
-from .serializers import *
+from .general import GenProducto, SisPaxVitola
+from .inventario import InvDocumento
+from .contabilidad import ConCuentanat
+from .serializersdata import *
+from rest_framework.response import Response
+from django.core import serializers
+
 
 
 class GenUnidadMedidaList(APIView):
@@ -36,7 +42,7 @@ class GenUnidadMedidaList(APIView):
 
 class GenUnidadContableList(APIView):
     """
-    Devuelve las unidades de medida
+    Devuelve las unidades contable
     """
 
     def get(self, request, format=None):
@@ -73,7 +79,7 @@ class MPMarcaList(APIView):
 
 class ConCuentanatList(APIView):
     """
-    Devuelve las unidades de medida
+    Devuelve clasificador de cuentas
     """
 
     def get(self, request, format=None):
@@ -84,7 +90,7 @@ class ConCuentanatList(APIView):
                 clave_cta=F('idcuenta__clave'),
                 descripcion_cta=F('descripcion'),
                 naturaleza_cta=F('naturaleza'),
-                clavenivel=F('clave'),
+                clavenivel=F('cuenta'),
                 activa=F('idcuenta__activa'),
             ).order_by('clave_cta', 'posicion').all()
             # Llenar las cuentas
@@ -240,3 +246,24 @@ class VitolaList(APIView):
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
         return redirect(crud_url_name(ProductoFlujo, 'list', 'app_index:codificadores:'))
+
+class DocumnetosInvList(APIView):
+    """
+    Devuelve documentos
+    """
+
+    def get(self, request, format=None):
+
+        try:
+            # docum = InvDocumento.objects.filter(fecha__date__range=['2023-01-01', '2023-01-31'])
+            docum = InvDocumento.objects.all()
+            serializer = InvDocumentoSerializer(docum, many=True)
+
+        except Exception as e:
+            message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
+        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
+        return Response(serializer.data)
+        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'), context={'data':serializer.data})
+        # return redirect(crud_url_name(Cuenta, 'list', 'app_index:codificadores:'))
+        # json_data = serializers.serialize("json", docum)
+        # return Response(json_data)

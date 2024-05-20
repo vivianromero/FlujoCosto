@@ -71,6 +71,19 @@ class GenProducto(models.Model):
         managed = True
         db_table = 'gen_producto'
 
+class GenUsuario(models.Model):
+    idusuario = models.AutoField(primary_key=True)
+    tipo = models.SmallIntegerField()
+    activo = models.BooleanField()
+    loginusuario = models.CharField(unique=True, max_length=128)
+    nombre = models.CharField(max_length=128, blank=True, null=True)
+    intentos = models.IntegerField()
+    expira = models.DateTimeField()
+
+    class Meta:
+        managed = True
+        db_table = 'gen_usuario'
+
 
 class GenNivelclasprod(models.Model):
     idnivelclas = models.AutoField(primary_key=True)
@@ -95,37 +108,61 @@ class GenAperturaprod(models.Model):
         db_table = 'gen_aperturaprod'
 
 
-class ConApertura(models.Model):
-    idapertura = models.AutoField(primary_key=True)
-    idmascara = models.ForeignKey(GenMascara, models.DO_NOTHING, db_column='idmascara')
-    idunidad = models.ForeignKey(GenUnidadcontable, models.DO_NOTHING, db_column='idunidad', blank=True, null=True)
-    tipo = models.SmallIntegerField()
+# class ConApertura(models.Model):
+#     idapertura = models.AutoField(primary_key=True)
+#     idmascara = models.ForeignKey(GenMascara, models.DO_NOTHING, db_column='idmascara')
+#     idunidad = models.ForeignKey(GenUnidadcontable, models.DO_NOTHING, db_column='idunidad', blank=True, null=True)
+#     tipo = models.SmallIntegerField()
+#
+#     class Meta:
+#         managed = True
+#         db_table = 'con_apertura'
+#
+#
+# class ConCuenta(models.Model):
+#     idcuenta = models.AutoField(primary_key=True)
+#     clave = models.CharField(unique=True, max_length=50)
+#     idapertura = models.ForeignKey(ConApertura, models.DO_NOTHING, db_column='idapertura')
+#     activa = models.BooleanField()
+#
+#     class Meta:
+#         managed = True
+#         db_table = 'con_cuenta'
+
+
+# class ConCuentanat(models.Model):
+#     idcuenta = models.ForeignKey(ConCuenta, models.DO_NOTHING, db_column='idcuenta', primary_key=True)
+#     clave = models.CharField(unique=True, max_length=50)
+#     descripcion = models.CharField(unique=True, max_length=255)
+#     naturaleza = models.SmallIntegerField()
+#
+#     class Meta:
+#         managed = True
+#         db_table = 'con_cuentanat'
+
+class GenSubsistema(models.Model):
+    idsubsistema = models.AutoField(primary_key=True)
+    nombre = models.CharField(unique=True, max_length=30)
+    guid = models.CharField(unique=True, max_length=16)
+    sps = models.CharField(db_column='SPS', max_length=3802)
+    hsps = models.CharField(db_column='HSPS', max_length=900)
 
     class Meta:
         managed = True
-        db_table = 'con_apertura'
+        db_table = 'gen_subsistema'
 
-
-class ConCuenta(models.Model):
-    idcuenta = models.AutoField(primary_key=True)
-    clave = models.CharField(unique=True, max_length=50)
-    idapertura = models.ForeignKey(ConApertura, models.DO_NOTHING, db_column='idapertura')
-    activa = models.BooleanField()
-
-    class Meta:
-        managed = True
-        db_table = 'con_cuenta'
-
-
-class ConCuentanat(models.Model):
-    idcuenta = models.ForeignKey(ConCuenta, models.DO_NOTHING, db_column='idcuenta', primary_key=True)
-    clave = models.CharField(unique=True, max_length=50)
-    descripcion = models.CharField(unique=True, max_length=255)
-    naturaleza = models.SmallIntegerField()
+class GenAlmacen(models.Model):
+    idalmacen = models.AutoField(primary_key=True)
+    codigo = models.CharField(unique=True, max_length=4)
+    nombre = models.CharField(unique=True, max_length=30)
+    idunidad = models.ForeignKey('GenUnidadcontable', models.DO_NOTHING, db_column='idunidad')
+    activo = models.BooleanField()
+    jefe = models.CharField(db_column='Jefe', max_length=150)  # Field name made lowercase.
+    direccion = models.CharField(db_column='Direccion', max_length=150)  # Field name made lowercase.
 
     class Meta:
-        managed = True
-        db_table = 'con_cuentanat'
+        managed = False
+        db_table = 'gen_almacen'
 
 
 # SisGestMP
@@ -236,3 +273,4 @@ class SisPaxVitola(models.Model):
     class Meta:
         managed = True
         db_table = 'fp_Vitolas'
+

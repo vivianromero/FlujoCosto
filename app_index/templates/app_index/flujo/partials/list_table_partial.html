@@ -4,6 +4,9 @@
 {% load static %}
 {% load i18n %}
 
+<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
+    {% include 'adminlte/lib/_messages.html' %}
+</div>
 
 <div id="main_content_swap">
     <div class="row">
@@ -38,10 +41,25 @@
                 </div>
                 <div class="col-12 border border-dark" style="height: 350px">
                     <div class="card" style="padding: 0; height: 100%">
-                        <div class="card-header" style="padding: 0;">
-                            Documentos del Versat
-                        </div>
+                        <div class="card-header" style="padding: 0px 15px;">
+                                        Documentos del Versat
+                                        {% if url_docversat %}
+                                            <a id="act_versat_link_url_div_a" style="float:right;padding:0;"
+                                               href="{{ url_docversat }}"
+                                               class="nav-link"
+                                               {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
+                                               {% if hx_target %}hx-target="{{ hx_target }}"{% endif %}
+                                               role="button" {% if hx %}hx-select-oob="true"{% endif %}>
+                                                <i class="fa fa-refresh fa-ms" title="{% trans 'Actualizar' %}"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
                         <div class="card-body" style="padding: 0;">
+                            {% block datatableversat %}
+                                <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                    {% if tableversat %} {% render_table tableversat %} {% endif %}
+                                </div>
+                            {% endblock datatableversat %}
                         </div>
                     </div>
                 </div>
