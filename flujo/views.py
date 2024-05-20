@@ -78,6 +78,9 @@ class DocumentoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                dep_queryset = context['form'].fields['departamento'].queryset
+                dep_queryset = dep_queryset.filter(unidadcontable=self.request.user.ueb)
+                context['form'].fields['departamento'].queryset = dep_queryset
 
                 tableversat = None
                 if self.dep:
