@@ -69,8 +69,6 @@ class DocumentoForm(forms.ModelForm):
                         Column('observaciones', css_class='form-group col-md-3 mb-0'),
                         Column('reproceso', css_class='form-group col-md-3 mb-0'),
                         Column('editar_nc', css_class='form-group col-md-3 mb-0'),
-
-
                         css_class='form-row'
                     ),
                 ),

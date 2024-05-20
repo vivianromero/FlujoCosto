@@ -11,6 +11,13 @@ PASSWORD_API = settings.PASSWORD_API
 
 def getAPI(opcion, *param):
     url = URL_API + 'api/' + opcion
+    if len(param)>0:
+        url = url+'/?'
+        keys = param[0].keys()
+        for k in keys:
+            url += k+"="+param[0][k]+"&"
+        url = url[:-1]
+
     auth = HTTPBasicAuth(USERNAME_API, PASSWORD_API)
 
     # Headers with Connection Token
@@ -25,8 +32,6 @@ def getAPI(opcion, *param):
     response = requests.get(url, auth=auth, headers=headers)
     # Check the response
     if response.status_code == 200:
-        # print("Request successful")
-        # data = response.json()  # Assuming the response is in JSON format
         return response
     else:
         print(f"Request failed with status code {response.status_code}")

@@ -92,7 +92,7 @@ MY_APPS = [
     'flujo.apps.FlujoConfig',
     'costo.apps.CostoConfig',
     'app_index',
-    'app_versat',
+    'app_versat.apps.AppVersatConfig',
     'app_apiversat',
     'app_auth.usuarios',
     'cruds_adminlte3',
@@ -228,9 +228,28 @@ DATABASES = {
         'NAME': 'flujo_costo',
         'USER': 'flujo_costo',
         'PASSWORD': 'flujo_costo.123*-',
-        'HOST': 'localhost',
+        'HOST': '172.17.0.3',
         'PORT': '5432',
-    }
+        }
+    # ,
+    # 'app_versat': {
+    #                 'ENGINE': 'mssql',
+    #                 'NAME':'VersatQuem',
+    #                 'USER':'sa',
+    #                 'PASSWORD':'Sasasa*1',
+    #                 'HOST': '172.20.0.2',
+    #                 'PORT': '',
+    #                 'ATOMIC_REQUESTS': True,
+    #                 # 'CONN_REQUESTS': True,
+    #                 'TIME_ZONE': None,
+    #                 'CONN_HEALTH_CHECKS': True,
+    #                 'CONN_MAX_AGE': 60,
+    #                 'AUTOCOMMIT': True,
+    #                 'OPTIONS': {
+    #                     'driver': 'ODBC Driver 17 for SQL Server',
+    #                     'connect_timeout': 5,
+    #                 },
+    #             }
 }
 
 # Password validation
@@ -355,6 +374,7 @@ PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 # PASSWORD_API = env('PASSWORD_API')
 
 URL_API = 'http://127.0.0.1:8085/'
-CONNECTION_TOKEN_API = 'e57f3a72-5508-4935-af3d-36ff98997239'
+# CONNECTION_TOKEN_API = 'e57f3a72-5508-4935-af3d-36ff98997239'
+CONNECTION_TOKEN_API = '1a2d5d4c-a525-4126-a76a-c7b0b878828e'
 USERNAME_API = 'ettvcl'
 PASSWORD_API = 'Zxc123*-'

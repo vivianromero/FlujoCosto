@@ -232,6 +232,7 @@ class DocumentoDevolucionRecibida(models.Model):
 class DocumentoOrigenVersat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     documentoversat = models.IntegerField()
+    fecha_documentoversat = models.DateTimeField(db_default=Now(), verbose_name=_("Fecha versat at"))
     documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoorigenversat_documento')
     origen_versat = models.CharField(max_length=40)
 

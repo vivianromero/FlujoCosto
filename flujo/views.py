@@ -4,20 +4,31 @@ from app_index.views import CommonCRUDView
 from flujo.filters import DocumentoFilter
 from flujo.forms import DepartamentoDocumentosForm, DocumentoForm, DocumentoFormFilter
 from flujo.models import Documento
-from flujo.tables import DocumentoTable
+from flujo.tables import DocumentoTable, DocumentosVersatTable
+from codificadores.tables import CentroCostoTable
+from codificadores.models import CentroCosto, Departamento
+from app_versat.inventario import InvDocumento, InvDocumentocta, InvDocumentogasto
+from app_versat.serializersdata import InvDocumentoSerializer, InvDocumentogastoSerializer
 
-
+from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django_htmx.http import HttpResponseLocation
+import requests
+from dynamic_db_router.router import THREAD_LOCAL
+from dynamic_db_router import in_database
+from configuracion.models import ConexionBaseDato
+from configuracion import ChoiceSystems
+from utiles.utils import message_error
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import redirect
+from cruds_adminlte3.utils import crud_url_name
+from django.db import connections
+from django.conf import settings
+import datetime
+from .forms import DepartamentoDocumentosForm
+from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
+from app_apiversat.functionapi import getAPI
 # Create your views here.
-
-def movimientos(request):
-    departamento_documentos_form = DepartamentoDocumentosForm()
-    table = DocumentoTable(Documento.objects.all())
-    ctx = {
-        'departamento_documentos_form': departamento_documentos_form,
-        'table': table,
-    }
-    return render(request, template_name='app_index/flujo/list_table.html', context=ctx)
-
 
 # ------ Documento / CRUD ------
 class DocumentoCRUD(CommonCRUDView):
@@ -60,17 +71,27 @@ class DocumentoCRUD(CommonCRUDView):
     paginate_by = 5
     table_class = DocumentoTable
 
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                # departamento_documentos_form = DepartamentoDocumentosForm()
+                dpto =  self.request.GET.get('departamento', None)
+
+                tableversat = None
+                if dpto:
+                    datostableversat = dame_documentos_versat(self.request)
+                    tableversat = DocumentosVersatTable(datostableversat)
+
                 context.update({
-                    # 'departamento_documentos_form': departamento_documentos_form,
-                    # 'url_importar': 'app_index:importar:numdoc_importar',
-                    'filter': False,
-                    # 'url_exportar': 'app_index:exportar:numdoc_exportar'
+                    'filter': True,
+                    'url_docversat': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+                    'tableversat': tableversat if tableversat else None,
+                    "hx_get": reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+                    "hx_target": '#main_content_swap',
                 })
                 return context
             
@@ -90,3 +111,16 @@ class DocumentoCRUD(CommonCRUDView):
                 return queryset
 
         return OFilterListView
+
+    def dame_documentos_versat(request):
+        unidadcontable = request.user.ueb
+        departamento = request.GET.get('departamento', None)
+        title_error = _("Couldn't update")
+        text_error = _('Connection error')
+
+        response = getAPI('documentogasto', {'fecha_desde': '2023-01-18', 'fecha_hasta': '2023-01-18'})
+
+        if response and response.status_code == 200:
+            datos = response.json()['results']
+
+        return datos
