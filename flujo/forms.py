@@ -5,9 +5,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, HTML
 from django import forms
 from django.template.loader import get_template
+from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 
 from app_index.widgets import MyCustomDateRangeWidget
+from cruds_adminlte3.utils import crud_url_name
 from flujo.models import *
 
 
@@ -143,6 +145,13 @@ class DocumentoFormFilter(forms.Form):
         super(DocumentoFormFilter, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.fields['departamento'].label = False
+        self.fields['departamento'].widget.attrs.update({
+            'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            'hx-target': '#main_content_swap',
+            'hx-trigger': 'load, change',
+            'hx-replace-url': 'true',
+            'hx-preserve': 'true',
+        })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
         self.helper.form_tag = False

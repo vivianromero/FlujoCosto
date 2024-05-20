@@ -7,9 +7,6 @@
 {% load crud_tags %}
 {% load render_table from django_tables2 %}
 
-{% if not url_list in request.htmx.current_url_abs_path %}
-    {% include 'app_index/partials/list_table_navbar_partial.html' %}
-{% endif %}
 <div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
     {% include 'adminlte/lib/_messages.html' %}
 </div>
@@ -75,10 +72,6 @@
         })
 
     </script>
-{#    <!-- bootstrap-datetimepicker -->#}
-{#    <script src="{% static 'plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.min.js' %}"></script>#}
-{#    <!-- bootstrap-datepicker-plus -->#}
-{#    <script src="{% static 'bootstrap_datepicker_plus/js/datepicker-widget.js' %}"></script>#}
 </div>
 
 <div id="form_select_filter_div" style="display: flex; align-items: center" hx-swap-oob="true">
@@ -96,20 +89,20 @@
         <div class="col-12">
             <div class="card" style="padding: 0;">
                 <div class="card-header" style="padding: 0;">
-                    <div class="card-body" style="padding: 0;">
-                        {% block paginate_up_both %}
-                            {% if paginate_position == 'Up' or paginate_position == 'Both' %}
-                                {% include paginate_template %}
-                            {% endif %}
-                        {% endblock paginate_up_both %}
-                        {% block datatable %}
-                            <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
-                                {% render_table table %}
-                            </div>
-                        {% endblock datatable %}
-                    </div>
-                    <div class="card-footer"></div>
                 </div>
+                <div class="card-body" style="padding: 0;">
+                    {% block paginate_up_both %}
+                    {% endblock paginate_up_both %}
+                    {% block table_navbar %}
+                        {% include 'app_index/cruds/list_table_navbar.html' %}
+                    {% endblock table_navbar %}
+                    {% block datatable %}
+                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                            {% render_table table %}
+                        </div>
+                    {% endblock datatable %}
+                </div>
+                <div class="card-footer"></div>
             </div>
         </div>
     </div>

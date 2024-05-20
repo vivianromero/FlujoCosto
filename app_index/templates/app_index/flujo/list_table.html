@@ -35,9 +35,10 @@
 {#                                                    {% else %}#}
 {#                                                        {{ departamento_documentos_form|crispy }}#}
 {#                                                    {% endif %}#}
-                                                       <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
+                                                       <form class="form-inlineform col-md-12 mb-0" method="get" role="form">
                                                             {% csrf_token %}
                                                             <div class="input-group input-group-sm">
+{#                                                                {{ form.departamento }}#}
                                                                 {{ form.departamento|as_crispy_field }}
                                                             </div>
                                                         </form> 

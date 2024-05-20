@@ -22,7 +22,6 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ NormaConsumo / Table ------
 class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_normasconsumo_template.html',
         verbose_name=_('Actions'),
@@ -74,8 +73,6 @@ class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions
         orderable=False,
         attrs=attrs_center_center
     )
-
-    column_excluded = ['Tipo', ]
 
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = NormaConsumoGrouped
@@ -273,6 +270,7 @@ class ConfCentrosElementosOtrosDetalleTable(CommonColumnShiftTableBootstrap4Resp
             'valor',
         )
 
+
 # ------ ProductsCapasClaPesadas / Table ------
 class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -287,6 +285,7 @@ class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveAct
         )
 
     actions = None
+
 
 class ConfCentrosElementosOtrosDetalleGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     actions = tables.TemplateColumn(
@@ -304,6 +303,7 @@ class ConfCentrosElementosOtrosDetalleGroupedTable(CommonColumnShiftTableBootstr
             'Clave',
             'Elementos',
         )
+
 
 # ------ TipoDocumento / Table ------
 class TipoDocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):

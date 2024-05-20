@@ -12,28 +12,25 @@
 {% block content %}
     <section class="content">
         <div class="container-fluid">
-        {% block table_navbar %}
-            {% include 'app_index/cruds/list_table_navbar.html' %}
-        {% endblock table_navbar %}
             <div id="main_content_swap">
                 <div class="row">
                     <div class="col-12">
                         <div class="card" style="padding: 0;">
                             <div class="card-header" style="padding: 0;">
-                                <div class="card-body" style="padding: 0;">
-                                    {% block paginate_up_both %}
-                                        {% if paginate_position == 'Up' or paginate_position == 'Both' %}
-                                            {% include paginate_template %}
-                                        {% endif %}
-                                    {% endblock paginate_up_both %}
-                                    {% block datatable %}
-                                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
-                                            {% render_table table %}
-                                        </div>
-                                    {% endblock datatable %}
-                                </div>
-                                <div class="card-footer"></div>
                             </div>
+                            <div class="card-body" style="padding: 0;">
+                                {% block paginate_up_both %}
+                                {% endblock paginate_up_both %}
+                                {% block table_navbar %}
+                                    {% include 'app_index/cruds/list_table_navbar.html' %}
+                                {% endblock table_navbar %}
+                                {% block datatable %}
+                                    <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                        {% render_table table %}
+                                    </div>
+                                {% endblock datatable %}
+                            </div>
+                            <div class="card-footer"></div>
                         </div>
                     </div>
                 </div>
