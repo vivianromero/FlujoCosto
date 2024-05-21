@@ -244,7 +244,7 @@ class DocumentoOrigenVersat(models.Model):
 class DocumentoVersatRechazado(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     documentoversat = models.IntegerField()
-    fecha_doc_versat = models.DateField()
+    fecha_documentoversat = models.DateField()
     fecha_rechazo = models.DateTimeField(db_default=Now())
     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
 

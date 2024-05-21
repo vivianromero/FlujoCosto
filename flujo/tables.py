@@ -3,6 +3,7 @@ from flujo.models import Documento
 from app_versat.inventario import InvDocumento, InvDocumentogasto
 from codificadores.models import CentroCosto
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 
 
@@ -34,3 +35,12 @@ class DocumentosVersatTable(tables.Table):
     iddocumento_fecha = tables.Column(verbose_name='Fecha')
     iddocumento_numero = tables.Column(verbose_name='Número')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
+    # actions = tables.TemplateColumn(
+    #     template_name='cruds/actions/hx_actions_documentosversat_template.html',
+    #     verbose_name=_('Actions'),
+    #     exclude_from_export=True,
+    #     orderable=False,
+    #     attrs={ "th": {'style': 'text-align: center;'},
+    #             "td": {'style': 'text-align: center;'},
+    #           }
+    # )
