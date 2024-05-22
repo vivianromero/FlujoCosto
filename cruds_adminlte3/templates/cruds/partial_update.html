@@ -3,8 +3,9 @@
 {% load i18n %}
 {% load crud_tags %}
 
-{#<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"#}
-{#     style="padding-bottom: 0; padding-top: 0; height: 35px; display: none" hx-swap-oob="true"></nav>#}
+<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
+    {% include 'adminlte/lib/_messages.html' %}
+</div>
 
 <div id="main_content_swap">
     <div class="row" style="padding: 0;">
@@ -87,23 +88,31 @@
                                         data-replace-inner="#{{inline.name}}_editList"
                                         data-ajax="" data-success="function(){}"
                                         style="margin-top: 0px; margin-bottom: 5px;">
-                                        {% trans 'Create1' %}
+                                        Adicionar
                                     </button>
                                     {% endif %}
                                     {% if 'list' in inline.views_available %}
-                                    <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">
-
-                                        <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"
-                                            data-ajax="" data-success="function(){}"
-                                            data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">
-                                            <i class='fa fa-spinner fa-spin '></i>
-                                        </a>
-                                        <script>
-                                        $( document ).ready(function() {$("#{{inline.name}}_btn").click() });
-                                        </script>
-                                    </div>
+{#                                    <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">#}
+{##}
+{#                                        <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"#}
+{#                                            data-ajax="" data-success="function(){}"#}
+{#                                            data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">#}
+{#                                            <i class='fa fa-spinner fa-spin '></i>#}
+{#                                        </a>#}
+{#                                        <script>#}
+{#                                        $( document ).ready(function() {$("#{{inline.name}}_btn").click() });#}
+{#                                        </script>#}
+{#                                    </div>#}
+                                        {% block table_navbar %}
+                                            {% include 'app_index/cruds/list_table_navbar.html' %}
+                                        {% endblock table_navbar %}
+                                        {% block datatable %}
+                                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                            {% render_table table %}
+                                        </div>
+                                        {% endblock datatable %}
                                     {% endif %}
-                                    <div id="{{inline.name}}_editList"></div>
+{#                                    <div id="{{inline.name}}_editList"></div>#}
 
                                 </div>
                             </div>

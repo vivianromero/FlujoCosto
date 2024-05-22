@@ -6,7 +6,6 @@ import django_tables2 as tables
 from django.utils.translation import gettext as _
 
 
-
 # ------ Documento / Table ------
 class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -27,11 +26,12 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'ueb',
         )
 
+
 # ------ Documentos Versat / Table ------
 class DocumentosVersatTable(tables.Table):
     iddocumento = tables.Column(verbose_name='Id',
-        visible=True,
-        orderable=True)
+                                visible=True,
+                                orderable=True)
     iddocumento_fecha = tables.Column(verbose_name='Fecha')
     iddocumento_numero = tables.Column(verbose_name='Número')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')

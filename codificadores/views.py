@@ -14,6 +14,7 @@ from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from exportar.views import crear_export_datos_table
 from utiles.utils import message_error
 from . import ChoiceTiposProd
@@ -101,6 +102,35 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
     table_class = NormaConsumoDetalleTable
 
 
+# ------ NormaConsumoDetalle / HtmxCRUD ------
+class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
+    model = NormaconsumoDetalle
+    base_model = NormaConsumo
+    namespace = 'app_index:codificadores'
+    inline_field = 'normaconsumo'
+    add_form = NormaConsumoDetalleForm
+    update_form = NormaConsumoDetalleForm
+    list_fields = [
+        'norma_ramal',
+        'norma_empresarial',
+        'operativo',
+        'producto',
+        'medida',
+    ]
+
+    views_available = [
+        'list',
+        'list_detail',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
+    title = "Detalles de normas de consumo"
+    table_class = NormaConsumoDetalleTable
+
+
 # ------ NormaConsumo / CRUD ------
 class NormaConsumoCRUD(CommonCRUDView):
     model = NormaConsumo
@@ -149,7 +179,9 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    inlines = [NormaConsumoDetalleAjaxCRUD]
+    # inlines = [NormaConsumoDetalleAjaxCRUD]
+
+    inlines = [NormaConsumoDetalleHtmxCRUD]
 
     inline_tables = [NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())]
 
@@ -262,9 +294,10 @@ class NormaConsumoCRUD(CommonCRUDView):
                 ctx = super().get_context_data()
                 if 'pk' in self.kwargs:
                     inline_object_list = NormaconsumoDetalle.objects.filter(normaconsumo__id=self.kwargs['pk'])
+                    table = self.inlines[0].table_class(inline_object_list)
                 else:
-                    inline_object_list = NormaconsumoDetalle.objects.all()
-                table = self.inlines[0].table_class(inline_object_list)
+                    inline_object_list = None
+                    table = None
                 self.inlines[0].table = table
                 ctx.update({
                     'inline_tables': [table],
