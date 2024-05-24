@@ -123,8 +123,8 @@ class DocumentoCRUD(CommonCRUDView):
                             self.dep = depxs[1]
                         elif depxs[0] == 'fecha':
                             fechas = depxs[1].strip().split('-')
-                            fechas[0].replace('%20', '').replace('%2F', '/')
-                            fechas[1].replace('%20', '').replace('%2F', '/')
+                            fechas[0] = fechas[0].replace('%20', '').replace('%2F', '/')
+                            fechas[1] = fechas[1].replace('%20', '').replace('%2F', '/')
                             queryset = queryset.filter(
                                 fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
                                 fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
