@@ -165,6 +165,8 @@ class CommonCRUDView(CRUDView):
     paginate_by = 10
     exclude_columns = ("actions",)
 
+    modal = False
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -229,10 +231,17 @@ class CommonCRUDView(CRUDView):
         class OEditView(view):
 
             def get_template_names(self):
+                template = 'update.html'
+                template_partial = 'partial_update.html'
+
                 if self.request.htmx:
-                    template_name = "cruds/partial_update.html"
+                    template_name = "%s/%s" % (
+                        self.partial_template_name_base, template_partial
+                    )
                 else:
-                    template_name = "cruds/update.html"
+                    template_name = "%s/%s" % (
+                        self.template_name_base, template
+                    )
 
                 return template_name
 
@@ -246,6 +255,16 @@ class CommonCRUDView(CRUDView):
                 )
                 return form_kwargs
 
+            def get_context_data(self):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Formaulario Modal',
+                    'max_width': '950px',
+                    'hx_target': '#main_content_swap',
+                    'hx-swap': 'outerHTML',
+                })
+                return ctx
+
         return OEditView
 
     def get_create_view(self):
@@ -254,10 +273,17 @@ class CommonCRUDView(CRUDView):
         class OCreateView(view):
 
             def get_template_names(self):
+                template = 'create.html'
+                template_partial = 'partial_create.html'
+
                 if self.request.htmx:
-                    template_name = "cruds/partial_create.html"
+                    template_name = "%s/%s" % (
+                        self.partial_template_name_base, template_partial
+                    )
                 else:
-                    template_name = "app_index/cruds/create.html"
+                    template_name = "%s/%s" % (
+                        self.template_name_base, template
+                    )
 
                 return template_name
 
@@ -269,6 +295,15 @@ class CommonCRUDView(CRUDView):
                     }
                 )
                 return form_kwargs
+
+            def get_context_data(self):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Formaulario Modal',
+                    'max_width': '950px',
+                    'hx_target': '#main_content_swap',
+                })
+                return ctx
 
         return OCreateView
 

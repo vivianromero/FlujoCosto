@@ -73,13 +73,13 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
                 'Ayer': (
                     (start_date - one_day).strftime(formating), (start_date - one_day).strftime(formating)),
                 'Esta semana': ((start_date - timedelta(days=start_date.weekday())).strftime(formating),
-                                 start_date.strftime(formating)),
+                                start_date.strftime(formating)),
                 'Última semana': ((start_date - timedelta(days=start_date.weekday() + 7)).strftime(formating),
-                                 (start_date - timedelta(days=start_date.weekday() + 1)).strftime(formating)),
+                                  (start_date - timedelta(days=start_date.weekday() + 1)).strftime(formating)),
                 'Semana atrás': ((start_date - timedelta(days=7)).strftime(formating), start_date.strftime(formating)),
                 'Este mes': ((start_date.replace(day=1)).strftime(formating), start_date.strftime(formating)),
                 'Últim mes': ((add_month(start_date.replace(day=1), -1)).strftime(formating),
-                                  (start_date.replace(day=1) - one_day).strftime(formating)),
+                              (start_date.replace(day=1) - one_day).strftime(formating)),
                 '3 meses atrás': ((add_month(start_date, -3)).strftime(formating), start_date.strftime(formating)),
                 'Año atrás': ((add_month(start_date, -12)).strftime(formating), start_date.strftime(formating)),
                 'Este año': (

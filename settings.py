@@ -121,7 +121,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django_session_timeout.middleware.SessionTimeoutMiddleware',
+    # 'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,6 +130,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'django_auto_logout.middleware.auto_logout',
     'app_auth.usuarios.middleware.OneSessionPerUserMiddleware',
     'app_auth.usuarios.middleware.PasswordExpireMiddleware',
     'app_versat.middleware.DatabaseConectionMiddleware',
@@ -191,6 +192,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'django_auto_logout.context_processors.auto_logout_client',
             ],
         },
     },
@@ -230,7 +232,7 @@ DATABASES = {
         'PASSWORD': 'flujo_costo.123*-',
         'HOST': '172.17.0.3',
         'PORT': '5432',
-        }
+    }
     # ,
     # 'app_versat': {
     #                 'ENGINE': 'mssql',
@@ -337,15 +339,22 @@ BOOTSTRAP_DATEPICKER_PLUS = {
 
 # Session expiration
 # SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS')) TODO esto se habilita cuando funcione el environ
-SESSION_EXPIRE_SECONDS = 600
+# SESSION_EXPIRE_SECONDS = 600
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
 
 LOGOUT_REDIRECT_URL = reverse_lazy('app_index:usuario:login')
 
-SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
+# SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
 
-SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+# SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+AUTO_LOGOUT = {
+    'IDLE_TIME': timedelta(minutes=30),
+    # 'SESSION_TIME': timedelta(minutes=30),
+    'MESSAGE': 'La sessióh ha expirado. Por favor introduzca nuevamente sus credenciales para continuar.',
+    'REDIRECT_TO_LOGIN_IMMEDIATELY': True,
+}
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

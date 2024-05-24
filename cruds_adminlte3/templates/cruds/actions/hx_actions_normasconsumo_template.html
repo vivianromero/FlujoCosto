@@ -17,9 +17,9 @@
 {% if nurl and 'update' in views_available and crud_perms.update and not record.confirmada %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
+       hx-target="#dialog"
        hx-swap="outerHTML"
-       hx-replace-url="true"
+{#       hx-replace-url="true"#}
        href="{% url nurl record.pk %}"
        title="{% trans 'Edit' %}">
         <i class="fa-1x fa fa-edit"
