@@ -2,7 +2,7 @@ from datetime import date
 
 from crispy_forms.bootstrap import TabHolder, Tab, FormActions, AppendedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML
+from crispy_forms.layout import Layout, Row, Column, HTML, Field
 from django import forms
 from django.template.loader import get_template
 from django.urls import reverse_lazy
@@ -150,6 +150,18 @@ class DocumentoFormFilter(forms.Form):
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
         })
+        self.fields['fecha'].label = False
+        self.fields['fecha'].widget.attrs.update({
+            'class': 'class="form-control',
+            'style': 'height: auto; padding: 0;',
+            'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            'hx-target': '#main_content_swap',
+            'hx-trigger': 'change',
+            'hx-replace-url': 'true',
+            'hx-preserve': 'true',
+            # 'onchange': "htmx.trigger($(this) 'change')",
+            # 'onclick': "console.log($(this))"
+        })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
@@ -167,7 +179,7 @@ class DocumentoFormFilter(forms.Form):
                         ),
                     ),
                     Row(
-                        Column('fecha', css_class='form-group col-md-3 mb-0'),
+                        Column('fecha', css_class='col-md-3 mb-0'),
                         Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
                         Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                         Column('suma_importe', css_class='form-group col-md-3 mb-0'),
@@ -179,7 +191,7 @@ class DocumentoFormFilter(forms.Form):
                         Column('departamento', css_class='form-group col-md-12 mb-0', ),
                         Column('tipodocumento', css_class='form-group col-md-5 mb-0'),
                         Column('ueb', css_class='form-group col-md-5 mb-0'),
-                        css_class='form-row'
+                        # css_class='form-row'
                     ),
                 ),
 

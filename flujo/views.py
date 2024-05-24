@@ -1,3 +1,5 @@
+from django.shortcuts import render
+from datetime import datetime
 from django.db.models import F
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -12,6 +14,16 @@ from flujo.forms import DocumentoForm
 from flujo.models import Documento
 from flujo.tables import DocumentoTable, DocumentosVersatTable
 from utiles.utils import message_error
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import redirect
+from cruds_adminlte3.utils import crud_url_name
+from django.db import connections
+from django.conf import settings
+import datetime
+from .forms import DepartamentoDocumentosForm
+from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
+from app_apiversat.functionapi import getAPI
+
 from .models import *
 from .utils import ids_documentos_versat_procesados
 
@@ -75,7 +87,9 @@ class DocumentoCRUD(CommonCRUDView):
                     tableversat = DocumentosVersatTable(datostableversat)
 
                 context.update({
-                    'filter': True,
+                    'filter': False,
+                    'select_period': True,
+                    'period_form': DepartamentoDocumentosForm(initial={'departamento': self.dep}),
                     'url_docversat': reverse_lazy(
                         crud_url_name(Documento, 'list', 'app_index:flujo:')) if self.dep else None,
                     'tableversat': tableversat if tableversat else None,
@@ -86,16 +100,35 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_queryset(self):
                 queryset = super().get_queryset()
+                formating = '%d/%m/%Y'
                 self.dep = self.request.GET.get('departamento', None)
+                fecha = self.request.GET.get('fecha', None)
+                if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                else:
+                    depx = []
                 if self.dep is not None:
                     queryset = queryset.filter(departamento=self.dep)
-                elif self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                if fecha is not None:
+                    fechas = fecha.strip().split('-')
+                    queryset = queryset.filter(
+                        fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
+                        fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                    )
+                if self.dep is None or fecha is None:
                     if len(depx) > 0:
                         depxs = depx[0].split('=')
                         if depxs[0] == 'departamento':
                             queryset = queryset.filter(departamento=depxs[1])
                             self.dep = depxs[1]
+                        elif depxs[0] == 'fecha':
+                            fechas = depxs[1].strip().split('-')
+                            fechas[0].replace('%20', '').replace('%2F', '/')
+                            fechas[1].replace('%20', '').replace('%2F', '/')
+                            queryset = queryset.filter(
+                                fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
+                                fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                            )
                 else:
                     queryset = queryset.none()
                 return queryset

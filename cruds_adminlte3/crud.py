@@ -563,6 +563,7 @@ class CRUDView(object):
     update_form = None
     add_form = None
     detail_form = None
+    modal = False
     table_class = None
     table_data = None
     col_vis = []
@@ -647,6 +648,7 @@ class CRUDView(object):
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
             success_message = _('Data creation was successful')
 
             def form_valid(self, form):
@@ -667,6 +669,13 @@ class CRUDView(object):
                 if self.getparams:  # fixed filter create action
                     url += '?' + self.getparams
                 return url
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal': self.modal
+                })
+                return ctx
 
         return OCreateView
 
@@ -694,6 +703,7 @@ class CRUDView(object):
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
 
             def get_success_url(self):
                 url = super(ODetailView, self).get_success_url()
@@ -702,8 +712,11 @@ class CRUDView(object):
                 return url
 
             def get_context_data(self, **kwargs):
-                ctx = super().get_context_data()
-                ctx['form'] = self.form_class()
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'form': self.form_class(),
+                    'modal': self.modal,
+                })
                 return ctx
 
         return ODetailView
@@ -730,6 +743,7 @@ class CRUDView(object):
             partial_template_name_base = self.partial_template_name_base
             perms = self.perms['update']
             form_class = self.update_form
+            modal = self.modal
             all_perms = self.perms
             view_type = 'update'
             inlines = self.inlines
@@ -758,6 +772,13 @@ class CRUDView(object):
                 if (self.getparams):  # fixed filter edit action
                     url += '?' + self.getparams
                 return url
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal': self.modal
+                })
+                return ctx
 
         return OEditView
 
@@ -801,6 +822,7 @@ class CRUDView(object):
             dynamic_filters = self.dynamic_filters
             queryset = self.queryset
             env = self.env
+            modal = self.modal
 
             def get_listfilter_queryset(self, queryset):
                 if self.list_filter:
@@ -848,19 +870,12 @@ class CRUDView(object):
                 queryset = self.get_listfilter_queryset(queryset)
                 return queryset
 
-            # def get_context_data(self, *, object_list=None, **kwargs):
-            #     context = super(OListView, self).get_context_data(**kwargs)
-            #
-            #     fields_order = []
-            #     context['filter'] = None
-            #     if 'fields' in context:
-            #         keys = list(context['fields'])
-            #         for key in keys:
-            #             fields_order.append(key)
-            #         context['fields_order'] = fields_order
-            #     else:
-            #         context['fields_order'] = None
-            #     return context
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'modal': self.modal
+                })
+                return context
 
         return OListView
 
@@ -906,6 +921,7 @@ class CRUDView(object):
             queryset = self.queryset
             env = self.env
             col_vis = self.col_vis
+            modal = self.modal
 
             if self.filterset_class is None:
                 filterset_class = get_filter_fields(
@@ -987,6 +1003,7 @@ class CRUDView(object):
                     on_ends=self.page_elide_range_on_ends
                 )
                 context['page_range'] = page_range
+                context['modal'] = self.modal
 
                 fields_order = []
                 if 'filter' in context:
@@ -1062,6 +1079,7 @@ class CRUDView(object):
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
             success_message = _('The data was successfully deleted')
 
             def get_success_url(self):
@@ -1070,6 +1088,13 @@ class CRUDView(object):
                 if (self.getparams):  # fixed filter delete action
                     url += '?' + self.getparams
                 return url
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal': self.modal
+                })
+                return ctx
 
             # Esta redefinición de los métodos 'get' y 'post, para eliminar, obedece al uso de sweetalert2,
             # si no se va a usar, eliminar estas funciones

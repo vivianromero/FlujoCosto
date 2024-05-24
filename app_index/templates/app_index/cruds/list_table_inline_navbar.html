@@ -38,23 +38,6 @@
     {% endif %}
 {% endpartialdef %}
 
-{% partialdef form_select_period %}
-    {% if request.user.is_operflujo and select_period %} {# si tiene permiso#}
-        {% if object_list %}
-        	<div style="align-items: center; font-size: x-large;">&nbsp&#9474&nbsp</div>
-        {% endif %}
-        <div class="my-auto" style="align-items: center">Período: </div>
-        <div id="form_select_period_div" style="display: flex; align-items: center">
-            <div class="my-auto">
-                <form class="form-inlineform-group form-control-sm col-md-12 mb-0" method="get" role="form">
-                    {% csrf_token %}
-                        {{ form.fecha|as_crispy_field }}
-                </form>
-            </div>
-        </div>
-    {% endif %}
-{% endpartialdef %}
-
 {% partialdef act_versat_link_url_partial %}
     {% if request.user.is_adminempresa and url_apiversat %} {# si tiene permiso#}
         <div id="act_versat_link_url_div" style="display: flex; align-items: center">
@@ -65,7 +48,6 @@
                    class="nav-link"
                    {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
                    {% if hx_target %}hx-target="{{ hx_target }}"{% endif %}
-                   {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}
             {#               hx-get="{{ url }}{{ getparams }}"#}
             {#               hx-trigger="click"#}
             {#               hx-target="#main_content_swap"#}
@@ -126,19 +108,20 @@
     <ul class="navbar-nav">
         {% block left_table_navbar_links_change_menu %}
             <div id="form_length_change_div" style="display: flex; align-items: center">
-                {% if object_list %}
-                    {% crud_url object "list" namespace as url %}
-                    {% if url and 'list' in views_available and crud_perms.list %}
+                {% if inline.object_list %}
+                    {% crud_inline_url form.instance inline.model 'list' namespace as url %}
+                    {% if url and 'list' in inline.views_available and crud_perms.list %}
                         <div class="my-auto">
                             <form id="form_length_change" class="form-inline" method="GET">
                                 <span style="padding-right: 5px">{% trans 'Show' %}</span>
                                 <select name='length_change' id='length_change' style="height: fit-content;"
-                                    hx-get="{{ url_list }}{{getparams}}"
+                                    hx-get="{{ inline_url_edit }}{{getparams}}"
                                     hx-trigger="change"
                                     hx-target="#main_content_swap"
                                     hx-swap="outerHTML"
+                                    hx-preserve="true"    
                                 >
-                                    {% for option in page_length_menu %}
+                                    {% for option in inline.page_length_menu %}
                                         <option value="{{ option|stringformat:"i" }}" {% if option == paginator.per_page %} selected{% endif %}>{{ option }}</option>
                                     {% endfor %}
                                 </select>
@@ -153,7 +136,6 @@
             {% if object_list %}
                 {% partial form_select_filter %}
             {% endif %}
-            {% partial form_select_period %}
         {% endblock left_table_navbar_links_other %}
         {% block left_table_navbar_links_back_button %}
             {% partial back_button %}
@@ -168,24 +150,24 @@
         {% partial act_versat_link_url_partial %}
     {% endblock list_act_versat_table_main_header %}
     <div id="create_link_url_div" style="display: flex; align-items: center">
-        {% if url_create %}
+{#        {% if url_create %}#}
             {% block list_create_table_main_header %}
-                {% crud_url object "create" namespace as url %}
-                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+                {% crud_inline_url form.instance inline.model 'create' namespace as url %}
+                {% if url and 'create' in inline.views_available %}
                     <a id="id_create_url"
                        href="{{ url }}{{ getparams }}"
                        class="nav-link"
                        hx-get="{{ url }}{{ getparams }}"
                        hx-trigger="click"
-                       hx-target="#dialog"
+                       hx-target="#main_content_swap"
                        hx-swap="outerHTML"
-{#                       hx-replace-url="true"#}
+                       hx-replace-url="true"
                        role="button">
                         <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
                     </a>
                 {% endif %}
             {% endblock list_create_table_main_header %}
-        {% endif %}
+{#        {% endif %}#}
     </div>
     {% block list_export_table_main_header %}
         {# aquí se debe poner el link de exportar#}

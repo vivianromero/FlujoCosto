@@ -11,6 +11,7 @@
                 {% else %}
                     $(this).val(picker.startDate.format('{{ widget.picker.options.python.locale.format }}') + '{{ widget.picker.separator }}' + picker.endDate.format('{{ widget.picker.options.python.locale.format }}'));
                 {% endif %}
+                htmx.trigger('#{{ widget.attrs.id }}', 'change')
 
             });
 

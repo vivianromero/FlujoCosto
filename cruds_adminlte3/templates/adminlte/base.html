@@ -108,7 +108,7 @@
 {% sweetify %}
 {% block modal_dialogs_forms %}
     <div id="modal" class="modal fade" tabindex="-1" role="dialog">
-        <div id="dialog" class="modal-dialog" role="document"></div>
+        <div id="dialog" class="modal-dialog modal-dialog-centered" style="max-width: {{ max_width }}" role="document"></div>
     </div>
     <div class="modal in" id="delete_modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" style="max-width: 800px" role="document">
@@ -123,6 +123,7 @@
       </div>
     </div>
 {% endblock modal_dialogs_forms %}
+{{ redirect_to_login_immediately }}
 <script type="text/javascript">
     ; (function () {
       const modal = new bootstrap.Modal(document.getElementById("modal"))
@@ -130,7 +131,7 @@
       htmx.on("htmx:afterSwap", (e) => {
         // Response targeting #dialog => show the modal
         if (e.detail.target.id === "dialog") {
-          modal.show()
+            modal.show()
         } else {
             modal.hide()
         }

@@ -1,4 +1,4 @@
-{#{% extends 'app_index/cruds/base.html' %}#}
+{% load crud_tags %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 {% load adminlte_helpers %}
@@ -6,34 +6,139 @@
 {% load i18n %}
 {% load l10n %}
 
-<form id="id_form_modal" hx-post="{{ request.path }}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}' class="modal-content">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title">Obtener Datos</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-        <div class="modal-body">
-            {% if form.helper %}
-                {% crispy form %}
-            {% else %}
-                {{ form|crispy }}
+<div id="dialog" class="modal-dialog modal-dialog-centered" style="max-width: {{ max_width }}" role="document">
+    <form 
+            id="id_form_modal" 
+            hx-post="{{ request.path }}" 
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+            {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} 
+            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %} 
+            hx-target="{{ hx_target }}"
+            class="modal-content" 
+            style="max-width: {{ max_width }}"
+            action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}"
+            method="POST" 
+            enctype="multipart/form-data"
+    >
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">{{  modal_form_title }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if form.helper %}
+                    {% crispy form %}
+                {% else %}
+                    {{ form|crispy }}
+                {% endif %}
+            </div>
+            {% if inlines %}
+                <div class="card-body row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                        {% for inline in inlines%}
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{{inline.title}}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="{{inline.name}}_father">
+                                {% if 'create' in inline.views_available %}
+                                    <button class="btn btn-success"
+                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
+                
+                                        id="#{{ name }}_{{ object.pk }}_add"
+                                        data-replace-inner="#edit_modal_inner"
+                
+                
+                                        data-replace-inner="#{{inline.name}}_editList"
+                                        data-ajax="" data-success="function(){}"
+                                        style="margin-top: 0px; margin-bottom: 5px;">
+                                        Adicionar
+                                    </button>
+                                {% endif %}
+                                {% if 'list' in inline.views_available %}
+                                    <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">
+                
+                                        <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"
+                                            data-ajax="" data-success="function(){}"
+                                            data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">
+                                            <i class='fa fa-spinner fa-spin '></i>
+                                        </a>
+                                        <script>
+                                        $( document ).ready(function() {$("#{{inline.name}}_btn").click() });
+                                        </script>
+                                    </div>
+                                {% endif %}
+                                <div id="{{inline.name}}_editList"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Aceptar</button>
-        </div>
-    </div>
+            <div class="modal-footer">
+                {% if form_view %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                {% else %}    
+                    {% include "cruds/actions/hx_common_form_actions.html"%}
+                {% endif %}
+            </div>
+            </div>
+        
+    </form>
+</div>
     
-</form>
-
+<style>
+    .custom-control-input {
+        z-index: 1;
+    }
+</style>
 <script>
+    window.data = {
+        filterTextClear: '{{ filterTextClear|safe }}',
+        filterPlaceHolder: '{{ filterPlaceHolder|safe }}',
+        moveSelectedLabel: '{{ moveSelectedLabel|safe }}',
+        moveAllLabel: '{{ moveAllLabel|safe }}',
+        removeSelectedLabel: '{{ removeSelectedLabel|safe }}',
+        removeAllLabel: '{{ removeAllLabel|safe }}',
+        infoText1: '{{ infoText1|safe }}',
+        infoText2: '{{ infoText2|safe }}',
+        infoTextFiltered: '{{ infoTextFiltered|safe }}',
+        infoTextEmpty: '{{ infoTextEmpty|safe }}',
+        today: '{{ today|safe }}',
+        clear: '{{ clear|safe }}',
+        close: '{{ close|safe }}',
+        selectMonth: '{{ selectMonth|safe }}',
+        prevMonth: '{{ prevMonth|safe }}',
+        nextMonth: '{{ nextMonth|safe }}',
+        selectYear: '{{ selectYear|safe }}',
+        prevYear: '{{ prevYear|safe }}',
+        nextYear: '{{ nextYear|safe }}',
+        selectDecade: '{{ selectDecade|safe }}',
+        prevDecade: '{{ prevDecade|safe }}',
+        nextDecade: '{{ nextDecade|safe }}',
+        prevCentury: '{{ prevCentury|safe }}',
+        nextCentury: '{{ nextCentury|safe }}',
+        pickHour: '{{ pickHour|safe }}',
+        incrementHour: '{{ incrementHour|safe }}',
+        decrementHour: '{{ decrementHour|safe }}',
+        pickMinute: '{{ pickMinute|safe }}',
+        incrementMinute: '{{ incrementMinute|safe }}',
+        decrementMinute: '{{ decrementMinute|safe }}',
+        pickSecond: '{{ pickSecond|safe }}',
+        incrementSecond: '{{ incrementSecond|safe }}',
+        decrementSecond: '{{ decrementSecond|safe }}',
+        togglePeriod: '{{ togglePeriod|safe }}',
+        selectTime: '{{ selectTime|safe }}'
+    }
     function getContainer(){
         return document.querySelector('#id_form_modal');
     }     
-    
+
     //let container = document.querySelector('#id_form_modal'); // <----- Fill in your div container here and its done
 
     function getFocusable(context = 'document') {

@@ -625,7 +625,7 @@ class ProductoFlujoForm(forms.ModelForm):
             kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
         super(ProductoFlujoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_id = 'id_productoflujo_Form'
+        self.helper.form_id = 'id_productoflujo_add_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
@@ -713,7 +713,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
         super(ProductoFlujoUpdateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_id = 'id_productoflujo_Form'
+        self.helper.form_id = 'id_productoflujo_update_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
@@ -1435,32 +1435,6 @@ class NormaConsumoForm(forms.ModelForm):
         ]
 
         widgets = {
-            # 'fecha': AdminDateWidget(),
-            # 'fecha': DatePicker(
-            #     options={
-            #         'endDate': date.today().strftime("%d/%m/%Y"),
-            #     },
-            #     attrs={
-            #         'append': 'fa fa-calendar',
-            #         'icon_toggle': True,
-            #     }
-            # ),
-            # 'fecha': DatePickerInput(
-            #     options={
-            #         "format": "DD/MM/YYYY",
-            #         # "locale": "es",
-            #         "showTodayButton": False,
-            #         "maxDate": date.today(),  # Fecha de ocurrencia no puede ser mayor que la fecha actual
-            #     },
-            # ),
-            # 'fecha': MyCustomDateRangeWidget(
-            #     # format='%d/%m/%Y',
-            #     picker_options={
-            #         # 'format': 'DD/MM/YYYY',
-            #         'singleDatePicker': True,
-            #         'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
-            #     }
-            # ),
             'producto': SelectWidget(
                 attrs={
                     'style': 'width: 100%',
@@ -1499,11 +1473,14 @@ class NormaConsumoForm(forms.ModelForm):
                 Tab(
                     'Norma de Consumo',
                     Row(
-                        Column('fecha', css_class='form-group col-md-2 mb-0'),
+                        Column(
+                            Field('fecha', id='id_fecha_normaconsumo', ),
+                            css_class='form-group col-md-2 mb-0'
+                        ),
                         Column('producto', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-2 mb-0'),
                         Column('cantidad', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
+                        css_class='form-row', css_id='id_fecha_normaconsumo'
                     ),
                 ),
             ),
@@ -1646,14 +1623,14 @@ class NormaConsumoDetalleForm(forms.ModelForm):
             'producto': SelectWidget(
                 attrs={
                     'style': 'width: 100%',
-                    'id':'id_productodetalle',
+                    'id': 'id_productodetalle',
                     "onChange": 'productoMedida()',
                 }
             ),
             'medida': SelectWidget(
                 attrs={
                     'style': 'width: 100%; dislay: block',
-                    'id':'id_medidadetalle',
+                    'id': 'id_medidadetalle',
                 },
             ),
         }
@@ -1698,15 +1675,16 @@ class NormaConsumoDetalleForm(forms.ModelForm):
 
     def clean_norma_ramal(self):  # Validar que que la cantidad>0
         norma_ramal = self.cleaned_data.get('norma_ramal')
-        if float(norma_ramal)<=0:
+        if float(norma_ramal) <= 0:
             raise forms.ValidationError('Debe introducir un valor>0')
         return norma_ramal
 
     def clean_norma_empresarial(self):  # Validar que que la cantidad>0
         norma_empresarial = self.cleaned_data.get('norma_empresarial')
-        if float(norma_empresarial)<=0:
+        if float(norma_empresarial) <= 0:
             raise forms.ValidationError('Debe introducir un valor>0')
         return norma_empresarial
+
 
 class NormaConsumoGroupedFormFilter(forms.Form):
     class Meta:
@@ -2000,7 +1978,7 @@ class ObtenerDatosModalForm(forms.Form):
 
             TabHolder(
                 Tab(
-                    _('Enter Data to Obtain'),
+                    'Introduzca los datos a obtener',
                     Row(
                         Column('valor_inicial', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'

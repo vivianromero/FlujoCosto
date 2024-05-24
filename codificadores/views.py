@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.db.models import Q, ProtectedError
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
@@ -14,6 +14,8 @@ from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
+from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from exportar.views import crear_export_datos_table
 from utiles.utils import message_error
 from . import ChoiceTiposProd
@@ -99,6 +101,63 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
 
     title = "Detalles de normas de consumo"
     table_class = NormaConsumoDetalleTable
+    url_father = None
+
+    def get_create_view(self):
+        create_view = super().get_create_view()
+
+        class CreateView(create_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def form_valid(self, form):
+                self.object = form.save(commit=False)
+                setattr(self.object, self.inline_field, self.model_id)
+                self.object.save()
+                crud_inline_url(self.model_id,
+                                self.object, 'list', self.namespace)
+
+                return HttpResponse(""" """)
+
+        return CreateView
+
+    def get_delete_view(self):
+        delete_view = super().get_delete_view()
+
+        class DeleteView(delete_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return super().get(self, request, *args, **kwargs)
+
+            def get_success_url(self):
+                return "/"
+
+            def post(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id']
+                )
+                if self.model_id:
+                    url_father = reverse_lazy(
+                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'),
+                        args=[self.model.normaconsumo_id]
+                    )
+                else:
+                    url_father = self.get_success_url()
+                response = delete_view.post(self, request, *args, **kwargs)
+                return HttpResponse(" ")
+
+        return DeleteView
+
+
+# ------ NormaConsumoDetalle / HtmxCRUD ------
 
 
 # ------ NormaConsumo / CRUD ------
@@ -149,9 +208,9 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    inlines = [NormaConsumoDetalleAjaxCRUD]
+    # inlines = [NormaConsumoDetalleAjaxCRUD]
 
-    inline_tables = [NormaConsumoDetalleTable(NormaconsumoDetalle.objects.all())]
+    inlines = [NormaConsumoDetalleAjaxCRUD]
 
     inline_actions = False
 
@@ -260,23 +319,33 @@ class NormaConsumoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data()
-                if 'pk' in self.kwargs:
-                    inline_object_list = NormaconsumoDetalle.objects.filter(normaconsumo__id=self.kwargs['pk'])
+                if 'pk' in self.kwargs and self.inlines:
+                    for inline in self.inlines:
+                        mdl = inline.model
+                        base_mdl = inline.base_model
+                        inline_field = inline.inline_field
+                        filter_id = inline.inline_field + '__id'
+                        filter_dict = {filter_id: self.kwargs['pk']}
+                        inline.object_list = inline.model.objects.filter(**filter_dict)
+                        inline.table = inline.table_class(inline.object_list)
                 else:
-                    inline_object_list = NormaconsumoDetalle.objects.all()
-                table = self.inlines[0].table_class(inline_object_list)
-                self.inlines[0].table = table
+                    inline_object_list = None
+                    table = None
                 ctx.update({
-                    'inline_tables': [table],
-                    'table': table,
-                    'inline_object_list': inline_object_list,
-                    'inline_object': NormaconsumoDetalle,
-                    'inline_url_list': reverse_lazy(
-                        crud_url_name(NormaconsumoDetalle, 'list', 'app_index:codificadores:')
+                    # 'inline_tables': [table],
+                    # 'table': table,
+                    # 'inline_object_list': inline_object_list,
+                    # 'inline_object': NormaconsumoDetalle,
+                    'inline_url_edit': reverse_lazy(
+                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:', ),
+                        kwargs={'pk': self.kwargs['pk']}
                     ),
                     "add_button_href": 'app_index:codificadores:obtener_normaconsumodetalle_datos',
                     "add_button_hx_get": reverse_lazy('app_index:codificadores:obtener_normaconsumodetalle_datos'),
                     "add_button_hx_target": '#dialog_form',
+                    "acept_btn_hx_get": self.get_success_url(),
+                    "acept_btn_hx_target": '#main_content_swap',
+                    "acept_btn_hx_swap": 'outerHTML',
                 })
                 return ctx
 
@@ -379,7 +448,7 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
                     datostable = table.data.data
                     idprods = [p['idprod'] for p in datostable]
                     datos = NormaConsumo.objects.select_related().filter(producto__id__in=idprods,
-                                                                 confirmada=True)
+                                                                         confirmada=True)
                     datosdet = []
                     for d in datos:
                         datosdet.append(d.normaconsumodetalle_normaconsumo.all())
@@ -746,6 +815,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
     table_class = ProductoFlujoTable
 
+    modal = True
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -759,6 +830,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
                     "hx_target": '#dialog',
+                    "hx_swap": 'outerHTML',
                     'sistema': 'VERSAT',
                 })
                 return context
@@ -785,6 +857,34 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     return super().get(request=request)
 
         return OFilterListView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            def get_context_data(self):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Productos | Matrias Primas y Materiales',
+                })
+                return ctx
+
+        return OEditView
+
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def get_context_data(self):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Productos | Matrias Primas y Materiales',
+                })
+                return ctx
+
+        return OCreateView
 
 
 # ------ ProductoFlujoCuenta / CRUD ------
@@ -1235,6 +1335,7 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
     env = {
         'confdetalle': ConfCentrosElementosOtrosDetalle
@@ -1301,11 +1402,13 @@ class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
                     table = self.get_table(**self.get_table_kwargs())
                     datos = ConfCentrosElementosOtrosDetalle.objects.all()
                     datos2 = []
-                    return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped, datos, datos2)
+                    return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped,
+                                                    datos, datos2)
                 else:
                     return super().get(request=request)
 
         return OFilterListView
+
 
 # ------ ConfCentrosElementosOtrosDetalle / CRUD ------
 class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
@@ -1340,14 +1443,14 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
     # Table settings
     table_class = ConfCentrosElementosOtrosDetalleTable
 
-
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                return_url = reverse_lazy(crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
+                return_url = reverse_lazy(
+                    crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
                 context.update({
                     'return_url': return_url,
                 })
@@ -1395,6 +1498,15 @@ class ObtenrDatosModalFormView(FormView):
                 'form': form,
             })
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data()
+        ctx.update({
+            'modal_form_title': 'Obtener Datos',
+            'max_width': '500px',
+            'form_view': True,
+        })
+        return ctx
+
 
 class NormaConsumoDetalleModalFormView(FormView):
     template_name = 'app_index/modals/modal_form.html'
@@ -1428,6 +1540,7 @@ class NormaConsumoDetalleModalFormView(FormView):
                 'form': form,
             })
 
+
 def classmatprima(request):
     tipoproducto = request.GET.get('tipoproducto')
     clasemp = request.GET.get('clase')
@@ -1441,6 +1554,7 @@ def classmatprima(request):
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)
+
 
 # ------ TipoDocumento / CRUD ------
 class TipoDocumentoCRUD(CommonCRUDView):
@@ -1484,9 +1598,10 @@ class TipoDocumentoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 def confirm_nc(request, pk):
     obj = NormaConsumo.objects.get(pk=pk)
-    if obj.normaconsumodetalle_normaconsumo.count()>0:
+    if obj.normaconsumodetalle_normaconsumo.count() > 0:
         obj.confirmada = True
         obj.save()
     else:
@@ -1495,7 +1610,10 @@ def confirm_nc(request, pk):
         message_error(request,
                       title + obj.__str__() + '!',
                       text=text)
-    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
+    return redirect(
+        reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')) + "?Producto=" + request.GET[
+            'Producto'])
+
 
 def activar_nc(request, pk):
     with transaction.atomic():
@@ -1504,7 +1622,10 @@ def activar_nc(request, pk):
         objs = NormaConsumo.objects.filter(producto=product).update(activa=False)
         obj.activa = True
         obj.save()
-    return redirect(reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:'))+"?Producto="+request.GET['Producto'])
+    return redirect(
+        reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')) + "?Producto=" + request.GET[
+            'Producto'])
+
 
 def productmedida(request):
     pk_prod = request.GET.get('producto')
@@ -1516,6 +1637,7 @@ def productmedida(request):
         'medida_seleccionada': medida_seleccionada,
     }
     return render(request, 'app_index/partials/productmedida.html', context)
+
 
 def productmedidadetalle(request):
     pk_prod = request.GET.get('idproducto')
