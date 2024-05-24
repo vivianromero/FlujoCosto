@@ -280,7 +280,7 @@ class NormaConsumoCRUD(CommonCRUDView):
                 else:
                     producto = None
                 context.update(self.get_filter_dict())
-                context.update({'producto': producto})
+                context.update({'Producto': producto})
                 return context
 
             def get_queryset(self):

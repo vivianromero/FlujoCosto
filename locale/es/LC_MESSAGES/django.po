@@ -1556,7 +1556,7 @@ msgstr "Error de datos"
 
 #: app_appversat/views.py:64
 msgid "Database connect for Versat Sarasola not define"
-msgstr "La conexión a la base de datos del Versat Sarasola no se está definida"
+msgstr "La conexión a la base de datos del Versat Sarasola no está definida"
 
 #: cruds_adminlte3/crud.py:716
 msgid "Data importation was successful"
@@ -1590,3 +1590,9 @@ msgstr "Motivos de Ajuste"
 #: cruds_adminlte3/menus.py:14
 msgid "Reason for Adjustment"
 msgstr "Motivo de Ajuste"
+
+#: codificadores/middleware.py:472
+#, python-format
+msgctxt "Error conection"
+msgid "Database connect for %s not define"
+msgstr "La conexión a la base de datos al %s no está definida"

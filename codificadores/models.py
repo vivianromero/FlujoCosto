@@ -7,6 +7,7 @@ from django.db.models import Count, F, Value, Case, When
 from django.db.models.functions import Now, Concat
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
+
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -227,13 +228,13 @@ class ProductoFlujoClase(ObjectsManagerAbstract):
         return self.clasemateriaprima.descripcion
 
 
-class ProductoFlujoVitola(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
-    vitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
-
-    class Meta:
-        db_table = 'cla_productoflujovitola'
+# class ProductoFlujoVitola(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
+#     vitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
+#
+#     class Meta:
+#         db_table = 'cla_productoflujovitola'
 
 
 class ProductoFlujoDestino(models.Model):
@@ -425,7 +426,7 @@ class NormaConsumo(ObjectsManagerAbstract):
 
     class Meta:
         db_table = 'cla_normaconsumo'
-        ordering = ['producto__tipoproducto', 'producto__descripcion']
+        ordering = ['producto__tipoproducto', 'producto__descripcion', 'confirmada', '-activa']
 
     def __str__(self):
         return "%s %s | %s" % (
@@ -723,3 +724,84 @@ class ProductsCapasClaPesadas(ProductoFlujo):
     class Meta:
         proxy = True
         ordering = ['tipoproducto', 'descripcion']
+
+#Costos
+# Fichas de costo
+class FichaCostoFilas(ObjectsManagerAbstract):
+    id = models.IntegerField(primary_key=True, editable=False, )
+    fila = models.CharField(max_length=5, unique=True)
+    descripcion = models.CharField(max_length=150)
+    encabezado = models.BooleanField(default=False)
+    salario = models.BooleanField(default=False)
+    desglosado = models.BooleanField(default=False)
+    calculado = models.BooleanField(default=False)
+    sumafilas = models.CharField(max_length=250)
+
+    class Meta:
+        db_table = 'cla_fichacostofilas'
+        ordering = ['fila']
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'fila',
+                    'descripcion',
+                ]
+            ),
+        ]
+
+    def __str__(self):
+        return "%s | %s" % (self.fila, self.descripcion)
+
+class ListadoOficialPrecio(ObjectsManagerAbstract):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    producto = models.ForeignKey(ProductoFlujo, models.CASCADE, related_name='lop_producto',
+                                 verbose_name=_("Product"), unique=True)
+    medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='lop_medida',
+                               verbose_name="U.M")
+    precio = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
+                                   verbose_name=_("Precio"))
+
+    class Meta:
+        db_table = 'cla_listadooficialprecio'
+        ordering = ['producto__tipoproducto', 'producto__descripcion']
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'producto',
+                ]
+            ),
+        ]
+
+    def __str__(self):
+        return "%s | %s  %s" % (
+            self.producto.codigo,
+            self.producto.descripcion,
+            self.precio
+        )
+
+class GrupoEscalaCargo(ObjectsManagerAbstract):
+    id = models.SmallIntegerField(primary_key=True, editable=False, )
+    grupo = models.CharField(unique=True, max_length=10)
+    salario = models.DecimalField(max_digits=10, decimal_places=2, db_comment='Salario',
+                                            verbose_name=_("Salario"),
+                                            validators=[MinValueValidator(0.01, message=_(
+                                                'The value must be greater than 0'))])
+    class Meta:
+        db_table = 'cla_grupoescalacargo'
+
+    def __str__(self):
+        return self.grupo
+
+class ClasificadorCargos(ObjectsManagerAbstract):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    codigo = models.CharField(unique=True, max_length=5)
+    descripcion = models.CharField(unique=True, max_length=160)
+    grupo = models.ForeignKey(GrupoEscalaCargo, on_delete=models.PROTECT, related_name='cargo_grupo',
+                              verbose_name="Grupo Escala")
+    actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
+                               verbose_name=_("Actividad"))
+
+    unidadcontable = models.ManyToManyField(UnidadContable, related_name='cargo_unidadcontable',
+                                            verbose_name="UEB")

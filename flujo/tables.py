@@ -35,6 +35,7 @@ class DocumentosVersatTable(tables.Table):
     iddocumento_fecha = tables.Column(verbose_name='Fecha')
     iddocumento_numero = tables.Column(verbose_name='Número')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
+    iddocumento_detalle = tables.Column(verbose_name='Detalles', visible=False)
     # actions = tables.TemplateColumn(
     #     template_name='cruds/actions/hx_actions_documentosversat_template.html',
     #     verbose_name=_('Actions'),

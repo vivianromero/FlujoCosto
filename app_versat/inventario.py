@@ -1,5 +1,5 @@
 from django.db import models
-from .general import GenUnidadcontable, GenUsuario, GenSubsistema, GenAlmacen
+from .general import GenUnidadcontable, GenUsuario, GenSubsistema, GenAlmacen, GenProducto, GenMedida
 from .contabilidad import ConCuenta, ConCriterio
 from .costo import CosCentro
 
@@ -102,22 +102,22 @@ class InvDocumento(models.Model):
         db_table = 'inv_documento'
 
 
-# class InvMovimiento(models.Model):
-#     idmovimiento = models.AutoField(primary_key=True)
-#     cantidad = models.DecimalField(max_digits=18, decimal_places=4)
-#     importe = models.DecimalField(max_digits=18, decimal_places=2)
-#     existencia = models.DecimalField(max_digits=18, decimal_places=4)
-#     iddocumento = models.ForeignKey(InvDocumento, models.DO_NOTHING, db_column='iddocumento')
-#     idproducto = models.ForeignKey(GenProducto, models.DO_NOTHING, db_column='idproducto')
-#     idmedida = models.ForeignKey(GenMedida, models.DO_NOTHING, db_column='idmedida')
-#     crc = models.BigIntegerField()
-#     precio = models.DecimalField(max_digits=18, decimal_places=7)
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'inv_movimiento'
-#
-#
+class InvMovimiento(models.Model):
+    idmovimiento = models.AutoField(primary_key=True)
+    cantidad = models.DecimalField(max_digits=18, decimal_places=4)
+    importe = models.DecimalField(max_digits=18, decimal_places=2)
+    existencia = models.DecimalField(max_digits=18, decimal_places=4)
+    iddocumento = models.ForeignKey(InvDocumento, models.DO_NOTHING, db_column='iddocumento', related_name='documento_detalle_set')
+    idproducto = models.ForeignKey(GenProducto, models.DO_NOTHING, db_column='idproducto')
+    idmedida = models.ForeignKey(GenMedida, models.DO_NOTHING, db_column='idmedida')
+    crc = models.BigIntegerField()
+    precio = models.DecimalField(max_digits=18, decimal_places=7)
+
+    class Meta:
+        managed = False
+        db_table = 'inv_movimiento'
+
+
 class InvDocumentoalm(models.Model):
     iddocumento = models.OneToOneField(InvDocumento, models.DO_NOTHING, db_column='iddocumento', primary_key=True)
     idalmacen = models.ForeignKey(GenAlmacen, models.DO_NOTHING, db_column='idalmacen')
