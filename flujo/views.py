@@ -24,7 +24,6 @@ from .forms import DepartamentoDocumentosForm
 from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
 from app_apiversat.functionapi import getAPI
 
-
 from .models import *
 from .utils import ids_documentos_versat_procesados
 
@@ -136,8 +135,6 @@ class DocumentoCRUD(CommonCRUDView):
 
         return OFilterListView
 
-
-def dame_documentos_versat(request):
 
 def dame_documentos_versat(request, dpto):
     unidadcontable = request.user.ueb
