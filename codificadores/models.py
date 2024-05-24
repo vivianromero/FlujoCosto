@@ -802,6 +802,9 @@ class ClasificadorCargos(ObjectsManagerAbstract):
                               verbose_name="Grupo Escala")
     actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
                                verbose_name=_("Actividad"))
+    directo = models.BooleanField(default=True, verbose_name=_("Directo"))
+    indirecto_produccion = models.BooleanField(default=True, verbose_name=_("Indirecto Producción"))
+    indirecto = models.BooleanField(default=True, verbose_name=_("Indirecto"))
 
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='cargo_unidadcontable',
                                             verbose_name="UEB")
