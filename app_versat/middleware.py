@@ -1,7 +1,7 @@
 from django.urls import resolve
 from django.shortcuts import redirect
 from django.urls import resolve
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext
 from dynamic_db_router import in_database
 
 from codificadores.models import Medida, MarcaSalida, Cuenta, ProductoFlujo, Vitola
@@ -89,7 +89,8 @@ class DatabaseConectionMiddleware:
 
             except ConexionBaseDato.DoesNotExist:
                 message_error(request=request, title=_("Couldn't connect"),
-                              text=_('Database connect for Versat Sarasola not define'))
+                              # text=_('Database connect for Versat Sarasola not define'))
+                              text=pgettext("Error conection", "Database connect for %s not define") % (sistema))
                 return redirect(crud_url_name(object, 'list', prefix))
             except Exception as e:
                 message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))

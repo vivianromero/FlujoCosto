@@ -50,7 +50,7 @@
 
 {% if activar and record.confirmada and not record.activa and crud_perms.update %}
     {% crud_nurl object "activar" namespace as nurl %}
-        <a id="activar_href" href="{% url nurl pk=record.pk %}"
+        <a id="activar_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="activar_href"
             texto="{{ texto_activar }}"
