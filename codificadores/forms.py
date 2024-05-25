@@ -1480,7 +1480,7 @@ class NormaConsumoForm(forms.ModelForm):
                         Column('producto', css_class='form-group col-md-4 mb-0'),
                         Column('medida', css_class='form-group col-md-2 mb-0'),
                         Column('cantidad', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row', css_id='id_fecha_normaconsumo'
+                        css_class='form-row'
                     ),
                 ),
             ),

@@ -156,7 +156,7 @@ class DocumentoFormFilter(forms.Form):
             'style': 'height: auto; padding: 0;',
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
             'hx-target': '#main_content_swap',
-            'hx-trigger': 'change',
+            'hx-trigger': 'change, from:#div_id_departamento',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
             # 'onchange': "htmx.trigger($(this) 'change')",
