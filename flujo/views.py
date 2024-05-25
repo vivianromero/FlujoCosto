@@ -115,13 +115,14 @@ class DocumentoCRUD(CommonCRUDView):
                         fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
                         fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
                     )
-                if self.dep is None or fecha is None:
-                    if len(depx) > 0:
-                        depxs = depx[0].split('=')
+                if len(depx) > 0:
+                    depxs = depx[0].split('=')
+                    if self.dep is None:
                         if depxs[0] == 'departamento':
                             queryset = queryset.filter(departamento=depxs[1])
                             self.dep = depxs[1]
-                        elif depxs[0] == 'fecha':
+                    elif fecha is None:
+                        if depxs[0] == 'fecha':
                             fechas = depxs[1].strip().split('-')
                             fechas[0] = fechas[0].replace('%20', '').replace('%2F', '/')
                             fechas[1] = fechas[1].replace('%20', '').replace('%2F', '/')

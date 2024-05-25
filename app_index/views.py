@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
+import json
+
 from django.db.models import Sum, Count
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView
 from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
@@ -165,7 +168,7 @@ class CommonCRUDView(CRUDView):
     paginate_by = 10
     exclude_columns = ("actions",)
 
-    modal = False
+    modal = True
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()

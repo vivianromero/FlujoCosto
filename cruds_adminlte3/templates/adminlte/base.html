@@ -132,7 +132,7 @@
         // Response targeting #dialog => show the modal
         if (e.detail.target.id === "dialog") {
             modal.show()
-        } else {
+        } else if (e.detail.target.id === "main_content_swap") {
             modal.hide()
         }
       })

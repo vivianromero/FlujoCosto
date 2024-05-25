@@ -12,8 +12,7 @@
             hx-post="{{ request.path }}" 
             hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
             {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} 
-            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %} 
-            hx-target="{{ hx_target }}"
+            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}
             class="modal-content" 
             style="max-width: {{ max_width }}"
             action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}"
