@@ -1985,7 +1985,6 @@ class ObtenerDatosModalForm(forms.Form):
                     ),
                     Row(
                         Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
-                        Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                 ),
