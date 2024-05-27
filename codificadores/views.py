@@ -1726,7 +1726,6 @@ class ClasificadorCargosCRUD(CommonCRUDView):
                 context = super().get_context_data(**kwargs)
                 context.update({
                     'url_importar': 'app_index:importar:clacargos_importar',
-                    # 'url_exportar': 'app_index:exportar:clacargos_exportar',
                     'filtrar': True,
                     'url_exportar': True,
                 })
@@ -1737,12 +1736,65 @@ class ClasificadorCargosCRUD(CommonCRUDView):
                 if myexport and myexport == 'sisgest':
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
-                    # datos2 = [
-                    #     dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None
-                    #     for dat in datos]
-                    # if None in datos2:
-                    #     datos2.remove(None)
                     return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+# ------ CategoriaVitola / CRUD ------
+class CategoriaVitolaCRUD(CommonCRUDView):
+    model = CategoriaVitola
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'descripcion__icontains',
+        'capas__descripcion__icontains',
+    ]
+
+    add_form = CategoriaVitolaForm
+    update_form = CategoriaVitolaForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    filterset_class = CategoriaVitolaFilter
+
+    # Table settings
+    # table_class = ClasificadorCargosTable
+    table_class = CategoriaVitolaTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:capasvit_importar',
+                    'filtrar': True,
+                    'url_exportar': True,
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    return crear_export_datos_table(request, "CAPA_VIT", CategoriaVitola, datos, None)
                 else:
                     return super().get(request=request)
 

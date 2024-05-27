@@ -32,6 +32,7 @@ DICC_GROUP_PERMISSION = {
                 'vitola': ['view'],
                 'loggedinuser': ['view', 'change', 'delete', 'add'],
                 'clasificadorcargos': ['view'],
+                'categoriavitola': ['view'],
             },
         (1, 5):
             {'userueb': ['view', 'change', 'delete', 'add'],
@@ -62,6 +63,7 @@ DICC_GROUP_PERMISSION = {
                 'productscapasclapesadas': ['change', 'delete', 'add'],
                 'vitola': ['change', 'delete', 'add'],
                 'clasificadorcargos': ['change', 'delete', 'add'],
+                'categoriavitola': ['change'],
             },
         (2,):{
                 'documento': ['change', 'delete', 'add'],

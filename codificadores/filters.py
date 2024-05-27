@@ -938,3 +938,35 @@ class ClasificadorCargosFilter(MyGenericFilter):
                 }
             },
         }
+
+# ------ CategoriaVitola / Filter ------
+class CategoriaVitolaFilter(MyGenericFilter):
+    search_fields = [
+        'descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+    descripcion = django_filters.CharFilter(
+        label='Descripción',
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    class Meta:
+        model = CategoriaVitola
+        fields = [
+            'query',
+            'descripcion',
+            'capas',
+        ]
+
+        form = CategoriaVitolaFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }

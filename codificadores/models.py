@@ -261,6 +261,9 @@ class CategoriaVitola(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceCategoriasVit.CHOICE_CATEGORIAS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
     orden = models.IntegerField(unique=True)
+    capas = models.ManyToManyField(ProductoFlujo, related_name='capas_categvitolas',
+                                            verbose_name="Capas sin clasificar")
+
 
     class Meta:
         db_table = 'cla_categoriavitola'

@@ -334,3 +334,13 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
             'activo',
             'unidadcontable',
         )
+
+# ------ CategoriaVitola / Table ------
+class CategoriaVitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = CategoriaVitola
+
+        fields = (
+            'descripcion',
+            'capas',
+        )

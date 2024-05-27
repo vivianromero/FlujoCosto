@@ -192,6 +192,14 @@ MENUS = {
                                                  'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
+                        {
+                            "id": 'id_nav_link_elementos_capasvitolas',
+                            "name": "Capas sin Clasificar/Vitolas",
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(CategoriaVitola, 'list',
+                                                 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                        },
                     ]
                 },
                 {

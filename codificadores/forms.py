@@ -1325,19 +1325,22 @@ class DepartamentoForm(forms.ModelForm):
         )
 
         self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(label="Relación Departamentos",
-            queryset=Departamento.objects.exclude(id=instance.id) if instance else Departamento.objects.all(),
-            widget=forms.CheckboxSelectMultiple
-        )
+                                                                             queryset=Departamento.objects.exclude(
+                                                                                 id=instance.id) if instance else Departamento.objects.all(),
+                                                                             widget=forms.CheckboxSelectMultiple
+                                                                             )
         queryset_uc = UnidadContable.objects.filter(activo=True)
         self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(label="UEB",
-            queryset=queryset_uc if not instance else (queryset_uc | Departamento.objects.get(
-                pk=instance.pk).unidadcontable.filter(activo=False)).distinct(),
-            widget=forms.CheckboxSelectMultiple
-        )
+                                                                       queryset=queryset_uc if not instance else (
+                                                                               queryset_uc | Departamento.objects.get(
+                                                                           pk=instance.pk).unidadcontable.filter(
+                                                                           activo=False)).distinct(),
+                                                                       widget=forms.CheckboxSelectMultiple
+                                                                       )
         queryset_cc = CentroCosto.objects.filter(activo=True).all()
         self.fields['centrocosto'] = forms.ModelChoiceField(label='Centro de Costo',
-            queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
-                pk=instance.centrocosto.pk, activo=False))
+                                                            queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
+                                                                pk=instance.centrocosto.pk, activo=False))
         self.fields["relaciondepartamento"].required = False
 
     def clean(self):
@@ -2515,10 +2518,12 @@ class TipoDocumentoForm(forms.ModelForm):
             )
         )
 
+
 # ------------- ClasificadorCargos / Form --------------
 class ClasificadorCargosForm(forms.ModelForm):
-    CHOICES = {1: "Directo", 2: "Indirecto Producción", 3:"Indirecto"}
+    CHOICES = {1: "Directo", 2: "Indirecto Producción", 3: "Indirecto"}
     choice_field = forms.ChoiceField(label='Producción', widget=forms.RadioSelect, choices=CHOICES)
+
     class Meta:
         model = ClasificadorCargos
         fields = [
@@ -2529,7 +2534,6 @@ class ClasificadorCargosForm(forms.ModelForm):
             'activo',
             'unidadcontable'
         ]
-
 
         widgets = {
             'grupo': SelectWidget(
@@ -2590,11 +2594,13 @@ class ClasificadorCargosForm(forms.ModelForm):
         )
 
         queryset_uc = UnidadContable.objects.filter(activo=True)
-        query = queryset_uc if not instance else (queryset_uc | ClasificadorCargos.objects.get(pk=instance.pk).unidadcontable.filter(activo=False)).distinct()
+        query = queryset_uc if not instance else (
+                queryset_uc | ClasificadorCargos.objects.get(pk=instance.pk).unidadcontable.filter(
+            activo=False)).distinct()
 
         self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
-            label = "UEB",
-            queryset= query,
+            label="UEB",
+            queryset=query,
             widget=forms.CheckboxSelectMultiple
         )
 
@@ -2614,6 +2620,7 @@ class ClasificadorCargosForm(forms.ModelForm):
             self.instance.indirecto = valor == 3
             instance = super().save(*args, **kwargs)
         return instance
+
 
 class ClasificadorCargosFormFilter(forms.Form):
     unidadcontable = forms.MultipleChoiceField(
@@ -2680,6 +2687,134 @@ class ClasificadorCargosFormFilter(forms.Form):
                         Column('indirecto_produccion', css_class='form-group col-md-3 mb-0'),
                         Column('indirecto', css_class='form-group col-md-3 mb-0'),
                         Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+
+
+# ------------- CategoriaVitola / Form --------------
+class CategoriaVitolaForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaVitola
+        fields = [
+            'descripcion',
+            'capas'
+        ]
+
+        widgets = {
+            'capas': forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(CategoriaVitolaForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_capasvitolas_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["descripcion"].disabled = True
+
+        self.fields["descripcion"].required = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Vitolas - Capas sin Clasificar',
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column(
+                            Field(
+                                'capas',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+        queryset_capas = ProductoFlujo.objects.filter(tipoproducto=ChoiceTiposProd.MATERIAPRIMA,
+                                                      productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPASINCLASIFICAR,
+                                                      activo=True)
+
+        query = queryset_capas if not instance else (
+                queryset_capas | CategoriaVitola.objects.get(pk=instance.pk).capas.filter(
+            activo=False)).distinct()
+        self.fields['capas'] = forms.ModelMultipleChoiceField(
+            label="Capas",
+            queryset=query,
+            widget=forms.CheckboxSelectMultiple
+        )
+
+
+class CategoriaVitolaFormFilter(forms.Form):
+    class Meta:
+        model = CategoriaVitola
+        fields = [
+            'descripcion',
+            'capas',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(CategoriaVitolaFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_capasvitolas_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Cargos',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('capas', css_class='form-group col-md-8 mb-0'),
                         css_class='form-row',
                     ),
                 ),
