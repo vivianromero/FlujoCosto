@@ -377,7 +377,7 @@ class Departamento(ObjectsManagerAbstract):
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
     inicializado = models.BooleanField(default=False)
     centrocosto = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name='departamento_centrocosto',
-                                    verbose_name=_("Cost Center"))
+                                    verbose_name=_("Cost Center"), unique=True)
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                             verbose_name="UEB")
 
@@ -788,11 +788,12 @@ class GrupoEscalaCargo(ObjectsManagerAbstract):
                                             verbose_name=_("Salario"),
                                             validators=[MinValueValidator(0.01, message=_(
                                                 'The value must be greater than 0'))])
+
     class Meta:
         db_table = 'cla_grupoescalacargo'
 
     def __str__(self):
-        return self.grupo
+        return "%s | %s" % (self.grupo, self.salario)
 
 class ClasificadorCargos(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -802,9 +803,33 @@ class ClasificadorCargos(ObjectsManagerAbstract):
                               verbose_name="Grupo Escala")
     actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
                                verbose_name=_("Actividad"))
-    directo = models.BooleanField(default=True, verbose_name=_("Directo"))
-    indirecto_produccion = models.BooleanField(default=True, verbose_name=_("Indirecto Producción"))
-    indirecto = models.BooleanField(default=True, verbose_name=_("Indirecto"))
-
+    directo = models.BooleanField(default=False, verbose_name=_("Directo"))
+    indirecto_produccion = models.BooleanField(default=False, verbose_name=_("Indirecto Producción"))
+    indirecto = models.BooleanField(default=False, verbose_name=_("Indirecto"))
+    activo = models.BooleanField(default=True, verbose_name=_("Active"))
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='cargo_unidadcontable',
                                             verbose_name="UEB")
+
+    class Meta:
+        db_table = 'cla_clasificadorcargos'
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'codigo',
+                    'descripcion',
+                    'grupo',
+                    'actividad'
+                ]
+            ),
+        ]
+
+    def __str__(self):
+        return "%s | %s" % (
+            self.codigo,
+            self.descripcion
+        )
+
+    @property
+    def salario(self):
+        return self.grupo.salario

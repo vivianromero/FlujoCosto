@@ -1671,3 +1671,79 @@ def productmedidadetalle(request):
     medida_seleccionada = producto.medida
     result = {"id": medida_seleccionada.pk}
     return JsonResponse({"results": result})
+
+# ------ ClasificadorCargos / CRUD ------
+class ClasificadorCargosCRUD(CommonCRUDView):
+    model = ClasificadorCargos
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+            'codigo',
+            'descripcion',
+            'grupo__grupo',
+            'actividad',
+            'directo',
+            'indirecto_produccion',
+            'indirecto',
+            'activo',
+            'unidadcontable'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'codigo__contains',
+        'descripcion__icontains',
+        'grupo__grupo__icontains',
+        'actividad__icontains',
+        'grupo__salario__contains',
+        'directo',
+        'indirecto_produccion',
+        'indirecto',
+        'activo',
+        'unidadcontable__nombre__icontains',
+    ]
+
+    add_form = ClasificadorCargosForm
+    update_form = ClasificadorCargosForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = ClasificadorCargosFilter
+
+    # Table settings
+    table_class = ClasificadorCargosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:clacargos_importar',
+                    # 'url_exportar': 'app_index:exportar:clacargos_exportar',
+                    'filtrar': True,
+                    'url_exportar': True,
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    # datos2 = [
+                    #     dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None
+                    #     for dat in datos]
+                    # if None in datos2:
+                    #     datos2.remove(None)
+                    return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView

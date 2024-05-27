@@ -20,5 +20,6 @@ urlpatterns = [
     path('confccelemg_importar/', views.confccelemg_importar, name='confccelemg_importar'),
     path('all_conf_importar/', views.all_conf_importar, name='all_conf_importar'),
     path('nc_importar/', views.nc_importar, name='nc_importar'),
+    path('clacargos_importar/', views.clacargos_importar, name='clacargos_importar'),
 ]
 

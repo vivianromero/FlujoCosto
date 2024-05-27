@@ -1,15 +1,12 @@
 from datetime import date
 
-from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, UneditableField, )
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
-from django.db import transaction
-from django.forms import DateInput
+from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
@@ -19,9 +16,8 @@ from app_index.widgets import MyCustomDateRangeWidget
 from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
-from cruds_adminlte3.widgets import SelectWidget, DatePicker
+from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-from django.db.models import Q
 
 
 class UpperField(forms.CharField):
@@ -1268,7 +1264,7 @@ class DepartamentoForm(forms.ModelForm):
 
         widgets = {
             'centrocosto': SelectWidget(
-                attrs={'style': 'width: 100%'}
+                attrs={'style': 'width: 100%'},
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
             'relaciondepartamento': forms.CheckboxSelectMultiple(),
@@ -1328,21 +1324,29 @@ class DepartamentoForm(forms.ModelForm):
             )
         )
 
-        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(
+        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(label="Relación Departamentos",
             queryset=Departamento.objects.exclude(id=instance.id) if instance else Departamento.objects.all(),
             widget=forms.CheckboxSelectMultiple
         )
         queryset_uc = UnidadContable.objects.filter(activo=True)
-        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
-            queryset=queryset_uc if not instance else queryset_uc | Departamento.objects.get(
-                pk=instance.pk).unidadcontable.filter(activo=False),
+        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(label="UEB",
+            queryset=queryset_uc if not instance else (queryset_uc | Departamento.objects.get(
+                pk=instance.pk).unidadcontable.filter(activo=False)).distinct(),
             widget=forms.CheckboxSelectMultiple
         )
         queryset_cc = CentroCosto.objects.filter(activo=True).all()
-        self.fields['centrocosto'] = forms.ModelChoiceField(
+        self.fields['centrocosto'] = forms.ModelChoiceField(label='Centro de Costo',
             queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
                 pk=instance.centrocosto.pk, activo=False))
         self.fields["relaciondepartamento"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        unidades = cleaned_data.get('unidadcontable')
+        if not unidades:
+            msg = _('Debe seleccionar al menos una UEB')
+            self.add_error('unidadcontable', msg)
+        return cleaned_data
 
 
 class DepartamentoFormFilter(forms.Form):
@@ -2448,7 +2452,7 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
                                                                    valor=valor)
 
             if elem and elem.first() != self.instance:
-                msg = _('Valor esxistente')
+                msg = _('Valor existente')
                 self.add_error('valor', msg)
 
         return cleaned_data
@@ -2510,3 +2514,186 @@ class TipoDocumentoForm(forms.ModelForm):
                 )
             )
         )
+
+# ------------- ClasificadorCargos / Form --------------
+class ClasificadorCargosForm(forms.ModelForm):
+    CHOICES = {1: "Directo", 2: "Indirecto Producción", 3:"Indirecto"}
+    choice_field = forms.ChoiceField(label='Producción', widget=forms.RadioSelect, choices=CHOICES)
+    class Meta:
+        model = ClasificadorCargos
+        fields = [
+            'codigo',
+            'descripcion',
+            'grupo',
+            'actividad',
+            'activo',
+            'unidadcontable'
+        ]
+
+
+        widgets = {
+            'grupo': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'actividad': SelectWidget(
+                attrs={'style': 'width: 100%'}
+            ),
+            'unidadcontable': forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        if instance:
+            valor = 1 if instance.directo else 2 if instance.indirecto_produccion else 3
+            kwargs['initial'] = {'choice_field': valor}
+        super(ClasificadorCargosForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_clacargos_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Clasificador de Cargos',
+                    Row(
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
+                        Column('grupo', css_class='form-group col-md-2 mb-0'),
+                        Column('actividad', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('choice_field', css_class='form-group col-md-3 mb-0'),
+                        Column(
+                            Field(
+                                'unidadcontable',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+        queryset_uc = UnidadContable.objects.filter(activo=True)
+        query = queryset_uc if not instance else (queryset_uc | ClasificadorCargos.objects.get(pk=instance.pk).unidadcontable.filter(activo=False)).distinct()
+
+        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
+            label = "UEB",
+            queryset= query,
+            widget=forms.CheckboxSelectMultiple
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        unidades = cleaned_data.get('unidadcontable')
+        if not unidades:
+            msg = _('Debe seleccionar al menos una UEB')
+            self.add_error('unidadcontable', msg)
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            valor = int(self.cleaned_data.get('choice_field'))
+            self.instance.directo = valor == 1
+            self.instance.indirecto_produccion = valor == 2
+            self.instance.indirecto = valor == 3
+            instance = super().save(*args, **kwargs)
+        return instance
+
+class ClasificadorCargosFormFilter(forms.Form):
+    unidadcontable = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        label='Choose your options'
+    )
+
+    class Meta:
+        model = ClasificadorCargos
+        fields = [
+            'codigo',
+            'descripcion',
+            'grupo',
+            'actividad',
+            'unidadcontable',
+            'grupo__salario',
+            'directo',
+            'indirecto_produccion',
+            'indirecto',
+            'activo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ClasificadorCargosFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_clacargos_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Cargos',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('codigo', css_class='form-group col-md-2 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('grupo', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('actividad', css_class='form-group col-md-4 mb-0'),
+                        Column('unidadcontable', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('grupo__salario', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('directo', css_class='form-group col-md-3 mb-0'),
+                        Column('indirecto_produccion', css_class='form-group col-md-3 mb-0'),
+                        Column('indirecto', css_class='form-group col-md-3 mb-0'),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context

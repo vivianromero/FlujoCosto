@@ -83,7 +83,8 @@ class DocumentoCRUD(CommonCRUDView):
 
                 tableversat = None
                 if self.dep:
-                    datostableversat = dame_documentos_versat(self.request, self.dep)
+                    dpto = self.request.GET.get('departamento', None)
+                    datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
                     tableversat = DocumentosVersatTable(datostableversat)
 
                 context.update({
