@@ -112,11 +112,6 @@ def clacargos_importar(request):
     return importacion(request, 'CLA_CARG', ClasificadorCargos)
 
 
-@login_required
-def capasvit_importar(request):
-    return importacion(request, "CAPA_VIT", CategoriaVitola)
-
-
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:
         with tarfile.open(archivo_tar, 'r') as tar:

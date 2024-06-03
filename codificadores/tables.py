@@ -328,19 +328,7 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
             'grupo__grupo',
             'grupo__salario',
             'actividad',
-            'directo',
-            'indirecto_produccion',
-            'indirecto',
+            'vinculo_produccion',
             'activo',
             'unidadcontable',
-        )
-
-# ------ CategoriaVitola / Table ------
-class CategoriaVitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = CategoriaVitola
-
-        fields = (
-            'descripcion',
-            'capas',
         )

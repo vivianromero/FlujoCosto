@@ -1,11 +1,13 @@
 import base64
+import json
+from decimal import *
 
 import sweetify
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-import json
 
-KEY_ENCRIP="DATAZUCAR-ETTVC-SISGESFC"
+KEY_ENCRIP = "DATAZUCAR-ETTVC-SISGESFC"
+
 
 def codificar(clear):
     enc = []
@@ -17,22 +19,25 @@ def codificar(clear):
 
     return base64.urlsafe_b64encode((''.join(enc)).encode("utf-8", "replace")).decode()
 
+
 def decodificar(enc):
     dec = []
     enc = (base64.urlsafe_b64decode(enc)).decode("utf-8", "replace")
     key = KEY_ENCRIP
     for i in range(len(enc)):
         key_c = key[i % len(key)]
-        dec_c = chr((256 + ord(enc[i])- ord(key_c)) % 256)
+        dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
         dec.append(dec_c)
 
     return ''.join(dec)
+
 
 def obtener_version():
     app_version_file = open(settings.APP_VERSION, 'r')
     valor = app_version_file.read()
 
     return decodificar(valor)
+
 
 def message_error(request, title, text):
     sweetify.error(
@@ -46,6 +51,7 @@ def message_error(request, title, text):
         persistent=_("Close"),
     )
 
+
 def message_success(request, title, text):
     sweetify.success(
         request=request,
@@ -58,6 +64,7 @@ def message_success(request, title, text):
         persistent=_("Close"),
     )
 
+
 def message_warning(request, title, text):
     sweetify.warning(
         request=request,
@@ -69,6 +76,7 @@ def message_warning(request, title, text):
         showLoaderOnConfirm=True,
         persistent=_("Close"),
     )
+
 
 def json_response(message=None, success=True, **data):
     """
@@ -84,7 +92,6 @@ def json_response(message=None, success=True, **data):
 
     json_object.update(data)
     return json.dumps(json_object)
-
 
 
 # #TODO ver si se va a usar

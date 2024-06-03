@@ -859,6 +859,7 @@ class ClasificadorCargosFilter(MyGenericFilter):
         'grupo__grupo__icontains',
         'actividad__icontains',
         'grupo__salario__contains',
+        'vinculo_produccion__icontains',
     ]
     split_space_search = ' '
 
@@ -872,30 +873,6 @@ class ClasificadorCargosFilter(MyGenericFilter):
         label='Descripción',
         widget=forms.TextInput(),
         lookup_expr='icontains',
-    )
-
-    directo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
-        empty_label=EMPTY_LABEL,
-        widget=forms.Select(attrs={
-            'style': 'width: 100%',
-        }),
-    )
-
-    indirecto_produccion = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
-        empty_label=EMPTY_LABEL,
-        widget=forms.Select(attrs={
-            'style': 'width: 100%',
-        }),
-    )
-
-    indirecto = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
-        empty_label=EMPTY_LABEL,
-        widget=forms.Select(attrs={
-            'style': 'width: 100%',
-        }),
     )
 
     activo = django_filters.ChoiceFilter(
@@ -922,45 +899,11 @@ class ClasificadorCargosFilter(MyGenericFilter):
             'actividad',
             'unidadcontable',
             'grupo__salario',
-            'directo',
-            'indirecto_produccion',
-            'indirecto',
+            'vinculo_produccion',
             'activo',
         ]
 
         form = ClasificadorCargosFormFilter
-
-        filter_overrides = {
-            models.ForeignKey: {
-                'filter_class': django_filters.ModelMultipleChoiceFilter,
-                'extra': lambda f: {
-                    'queryset': django_filters.filterset.remote_queryset(f),
-                }
-            },
-        }
-
-# ------ CategoriaVitola / Filter ------
-class CategoriaVitolaFilter(MyGenericFilter):
-    search_fields = [
-        'descripcion__icontains',
-    ]
-    split_space_search = ' '
-
-    descripcion = django_filters.CharFilter(
-        label='Descripción',
-        widget=forms.TextInput(),
-        lookup_expr='icontains',
-    )
-
-    class Meta:
-        model = CategoriaVitola
-        fields = [
-            'query',
-            'descripcion',
-            'capas',
-        ]
-
-        form = CategoriaVitolaFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

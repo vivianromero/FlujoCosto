@@ -10,3 +10,4 @@
 /importar/fixtures/*.json
 /config/.env.local
 /codificadores/fixtures/ConfigTodas.json
+/preparacarga/

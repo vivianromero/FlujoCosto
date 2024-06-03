@@ -113,7 +113,7 @@ def crear_export_datos_table(request, opcion, modelo, datos, datos2=[]):
     json_data = serializers.serialize("json", datos).replace("true", '"True"').replace("false", '"False"')
     if datos2:
         json_data2 = serializers.serialize("json", datos2).replace("true", '"True"').replace("false", '"False"')
-        json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
+        json_data = json_data.replace('}]', '}') + json_data2.replace('[', ', ')
     return crear_export_file(request, json_data, opcion, modelo)
 
 

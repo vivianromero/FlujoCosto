@@ -96,6 +96,7 @@ MY_APPS = [
     'app_apiversat',
     'app_auth.usuarios',
     'cruds_adminlte3',
+    # 'preparacarga.apps.PreparaCargaConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + MY_APPS

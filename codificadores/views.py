@@ -1,25 +1,21 @@
 from django.contrib import messages
-from django.db.models import Q, ProtectedError
+from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
-from extra_views import CreateWithInlinesView
-from django.shortcuts import redirect
 
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
-from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from exportar.views import crear_export_datos_table
 from utiles.utils import message_error
 from . import ChoiceTiposProd
-from .inlines import NormaconsumoDetalleInline
 
 
 # ------ Departamento / CRUD ------
@@ -852,6 +848,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
                         for dat in datos]
                     if None in datos2:
                         datos2.remove(None)
+
                     return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
                 else:
                     return super().get(request=request)
@@ -1570,7 +1567,7 @@ class NormaConsumoDetalleModalFormView(FormView):
 def classmatprima(request):
     tipoproducto = request.GET.get('tipoproducto')
     clasemp = request.GET.get('clase')
-    clases_mp = ClaseMateriaPrima.objects.all()
+    clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
     tipoprod = TipoProducto.objects.all()
     context = {
         'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
@@ -1580,6 +1577,47 @@ def classmatprima(request):
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)
+
+def rendimientocapa(request):
+    clasemp = request.GET.get('clase')
+    clasemp = '0' if not clasemp else clasemp
+    rendimientocapa = request.GET.get('rendimientocapa')
+    rendimientocapa = rendimientocapa if rendimientocapa else '0'
+    catvitolas = CategoriaVitola.objects.all()
+    seleccvitolas = []
+    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and 'vitolas' in request.GET:
+        seleccvitolas = [int(x) for x in request.GET.getlist('vitolas')]
+    context = {
+        'show_rendimiento': True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False,
+        'valorrendimientocapa': rendimientocapa,
+        'seleccvitolas': seleccvitolas,
+        'vitolas': catvitolas,
+    }
+    return render(request, 'app_index/partials/rendimientocapa.html', context)
+
+def cargonorma(request):
+    produccion = request.GET.get('vinculo_produccion')
+    nr = request.GET.get('nr_media')
+    norma = request.GET.get('norma_tiempo')
+
+    context = {
+        'show_norma_tiempo': True,
+        'show_nr_media': produccion == str(ChoiceCargoProduccion.DIRECTO),
+        'valornr_media': nr if nr else 0,
+        'valornorma_tiempo': norma if norma else 0.0000,
+    }
+    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
+
+def calcula_nt(request):
+    nr = request.GET.get('nr_media')
+    norma = 8/int(nr)*1000 if nr and int(nr)>0 else 0.0000
+    nt = round(norma, 4)
+    context = {
+        'show_norma_tiempo': True,
+        'show_nr_media': True,
+        'valornorma_tiempo': '%.4f' % nt,
+    }
+    return render(request, 'app_index/partials/clasifcargosnormatiempo.html', context)
 
 
 # ------ TipoDocumento / CRUD ------
@@ -1683,9 +1721,7 @@ class ClasificadorCargosCRUD(CommonCRUDView):
             'descripcion',
             'grupo__grupo',
             'actividad',
-            'directo',
-            'indirecto_produccion',
-            'indirecto',
+            'vinculo_produccion',
             'activo',
             'unidadcontable'
     ]
@@ -1699,9 +1735,7 @@ class ClasificadorCargosCRUD(CommonCRUDView):
         'grupo__grupo__icontains',
         'actividad__icontains',
         'grupo__salario__contains',
-        'directo',
-        'indirecto_produccion',
-        'indirecto',
+        'vinculo_produccion__icontains',
         'activo',
         'unidadcontable__nombre__icontains',
     ]
@@ -1737,64 +1771,6 @@ class ClasificadorCargosCRUD(CommonCRUDView):
                     table = self.get_table(**self.get_table_kwargs())
                     datos = table.data.data
                     return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
-                else:
-                    return super().get(request=request)
-
-        return OFilterListView
-
-# ------ CategoriaVitola / CRUD ------
-class CategoriaVitolaCRUD(CommonCRUDView):
-    model = CategoriaVitola
-
-    namespace = 'app_index:codificadores'
-
-    fields = [
-        'descripcion',
-    ]
-
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'descripcion__icontains',
-        'capas__descripcion__icontains',
-    ]
-
-    add_form = CategoriaVitolaForm
-    update_form = CategoriaVitolaForm
-
-    list_fields = fields
-
-    filter_fields = fields
-
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
-
-    filterset_class = CategoriaVitolaFilter
-
-    # Table settings
-    # table_class = ClasificadorCargosTable
-    table_class = CategoriaVitolaTable
-
-    def get_filter_list_view(self):
-        view = super().get_filter_list_view()
-
-        class OFilterListView(view):
-            def get_context_data(self, *, object_list=None, **kwargs):
-                context = super().get_context_data(**kwargs)
-                context.update({
-                    'url_importar': 'app_index:importar:capasvit_importar',
-                    'filtrar': True,
-                    'url_exportar': True,
-                })
-                return context
-
-            def get(self, request, *args, **kwargs):
-                myexport = request.GET.get("_export", None)
-                if myexport and myexport == 'sisgest':
-                    table = self.get_table(**self.get_table_kwargs())
-                    datos = table.data.data
-                    return crear_export_datos_table(request, "CAPA_VIT", CategoriaVitola, datos, None)
                 else:
                     return super().get(request=request)
 

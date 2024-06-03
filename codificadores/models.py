@@ -14,7 +14,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from cruds_adminlte3.utils import crud_url
 from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
     ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
-    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum
+    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum, ChoiceCargoProduccion
 
 
 class ObjectsManagerAbstract(models.Model):
@@ -192,6 +192,17 @@ class ClaseMateriaPrima(models.Model):
     def __str__(self):
         return self.descripcion
 
+class CategoriaVitola(models.Model):
+    id = models.AutoField(primary_key=True, choices=ChoiceCategoriasVit.CHOICE_CATEGORIAS, editable=False, )
+    descripcion = models.CharField(unique=True, max_length=50)
+    orden = models.IntegerField(unique=True)
+
+    class Meta:
+        db_table = 'cla_categoriavitola'
+        ordering = ['orden']
+
+    def __str__(self):
+        return "%s" % (self.descripcion)
 
 class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -202,6 +213,14 @@ class ProductoFlujo(ObjectsManagerAbstract):
                                verbose_name="U.M")
     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
                                      verbose_name=_("Product Type"))
+    precio_lop = models.DecimalField(max_digits=10, decimal_places=4, db_comment='Precio según Listado Oficial de Precio',
+                                 verbose_name=_("Precio LOP"), default=0.0000,
+                                 validators=[MinValueValidator(0.0000, message=_('El valor debe ser >= 0'))])
+    rendimientocapa = models.IntegerField(db_comment='Rendimiento de la capa x millar',
+                                 verbose_name=_("Rendimiento x Millar"), default=0,
+                                 validators=[MinValueValidator(0, message=_('El valor debe ser >= 0'))])
+    vitolas = models.ManyToManyField(CategoriaVitola, related_name='capas_categvitolas',
+                                   verbose_name="Vitolas")
 
     class Meta:
         db_table = 'cla_productoflujo'
@@ -227,16 +246,6 @@ class ProductoFlujoClase(ObjectsManagerAbstract):
     def __str__(self):
         return self.clasemateriaprima.descripcion
 
-
-# class ProductoFlujoVitola(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_producto')
-#     vitola = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='productoflujovitola_vitola')
-#
-#     class Meta:
-#         db_table = 'cla_productoflujovitola'
-
-
 class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
@@ -255,23 +264,6 @@ class ProductoFlujoCuenta(models.Model):
 
     class Meta:
         db_table = 'cla_productoflujocuenta'
-
-
-class CategoriaVitola(models.Model):
-    id = models.AutoField(primary_key=True, choices=ChoiceCategoriasVit.CHOICE_CATEGORIAS, editable=False, )
-    descripcion = models.CharField(unique=True, max_length=50)
-    orden = models.IntegerField(unique=True)
-    capas = models.ManyToManyField(ProductoFlujo, related_name='capas_categvitolas',
-                                            verbose_name="Capas sin clasificar")
-
-
-    class Meta:
-        db_table = 'cla_categoriavitola'
-        ordering = ['orden']
-
-    def __str__(self):
-        return "%s" % (self.descripcion)
-
 
 class TipoVitola(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA, editable=False, )
@@ -415,7 +407,6 @@ class Departamento(ObjectsManagerAbstract):
 
 class NormaConsumo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # tipo = models.IntegerField(choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS, verbose_name=_("Type"))
     cantidad = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                    verbose_name=_("Quantity"))
     activa = models.BooleanField(default=False, verbose_name=_("Active"))
@@ -433,7 +424,6 @@ class NormaConsumo(ObjectsManagerAbstract):
 
     def __str__(self):
         return "%s %s | %s" % (
-            # ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[self.producto.tipoproducto],
             self.fecha,
             self.producto.codigo,
             self.producto.descripcion
@@ -485,6 +475,7 @@ class NormaConsumoGroupedManager(models.Manager):
                        When(tipo=7, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[7])),
                    ), )
 
+
 class NormaConsumoGrouped(NormaConsumo):
     objects = NormaConsumoGroupedManager()
 
@@ -514,7 +505,8 @@ class MotivoAjuste(ObjectsManagerAbstract):
 class TipoDocumento(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposDoc.CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
-    operacion = models.CharField(max_length=1, choices=ChoiceOperacionDocum.CHOICE_OPERACION_DOCUM, db_comment='Operación de Entrada (E) o Salida (S)')
+    operacion = models.CharField(max_length=1, choices=ChoiceOperacionDocum.CHOICE_OPERACION_DOCUM,
+                                 db_comment='Operación de Entrada (E) o Salida (S)')
     generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
                                    verbose_name=_("Generado"))
     prefijo = models.CharField(max_length=5, db_comment='Prefijo para el número de control', null=True, blank=True)
@@ -698,10 +690,11 @@ class ConfCentrosElementosOtrosDetalle(ObjectsManagerAbstract):
     def __str__(self):
         return "%s | %s" % (self.clave, self.descripcion)
 
+
 class ConfCentrosElementosOtrosDetalleGroupedManager(models.Manager):
     def get_queryset(self):
         obj = super().get_queryset().values(Clave=F('clave__clave'),
-                                                              Clave_id=F('clave__id')).annotate(
+                                            Clave_id=F('clave__id')).annotate(
             Elementos=Count('clave')).order_by('clave__clave')
         return obj
 
@@ -728,7 +721,8 @@ class ProductsCapasClaPesadas(ProductoFlujo):
         proxy = True
         ordering = ['tipoproducto', 'descripcion']
 
-#Costos
+
+# Costos
 # Fichas de costo
 class FichaCostoFilas(ObjectsManagerAbstract):
     id = models.IntegerField(primary_key=True, editable=False, )
@@ -756,47 +750,21 @@ class FichaCostoFilas(ObjectsManagerAbstract):
     def __str__(self):
         return "%s | %s" % (self.fila, self.descripcion)
 
-class ListadoOficialPrecio(ObjectsManagerAbstract):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    producto = models.ForeignKey(ProductoFlujo, models.CASCADE, related_name='lop_producto',
-                                 verbose_name=_("Product"), unique=True)
-    medida = models.ForeignKey(Medida, on_delete=models.PROTECT, related_name='lop_medida',
-                               verbose_name="U.M")
-    precio = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
-                                   verbose_name=_("Precio"))
-
-    class Meta:
-        db_table = 'cla_listadooficialprecio'
-        ordering = ['producto__tipoproducto', 'producto__descripcion']
-
-        indexes = [
-            models.Index(
-                fields=[
-                    'producto',
-                ]
-            ),
-        ]
-
-    def __str__(self):
-        return "%s | %s  %s" % (
-            self.producto.codigo,
-            self.producto.descripcion,
-            self.precio
-        )
 
 class GrupoEscalaCargo(ObjectsManagerAbstract):
     id = models.SmallIntegerField(primary_key=True, editable=False, )
     grupo = models.CharField(unique=True, max_length=10)
     salario = models.DecimalField(max_digits=10, decimal_places=2, db_comment='Salario',
-                                            verbose_name=_("Salario"),
-                                            validators=[MinValueValidator(0.01, message=_(
-                                                'The value must be greater than 0'))])
+                                  verbose_name=_("Salario"),
+                                  validators=[MinValueValidator(0.01, message=_(
+                                      'The value must be greater than 0'))])
 
     class Meta:
         db_table = 'cla_grupoescalacargo'
 
     def __str__(self):
         return "%s | %s" % (self.grupo, self.salario)
+
 
 class ClasificadorCargos(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -805,10 +773,19 @@ class ClasificadorCargos(ObjectsManagerAbstract):
     grupo = models.ForeignKey(GrupoEscalaCargo, on_delete=models.PROTECT, related_name='cargo_grupo',
                               verbose_name="Grupo Escala")
     actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
-                               verbose_name=_("Actividad"))
-    directo = models.BooleanField(default=False, verbose_name=_("Directo"))
-    indirecto_produccion = models.BooleanField(default=False, verbose_name=_("Indirecto Producción"))
-    indirecto = models.BooleanField(default=False, verbose_name=_("Indirecto"))
+                                 verbose_name=_("Actividad"))
+    vinculo_produccion = models.SmallIntegerField(choices=ChoiceCargoProduccion.CHOICE_CARGOPRODUCCION,
+                                 db_comment='Directo (1), Indirecto Producción (2), Indirecto (3)',
+                                                  verbose_name=_("Vinculo Producción"),
+                                                  default=1)
+    activo = models.BooleanField(default=True, verbose_name=_("Active"))
+    nr_media = models.IntegerField(default=0, verbose_name=_("Norma Rendimiento Media"),
+                                   db_comment='Norma de Rendimiento Media para los trabajadores directos')
+    norma_tiempo = models.DecimalField(max_digits=10, decimal_places=4, default=0,
+                                       verbose_name=_("Norma de tiempo (hrs)"),
+                                       validators=[MinValueValidator(0.0000, message=_(
+                                           'El valor debe ser >= 0'))]
+                                       )
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='cargo_unidadcontable',
                                             verbose_name="UEB")
@@ -822,7 +799,8 @@ class ClasificadorCargos(ObjectsManagerAbstract):
                     'codigo',
                     'descripcion',
                     'grupo',
-                    'actividad'
+                    'actividad',
+                    'vinculo_produccion'
                 ]
             ),
         ]
