@@ -12,10 +12,12 @@ from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
     Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida, NumeracionDocumentos, MotivoAjuste, \
-    ConfCentrosElementosOtros, ConfCentrosElementosOtrosDetalleGrouped, NormaConsumoGrouped
+    ConfCentrosElementosOtrosDetalleGrouped, NormaConsumoGrouped, ClasificadorCargos, \
+    CategoriaVitola
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
 from utiles.utils import obtener_version, codificar
+
 
 def importacion(request, opcion, modelo):
     archivo_importar = obtener_fichero()
@@ -24,29 +26,36 @@ def importacion(request, opcion, modelo):
     return redirect('app_index:index') if modelo == None else redirect(
         crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
+
 @login_required
 def uc_importar(request):
     return importacion(request, 'UC', UnidadContable)
+
 
 @login_required
 def um_importar(request):
     return importacion(request, 'UM', Medida)
 
+
 @login_required
 def ms_importar(request):
     return importacion(request, 'MS', MarcaSalida)
+
 
 @login_required
 def ma_importar(request):
     return importacion(request, 'MotAjus', MotivoAjuste)
 
+
 @login_required
 def umc_importar(request):
     return importacion(request, 'UMC', MedidaConversion)
 
+
 @login_required
 def cc_importar(request):
     return importacion(request, 'CC', CentroCosto)
+
 
 @login_required
 def ccta_importar(request):
@@ -57,37 +66,51 @@ def ccta_importar(request):
 def dpto_importar(request):
     return importacion(request, 'DPTO', Departamento)
 
+
 @login_required
 def prod_importar(request):
     return importacion(request, 'PROD', ProductoFlujo)
+
 
 @login_required
 def cprod_importar(request):
     return importacion(request, 'CambioPROD', CambioProducto)
 
+
 @login_required
 def vit_importar(request):
     return importacion(request, 'VIT', Vitola)
+
 
 @login_required
 def ls_importar(request):
     return importacion(request, 'LS', LineaSalida)
 
+
 @login_required
 def numdoc_importar(request):
     return importacion(request, 'NumDoc', NumeracionDocumentos)
+
 
 @login_required
 def confccelemg_importar(request):
     return importacion(request, 'CONF_CC_ELEM', ConfCentrosElementosOtrosDetalleGrouped)
 
+
 @login_required
 def nc_importar(request):
     return importacion(request, 'NC', NormaConsumoGrouped)
 
+
 @login_required
 def all_conf_importar(request):
     return importacion(request, 'ALL_CONF', None)
+
+
+@login_required
+def clacargos_importar(request):
+    return importacion(request, 'CLA_CARG', ClasificadorCargos)
+
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:
@@ -117,6 +140,7 @@ def importar_datos_desde_tar(request, archivo_tar, opcion):
     except:
         message_error(request, 'File Error', "The file doesn't exist or is corrupt")
 
+
 def valida_json_verify(request, json_verify, check_sum_data, opcion):
     if json_verify['opcion'].upper() != opcion.upper():
         message_error(request, "Error",
@@ -131,6 +155,7 @@ def valida_json_verify(request, json_verify, check_sum_data, opcion):
         message_error(request, "Error", "Los datos han sido modificados, no se podrán importar")
         return False
     return True
+
 
 def obtener_fichero():
     file_path = settings.MEDIA_ROOT_UPLOAD_FILES

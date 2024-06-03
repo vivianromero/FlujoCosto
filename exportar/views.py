@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
     Departamento, CambioProducto, NumeracionDocumentos, MotivoAjuste, ConfCentrosElementosOtros, \
-    ConfCentrosElementosOtrosDetalle, NormaConsumo
+    ConfCentrosElementosOtrosDetalle, NormaConsumo, ClasificadorCargos
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success, message_error, message_warning
@@ -71,6 +71,10 @@ def numdoc_exportar(request):
     return crear_export_datos(request, 'NumDoc', NumeracionDocumentos)
 
 @adminempresa_required
+def clacargos_exportar(request):
+    return crear_export_datos(request, 'CLA_CARG', ClasificadorCargos)
+
+@adminempresa_required
 def all_conf_exportar(request):
     if valida_datos_exportar(request):
         ruta_archivo = os.path.join('codificadores', 'fixtures', 'ConfigTodas.json')
@@ -109,7 +113,7 @@ def crear_export_datos_table(request, opcion, modelo, datos, datos2=[]):
     json_data = serializers.serialize("json", datos).replace("true", '"True"').replace("false", '"False"')
     if datos2:
         json_data2 = serializers.serialize("json", datos2).replace("true", '"True"').replace("false", '"False"')
-        json_data = json_data.replace(']', '') + json_data2.replace('[', ', ')
+        json_data = json_data.replace('}]', '}') + json_data2.replace('[', ', ')
     return crear_export_file(request, json_data, opcion, modelo)
 
 

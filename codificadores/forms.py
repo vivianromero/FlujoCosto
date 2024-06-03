@@ -1,15 +1,12 @@
 from datetime import date
 
-from bootstrap_datepicker_plus.widgets import DatePickerInput
 from crispy_forms.bootstrap import (
     TabHolder,
     Tab, AppendedText, FormActions, UneditableField, )
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, HTML
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
-from django.db import transaction
-from django.forms import DateInput
+from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
@@ -19,9 +16,8 @@ from app_index.widgets import MyCustomDateRangeWidget
 from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
-from cruds_adminlte3.widgets import SelectWidget, DatePicker
+from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-from django.db.models import Q
 
 
 class UpperField(forms.CharField):
@@ -588,6 +584,20 @@ class ProductoFlujoForm(forms.ModelForm):
         required=False,
     )
 
+    precio_lop = forms.DecimalField(
+        min_value=0.0000,
+        max_digits=10,
+        decimal_places=4,
+        label="",
+        required=False,
+    )
+
+    rendimientocapa = forms.IntegerField(
+        min_value=0,
+        label="",
+        required=False,
+    )
+
     class Meta:
         model = ProductoFlujo
         fields = [
@@ -597,6 +607,9 @@ class ProductoFlujoForm(forms.ModelForm):
             'medida',
             'tipoproducto',
             'clase',
+            'precio_lop',
+            'rendimientocapa',
+            'vitolas',
         ]
 
         widgets = {
@@ -613,7 +626,8 @@ class ProductoFlujoForm(forms.ModelForm):
                 attrs={'style': 'width: 100%'}
             ),
             'clase': SelectWidget(
-                attrs={'style': 'width: 100%', }
+                attrs={'style': 'width: 100%',
+                       }
             ),
         }
 
@@ -621,13 +635,54 @@ class ProductoFlujoForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {'precio_lop': 0.0000}
         if instance and instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA:
-            kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
+            kwargs['initial'] = {'clase': instance.get_clasemateriaprima, 'precio_lop': instance.precio_lop}
         super(ProductoFlujoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_productoflujo_add_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
+
+        queryset_tipos = TipoProducto.objects.filter(pk__in=[ChoiceTiposProd.MATERIAPRIMA,
+                                                             ChoiceTiposProd.HABILITACIONES,
+                                                             ChoiceTiposProd.SUBPRODUCTO])
+        self.fields['tipoproducto'] = forms.ModelChoiceField(
+            queryset=queryset_tipos,
+            label='Tipo de Producto')
+
+        self.fields['tipoproducto'].widget.attrs = {
+            'style': 'width: 100%',
+            'hx-get': reverse_lazy('app_index:codificadores:classmatprima'),
+            'hx-target': '#div_id_clase',
+            'hx-trigger': 'load, change',
+            'hx-include': '[name="clase"]',  # Incluido para obtener el 'id' del clase seleccionado en el GET
+        }
+
+        self.fields["clase"].widget.attrs = {
+            "style": 'display:none',
+            'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
+            'hx-target': '#div_id_rendimientocapa',
+            'hx-trigger': 'load, change',
+            'hx-include': '[name="rendimientocapa"], [name="vitolas"]',
+        }
+        self.fields[
+            "clase"].label = ""
+        self.fields["clase"].required = False
+
+        self.fields["precio_lop"].widget.attrs = {"min": 0.0000, "step": 0.0001,
+                                                  "style": 'display:none' #if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay'
+                                                  }
+        self.fields[
+            "precio_lop"].label = ""
+
+        self.fields["rendimientocapa"].widget.attrs = {"min": 0, "step": 1,
+                                                       "style": 'display:none' #if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'
+                                                       }
+        self.fields["rendimientocapa"].label = ""
+
+        self.fields["vitolas"].widget.attrs = {"style": 'display:none'}
+        self.fields["vitolas"].label = ""
 
         self.helper.layout = Layout(
             TabHolder(
@@ -641,6 +696,9 @@ class ProductoFlujoForm(forms.ModelForm):
                     Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
                         Column('clase', css_class='form-group col-md-2 mb-0'),
+                        Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                        Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                        Column('vitolas', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -676,7 +734,21 @@ class ProductoFlujoForm(forms.ModelForm):
 class ProductoFlujoUpdateForm(forms.ModelForm):
     clase = forms.ModelChoiceField(
         queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
-        label=_("Clase Materia Prima"),
+        label="",
+        required=False,
+    )
+
+    precio_lop = forms.DecimalField(
+        min_value=0.0000,
+        max_digits=10,
+        decimal_places=4,
+        label="",
+        required=False,
+    )
+
+    rendimientocapa = forms.IntegerField(
+        min_value=0,
+        label="",
         required=False,
     )
 
@@ -689,6 +761,9 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'medida',
             'tipoproducto',
             'clase',
+            'precio_lop',
+            'rendimientocapa',
+            'vitolas',
         ]
 
         widgets = {
@@ -700,8 +775,10 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'medida': SelectWidget(
                 attrs={'style': 'width: 100%'}
             ),
+
             'clase': SelectWidget(
-                attrs={'style': 'width: 100%', }
+                attrs={'style': 'width: 100%',
+                       }
             ),
         }
 
@@ -709,8 +786,10 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {'precio_lop': 0.00, 'rendimientocapa': 0}
         if instance and instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA:
-            kwargs['initial'] = {'clase': instance.get_clasemateriaprima}
+            kwargs['initial'] = {'clase': instance.get_clasemateriaprima, 'precio_lop': instance.precio_lop,
+                                 'rendimientocapa': instance.rendimientocapa}
         super(ProductoFlujoUpdateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_productoflujo_update_form'
@@ -721,9 +800,31 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         self.fields["codigo"].required = False
         self.fields["tipoproducto"].disabled = True
         self.fields["tipoproducto"].required = False
+
         self.fields["clase"].widget.attrs = {
-            "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay'}
+            "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay',
+            'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
+            'hx-target': '#div_id_rendimientocapa',
+            'hx-trigger': 'load, change',
+            'hx-include': "[name='vitolas'], [name='rendimientocapa']",
+        }
+        self.fields[
+            "clase"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Clase Mat. Prima'
         self.fields["clase"].required = instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
+
+        self.fields["precio_lop"].widget.attrs = {"min": 0.0000, "step": 0.0001,
+                                                  "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay'}
+        self.fields[
+            "precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
+
+        clamapprima = instance.get_clasemateriaprima
+        self.fields["rendimientocapa"].widget.attrs = {"min": 0, "step": 1,
+                                                       "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
+        self.fields[
+            "rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
+
+        self.fields["vitolas"].widget.attrs = {"style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
+        self.fields["vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
 
         self.helper.layout = Layout(
             TabHolder(
@@ -737,6 +838,9 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
                     Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
                         Column('clase', css_class='form-group col-md-2 mb-0'),
+                        Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                        Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                        Column('vitolas', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -758,10 +862,15 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         with transaction.atomic():
             instance = super().save(commit=True)
             clase = self.cleaned_data.get('clase')
+            rendimientocapa = self.cleaned_data.get('rendimientocapa') if clase and int(
+                clase.pk) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else 0.00
+            precio_lop = self.cleaned_data.get('precio_lop')
             if clase:
                 producto_flujo_clase = ProductoFlujoClase.objects.update_or_create(producto=instance,
                                                                                    defaults={
-                                                                                       'clasemateriaprima': clase})
+                                                                                       'clasemateriaprima': clase,
+                                                                                       'rendimientocapa': rendimientocapa,
+                                                                                       'precio_lop': precio_lop})
         return instance
 
 
@@ -1268,7 +1377,7 @@ class DepartamentoForm(forms.ModelForm):
 
         widgets = {
             'centrocosto': SelectWidget(
-                attrs={'style': 'width: 100%'}
+                attrs={'style': 'width: 100%'},
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
             'relaciondepartamento': forms.CheckboxSelectMultiple(),
@@ -1328,21 +1437,32 @@ class DepartamentoForm(forms.ModelForm):
             )
         )
 
-        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(
-            queryset=Departamento.objects.exclude(id=instance.id) if instance else Departamento.objects.all(),
-            widget=forms.CheckboxSelectMultiple
-        )
+        self.fields['relaciondepartamento'] = forms.ModelMultipleChoiceField(label="Relación Departamentos",
+                                                                             queryset=Departamento.objects.exclude(
+                                                                                 id=instance.id) if instance else Departamento.objects.all(),
+                                                                             widget=forms.CheckboxSelectMultiple
+                                                                             )
         queryset_uc = UnidadContable.objects.filter(activo=True)
-        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
-            queryset=queryset_uc if not instance else queryset_uc | Departamento.objects.get(
-                pk=instance.pk).unidadcontable.filter(activo=False),
-            widget=forms.CheckboxSelectMultiple
-        )
+        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(label="UEB",
+                                                                       queryset=queryset_uc if not instance else (
+                                                                               queryset_uc | Departamento.objects.get(
+                                                                           pk=instance.pk).unidadcontable.filter(
+                                                                           activo=False)).distinct(),
+                                                                       widget=forms.CheckboxSelectMultiple
+                                                                       )
         queryset_cc = CentroCosto.objects.filter(activo=True).all()
-        self.fields['centrocosto'] = forms.ModelChoiceField(
-            queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
-                pk=instance.centrocosto.pk, activo=False))
+        self.fields['centrocosto'] = forms.ModelChoiceField(label='Centro de Costo',
+                                                            queryset=queryset_cc if not instance else queryset_cc | CentroCosto.objects.filter(
+                                                                pk=instance.centrocosto.pk, activo=False))
         self.fields["relaciondepartamento"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        unidades = cleaned_data.get('unidadcontable')
+        if not unidades:
+            msg = _('Debe seleccionar al menos una UEB')
+            self.add_error('unidadcontable', msg)
+        return cleaned_data
 
 
 class DepartamentoFormFilter(forms.Form):
@@ -1985,7 +2105,6 @@ class ObtenerDatosModalForm(forms.Form):
                     ),
                     Row(
                         Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
-                        Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -2073,7 +2192,7 @@ class LineaSalidaForm(forms.ModelForm):
                         css_class='form-row'
                     ),
                     Row(
-                        Column('emvase', css_class='form-group col-md-2 mb-0'),
+                        Column('envase', css_class='form-group col-md-2 mb-0'),
                         Column('vol_cajam3', css_class='form-group col-md-2 mb-0'),
                         Column('peso_bruto', css_class='form-group col-md-2 mb-0'),
                         Column('peso_neto', css_class='form-group col-md-2 mb-3'),
@@ -2449,7 +2568,7 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
                                                                    valor=valor)
 
             if elem and elem.first() != self.instance:
-                msg = _('Valor esxistente')
+                msg = _('Valor existente')
                 self.add_error('valor', msg)
 
         return cleaned_data
@@ -2511,3 +2630,200 @@ class TipoDocumentoForm(forms.ModelForm):
                 )
             )
         )
+
+
+# ------------- ClasificadorCargos / Form --------------
+class ClasificadorCargosForm(forms.ModelForm):
+
+    class Meta:
+        model = ClasificadorCargos
+        fields = [
+            'codigo',
+            'descripcion',
+            'grupo',
+            'actividad',
+            'vinculo_produccion',
+            'nr_media',
+            'norma_tiempo',
+            'activo',
+            'unidadcontable'
+        ]
+
+        widgets = {
+            'grupo': SelectWidget(
+                attrs={'style': 'width: 100%',
+                       }
+            ),
+            'actividad': SelectWidget(
+                attrs={'style': 'width: 100%',
+
+                       }
+            ),
+            'vinculo_produccion':SelectWidget(
+                attrs={'style': 'width: 100%',
+                       'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
+                       'hx-target': '#div_id_nr_media',
+                       'hx-trigger': 'load, change',
+                       'hx-include': '[name="nr_media"]'
+                       }
+            ),
+            'unidadcontable': forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ClasificadorCargosForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_clacargos_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.fields["nr_media"].widget.attrs = {"min": 0, "step": 1,
+                                                'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'),
+                                                'hx-target': '#div_id_norma_tiempo',
+                                                'hx-trigger': 'load, change',
+                                                'hx-include': '[name="norma_tiempo"]'
+                                                # "style": 'display:none'
+                                                # if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'
+                                                }
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Clasificador de Cargos',
+                    Row(
+                        Column('codigo', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
+                        Column('grupo', css_class='form-group col-md-2 mb-0'),
+                        Column('actividad', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('vinculo_produccion', css_class='form-group col-md-3 mb-0'),
+                        Column('nr_media', css_class='form-group col-md-3 mb-0'),
+                        Column('norma_tiempo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column(
+                            Field(
+                                'unidadcontable',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+        queryset_uc = UnidadContable.objects.filter(activo=True)
+        query = queryset_uc if not instance else (
+                queryset_uc | ClasificadorCargos.objects.get(pk=instance.pk).unidadcontable.filter(
+            activo=False)).distinct()
+
+        self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(
+            label="UEB",
+            queryset=query,
+            widget=forms.CheckboxSelectMultiple
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        unidades = cleaned_data.get('unidadcontable')
+        if not unidades:
+            msg = _('Debe seleccionar al menos una UEB')
+            self.add_error('unidadcontable', msg)
+        return cleaned_data
+
+class ClasificadorCargosFormFilter(forms.Form):
+    unidadcontable = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        label='Choose your options'
+    )
+
+    class Meta:
+        model = ClasificadorCargos
+        fields = [
+            'codigo',
+            'descripcion',
+            'grupo',
+            'actividad',
+            'unidadcontable',
+            'grupo__salario',
+            'vinculo_produccion',
+            'activo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ClasificadorCargosFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_clacargos_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Cargos',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('codigo', css_class='form-group col-md-2 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('grupo', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('actividad', css_class='form-group col-md-4 mb-0'),
+                        Column('unidadcontable', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('grupo__salario', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('vinculo_produccion', css_class='form-group col-md-3 mb-0'),
+                        Column('activo', css_class='form-group col-md-3 mb-0'),
+                        css_class='form-row',
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context
+

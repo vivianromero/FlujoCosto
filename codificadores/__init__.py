@@ -174,3 +174,13 @@ class ChoiceOperacionDocum:
         ENTRADA: "Entrada",
         SALIDA: 'Salida',
     }
+
+class ChoiceCargoProduccion:
+    DIRECTO = 1
+    INDIRECTOPRIDUCCION = 2
+    INDIRECTO = 3
+
+    CHOICE_CARGOPRODUCCION = {DIRECTO: 'Directo',
+                              INDIRECTOPRIDUCCION: 'Indirecto Producción',
+                              INDIRECTO: 'Indirecto',
+                             }

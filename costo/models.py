@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.functions import Now
 from django.utils.translation import gettext_lazy as _
-from django.db.models import F
 
 from codificadores.models import ObjectsManagerAbstract, ProductoFlujo, FichaCostoFilas, Medida
 
@@ -78,7 +77,7 @@ class FichaCostoProductoFilaDesgloseMPMat(ObjectsManagerAbstract):
                                             db_default=0.00,
                                             verbose_name=_("Precio Costo Base"))
     costo_base_importe = models.DecimalField(max_digits=10, decimal_places=2,
-                                             db_default=F("costo_base_norma") * F("costo_base_precio"),
+                                             db_default=0.00,
                                              verbose_name=_("Importe Costo Base"))
 
     costo_propuesto_norma = models.DecimalField(max_digits=10, decimal_places=4,
@@ -88,7 +87,7 @@ class FichaCostoProductoFilaDesgloseMPMat(ObjectsManagerAbstract):
                                                  db_default=0.00,
                                                  verbose_name=_("Precio Costo Base"))
     costo_propuesto_importe = models.DecimalField(max_digits=10, decimal_places=2,
-                                                  db_default=F("costo_propuesto_norma") * F("costo_propuesto_precio"),
+                                                  db_default=0.00,
                                                   verbose_name=_("Importe Costo Propuesto"))
 
     class Meta:

@@ -316,3 +316,19 @@ class TipoDocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'generado',
             'prefijo',
         )
+
+# ------ ClasificadorCargos / Table ------
+class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ClasificadorCargos
+
+        fields = (
+            'codigo',
+            'descripcion',
+            'grupo__grupo',
+            'grupo__salario',
+            'actividad',
+            'vinculo_produccion',
+            'activo',
+            'unidadcontable',
+        )

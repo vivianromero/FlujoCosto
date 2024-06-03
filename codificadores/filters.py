@@ -22,7 +22,6 @@ class DepartamentoFilter(MyGenericFilter):
         'codigo__contains',
         'descripcion__icontains',
         'centrocosto__descripcion__icontains',
-        'unidadcontable__nombre__icontains',
     ]
     split_space_search = ' '
 
@@ -828,7 +827,6 @@ class ConfCentrosElementosOtrosDetalleGroupedFilter(MyGenericFilter):
         }
 
 class ConfCentrosElementosOtrosDetalleFilter(MyGenericFilter):
-
     search_fields = [
         'valor__contains',
         'descripcion__icontains',
@@ -843,6 +841,69 @@ class ConfCentrosElementosOtrosDetalleFilter(MyGenericFilter):
         ]
 
         form = ConfCentrosElementosOtrosDetalleFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+
+# ------ ClasificadorCargos / Filter ------
+class ClasificadorCargosFilter(MyGenericFilter):
+    search_fields = [
+        'codigo__icontains',
+        'descripcion__icontains',
+        'grupo__grupo__icontains',
+        'actividad__icontains',
+        'grupo__salario__contains',
+        'vinculo_produccion__icontains',
+    ]
+    split_space_search = ' '
+
+    codigo = django_filters.CharFilter(
+        label='Código',
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    descripcion = django_filters.CharFilter(
+        label='Descripción',
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    activo = django_filters.ChoiceFilter(
+        choices=ACTIVO_CHOICES,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    grupo__salario = django_filters.RangeFilter(
+        label='Salario',
+        method='my_range_queryset',
+        widget=MyCustomRangeWidget()
+    )
+
+    class Meta:
+        model = ClasificadorCargos
+        fields = [
+            'query',
+            'codigo',
+            'descripcion',
+            'grupo',
+            'actividad',
+            'unidadcontable',
+            'grupo__salario',
+            'vinculo_produccion',
+            'activo',
+        ]
+
+        form = ClasificadorCargosFormFilter
 
         filter_overrides = {
             models.ForeignKey: {
