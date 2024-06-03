@@ -1610,7 +1610,7 @@ def cargonorma(request):
 
 def calcula_nt(request):
     nr = request.GET.get('nr_media')
-    norma = 8/int(nr)*1000 if nr and int(nr)>0 else 0.0000
+    norma = 8/int(nr) if nr and int(nr)>0 else 0.0000
     nt = round(norma, 4)
     context = {
         'show_norma_tiempo': True,
