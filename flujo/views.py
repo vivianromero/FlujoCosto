@@ -95,43 +95,53 @@ class DocumentoCRUD(CommonCRUDView):
                     'tableversat': tableversat if tableversat else None,
                     "hx_get": reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
                     "hx_target": '#main_content_swap',
+                    "col_vis_hx_include": "[name='departamento'], [name='fecha']",
                 })
                 return context
 
             def get_queryset(self):
-                queryset = super().get_queryset()
+                qdict = {}
+                queryset = super(OFilterListView, self).get_queryset()
                 formating = '%d/%m/%Y'
                 self.dep = self.request.GET.get('departamento', None)
                 fecha = self.request.GET.get('fecha', None)
-                if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
-                else:
-                    depx = []
-                if self.dep is not None:
-                    queryset = queryset.filter(departamento=self.dep)
-                if fecha is not None:
+                # if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                #     depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                # else:
+                #     depx = []
+                if self.dep is not None and self.dep != '':
+                    qdict['departamento'] = self.dep
+                    # queryset = queryset.filter(departamento=self.dep)
+                if self.dep == '' or self.dep is None:
+                    # queryset = queryset.none()
+                    return self.model.objects.none()
+                if fecha is not None and fecha is not '':
                     fechas = fecha.strip().split('-')
-                    queryset = queryset.filter(
-                        fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
-                        fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
-                    )
-                if len(depx) > 0:
-                    depxs = depx[0].split('=')
-                    if self.dep is None:
-                        if depxs[0] == 'departamento':
-                            queryset = queryset.filter(departamento=depxs[1])
-                            self.dep = depxs[1]
-                    elif fecha is None:
-                        if depxs[0] == 'fecha':
-                            fechas = depxs[1].strip().split('-')
-                            fechas[0] = fechas[0].replace('%20', '').replace('%2F', '/')
-                            fechas[1] = fechas[1].replace('%20', '').replace('%2F', '/')
-                            queryset = queryset.filter(
-                                fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
-                                fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
-                            )
-                else:
-                    queryset = queryset.none()
+                    qdict['fecha__gte'] = datetime.datetime.strptime(fechas[0].strip(), formating).date()
+                    qdict['fecha__lte'] = datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                    # queryset = queryset.filter(
+                    #     fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
+                    #     fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                    # )
+                # if len(depx) > 0:
+                #     depxs = depx[0].split('=')
+                #     if self.dep is None:
+                #         if depxs[0] == 'departamento':
+                #             queryset = queryset.filter(departamento=depxs[1])
+                #             self.dep = depxs[1]
+                #     elif fecha is None:
+                #         if depxs[0] == 'fecha':
+                #             fechas = depxs[1].strip().split('-')
+                #             fechas[0] = fechas[0].replace('%20', '').replace('%2F', '/')
+                #             fechas[1] = fechas[1].replace('%20', '').replace('%2F', '/')
+                #             queryset = queryset.filter(
+                #                 fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
+                #                 fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                #             )
+                # else:
+                #     queryset = queryset.none()
+                if qdict:
+                    return queryset.filter(**qdict)
                 return queryset
 
         return OFilterListView

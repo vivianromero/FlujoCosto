@@ -2,6 +2,7 @@
 import json
 import types
 
+import sweetify
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.views import SuccessMessageMixin
+from sweetify.views import SweetifySuccessMixin
 from django.db.models import ProtectedError
 from django.db.models.query_utils import Q
 from django.forms import Select, SelectMultiple
@@ -628,7 +630,7 @@ class CRUDView(object):
 
         class OCreateView(
             self.mixin,
-            SuccessMessageMixin,
+            SweetifySuccessMixin,
             LoginRequiredMixin,
             CreateViewClass,
         ):
@@ -732,7 +734,7 @@ class CRUDView(object):
 
         class OEditView(
             self.mixin,
-            SuccessMessageMixin,
+            SweetifySuccessMixin,
             LoginRequiredMixin,
             PermissionRequiredMixin,
             EditViewClass,
@@ -776,7 +778,8 @@ class CRUDView(object):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
-                    'modal': self.modal
+                    'modal': self.modal,
+                    # 'form': self.form_class
                 })
                 return ctx
 
@@ -1064,7 +1067,7 @@ class CRUDView(object):
     def get_delete_view(self):
         ODeleteClass = self.get_delete_view_class()
 
-        class ODeleteView(self.mixin, SuccessMessageMixin, ODeleteClass):
+        class ODeleteView(self.mixin, SweetifySuccessMixin, ODeleteClass):
             namespace = self.namespace
             template_name_base = self.template_name_base
             partial_template_name_base = self.partial_template_name_base
@@ -1117,7 +1120,8 @@ class CRUDView(object):
                                   text=text + protected_details)
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
-                    messages.success(self.request, self.success_message)
+                    # messages.success(self.request, self.success_message)
+                    sweetify.success(self.request, self.success_message)
                 return HttpResponseRedirect(self.get_success_url())
 
         return ODeleteView

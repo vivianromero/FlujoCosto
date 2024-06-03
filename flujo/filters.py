@@ -45,6 +45,9 @@ class DocumentoFilter(MyGenericFilter):
         label='Fecha',
         field_name='fecha',
         widget=MyCustomDateRangeWidget(
+            attrs={
+                'id': 'id_fecha_documento_formfilter'
+            },
             format='%d/%m/%Y',
             picker_options={
                 'use_ranges': True,

@@ -57,7 +57,10 @@ class DocumentoForm(forms.ModelForm):
                 Tab(
                     'Documento',
                     Row(
-                        Column('fecha', css_class='form-group col-md-1 mb-0'),
+                        Column(
+                            Field('fecha', id='id_fecha_documento_form', ),
+                            css_class='form-group col-md-1 mb-0'
+                        ),
                         Column('numerocontrol', css_class='form-group col-md-1 mb-0'),
                         Column('numeroconsecutivo', css_class='form-group col-md-1 mb-0'),
                         Column('suma_importe', css_class='form-group col-md-1 mb-0'),
@@ -146,9 +149,10 @@ class DocumentoFormFilter(forms.Form):
         self.fields['departamento'].widget.attrs.update({
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
             'hx-target': '#main_content_swap',
-            'hx-trigger': 'load, change',
+            'hx-trigger': "load, change, changed from:.btn-shift-column-visivility, changed from:#id_fecha_documento_formfilter",
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
+            'hx-include': "[name='fecha']"
         })
         self.fields['fecha'].label = False
         self.fields['fecha'].widget.attrs.update({
@@ -156,11 +160,10 @@ class DocumentoFormFilter(forms.Form):
             'style': 'height: auto; padding: 0;',
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
             'hx-target': '#main_content_swap',
-            'hx-trigger': 'change, from:#div_id_departamento',
+            'hx-trigger': 'change, changed from:#div_id_departamento, changed from:.btn-shift-column-visivility',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
-            # 'onchange': "htmx.trigger($(this) 'change')",
-            # 'onclick': "console.log($(this))"
+            'hx-include': '[name="departamento"]'
         })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
@@ -179,7 +182,10 @@ class DocumentoFormFilter(forms.Form):
                         ),
                     ),
                     Row(
-                        Column('fecha', css_class='col-md-3 mb-0'),
+                        Column(
+                            Field('fecha', id='id_fecha_documento_formfilter', ),
+                            css_class='col-md-3 mb-0'
+                        ),
                         Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
                         Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                         Column('suma_importe', css_class='form-group col-md-3 mb-0'),

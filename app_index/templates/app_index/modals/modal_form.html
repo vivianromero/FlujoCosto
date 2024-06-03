@@ -81,7 +81,7 @@
             <div class="modal-footer">
                 {% if form_view %}
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                    <button hx-headers="{'submitted': 'true'}" id="id_form_btn_acept" type="submit" class="btn btn-primary">Aceptar</button>
                 {% else %}    
                     {% include "cruds/actions/hx_common_form_actions.html"%}
                 {% endif %}
