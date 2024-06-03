@@ -664,7 +664,7 @@ class CRUDView(object):
                 return HttpResponseRedirect(self.get_success_url())
 
             def get_success_url(self):
-                if "another" in self.request.POST:
+                if "another" in self.request.POST and not self.modal:
                     url = self.request.path
                 else:
                     url = super(OCreateView, self).get_success_url()
