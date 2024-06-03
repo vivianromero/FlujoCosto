@@ -4,7 +4,10 @@ import json
 
 from django.db.models import Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, FormView
+from django_htmx.http import HttpResponseLocation
 from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
 
@@ -258,15 +261,35 @@ class CommonCRUDView(CRUDView):
                 )
                 return form_kwargs
 
-            def get_context_data(self):
-                ctx = super().get_context_data()
+            def get_context_data(self, **kwargs):
+                ctx = super(OEditView, self).get_context_data(**kwargs)
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
                     'hx_target': '#main_content_swap',
                     'hx-swap': 'outerHTML',
+                    'hx_retarget': '#dialog',
+                    'hx_reswap': 'outerHTML',
                 })
                 return ctx
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = ctx['hx_retarget']
+                response['HX-Reswap'] = ctx['hx_reswap']
+                return response
+
+            def get_success_url(self):
+                url = super(OEditView, self).get_success_url()
+                if self.getparams:  # fixed filter edit action
+                    url += '?' + self.getparams
+                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                return url
 
         return OEditView
 
@@ -299,14 +322,35 @@ class CommonCRUDView(CRUDView):
                 )
                 return form_kwargs
 
-            def get_context_data(self):
-                ctx = super().get_context_data()
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
                     'hx_target': '#main_content_swap',
+                    'hx-swap': 'outerHTML',
+                    'hx_retarget': '#dialog',
+                    'hx_reswap': 'outerHTML',
                 })
                 return ctx
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = ctx['hx_retarget']
+                response['HX-Reswap'] = ctx['hx_reswap']
+                return response
+
+            def get_success_url(self):
+                url = super(OCreateView, self).get_success_url()
+                if self.getparams:  # fixed filter edit action
+                    url += '?' + self.getparams
+                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                return url
 
         return OCreateView
 
@@ -330,6 +374,78 @@ class CommonCRUDView(CRUDView):
                 return template_name
 
         return ODetailView
+
+
+class BaseModalFormView(FormView):
+    """
+    Base Modal Form View para ser heredado y utilizado por los descendientes
+    """
+    # Nombre de la plantilla del modal, por defecto es: 'app_index/modals/modal_form.html'
+    template_name = 'app_index/modals/modal_form.html'
+
+    # Nombre de la clase formulario, puede estar definida en forms.py mediante crispy-forms,
+    # Por defecto es None por lo que debe definirse en los descendientes.
+    form_class = None
+
+    # Nombre de la vista a la cual se retorna una vez que los datos introducidos son correctos.
+    # Por defecto es None por lo que debe definirse en los descendientes.
+    viewname = None
+
+    # Si se usa htmx, el 'id' del elemento donde se va a introducir la plantilla parcial correspondiente al viewname.
+    # Por defecto es '#main_content_swap' pero debe definirse de acuerdo a las nececidades propias del viewform.
+    hx_target = '#main_content_swap'
+
+    # Si se usa htmx, la estrategia de intercambio a la hora de reemplazar el elemento definido en 'hx_target'
+    # con la plantilla parcial correspondiente al viewname.
+    # Por defecto es 'outerHTML' pero debe definirse de acuerdo a las nececidades propias del viewform.
+    hx_swap = 'outerHTML',
+
+    # Si se usa htmx, el 'id' del elemento del formulario modal donde se va a volver hacer render una vez que el
+    # formulario es inválido. Por defecto es '#dialog'
+    hx_retarget = '#dialog',
+
+    # Si se usa htmx, la estrategia de intercambio a la hora de reemplazar el elemento definido en 'hx_retarget'
+    # cuando el formulario es declarado inválido. Por defecto es 'outerHTML'.
+    hx_reswap = 'outerHTML',
+
+    # Título del formulario modal
+    modal_form_title = 'Formulario Modal'
+
+    # Ancho máximo de la ventana modal. debe ajustarse de acuerdo al contenido y campos del formulario.
+    max_width = '500px'
+
+    def form_valid(self, form):
+        kw = {}
+        if form.is_valid():
+            for field in form.fields:
+                kw.update({field: form.cleaned_data[field]})
+            self.success_url = reverse_lazy(self.viewname, kwargs=kw)
+
+            return HttpResponseLocation(
+                self.get_success_url(),
+                target=self.hx_target,
+            )
+        else:
+            return render(self.request, self.template_name, {
+                'form': form,
+            })
+
+    def form_invalid(self, form, **kwargs):
+        ctx = self.get_context_data(**kwargs)
+        ctx['form'] = form
+        response = render(self.request, self.template_name, ctx)
+        response['HX-Retarget'] = self.hx_retarget
+        response['HX-Reswap'] = self.hx_reswap
+        return response
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update({
+            'modal_form_title': self.modal_form_title,
+            'max_width': self.max_width,
+            'form_view': True,
+        })
+        return ctx
 
 
 class Noauthorized(TemplateView):

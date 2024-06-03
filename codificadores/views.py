@@ -9,7 +9,7 @@ from django_htmx.http import HttpResponseLocation
 from extra_views import CreateWithInlinesView
 from django.shortcuts import redirect
 
-from app_index.views import CommonCRUDView
+from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
@@ -863,7 +863,7 @@ class ProductoFlujoCRUD(CommonCRUDView):
 
         class OEditView(view):
 
-            def get_context_data(self):
+            def get_context_data(self, **kwargs):
                 ctx = super().get_context_data()
                 ctx.update({
                     'modal_form_title': 'Productos | Matrias Primas y Materiales',
@@ -1472,40 +1472,66 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
 
         return OFilterListView
 
+    def get_update_view(self):
+        view = super().get_update_view()
 
-class ObtenrDatosModalFormView(FormView):
+        class OEditView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal_form_title': 'Centros de Costo | Elementos',
+                })
+                return ctx
+
+        return OEditView
+
+
+# class ObtenrDatosModalFormView(FormView):
+#     template_name = 'app_index/modals/modal_form.html'
+#     form_class = ObtenerDatosModalForm
+#
+#     def form_valid(self, form):
+#         if form.is_valid():
+#             valor_inicial = form.cleaned_data['valor_inicial']
+#             clase_mat_prima = form.cleaned_data['clase_mat_prima']
+#             self.success_url = reverse_lazy(
+#                 'app_index:appversat:prod_appversat',
+#                 kwargs={
+#                     'valor_inicial': valor_inicial,
+#                     'clase_mat_prima': clase_mat_prima,
+#                 }
+#             )
+#
+#             return HttpResponseLocation(
+#                 self.get_success_url(),
+#                 target='#main_content_swap',
+#             )
+#         else:
+#             return render(self.request, 'app_index/modals/modal_form.html', {
+#                 'form': form,
+#             })
+#
+#     def get_context_data(self, **kwargs):
+#         ctx = super(ObtenrDatosModalFormView).get_context_data(**kwargs)
+#         ctx.update({
+#             'modal_form_title': 'Obtener Datos',
+#             'max_width': '500px',
+#             'form_view': True,
+#         })
+#         return ctx
+
+
+class ObtenrDatosModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDatosModalForm
-
-    def form_valid(self, form):
-        if form.is_valid():
-            valor_inicial = form.cleaned_data['valor_inicial']
-            clase_mat_prima = form.cleaned_data['clase_mat_prima']
-            self.success_url = reverse_lazy(
-                'app_index:appversat:prod_appversat',
-                kwargs={
-                    'valor_inicial': valor_inicial,
-                    'clase_mat_prima': clase_mat_prima,
-                }
-            )
-
-            return HttpResponseLocation(
-                self.get_success_url(),
-                target='#main_content_swap',
-            )
-        else:
-            return render(self.request, 'app_index/modals/modal_form.html', {
-                'form': form,
-            })
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data()
-        ctx.update({
-            'modal_form_title': 'Obtener Datos',
-            'max_width': '500px',
-            'form_view': True,
-        })
-        return ctx
+    viewname = 'app_index:appversat:prod_appversat'
+    hx_target = '#main_content_swap'
+    hx_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML',
+    modal_form_title = 'Obtener Datos'
+    max_width = '500px'
 
 
 class NormaConsumoDetalleModalFormView(FormView):

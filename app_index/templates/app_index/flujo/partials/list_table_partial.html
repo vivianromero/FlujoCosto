@@ -3,10 +3,12 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% load i18n %}
+{% load sweetify %}
+{% sweetify %}
 
-<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
-    {% include 'adminlte/lib/_messages.html' %}
-</div>
+{#<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">#}
+{#    {% include 'adminlte/lib/_messages.html' %}#}
+{#</div>#}
 
 <div id="main_content_swap">
     <div class="row">
@@ -71,14 +73,16 @@
                 Listado de documentos
             </div>
             <div class="card-body" style="padding: 0;">
-                {% block table_navbar %}
-                    {% include 'app_index/cruds/list_table_navbar.html' %}
-                {% endblock table_navbar %}
-                {% block datatable %}
-                <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
-                    {% render_table table %}
+                <div id="table_content_documento_swap">
+                    {% block table_navbar %}
+                        {% include 'app_index/cruds/list_table_navbar.html' %}
+                    {% endblock table_navbar %}
+                    {% block datatable %}
+                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                            {% render_table table %}
+                        </div>
+                    {% endblock datatable %}
                 </div>
-                {% endblock datatable %}
             </div>
         </div>
     </div>

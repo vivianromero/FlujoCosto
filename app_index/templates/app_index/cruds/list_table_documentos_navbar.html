@@ -10,7 +10,7 @@
     {% if return_url %}
         <a hx-get="{{ return_url }}"
            hx-trigger="click"
-           hx-target="#main_content_swap"
+           hx-target="#table_content_documento_swap"
            hx-swap="outerHTML"
            hx-replace-url="true"
            href="{{ return_url }}"
@@ -135,7 +135,7 @@
                                 <select name='length_change' id='length_change' style="height: fit-content;"
                                     hx-get="{{ url_list }}{{getparams}}"
                                     hx-trigger="change"
-                                    hx-target="#main_content_swap"
+                                    hx-target="#table_content_documento_swap"
                                     hx-swap="outerHTML"
                                 >
                                     {% for option in page_length_menu %}
@@ -228,9 +228,8 @@
                                         id="set_{{ column.name }}_visibility_value"
                                         hx-get="{{ url_list }}{{ getparams }}vis={{ column.name }}"
                                         hx-trigger="click"
-                                        hx-target="#main_content_swap"
+                                        hx-target="#table_content_documento_swap"
                                         hx-swap="outerHTML"
-                                           {% if col_vis_hx_include %}hx-include="{{ col_vis_hx_include }}"{% endif %} 
 {#                                        hx-replace-url="true"#}
                                     >
                                     <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>

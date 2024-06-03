@@ -6,6 +6,8 @@
 {% load l10n %}
 {% load crud_tags %}
 {% load render_table from django_tables2 %}
+{% load sweetify %}
+{% sweetify %}
 
 <div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
     {% include 'adminlte/lib/_messages.html' %}
@@ -119,14 +121,37 @@
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
                 swal.fire({
-                    title: window.data.js_swal_title + record,
-                    text: window.data.js_swal_text,
+                    title: '¿Está seguro que desea eliminar este elemento?' + record,
+                    text: '¡Esta acción no podrá revertirse!',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Confirmar Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    backdrop: true,
+                    showLoaderOnConfirm: true,
+                    preConfirm:()=>{
+                        location.href = e.target.parentElement.href
+                    },
+                    allowOutsideClick:()=>false,
+                    allowEscapeKey:()=>false
+                })
+            })
+        })
+        document.querySelectorAll("a.activar_href").forEach((ref) => {
+            ref.addEventListener("click", function (e) {
+                e.preventDefault()
+                let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                swal.fire({
+                    title: "Está seguro que desea activar " + record,
+                    text: e.target.parentElement.attributes['texto'].nodeValue,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: "Confirmar Activar",
-                    cancelButtonText: window.data.js_swal_cancelButtonText,
+                    cancelButtonText: 'Cancelar',
                     backdrop: true,
                     showLoaderOnConfirm: true,
                     preConfirm:()=>{
@@ -150,7 +175,7 @@
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: "Confirmar",
-                    cancelButtonText: window.data.js_swal_cancelButtonText,
+                    cancelButtonText: 'Cancelar',
                     backdrop: true,
                     showLoaderOnConfirm: true,
                     preConfirm:()=>{
