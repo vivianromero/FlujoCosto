@@ -1,24 +1,20 @@
 {% load i18n %}
-  {%if show_nr_media %}
-    <div id="div_id_nr_media" class="form-group">
-        <label for="id_nr_media" style="{% if not show_nr_media %}display:none{%else%} {%endif%}" class= "{% if show_nr_media %}requiredField{%else%} {%endif%}">{% translate 'NR media.' %}{% if show_nr_media %}<span class="asteriskField">*</span>{% endif %}</label>
-        <div style="{% if not show_nr_media %}display:none{%else%} {%endif%}" hx-get="{% url 'app_index:codificadores:calcula_nr' %}" hx-target="#div_id_norma_tiempo" hx-trigger="load, change" hx-include="[name=&quot;nr_media&quot;]">
-            <input type="number" name="nr_media" value="{{valornr_media}}" step="1" min="0" class="numberinput form-control" required="" id="id_nr_media">
+<div id="nr_id" class="form-row">
+    <div class="form-group col-md-4 mb-0">
+        <div id="div_id_nr_media" class="form-group">
+            <label for="id_nr_media" style="{% if not show_nr_media %}display:none{%else%} {%endif%}" class= "{% if show_nr_media %}requiredField{%else%} {%endif%}">{% translate 'NR media (8h)' %}{% if show_nr_media %}<span class="asteriskField">*</span>{% endif %}</label>
+            <div style="{% if not show_nr_media %}display:none{%else%} {%endif%}" hx-get="{% url 'app_index:codificadores:calcula_nt' %}" hx-target="#nr_id" hx-trigger="change" hx-include="[name=&quot;nr_media&quot;]">
+                <input type="number" name="nr_media" value="{{valornr_media}}" step="1" min="0" class="numberinput form-control" required="" id="id_nr_media">
+            </div>
         </div>
     </div>
-  {% else %}
-    <div id="div_id_nr_media" class="form-group">
-        <label for="id_nr_media" style="{% if not show_nr_media %}display:none{%else%} {%endif%}" class= "{% if show_nr_media %}requiredField{%else%} {%endif%}">{% translate 'NR media.' %}{% if show_nr_media %}<span class="asteriskField">*</span>{% endif %}</label>
-        <div style="{% if not show_nr_media %}display:none{%else%} {%endif%}">
-            <input type="number" name="nr_media" value="{{valornr_media}}" step="1" min="0" class="numberinput form-control" required="" id="id_nr_media">
+    <div class="form-group col-md-6 mb-0">
+        <div id="div_id_norma_tiempo" class="form-group">
+            <label for="id_norma_tiempo" class="{% if show_norma_tiempo %}{%else%}requiredField{%endif%}">{% translate 'Norma Tiempo (hr)' %}{% if show_norma_tiempo %}<span class="asteriskField">*</span>{% endif %}</label>
+            <div style="display">
+                <input type="number" name="norma_tiempo" value="{{valornorma_tiempo}}" step="0.0001" min="0" class="numberinput form-control" required="" {% if show_nr_media %}readonly{%else%}enabled{%endif%} id="id_norma_tiempo">
+            </div>
         </div>
-    </div>
-  {% endif %}
-
-<div id="div_id_norma_tiempo" class="form-group">
-    <label for="id_norma_tiempo" class="{% if show_norma_tiempo %}{%else%}requiredField{%endif%}">{% translate 'Norma Tiempo (hrs.)' %}{% if show_norma_tiempo %}<span class="asteriskField">*</span>{% endif %}</label>
-    <div style="display">
-        <input type="number" name="norma_tiempo" value="{{valornorma_tiempo}}" step="1" min="0" class="numberinput form-control" required="" {% if show_nr_media %}disabled{%else%}enabled{%endif%} id="id_norma_tiempo">
     </div>
 </div>
 

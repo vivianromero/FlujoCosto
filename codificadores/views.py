@@ -328,10 +328,6 @@ class NormaConsumoCRUD(CommonCRUDView):
                     inline_object_list = None
                     table = None
                 ctx.update({
-                    # 'inline_tables': [table],
-                    # 'table': table,
-                    # 'inline_object_list': inline_object_list,
-                    # 'inline_object': NormaconsumoDetalle,
                     'inline_url_edit': reverse_lazy(
                         crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:', ),
                         kwargs={'pk': self.kwargs['pk']}
@@ -998,7 +994,6 @@ class VitolaCRUD(CommonCRUDView):
                     self.object.delete()
                 except ProtectedError as e:
                     protected_details = ", ".join([str(obj) for obj in e.protected_objects])
-                    # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
                     title = _('Cannot delete ')
                     text = _('This element is related to: ')
                     message_error(self.request,
@@ -1484,41 +1479,6 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
         return OEditView
 
 
-# class ObtenrDatosModalFormView(FormView):
-#     template_name = 'app_index/modals/modal_form.html'
-#     form_class = ObtenerDatosModalForm
-#
-#     def form_valid(self, form):
-#         if form.is_valid():
-#             valor_inicial = form.cleaned_data['valor_inicial']
-#             clase_mat_prima = form.cleaned_data['clase_mat_prima']
-#             self.success_url = reverse_lazy(
-#                 'app_index:appversat:prod_appversat',
-#                 kwargs={
-#                     'valor_inicial': valor_inicial,
-#                     'clase_mat_prima': clase_mat_prima,
-#                 }
-#             )
-#
-#             return HttpResponseLocation(
-#                 self.get_success_url(),
-#                 target='#main_content_swap',
-#             )
-#         else:
-#             return render(self.request, 'app_index/modals/modal_form.html', {
-#                 'form': form,
-#             })
-#
-#     def get_context_data(self, **kwargs):
-#         ctx = super(ObtenrDatosModalFormView).get_context_data(**kwargs)
-#         ctx.update({
-#             'modal_form_title': 'Obtener Datos',
-#             'max_width': '500px',
-#             'form_view': True,
-#         })
-#         return ctx
-
-
 class ObtenrDatosModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDatosModalForm
@@ -1580,13 +1540,16 @@ def classmatprima(request):
 
 def rendimientocapa(request):
     clasemp = request.GET.get('clase')
+    codigo = request.GET.get('codigo')
     clasemp = '0' if not clasemp else clasemp
     rendimientocapa = request.GET.get('rendimientocapa')
     rendimientocapa = rendimientocapa if rendimientocapa else '0'
     catvitolas = CategoriaVitola.objects.all()
     seleccvitolas = []
-    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and 'vitolas' in request.GET:
-        seleccvitolas = [int(x) for x in request.GET.getlist('vitolas')]
+    prod = ProductoFlujo.objects.filter(codigo=codigo)
+    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
+        vitolas = prod.first().vitolas.all()
+        seleccvitolas = [x.pk for x in vitolas]
     context = {
         'show_rendimiento': True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False,
         'valorrendimientocapa': rendimientocapa,
@@ -1616,8 +1579,9 @@ def calcula_nt(request):
         'show_norma_tiempo': True,
         'show_nr_media': True,
         'valornorma_tiempo': '%.4f' % nt,
+        'valornr_media': nr if nr else 0,
     }
-    return render(request, 'app_index/partials/clasifcargosnormatiempo.html', context)
+    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
 
 
 # ------ TipoDocumento / CRUD ------
