@@ -334,15 +334,18 @@ class CommonCRUDView(CRUDView):
                 })
                 return ctx
 
-            def form_invalid(self, form, **kwargs):
-                """If the form is invalid, render the invalid form."""
-                ctx = self.get_context_data(**kwargs)
+            def get_retarget_response(self, form, ctx):
                 ctx['form'] = form
                 tpl = self.get_template_names()
                 response = render(self.request, tpl, ctx)
                 response['HX-Retarget'] = ctx['hx_retarget']
                 response['HX-Reswap'] = ctx['hx_reswap']
                 return response
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                return self.get_retarget_response(form=form, ctx=ctx)
 
             def get_success_url(self):
                 url = super(OCreateView, self).get_success_url()

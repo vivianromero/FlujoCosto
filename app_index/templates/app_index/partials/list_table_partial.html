@@ -116,7 +116,7 @@
             js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
             js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
         }
-        document.querySelectorAll("a.activar_href").forEach((ref) => {
+        document.querySelectorAll("a.delete_href").forEach((ref) => {
             ref.addEventListener("click", function (e) {
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
