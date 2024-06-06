@@ -9,7 +9,7 @@ from cruds_adminlte3.utils import crud_url_name
 from .forms import *
 from .models import *
 
-ACTIVO_CHOICES = (
+YES_NO = (
     (1, "Si"),
     (0, "No"),
 )
@@ -87,7 +87,7 @@ class NormaConsumoFilter(MyGenericFilter):
     )
 
     activa = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -211,7 +211,7 @@ class UnidadContableFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -219,7 +219,7 @@ class UnidadContableFilter(MyGenericFilter):
     )
 
     is_empresa = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -227,7 +227,7 @@ class UnidadContableFilter(MyGenericFilter):
     )
 
     is_comercializadora = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -267,7 +267,7 @@ class MedidaFilter(MyGenericFilter):
     )
 
     activa = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -389,7 +389,7 @@ class CentroCostoFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -444,7 +444,7 @@ class ProductoFlujoFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -522,7 +522,7 @@ class VitolaFilter(MyGenericFilter):
     )
     activo = django_filters.ChoiceFilter(
         label="Activo",
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -579,7 +579,7 @@ class MarcaSalidaFilter(MyGenericFilter):
     split_space_search = ' '
 
     activa = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -620,7 +620,7 @@ class MotivoAjusteFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -628,7 +628,7 @@ class MotivoAjusteFilter(MyGenericFilter):
     )
 
     aumento = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -695,7 +695,7 @@ class LineaSalidaFilter(MyGenericFilter):
 
     activo = django_filters.ChoiceFilter(
         label="Activo",
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -774,7 +774,7 @@ class ProductsCapasClaPesadasFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -876,7 +876,7 @@ class ClasificadorCargosFilter(MyGenericFilter):
     )
 
     activo = django_filters.ChoiceFilter(
-        choices=ACTIVO_CHOICES,
+        choices=YES_NO,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',
@@ -904,6 +904,83 @@ class ClasificadorCargosFilter(MyGenericFilter):
         ]
 
         form = ClasificadorCargosFormFilter
+
+        filter_overrides = {
+            models.ForeignKey: {
+                'filter_class': django_filters.ModelMultipleChoiceFilter,
+                'extra': lambda f: {
+                    'queryset': django_filters.filterset.remote_queryset(f),
+                }
+            },
+        }
+        
+# ------ FichaCostoFilas / Filter ------
+class FichaCostoFilasFilter(MyGenericFilter):
+    search_fields = [
+        'descripcion__icontains',
+    ]
+    split_space_search = ' '
+
+
+    descripcion = django_filters.CharFilter(
+        label='Descripción',
+        widget=forms.TextInput(),
+        lookup_expr='icontains',
+    )
+
+    encabezado = django_filters.ChoiceFilter(
+        choices=YES_NO,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    desglosado = django_filters.ChoiceFilter(
+        choices=YES_NO,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    calculado = django_filters.ChoiceFilter(
+        choices=YES_NO,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    salario = django_filters.ChoiceFilter(
+        choices=YES_NO,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    vacaciones = django_filters.ChoiceFilter(
+        choices=YES_NO,
+        empty_label=EMPTY_LABEL,
+        widget=forms.Select(attrs={
+            'style': 'width: 100%',
+        }),
+    )
+
+    class Meta:
+        model = FichaCostoFilas
+        fields = [
+            'query',
+            'descripcion',
+            'encabezado',
+            'desglosado',
+            'salario',
+            'vacaciones',
+            'calculado',
+        ]
+
+        form = FichaCostoFilasFormFilter
 
         filter_overrides = {
             models.ForeignKey: {

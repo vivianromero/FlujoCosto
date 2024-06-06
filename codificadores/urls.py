@@ -23,6 +23,7 @@ confcentroselementosotrosdetallegrouped_crud = views.ConfCentrosElementosOtrosDe
 producto_capas_pesadas_crud = views.ProductsCapasClaPesadasCRUD()
 tipodocumento_crud = views.TipoDocumentoCRUD()
 clasificadorcargos_crud = views.ClasificadorCargosCRUD()
+filasfichacosto_crud = views.FichaCostoFilasCRUD()
 
 app_name = 'codificadores'
 
@@ -54,6 +55,7 @@ urlpatterns = [
     path("", include(confcentroselementosotrosdetalle_crud.get_urls())),
     path("", include(producto_capas_pesadas_crud.get_urls())),
     path("", include(clasificadorcargos_crud.get_urls())),
+    path("", include(filasfichacosto_crud.get_urls())),
     path('classmatprima/', views.classmatprima, name='classmatprima'),
     path("", include(tipodocumento_crud.get_urls())),
     path(r"^(?P<pk>\d+)/confirm_nc/$", views.confirm_nc, name='codificadores_normaconsumo_confirm'),

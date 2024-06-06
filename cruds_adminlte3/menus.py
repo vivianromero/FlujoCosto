@@ -185,6 +185,14 @@ MENUS = {
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
                         {
+                            "id": 'id_nav_link_elementos_filas_ficha_costo',
+                            "name": "Configurar Ficha de Costo",
+                            "icon_class": 'fa fa-university',
+                            "url": crud_url_name(FichaCostoFilas, 'list',
+                                                 'app_index:codificadores:'),
+                            "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                        },
+                        {
                             "id": 'id_nav_link_elementos_clasificador_de_cargo',
                             "name": "Clasificador de Cargos",
                             "icon_class": 'fa fa-university',

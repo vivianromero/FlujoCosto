@@ -192,6 +192,7 @@ class ClaseMateriaPrima(models.Model):
     def __str__(self):
         return self.descripcion
 
+
 class CategoriaVitola(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceCategoriasVit.CHOICE_CATEGORIAS, editable=False, )
     descripcion = models.CharField(unique=True, max_length=50)
@@ -204,6 +205,7 @@ class CategoriaVitola(models.Model):
     def __str__(self):
         return "%s" % (self.descripcion)
 
+
 class ProductoFlujo(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=50, verbose_name=_("Code"))
@@ -213,14 +215,15 @@ class ProductoFlujo(ObjectsManagerAbstract):
                                verbose_name="U.M")
     tipoproducto = models.ForeignKey(TipoProducto, on_delete=models.PROTECT, related_name='productoflujo_tipo',
                                      verbose_name=_("Product Type"))
-    precio_lop = models.DecimalField(max_digits=10, decimal_places=4, db_comment='Precio según Listado Oficial de Precio',
-                                 verbose_name=_("Precio LOP"), default=0.0000,
-                                 validators=[MinValueValidator(0.0000, message=_('El valor debe ser >= 0'))])
+    precio_lop = models.DecimalField(max_digits=10, decimal_places=4,
+                                     db_comment='Precio según Listado Oficial de Precio',
+                                     verbose_name=_("Precio LOP"), default=0.0000,
+                                     validators=[MinValueValidator(0.0000, message=_('El valor debe ser >= 0'))])
     rendimientocapa = models.IntegerField(db_comment='Rendimiento de la capa x millar',
-                                 verbose_name=_("Rendimiento x Millar"), default=0,
-                                 validators=[MinValueValidator(0, message=_('El valor debe ser >= 0'))])
+                                          verbose_name=_("Rendimiento x Millar"), default=0,
+                                          validators=[MinValueValidator(0, message=_('El valor debe ser >= 0'))])
     vitolas = models.ManyToManyField(CategoriaVitola, related_name='capas_categvitolas',
-                                   verbose_name="Vitolas")
+                                     verbose_name="Vitolas")
 
     class Meta:
         db_table = 'cla_productoflujo'
@@ -246,6 +249,7 @@ class ProductoFlujoClase(ObjectsManagerAbstract):
     def __str__(self):
         return self.clasemateriaprima.descripcion
 
+
 class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
@@ -264,6 +268,7 @@ class ProductoFlujoCuenta(models.Model):
 
     class Meta:
         db_table = 'cla_productoflujocuenta'
+
 
 class TipoVitola(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA, editable=False, )
@@ -726,13 +731,20 @@ class ProductsCapasClaPesadas(ProductoFlujo):
 # Fichas de costo
 class FichaCostoFilas(ObjectsManagerAbstract):
     id = models.IntegerField(primary_key=True, editable=False, )
-    fila = models.CharField(max_length=5, unique=True)
+    fila = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, unique=True)
     descripcion = models.CharField(max_length=150)
-    encabezado = models.BooleanField(default=False)
-    salario = models.BooleanField(default=False)
-    desglosado = models.BooleanField(default=False)
-    calculado = models.BooleanField(default=False)
-    sumafilas = models.CharField(max_length=250)
+    encabezado = models.BooleanField(default=False,
+                                     db_comment='Valor True si tiene descendientes y su valor '
+                                                'es la suma de los hijos los valores de sus hijos. '
+                                                'Ejemplo Fila 1 es encabezado si exiten filas 1.1, 1.2, 1.n '
+                                                'y el valor de Fila 1 es la suma de sus hijos')
+    salario = models.BooleanField(default=False, db_comment='Si el concepto constituye salario')
+    vacaciones = models.BooleanField(default=False, db_comment='Si es vacaciones y se relaciona con el concepto salario '
+                                                               'para calcularlo como el 9.09 del salario')
+    desglosado = models.BooleanField(default=False, db_comment='Si el concepto es resultado de los desgloses establecidos: Salario, '
+                                                                'Materia Prima y Materiales, Gastos Materia Prima Tabaco')
+    calculado = models.BooleanField(default=False, db_comment='Si su valor depende de la suma de otras filas del encabezado')
+    sumafilas = models.CharField(max_length=250, db_comment='Filas encabezadas que se suman')
 
     class Meta:
         db_table = 'cla_fichacostofilas'
@@ -748,8 +760,10 @@ class FichaCostoFilas(ObjectsManagerAbstract):
         ]
 
     def __str__(self):
-        return "%s | %s" % (self.fila, self.descripcion)
+        return "%s - %s" % (self.get_fila(), self.descripcion)
 
+    def get_fila(self):
+        return str(int(self.fila)) if self.fila - int(self.fila) == 0.0 else str(self.fila)
 
 class GrupoEscalaCargo(ObjectsManagerAbstract):
     id = models.SmallIntegerField(primary_key=True, editable=False, )
@@ -775,7 +789,7 @@ class ClasificadorCargos(ObjectsManagerAbstract):
     actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
                                  verbose_name=_("Actividad"))
     vinculo_produccion = models.SmallIntegerField(choices=ChoiceCargoProduccion.CHOICE_CARGOPRODUCCION,
-                                 db_comment='Directo (1), Indirecto Producción (2), Indirecto (3)',
+                                                  db_comment='Directo (1), Indirecto Producción (2), Indirecto (3)',
                                                   verbose_name=_("Vinculo Producción"),
                                                   default=1)
     activo = models.BooleanField(default=True, verbose_name=_("Active"))

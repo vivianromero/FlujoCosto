@@ -1626,7 +1626,6 @@ class TipoDocumentoCRUD(CommonCRUDView):
 
         return OFilterListView
 
-
 def confirm_nc(request, pk):
     obj = NormaConsumo.objects.get(pk=pk)
     if obj.normaconsumodetalle_normaconsumo.count() > 0:
@@ -1739,3 +1738,70 @@ class ClasificadorCargosCRUD(CommonCRUDView):
                     return super().get(request=request)
 
         return OFilterListView
+
+# ------ FichaCostoFilas / CRUD ------
+class FichaCostoFilasCRUD(CommonCRUDView):
+    model = FichaCostoFilas
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+            'fila',
+            'descripcion',
+            'encabezado',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+            'sumafilas'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'descripcion__icontains',
+        'encabezado',
+        'salario',
+        'vacaciones',
+        'desglosado',
+        'calculado',
+    ]
+
+    add_form = FichaCostoFilasForm
+    update_form = FichaCostoFilasForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = ClasificadorCargosFilter
+
+    # Table settings
+    table_class = ClasificadorCargosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:clacargos_importar',
+                    'filtrar': True,
+                    'url_exportar': True,
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+

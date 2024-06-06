@@ -1,7 +1,6 @@
+from codificadores import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceCategoriasVit, \
+    ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, ChoiceConfCentrosElementosOtros
 from codificadores.models import *
-from codificadores import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceCategoriasVit, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, ChoiceConfCentrosElementosOtros
-from django.http.response import HttpResponse
-from utiles.utils import json_response
 
 modulo = "codificadores"
 
