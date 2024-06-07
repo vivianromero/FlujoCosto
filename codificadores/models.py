@@ -729,9 +729,9 @@ class ProductsCapasClaPesadas(ProductoFlujo):
 
 # Costos
 # Fichas de costo
-class FichaCostoFilas(ObjectsManagerAbstract):
+class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
     id = models.IntegerField(primary_key=True, editable=False, )
-    fila = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, unique=True)
+    fila = models.CharField(max_length=8, unique=True)
     descripcion = models.CharField(max_length=150)
     encabezado = models.BooleanField(default=False,
                                      db_comment='Valor True si tiene descendientes y su valor '
@@ -745,6 +745,9 @@ class FichaCostoFilas(ObjectsManagerAbstract):
                                                                 'Materia Prima y Materiales, Gastos Materia Prima Tabaco')
     calculado = models.BooleanField(default=False, db_comment='Si su valor depende de la suma de otras filas del encabezado')
     sumafilas = models.CharField(max_length=250, db_comment='Filas encabezadas que se suman')
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    objects = models.Manager()
+    tree = TreeManager()
 
     class Meta:
         db_table = 'cla_fichacostofilas'
@@ -760,10 +763,8 @@ class FichaCostoFilas(ObjectsManagerAbstract):
         ]
 
     def __str__(self):
-        return "%s - %s" % (self.get_fila(), self.descripcion)
+        return "%s - %s" % (self.fila, self.descripcion)
 
-    def get_fila(self):
-        return str(int(self.fila)) if self.fila - int(self.fila) == 0.0 else str(self.fila)
 
 class GrupoEscalaCargo(ObjectsManagerAbstract):
     id = models.SmallIntegerField(primary_key=True, editable=False, )

@@ -107,39 +107,6 @@ class GenAperturaprod(models.Model):
         managed = True
         db_table = 'gen_aperturaprod'
 
-
-# class ConApertura(models.Model):
-#     idapertura = models.AutoField(primary_key=True)
-#     idmascara = models.ForeignKey(GenMascara, models.DO_NOTHING, db_column='idmascara')
-#     idunidad = models.ForeignKey(GenUnidadcontable, models.DO_NOTHING, db_column='idunidad', blank=True, null=True)
-#     tipo = models.SmallIntegerField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'con_apertura'
-#
-#
-# class ConCuenta(models.Model):
-#     idcuenta = models.AutoField(primary_key=True)
-#     clave = models.CharField(unique=True, max_length=50)
-#     idapertura = models.ForeignKey(ConApertura, models.DO_NOTHING, db_column='idapertura')
-#     activa = models.BooleanField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'con_cuenta'
-
-
-# class ConCuentanat(models.Model):
-#     idcuenta = models.ForeignKey(ConCuenta, models.DO_NOTHING, db_column='idcuenta', primary_key=True)
-#     clave = models.CharField(unique=True, max_length=50)
-#     descripcion = models.CharField(unique=True, max_length=255)
-#     naturaleza = models.SmallIntegerField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'con_cuentanat'
-
 class GenSubsistema(models.Model):
     idsubsistema = models.AutoField(primary_key=True)
     nombre = models.CharField(unique=True, max_length=30)

@@ -1461,7 +1461,7 @@ class DepartamentoForm(forms.ModelForm):
                                                                                  id=instance.id) if instance else Departamento.objects.all(),
                                                                              widget=forms.CheckboxSelectMultiple
                                                                              )
-        queryset_uc = UnidadContable.objects.filter(activo=True)
+        queryset_uc = UnidadContable.objects.filter(activo=True, is_empresa=False, is_comercializadora=False)
         self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(label="UEB",
                                                                        queryset=queryset_uc if not instance else (
                                                                                queryset_uc | Departamento.objects.get(

@@ -1775,10 +1775,10 @@ class FichaCostoFilasCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    filterset_class = ClasificadorCargosFilter
+    filterset_class = FichaCostoFilasFilter
 
     # Table settings
-    table_class = ClasificadorCargosTable
+    table_class = FichaCostoFilasTable
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
@@ -1787,20 +1787,11 @@ class FichaCostoFilasCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    'url_importar': 'app_index:importar:clacargos_importar',
+                    # 'url_importar': 'app_index:importar:clacargos_importar',
                     'filtrar': True,
-                    'url_exportar': True,
+                    # 'url_exportar': True,
                 })
                 return context
-
-            def get(self, request, *args, **kwargs):
-                myexport = request.GET.get("_export", None)
-                if myexport and myexport == 'sisgest':
-                    table = self.get_table(**self.get_table_kwargs())
-                    datos = table.data.data
-                    return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
-                else:
-                    return super().get(request=request)
 
         return OFilterListView
 

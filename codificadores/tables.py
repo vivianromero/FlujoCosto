@@ -332,3 +332,19 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
             'activo',
             'unidadcontable',
         )
+
+# ------ FichaCostoFilas / Table ------
+class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = FichaCostoFilas
+
+        fields = (
+            'get_fila',
+            'descripcion',
+            'encabezado',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+            'sumafilas'
+        )

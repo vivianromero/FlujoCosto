@@ -255,15 +255,9 @@ class DocumnetosInvList(APIView):
     def get(self, request, format=None):
 
         try:
-            # docum = InvDocumento.objects.filter(fecha__date__range=['2023-01-01', '2023-01-31'])
             docum = InvDocumento.objects.all()
             serializer = InvDocumentoSerializer(docum, many=True)
 
         except Exception as e:
             message_error(request=request, title=_("Couldn't update"), text=_('Data error'))
-        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
         return Response(serializer.data)
-        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'), context={'data':serializer.data})
-        # return redirect(crud_url_name(Cuenta, 'list', 'app_index:codificadores:'))
-        # json_data = serializers.serialize("json", docum)
-        # return Response(json_data)
