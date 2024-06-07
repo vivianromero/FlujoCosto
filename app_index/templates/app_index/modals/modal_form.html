@@ -11,8 +11,8 @@
             id="id_form_modal" 
             hx-post="{{ request.path }}" 
             hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
-            {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} 
-            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}
+{#            {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} #}
+{#            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}#}
             class="modal-content" 
             style="max-width: {{ max_width }}"
             action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}"
@@ -33,7 +33,7 @@
                     {{ form|crispy }}
                 {% endif %}
             </div>
-            {% if inlines %}
+            {% if inlines and action == 'update' %}
                 <div class="card-body row">
                     <div class="col-md-12">
                         <div class="panel panel-default">
@@ -79,12 +79,12 @@
                 </div>
             {% endif %}
             <div class="modal-footer">
-                {% if form_view %}
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button hx-headers="{'submitted': 'true'}" id="id_form_btn_acept" type="submit" class="btn btn-primary">Aceptar</button>
-                {% else %}    
-                    {% include "cruds/actions/hx_common_form_actions.html"%}
-                {% endif %}
+{#                {% if form_view %}#}
+{#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>#}
+{#                    <button hx-headers="{'submitted': 'true'}" id="id_form_btn_acept" type="submit" class="btn btn-primary">Aceptar</button>#}
+{#                {% else %}    #}
+{#                    {% include "cruds/actions/hx_common_form_actions.html"%}#}
+{#                {% endif %}#}
             </div>
             </div>
         

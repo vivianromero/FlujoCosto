@@ -204,8 +204,6 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    # inlines = [NormaConsumoDetalleAjaxCRUD]
-
     inlines = [NormaConsumoDetalleAjaxCRUD]
 
     inline_actions = False

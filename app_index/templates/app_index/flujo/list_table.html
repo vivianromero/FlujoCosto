@@ -94,6 +94,85 @@
                     </div>
                 </div>
                 </div>
+                <script>
+                    window.data = {
+                        button_shift_class_container: '{{ table.button_shift_class_container|safe }}',
+                        js_swal_title: '{{ js_swal_title|safe }}',
+                        js_swal_text: '{{ js_swal_text|safe }}',
+                        js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
+                        js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
+                    }
+                    document.querySelectorAll("a.delete_href").forEach((ref) => {
+                        ref.addEventListener("click", function (e) {
+                            e.preventDefault()
+                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                            swal.fire({
+                                title: '¿Está seguro que desea eliminar este elemento?' + record,
+                                text: '¡Esta acción no podrá revertirse!',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Confirmar Eliminar',
+                                cancelButtonText: 'Cancelar',
+                                backdrop: true,
+                                showLoaderOnConfirm: true,
+                                preConfirm:()=>{
+                                    location.href = e.target.parentElement.href
+                                },
+                                allowOutsideClick:()=>false,
+                                allowEscapeKey:()=>false
+                            })
+                        })
+                    })
+                    document.querySelectorAll("a.activar_href").forEach((ref) => {
+                        ref.addEventListener("click", function (e) {
+                            e.preventDefault()
+                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                            swal.fire({
+                                title: "Está seguro que desea activar " + record,
+                                text: e.target.parentElement.attributes['texto'].nodeValue,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: "Confirmar Activar",
+                                cancelButtonText: 'Cancelar',
+                                backdrop: true,
+                                showLoaderOnConfirm: true,
+                                preConfirm:()=>{
+                                    location.href = e.target.parentElement.href
+                                },
+                                allowOutsideClick:()=>false,
+                                allowEscapeKey:()=>false
+                            })
+                        })
+                    })
+            
+                   document.querySelectorAll("a.confirm_href").forEach((ref) => {
+                        ref.addEventListener("click", function (e) {
+                            e.preventDefault()
+                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                            swal.fire({
+                                title: "Está seguro que desea confirmar " + record,
+                                text: e.target.parentElement.attributes['texto'].nodeValue,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: "Confirmar",
+                                cancelButtonText: 'Cancelar',
+                                backdrop: true,
+                                showLoaderOnConfirm: true,
+                                preConfirm:()=>{
+                                    location.href = e.target.parentElement.href
+                                },
+                                allowOutsideClick:()=>false,
+                                allowEscapeKey:()=>false
+                            })
+                        })
+                    })
+                </script>
             </div>
         </div>
     </section>

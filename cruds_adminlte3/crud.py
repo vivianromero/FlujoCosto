@@ -1118,6 +1118,7 @@ class CRUDView(object):
                     message_error(self.request,
                                   title + self.object.__str__() + '!',
                                   text=text + protected_details)
+                    sweetify.error(self.request, title + self.object.__str__() + '!', text=text + protected_details)
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     # messages.success(self.request, self.success_message)

@@ -41,12 +41,20 @@ class DocumentoFilter(MyGenericFilter):
     #     ),
     # )
 
-    fecha = CustomDateFromToRangeFilter(
+    rango_fecha = CustomDateFromToRangeFilter(
         label='Fecha',
         field_name='fecha',
         widget=MyCustomDateRangeWidget(
             attrs={
-                'id': 'id_fecha_documento_formfilter'
+                'id': 'id_fecha_documento_formfilter',
+                'class': 'class="form-control',
+                'style': 'height: auto; padding: 0;',
+                'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+                'hx-target': '#main_content_swap',
+                'hx-trigger': 'change, changed from:#div_id_departamento, changed from:.btn-shift-column-visivility',
+                'hx-replace-url': 'true',
+                'hx-preserve': 'true',
+                'hx-include': '[name="departamento"]'
             },
             format='%d/%m/%Y',
             picker_options={
@@ -92,7 +100,7 @@ class DocumentoFilter(MyGenericFilter):
     class Meta:
         model = Documento
         fields = [
-            'fecha',
+            'rango_fecha',
             'numerocontrol',
             'numeroconsecutivo',
             'suma_importe',
