@@ -23,7 +23,7 @@
 <div id="div_id_precio_lop" class="form-group">
     <label for="id_precio_lop" style="{% if not esmatprim %}display:none{%else%} {%endif%}" class= "{% if esmatprim %}requiredField{%else%} {%endif%}">{% translate 'Precio LOP' %}{% if esmatprim %}<span class="asteriskField">*</span>{% endif %}</label>
     <div style="{% if not esmatprim %}display:none{%else%} {%endif%}">
-        <input type="number" name="precio_lop" value="0.0" step="0.0001" min="0.0000" class="numberinput form-control" required="" id="id_precio_lop">
+        <input type="number" name="precio_lop" decimal_places=4 max_digits=10 min_value=0.0000 value="0.0" step="0.0001" min="0.0000" class="numberinput form-control" required="" id="id_precio_lop">
     </div>
 </div>
 

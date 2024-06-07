@@ -234,25 +234,6 @@ DATABASES = {
         'HOST': '172.17.0.3',
         'PORT': '5432',
     }
-    # ,
-    # 'app_versat': {
-    #                 'ENGINE': 'mssql',
-    #                 'NAME':'VersatQuem',
-    #                 'USER':'sa',
-    #                 'PASSWORD':'Sasasa*1',
-    #                 'HOST': '172.20.0.2',
-    #                 'PORT': '',
-    #                 'ATOMIC_REQUESTS': True,
-    #                 # 'CONN_REQUESTS': True,
-    #                 'TIME_ZONE': None,
-    #                 'CONN_HEALTH_CHECKS': True,
-    #                 'CONN_MAX_AGE': 60,
-    #                 'AUTOCOMMIT': True,
-    #                 'OPTIONS': {
-    #                     'driver': 'ODBC Driver 17 for SQL Server',
-    #                     'connect_timeout': 5,
-    #                 },
-    #             }
 }
 
 # Password validation

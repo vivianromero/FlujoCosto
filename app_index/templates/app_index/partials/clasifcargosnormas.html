@@ -12,7 +12,7 @@
         <div id="div_id_norma_tiempo" class="form-group">
             <label for="id_norma_tiempo" class="{% if show_norma_tiempo %}{%else%}requiredField{%endif%}">{% translate 'Norma Tiempo (hr)' %}{% if show_norma_tiempo %}<span class="asteriskField">*</span>{% endif %}</label>
             <div style="display">
-                <input type="number" name="norma_tiempo" value="{{valornorma_tiempo}}" step="0.0001" min="0" class="numberinput form-control" required="" {% if show_nr_media %}readonly{%else%}enabled{%endif%} id="id_norma_tiempo">
+                <input type="number" name="norma_tiempo" decimal_places=4 max_digits=10 value="{{valornorma_tiempo}}" step="0.0001" min="0" class="numberinput form-control" required="" {% if show_nr_media %}readonly{%else%}enabled{%endif%} id="id_norma_tiempo">
             </div>
         </div>
     </div>

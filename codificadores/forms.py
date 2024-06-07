@@ -1461,7 +1461,7 @@ class DepartamentoForm(forms.ModelForm):
                                                                                  id=instance.id) if instance else Departamento.objects.all(),
                                                                              widget=forms.CheckboxSelectMultiple
                                                                              )
-        queryset_uc = UnidadContable.objects.filter(activo=True)
+        queryset_uc = UnidadContable.objects.filter(activo=True, is_empresa=False, is_comercializadora=False)
         self.fields['unidadcontable'] = forms.ModelMultipleChoiceField(label="UEB",
                                                                        queryset=queryset_uc if not instance else (
                                                                                queryset_uc | Departamento.objects.get(
@@ -2844,3 +2844,125 @@ class ClasificadorCargosFormFilter(forms.Form):
         context['height_right_sidebar'] = '505px'
         return context
 
+
+# ------------- FichaCostoFilas / Form --------------
+class FichaCostoFilasForm(forms.ModelForm):
+    class Meta:
+        model = FichaCostoFilas
+        fields = [
+            'fila',
+            'descripcion',
+            'encabezado',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+            'sumafilas'
+        ]
+
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(FichaCostoFilasForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_filasficha_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Filas de la Ficha de Costo',
+                    Row(
+                        Column('fila', css_class='form-group col-md-3 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-5 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('encabezado', css_class='form-group col-md-2 mb-0'),
+                        Column('desglosado', css_class='form-group col-md-2 mb-0'),
+                        Column('calculado', css_class='form-group col-md-2 mb-0'),
+                        Column('sumafila', css_class='form-group col-md-2 mb-0'),
+                        Column('salario', css_class='form-group col-md-2 mb-0'),
+                        Column('vacaciones', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+class FichaCostoFilasFormFilter(forms.Form):
+
+    class Meta:
+        model = FichaCostoFilas
+        fields = [
+            'descripcion',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(FichaCostoFilasFormFilter, self).__init__(*args, **kwargs)
+        self.fields['query'].widget.attrs = {"placeholder": _("Search...")}
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_filasficha_form_filter'
+        self.helper.form_method = 'GET'
+
+        self.helper.layout = Layout(
+
+            TabHolder(
+                Tab(
+                    'Filas Ficha de Costo',
+                    Row(
+                        Column(
+                            AppendedText(
+                                'query', mark_safe('<i class="fas fa-search"></i>')
+                            ),
+                            css_class='form-group col-md-12 mb-0'
+                        ),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Row(
+                        Column('encabezado', css_class='form-group col-md-2 mb-0'),
+                        Column('desglosado', css_class='form-group col-md-2 mb-0'),
+                        Column('calculado', css_class='form-group col-md-2 mb-0'),
+                        Column('sumafila', css_class='form-group col-md-2 mb-0'),
+                        Column('salario', css_class='form-group col-md-2 mb-0'),
+                        Column('vacaciones', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+                style="padding-left: 0px; padding-right: 0px; padding-top: 5px; padding-bottom: 0px;",
+            ),
+
+        )
+
+        self.helper.layout.append(
+            common_filter_form_actions()
+        )
+
+    def get_context(self):
+        context = super().get_context()
+        context['width_right_sidebar'] = '760px'
+        context['height_right_sidebar'] = '505px'
+        return context

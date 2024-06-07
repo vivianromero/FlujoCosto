@@ -25,35 +25,3 @@ class CosCentro(models.Model):
         db_table = 'cos_centro'
         unique_together = (('clave', 'idapertura'), ('idapertura', 'clavenivel'),)
 
-
-# class CosElementoGasto(models.Model):
-#     idelementogasto = models.AutoField(primary_key=True)
-#     codigo = models.CharField(max_length=50)
-#     descripcion = models.CharField(max_length=255)
-#     activo = models.BooleanField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'cos_elementogasto'
-#
-# class CosPartida(models.Model):
-#     idpartida = models.AutoField(primary_key=True)
-#     codigo = models.CharField(max_length=50)
-#     descripcion = models.CharField(max_length=255)
-#     activo = models.BooleanField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'cos_partida'
-#
-# class CosSubElementoGasto(models.Model):
-#     idsubelemento = models.AutoField(primary_key=True)
-#     codigo = models.CharField(max_length=50)
-#     descripcion = models.CharField(max_length=255)
-#     activo = models.BooleanField()
-#     idelementogasto = models.ForeignKey('CosElementoGasto', models.DO_NOTHING, db_column='idelementogasto')
-#     idpartida = models.ForeignKey('CosPartida', models.DO_NOTHING, db_column='idpartida')
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'cos_subelementogasto'

@@ -32,8 +32,7 @@ class DatabaseConectionMiddleware:
             if not user.is_authenticated or not 'appversat' in match.namespaces:
                 if not 'invdoc_appversat' in request.path.split('/'):
                     return self.get_response(request)
-            # if not user.is_adminempresa:
-            #     return redirect('app_index:noauthorized')
+
             url_name = 'invdoc_appversat' if not match.url_name else match.url_name
             object = None
             prefix = 'app_index:codificadores:'
@@ -53,7 +52,6 @@ class DatabaseConectionMiddleware:
                 case 'invdoc_appversat':
                     prefix = 'app_index:flujo:'
                     object = Documento
-                    # table = DocumentosVersatTable()
             try:
                 conection = ConexionBaseDato.objects.get(unidadcontable=user.ueb, sistema=sistema)
 
@@ -79,13 +77,6 @@ class DatabaseConectionMiddleware:
                     response = self.get_response(request)
                 return response if response.status_code == 200 else redirect(
                     crud_url_name(object, 'list', prefix))
-
-
-                # return redirect(crud_url_name(object, 'list', prefix), kwargs=[response.data])  if response.status_code == 200 else redirect(
-                #     crud_url_name(object, 'list', prefix))
-                # return Response(response)  if response.status_code == 200 else redirect(
-                #     crud_url_name(object, 'list', prefix))
-                # return response
 
             except ConexionBaseDato.DoesNotExist:
                 message_error(request=request, title=_("Couldn't connect"),
