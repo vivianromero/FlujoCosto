@@ -380,6 +380,7 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
         'Cantidad_Normas',
     ]
 
+
     views_available = [
         'list',
         'create',
