@@ -1,13 +1,16 @@
 {% load i18n %}
-{% if url_list %}
-    <a href="{{ url_list }}{{getparams}}"
-       class="btn btn-secondary"
-       hx-get="{{ url_list }}{{getparams}}"
-       hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
-       hx-replace-url="true"
-    >
-        <i class="fa fa-remove"></i> {% translate "Cancel" %}
-    </a>
+{% if modal %}<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-remove"></i> Cancelar</button>
+{% else %}
+    {% if url_list %}
+        <a href="{{ url_list }}{{getparams}}"
+           class="btn btn-secondary"
+           hx-get="{{ url_list }}{{getparams}}"
+           hx-trigger="click"
+           hx-target="#main_content_swap"
+           hx-swap="outerHTML"
+           hx-replace-url="true"
+        >
+            <i class="fa fa-remove"></i> {% translate "Cancel" %}
+        </a>
+    {% endif %}
 {% endif %}

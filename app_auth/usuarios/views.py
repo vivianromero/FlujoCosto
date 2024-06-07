@@ -80,6 +80,7 @@ class EditarUsuario(UpdateView):
         else:
             return HttpResponseRedirect(self.get_success_url())
 
+
 class PassChangeView(SuccessMessageMixin, PasswordChangeView):
     form_class = PassUserChangeForm
     success_url = reverse_lazy("app_index:index")
@@ -192,8 +193,6 @@ class UsuarioCRUD(CommonCRUDView):
 
     page_length = 10
 
-    page_length_menu = [5, 10, 15, 20]
-
     # Table settings
     table_class = UserTable
     template_name = "app_index/cruds/list_table.html"
@@ -210,6 +209,7 @@ class UsuarioCRUD(CommonCRUDView):
                 if not user.is_superuser:
                     qset = qset.filter(is_superuser=False, ueb=user.ueb)
                 return qset
+
         return OFilterListView
 
 

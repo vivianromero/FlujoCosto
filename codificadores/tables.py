@@ -20,6 +20,70 @@ class DepartamentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         )
 
 
+# ------ NormaConsumo / Table ------
+class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_normasconsumo_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaConsumo
+
+        fields = (
+            'fecha',
+            # 'tipo',
+            'producto',
+            'cantidad',
+            'medida',
+            'confirmada',
+            'activa',
+        )
+
+    # ------ NormaConsumo / Table ------
+
+
+class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaconsumoDetalle
+
+        fields = (
+            'norma_ramal',
+            'norma_empresarial',
+            'operativo',
+            'normaconsumo',
+            'producto',
+            'medida'
+        )
+
+    # hx_target = "#normaconsumodetalle_father"
+    # hx_swap = "innerHTML"
+    # hx_replace_url = "true"
+
+
+# ------ NormaConsumoGrouped / Table ------
+class NormaConsumoGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_normaconsumogrouped_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NormaConsumoGrouped
+
+        fields = (
+            'Producto',
+            'Tipo',
+            'Cantidad_Normas',
+        )
+
+
 # ------ UnidadContable / Table ------
 class UnidadContableTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -28,9 +92,9 @@ class UnidadContableTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         fields = (
             'codigo',
             'nombre',
-            'activo',
             'is_empresa',
             'is_comercializadora',
+            'activo',
         )
 
 
@@ -60,20 +124,13 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Cuenta / Table ------
 class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    shifter_template = "cruds/django_tables2_column_shifter/my-tree-hx-bootstrap4-responsive.html"
-
-    descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node.html')
-
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = Cuenta
 
         fields = (
-            # 'long_niv',
-            # 'posicion',
             'clave',
             'descripcion',
             'activa',
-            # 'parent',
         )
 
 
@@ -91,40 +148,18 @@ class CentroCostoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ ProductoFlujo / Table ------
 class ProductoFlujoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    get_clasemateriaprima = tables.Column(verbose_name='Clase Materia Prima')
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = ProductoFlujo
 
         fields = (
-            'id',
             'codigo',
             'descripcion',
-            'activo',
             'medida',
             'tipoproducto',
-        )
-
-
-# ------ ProductoFlujoClase / Table ------
-class ProductoFlujoClaseTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ProductoFlujoClase
-
-        fields = (
-            'id',
-            'clasemateriaprima',
-            'producto',
-        )
-
-
-# ------ ProductoFlujoDestino / Table ------
-class ProductoFlujoDestinoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
-        model = ProductoFlujoDestino
-
-        fields = (
-            'id',
-            'destino',
-            'producto',
+            'get_clasemateriaprima',
+            'activo',
         )
 
 
@@ -139,18 +174,22 @@ class ProductoFlujoCuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions
             'producto',
         )
 
+
 class VitolaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = Vitola
 
         fields = (
+            'producto__codigo',
+            'producto__descripcion',
+            'producto__medida__clave',
+            'destino',
+            'categoriavitola',
+            'tipovitola',
             'diametro',
             'longitud',
-            'destino',
             'cepo',
-            'categoriavitola',
-            'producto',
-            'tipovitola',
+            'producto__activo'
         )
 
 
@@ -165,7 +204,8 @@ class MarcaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'activa',
         )
 
-# ------ MedidaConversion / Table ------
+
+# ------ MotivoAjuste / Table ------
 class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = MotivoAjuste
@@ -174,4 +214,137 @@ class MotivoAjusteTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'descripcion',
             'aumento',
             'activo',
+        )
+
+
+# ------ Cambio Producto / Table ------
+class CambioProductoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = CambioProducto
+
+        fields = (
+            'productoo',
+            'productod',
+        )
+
+
+class LineaSalidaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = LineaSalida
+
+        fields = (
+            'producto__codigo',
+            'producto__descripcion',
+            'producto__medida__clave',
+            'envase',
+            'vol_cajam3',
+            'peso_bruto',
+            'peso_neto',
+            'peso_legal',
+            'marcasalida',
+            'vitola',
+            'producto__activo'
+        )
+
+
+# ------ NumeracionDocumentos / Table ------
+class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = NumeracionDocumentos
+
+        fields = (
+            'tiponumeracion',
+            'sistema',
+            'departamento',
+            'tipo_documento',
+            'prefijo'
+        )
+
+
+class ConfCentrosElementosOtrosDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConfCentrosElementosOtrosDetalle
+
+        fields = (
+            'descripcion',
+            'valor',
+        )
+
+
+# ------ ProductsCapasClaPesadas / Table ------
+class ProductsCapasClaPesadasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ProductsCapasClaPesadas
+
+        fields = (
+            'codigo',
+            'descripcion',
+            'medida',
+            'tipoproducto',
+            'activo',
+        )
+
+    actions = None
+
+
+class ConfCentrosElementosOtrosDetalleGroupedTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_confcentroselementos_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConfCentrosElementosOtrosDetalleGrouped
+
+        fields = (
+            'Clave',
+            'Elementos',
+        )
+
+
+# ------ TipoDocumento / Table ------
+class TipoDocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = TipoDocumento
+
+        fields = (
+            'descripcion',
+            'operacion',
+            'generado',
+            'prefijo',
+        )
+
+# ------ ClasificadorCargos / Table ------
+class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ClasificadorCargos
+
+        fields = (
+            'codigo',
+            'descripcion',
+            'grupo__grupo',
+            'grupo__salario',
+            'actividad',
+            'vinculo_produccion',
+            'activo',
+            'unidadcontable',
+        )
+
+# ------ FichaCostoFilas / Table ------
+class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = FichaCostoFilas
+
+        fields = (
+            'get_fila',
+            'descripcion',
+            'encabezado',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+            'sumafilas'
         )

@@ -60,8 +60,7 @@ def crud_inline_url(obj, inline, action, namespace=None):
         if namespace:
             nurl = namespace + ':' + nurl
         if action in ['delete', 'update']:
-            url = reverse(nurl, kwargs={'model_id': obj.pk,
-                                        'pk': inline.pk})
+            url = reverse(nurl, kwargs={'model_id': obj.pk, 'pk': inline.pk})
         else:
             url = reverse(nurl, kwargs={'model_id': obj.pk})
     except NoReverseMatch:

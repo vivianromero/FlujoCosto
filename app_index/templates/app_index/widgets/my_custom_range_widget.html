@@ -1,0 +1,10 @@
+<div style="display:table">
+    {% for widget in widget.subwidgets %}
+        <div style="display:table-cell">
+            {% include widget.template_name %}
+        </div>
+        {% if forloop.first %}
+            <div style="display:tabel-cell"> - </div>         
+        {% endif %} 
+    {% endfor %} 
+</div>

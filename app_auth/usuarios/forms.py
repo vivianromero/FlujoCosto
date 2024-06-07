@@ -115,6 +115,7 @@ class RegistroUsuarioForm(UserCreationForm):
         super(RegistroUsuarioForm, self).save()
         return usuario
 
+
 # Forma para actualizar los usuarios.
 class EditarUsuarioForm(UserChangeForm):
     class Media:
@@ -315,6 +316,7 @@ class EditarUsuarioForm(UserChangeForm):
             self.user.save()
         return self.user
 
+
 class PassUserChangeForm(PasswordChangeForm):
 
     def __init__(self, *args, **kwargs):
@@ -330,6 +332,7 @@ class PassUserChangeForm(PasswordChangeForm):
                 )
             )
         )
+
 
 class GroupForm(forms.ModelForm):
     class Media:
@@ -377,6 +380,7 @@ class GroupForm(forms.ModelForm):
                 )
             )
         )
+
 
 class UserUebFormFilter(forms.Form):
     class Meta:

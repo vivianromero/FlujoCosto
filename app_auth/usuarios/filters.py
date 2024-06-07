@@ -1,44 +1,13 @@
 import django_filters
-from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from django_filters.widgets import SuffixedMultiWidget
 
 from app_index.filters import CustomDateFromToRangeFilter
 from app_index.widgets import MyCustomDateRangeWidget
-from .forms import UserUebFormFilter
 from configuracion.models import UserUeb
-
-
-class MyRangeWidget(SuffixedMultiWidget):
-    template_name = "django_filters/widgets/multiwidget.html"
-    suffixes = ["after", "before"]
-
-    def __init__(self, attrs=None):
-        widgets = (
-            DatePickerInput(
-                options={
-                    "format": "DD/MM/YYYY",
-                    "locale": "es",
-                    "showTodayButton": False,
-                },
-            ),
-            DatePickerInput(
-                options={
-                    "format": "DD/MM/YYYY",
-                    "locale": "es",
-                    "showTodayButton": False,
-                },
-            )
-        )
-        super().__init__(widgets, attrs)
-
-    def decompress(self, value):
-        if value:
-            return [value.start, value.stop]
-        return [None, None]
+from .forms import UserUebFormFilter
 
 
 class UserUebFilter(django_filters.FilterSet):

@@ -1,7 +1,21 @@
-from app_index.views import CommonCRUDView
+from django.contrib import messages
+from django.db.models import ProtectedError
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext_lazy as _
+from django.views.generic.edit import FormView
+from django_htmx.http import HttpResponseLocation
+
+from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.tables import *
+from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
+from exportar.views import crear_export_datos_table
+from utiles.utils import message_error
+from . import ChoiceTiposProd
 
 
 # ------ Departamento / CRUD ------
@@ -56,6 +70,388 @@ class DepartamentoCRUD(CommonCRUDView):
         return OFilterListView
 
 
+# ------ NormaConsumoDetalle / AjaxCRUD ------
+class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
+    model = NormaconsumoDetalle
+    base_model = NormaConsumo
+    namespace = 'app_index:codificadores'
+    inline_field = 'normaconsumo'
+    add_form = NormaConsumoDetalleForm
+    update_form = NormaConsumoDetalleForm
+    list_fields = [
+        'norma_ramal',
+        'norma_empresarial',
+        'operativo',
+        'producto',
+        'medida',
+    ]
+
+    views_available = [
+        'list',
+        'list_detail',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
+    title = "Detalles de normas de consumo"
+    table_class = NormaConsumoDetalleTable
+    url_father = None
+
+    def get_create_view(self):
+        create_view = super().get_create_view()
+
+        class CreateView(create_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def form_valid(self, form):
+                self.object = form.save(commit=False)
+                setattr(self.object, self.inline_field, self.model_id)
+                self.object.save()
+                crud_inline_url(self.model_id,
+                                self.object, 'list', self.namespace)
+
+                return HttpResponse(""" """)
+
+        return CreateView
+
+    def get_delete_view(self):
+        delete_view = super().get_delete_view()
+
+        class DeleteView(delete_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return super().get(self, request, *args, **kwargs)
+
+            def get_success_url(self):
+                return "/"
+
+            def post(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id']
+                )
+                if self.model_id:
+                    url_father = reverse_lazy(
+                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'),
+                        args=[self.model.normaconsumo_id]
+                    )
+                else:
+                    url_father = self.get_success_url()
+                response = delete_view.post(self, request, *args, **kwargs)
+                return HttpResponse(" ")
+
+        return DeleteView
+
+
+# ------ NormaConsumoDetalle / HtmxCRUD ------
+
+
+# ------ NormaConsumo / CRUD ------
+class NormaConsumoCRUD(CommonCRUDView):
+    model = NormaConsumo
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'fecha',
+        'producto__tipoproducto',
+        'producto',
+        'cantidad',
+        'medida',
+        'confirmada',
+        'activa',
+    ]
+
+    views_available = [
+        'list',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'producto__tipoproducto',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+
+    add_form = NormaConsumoForm
+    update_form = NormaConsumoForm
+    detail_form = NormaConsumoDetailForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = NormaConsumoFilter
+
+    # Table settings
+    table_class = NormaConsumoTable
+
+    # inlines = [NormaConsumoDetalleAjaxCRUD]
+
+    inlines = [NormaConsumoDetalleAjaxCRUD]
+
+    inline_actions = False
+
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def form_valid(self, form):
+                if not self.related_fields:
+                    return super(OCreateView, self).form_valid(form)
+
+                self.object = form.save(commit=False)
+                for key, value in self.context_rel.items():
+                    setattr(self.object, key, value)
+                self.object.save()
+                edit_url = reverse_lazy(
+                    crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'), args=[self.object.pk]
+                )
+                return HttpResponseLocation(
+                    edit_url,
+                    target='#main_content_swap',
+                )
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                        "producto": self.request.GET['Producto'] if 'Producto' in self.request.GET else None,
+                    }
+                )
+                return form_kwargs
+
+            def get_success_url(self):
+                if "another" in self.request.POST:
+                    url = self.request.path
+                else:
+                    url = super(OCreateView, self).get_success_url()
+                if self.getparams:
+                    url += '?' + self.getparams
+                return url
+
+        return OCreateView
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return_url = reverse_lazy(crud_url_name(NormaConsumoGrouped, 'list', 'app_index:codificadores:'))
+                context.update({
+                    'url_list_normaconsumo': False,
+                    'return_url': return_url,
+                    'confirm': True,
+                    'activar': True,
+                    'texto_confirm': "Al confirmar no podrá modificar la norma.!Esta acción no podrá revertirse!",
+                    'texto_activar': "Las demás normas de este producto serán desactivadas",
+                })
+                pfilter = self.get_filter_dict()
+                if 'producto__codigo' and 'producto__descripcion' in pfilter:
+                    producto = ProductoFlujo.objects.get(
+                        codigo=pfilter['producto__codigo'],
+                        descripcion=pfilter['producto__descripcion']
+                    )
+                else:
+                    producto = None
+                context.update(self.get_filter_dict())
+                context.update({'Producto': producto})
+                return context
+
+            def get_queryset(self):
+                queryset = super(OFilterListView, self).get_queryset()
+                qfilter = self.get_filter_dict()
+                return queryset.filter(**qfilter)
+
+            def get_filter_dict(self):
+                qfilter = {}
+                active_filters = self.filterset_class(self.request.GET).form.changed_data != []
+                if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
+                    tipo = self.request.GET.get('tipo', None)
+                else:
+                    tipo = None
+                producto = self.request.GET.get('Producto', None)
+                if producto is not None:
+                    if '?' in producto:
+                        producto = producto.split('?')[0]
+                    p = producto.split(' | ')
+                    qfilter.update({
+                        'producto__codigo': p[0],
+                        'producto__descripcion': p[1]
+                    })
+                if tipo is not None:
+                    qfilter.update({
+                        'tipo': tipo
+                    })
+                return qfilter
+
+        return OFilterListView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                if 'pk' in self.kwargs and self.inlines:
+                    for inline in self.inlines:
+                        mdl = inline.model
+                        base_mdl = inline.base_model
+                        inline_field = inline.inline_field
+                        filter_id = inline.inline_field + '__id'
+                        filter_dict = {filter_id: self.kwargs['pk']}
+                        inline.object_list = inline.model.objects.filter(**filter_dict)
+                        inline.table = inline.table_class(inline.object_list)
+                else:
+                    inline_object_list = None
+                    table = None
+                ctx.update({
+                    'inline_url_edit': reverse_lazy(
+                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:', ),
+                        kwargs={'pk': self.kwargs['pk']}
+                    ),
+                    "add_button_href": 'app_index:codificadores:obtener_normaconsumodetalle_datos',
+                    "add_button_hx_get": reverse_lazy('app_index:codificadores:obtener_normaconsumodetalle_datos'),
+                    "add_button_hx_target": '#dialog_form',
+                    "acept_btn_hx_get": self.get_success_url(),
+                    "acept_btn_hx_target": '#main_content_swap',
+                    "acept_btn_hx_swap": 'outerHTML',
+                })
+                return ctx
+
+        return OEditView
+
+    def get_detail_view(self):
+        view = super().get_detail_view()
+
+        class ODetailView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                if 'pk' in kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    ctx['form'] = self.form_class(instance=obj)
+                elif 'object' in kwargs:
+                    ctx['form'] = self.form_class(instance=kwargs['object'])
+                return ctx
+
+        return ODetailView
+
+
+class NormaConsumoGroupedCRUD(CommonCRUDView):
+    env = {
+        'normaconsumo': NormaConsumo
+    }
+    model = NormaConsumoGrouped
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'tipo',
+        'cantidad',
+        'activa',
+        'fecha',
+        'medida',
+        'producto',
+        'Producto',
+        'Tipo',
+        'Cantidad_Normas',
+    ]
+
+    views_available = [
+        'list',
+        'create',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'tipo',
+        'cantidad__contains',
+        'fecha',
+        'medida__descripcion__icontains',
+        'producto__descripcion__icontains',
+    ]
+
+    add_form = NormaConsumoForm
+    update_form = NormaConsumoForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = NormaConsumoGroupedFilter
+
+    # Table settings
+    table_class = NormaConsumoGroupedTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                tipo = None
+                active_filters = self.filterset_class(self.request.GET).form.changed_data != []
+                if active_filters and 'tipo' in self.filterset_class(self.request.GET).form.changed_data:
+                    tipo = self.filterset_class(self.request.GET).form.data.get('tipo', None)
+                context.update({
+                    'url_exportar': True,
+                    'filtrar': True,
+                    'url_importar': 'app_index:importar:nc_importar',
+                    'url_list_normaconsumo': True,
+                    'object2': self.env['normaconsumo'],
+                    'return_url': None,
+                    'tipo': tipo,
+                })
+                return context
+
+            def get_queryset(self):
+                queryset = super().get_queryset()
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datostable = table.data.data
+                    idprods = [p['idprod'] for p in datostable]
+                    datos = NormaConsumo.objects.select_related().filter(producto__id__in=idprods,
+                                                                         confirmada=True)
+                    datosdet = []
+                    for d in datos:
+                        datosdet.append(d.normaconsumodetalle_normaconsumo.all())
+                    datos2 = [p.get() for p in datosdet]
+                    return crear_export_datos_table(request, "NC", NormaConsumoGrouped, datos, datos2)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+
 # ------ UnidadContable / CRUD ------
 class UnidadContableCRUD(CommonCRUDView):
     model = UnidadContable
@@ -65,9 +461,9 @@ class UnidadContableCRUD(CommonCRUDView):
     fields = [
         'codigo',
         'nombre',
-        'activo',
         'is_empresa',
         'is_comercializadora',
+        'activo',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -104,6 +500,7 @@ class UnidadContableCRUD(CommonCRUDView):
     filterset_class = UnidadContableFilter
 
     # Table settings
+    paginate_by = 15
     table_class = UnidadContableTable
 
     def get_filter_list_view(self):
@@ -116,6 +513,7 @@ class UnidadContableCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:apiversat:uc_apiversat',
                     'url_importar': 'app_index:importar:uc_importar',
                     'url_exportar': 'app_index:exportar:uc_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -161,6 +559,7 @@ class MedidaCRUD(CommonCRUDView):
     filterset_class = MedidaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = MedidaTable
 
     def get_filter_list_view(self):
@@ -173,6 +572,7 @@ class MedidaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:um_appversat',
                     'url_importar': 'app_index:importar:um_importar',
                     'url_exportar': 'app_index:exportar:um_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -284,6 +684,7 @@ class CuentaCRUD(CommonCRUDView):
     filterset_class = CuentaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = CuentaTable
 
     def get_filter_list_view(self):
@@ -296,6 +697,7 @@ class CuentaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:ccta_appversat',
                     'url_importar': 'app_index:importar:ccta_importar',
                     'url_exportar': 'app_index:exportar:ccta_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -356,6 +758,7 @@ class CentroCostoCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:apiversat:cc_apiversat',
                     'url_importar': 'app_index:importar:cc_importar',
                     'url_exportar': 'app_index:exportar:cc_exportar',
+                    'sistema': 'VERSAT',
                 })
                 return context
 
@@ -369,7 +772,6 @@ class ProductoFlujoCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-        'id',
         'codigo',
         'descripcion',
         'activo',
@@ -381,26 +783,31 @@ class ProductoFlujoCRUD(CommonCRUDView):
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
-        'id__contains',
-        'codigo__icontains',
-        'id__contains',
-        'descripcion__icontains',
-        'activo',
-        'medida__descripcion__icontains',
-        'tipoproducto__descripcion__icontains',
+        'codigo_icontains',
+        'descripcion_icontains',
+        'medida__descripcion__contains',
+        'tipoproducto__descripcion__contains',
+        'get_clasemateriaprima__descripcion__contains'
     ]
 
     add_form = ProductoFlujoForm
-    update_form = ProductoFlujoForm
+    update_form = ProductoFlujoUpdateForm
 
     list_fields = fields
 
     filter_fields = fields
 
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
+
     filterset_class = ProductoFlujoFilter
 
     # Table settings
+    paginate_by = 15
+
     table_class = ProductoFlujoTable
+
+    modal = True
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
@@ -408,82 +815,69 @@ class ProductoFlujoCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # context.update({
-                #     'url_apiversat': '',
-                #     'url_importar': '',
-                #     'url_exportar': '',
-                # })
-                # return context
+                context.update({
+                    'url_apiversat': 'app_index:codificadores:obtener_datos',
+                    'url_importar': 'app_index:importar:prod_importar',
+                    'filtrar': True,
+                    'url_exportar': True,
+                    "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
+                    "hx_target": '#dialog',
+                    "hx_swap": 'outerHTML',
+                    'sistema': 'VERSAT',
+                })
+                return context
+
+            def get_queryset(self):
+                qset = super().get_queryset()
+                qset = qset.filter(
+                    tipoproducto__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.SUBPRODUCTO]).exclude(
+                    productoflujoclase_producto__clasemateriaprima=ChoiceClasesMatPrima.CAPACLASIFICADA)
+                return qset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    datos2 = [
+                        dat.productoflujoclase_producto.get() if dat.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA else None
+                        for dat in datos]
+                    if None in datos2:
+                        datos2.remove(None)
+
+                    return crear_export_datos_table(request, "PROD", ProductoFlujo, datos, datos2)
+                else:
+                    return super().get(request=request)
 
         return OFilterListView
 
+    def get_update_view(self):
+        view = super().get_update_view()
 
-# ------ ProductoFlujoClase / CRUD ------
-class ProductoFlujoClaseCRUD(CommonCRUDView):
-    model = ProductoFlujoClase
+        class OEditView(view):
 
-    namespace = 'app_index:codificadores'
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Productos | Matrias Primas y Materiales',
+                })
+                return ctx
 
-    fields = [
-        'id',
-        'clasemateriaprima',
-        'producto',
-    ]
+        return OEditView
 
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'id__contains',
-        'clasemateriaprima__descripcion__icontains',
-        'producto__descripcion__icontains',
-    ]
+    def get_create_view(self):
+        view = super().get_create_view()
 
-    add_form = ProductoFlujoClaseForm
-    update_form = ProductoFlujoClaseForm
+        class OCreateView(view):
 
-    list_fields = fields
+            def get_context_data(self):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal_form_title': 'Productos | Matrias Primas y Materiales',
+                })
+                return ctx
 
-    filter_fields = fields
-
-    filterset_class = ProductoFlujoClaseFilter
-
-    # Table settings
-    table_class = ProductoFlujoClaseTable
-
-
-# ------ ProductoFlujoDestino / CRUD ------
-class ProductoFlujoDestinoCRUD(CommonCRUDView):
-    model = ProductoFlujoDestino
-
-    namespace = 'app_index:codificadores'
-
-    fields = [
-        'id',
-        'destino',
-        'producto',
-    ]
-
-    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
-    # y no distinga entre mayúsculas y minúsculas.
-    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
-    search_fields = [
-        'id__contains',
-        'destino_icontains',
-        'producto__descripcion__icontains',
-    ]
-
-    add_form = ProductoFlujoDestinoForm
-    update_form = ProductoFlujoDestinoForm
-
-    list_fields = fields
-
-    filter_fields = fields
-
-    filterset_class = ProductoFlujoDestinoFilter
-
-    # Table settings
-    table_class = ProductoFlujoDestinoTable
+        return OCreateView
 
 
 # ------ ProductoFlujoCuenta / CRUD ------
@@ -527,26 +921,29 @@ class VitolaCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
+        'producto__codigo',
+        'producto__descripcion',
         'diametro',
         'longitud',
-        'destino',
         'cepo',
         'categoriavitola',
-        'producto',
         'tipovitola',
+        'destino',
+        'producto__activo',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
     # y no distinga entre mayúsculas y minúsculas.
     # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
     search_fields = [
+        'producto__codigo__icontains',
+        'producto__descripcion__icontains',
         'diametro__contains',
         'longitud__contains',
-        'destino__icontains',
         'cepo__contains',
-        'categoriavitola__descripcion__icontains',
-        'producto__descripcion__icontains',
+        'categoriavitola__descripcion__contains',
         'tipovitola__descripcion__icontains',
+        'destino__icontains',
     ]
 
     add_form = VitolaForm
@@ -559,6 +956,7 @@ class VitolaCRUD(CommonCRUDView):
     filterset_class = VitolaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = VitolaTable
 
     def get_filter_list_view(self):
@@ -567,12 +965,44 @@ class VitolaCRUD(CommonCRUDView):
         class OFilterListView(view):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
-                # context.update({
-                #     'url_apiversat': '',
-                #     'url_importar': '',
-                #     'url_exportar': '',
-                # })
+                context.update({
+                    'url_apiversat': 'app_index:appversat:vit_appversat',
+                    'url_importar': 'app_index:importar:vit_importar',
+                    'url_exportar': True,
+                    'filtrar': True,
+                    'sistema': 'Sispax'
+                })
                 return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos2 = table.data.data
+                    datos = []
+                    for p in datos2:
+                        datos.append(p.producto)
+                        datos.append(p.capa)
+                        datos.append(p.pesada)
+                    return crear_export_datos_table(request, "Vit", Vitola, datos, datos2)
+                else:
+                    return super().get(request=request)
+
+            def post(self, request, *args, **kwargs):
+                self.object = self.get_object()
+                try:
+                    self.object.delete()
+                except ProtectedError as e:
+                    protected_details = ", ".join([str(obj) for obj in e.protected_objects])
+                    title = _('Cannot delete ')
+                    text = _('This element is related to: ')
+                    message_error(self.request,
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
+                    return HttpResponseRedirect(self.get_success_url())
+                if self.success_message:
+                    messages.success(self.request, self.success_message)
+                return HttpResponseRedirect(self.get_success_url())
 
         return OFilterListView
 
@@ -604,12 +1034,13 @@ class MarcaSalidaCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create']
+    view_type = ['list', 'update', 'create']
 
     filterset_class = MarcaSalidaFilter
 
     # Table settings
+    paginate_by = 15
     table_class = MarcaSalidaTable
 
     def get_filter_list_view(self):
@@ -622,6 +1053,7 @@ class MarcaSalidaCRUD(CommonCRUDView):
                     'url_apiversat': 'app_index:appversat:ms_appversat',
                     'url_importar': 'app_index:importar:ms_importar',
                     'url_exportar': 'app_index:exportar:ms_exportar',
+                    'sistema': 'SisGestMP',
                 })
                 return context
 
@@ -656,8 +1088,8 @@ class MotivoAjusteCRUD(CommonCRUDView):
 
     filter_fields = fields
 
-    views_available = ['list', 'update']
-    view_type = ['list', 'update']
+    views_available = ['list', 'update', 'create', 'delete']
+    view_type = ['list', 'update', 'create', 'delete']
 
     filterset_class = MotivoAjusteFilter
 
@@ -671,9 +1103,696 @@ class MotivoAjusteCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    'url_importar': 'app_index:importar:ms_importar',
-                    'url_exportar': 'app_index:exportar:ms_exportar',
+                    'url_importar': 'app_index:importar:ma_importar',
+                    'url_exportar': 'app_index:exportar:ma_exportar',
                 })
                 return context
 
         return OFilterListView
+
+
+# ------ Cambio de Producto / CRUD ------
+class CambioProductoCRUD(CommonCRUDView):
+    model = CambioProducto
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'productoo',
+        'productod',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'productoo__descripcion__contains',
+        'productod__descripcion__contains',
+    ]
+
+    add_form = CambioProductoForm
+    update_form = CambioProductoForm
+
+    list_fields = [
+        'productoo',
+        'productoo',
+    ]
+
+    filter_fields = list_fields
+
+    filterset_class = CambioProductoFilter
+
+    # Table settings
+    table_class = CambioProductoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:cprod_importar',
+                    'url_exportar': 'app_index:exportar:cprod_exportar',
+                })
+                return context
+
+        return OFilterListView
+
+
+# ------ LineaSalida / CRUD ------
+class LineaSalidaCRUD(CommonCRUDView):
+    model = LineaSalida
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'producto__codigo',
+        'producto__descripcion',
+        'envase',
+        'vol_cajam3',
+        'peso_bruto',
+        'peso_neto',
+        'peso_legal',
+        'marcasalida',
+        'vitola',
+        'producto__activo'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'producto__codigo__icontains',
+        'producto__descripcion__icontains',
+        'envase__contains',
+        'vol_cajam3__contains',
+        'peso_bruto__contains',
+        'peso_neto__contains',
+        'peso_legal__contains',
+        'marcasalida__descripcion__contains',
+    ]
+
+    add_form = LineaSalidaForm
+    update_form = LineaSalidaForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = LineaSalidaFilter
+
+    # Table settings
+    paginate_by = 15
+    table_class = LineaSalidaTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:ls_importar',
+                    'url_exportar': True,
+                    'filtrar': True
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos2 = table.data.data
+                    datos = []
+                    for p in datos2:
+                        datos.append(p.producto)
+                    return crear_export_datos_table(request, "LS", LineaSalida, datos, datos2)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+
+# ------ ProductsCapasClaPesadas / CRUD ------
+class ProductsCapasClaPesadasCRUD(CommonCRUDView):
+    model = ProductsCapasClaPesadas
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'codigo',
+        'descripcion',
+        'activo',
+        'medida',
+        'tipoproducto',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'codigo_icontains',
+        'descripcion_icontains',
+        'medida__descripcion__contains',
+        'tipoproducto__descripcion__contains',
+    ]
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list']
+    view_type = ['list']
+
+    filterset_class = ProductsCapasClaPesadasFilter
+
+    # Table settings
+    paginate_by = 20
+
+    table_class = ProductsCapasClaPesadasTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({})
+                return context
+
+        return OFilterListView
+
+
+# ------ NumeracionDocumentos / CRUD ------
+class NumeracionDocumentosCRUD(CommonCRUDView):
+    model = NumeracionDocumentos
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'tiponumeracion',
+        'sistema',
+        'departamento',
+        'tipo_documento',
+        'prefijo'
+    ]
+
+    add_form = NumeracionDocumentosForm
+    update_form = NumeracionDocumentosForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update', 'create']
+    view_type = ['list', 'update', 'create']
+
+    # Table settings
+    paginate_by = 5
+    table_class = NumeracionDocumentosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'filter': False,
+                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                })
+                return context
+
+        return OFilterListView
+
+
+class ConfCentrosElementosOtrosDetalleGroupedCRUD(CommonCRUDView):
+    env = {
+        'confdetalle': ConfCentrosElementosOtrosDetalle
+    }
+    model = ConfCentrosElementosOtrosDetalleGrouped
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+        'valor',
+        'clave',
+        'Clave',
+        'Elementos',
+    ]
+
+    views_available = [
+        'create',
+        'list',
+        'detail',
+        'delete',
+        'update',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'clave__clave__icontains',
+    ]
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = ConfCentrosElementosOtrosDetalleGroupedFilter
+
+    # Table settings
+    table_class = ConfCentrosElementosOtrosDetalleGroupedTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:confccelemg_importar',
+                    'filtrar': True,
+                    'filter': False,
+                    'url_exportar': True,
+                    'object2': self.env['confdetalle'],
+                    'return_url': None,
+                })
+                return context
+
+            def get_queryset(self):
+                queryset = super().get_queryset()
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = ConfCentrosElementosOtrosDetalle.objects.all()
+                    datos2 = []
+                    return crear_export_datos_table(request, "CONF_CC_ELEM", ConfCentrosElementosOtrosDetalleGrouped,
+                                                    datos, datos2)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+
+# ------ ConfCentrosElementosOtrosDetalle / CRUD ------
+class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
+    model = ConfCentrosElementosOtrosDetalle
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+        'valor',
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'valor__contains',
+        'descripcion__icontains',
+    ]
+
+    update_form = ConfCentrosElementosOtrosDetalleForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    filterset_class = ConfCentrosElementosOtrosDetalleFilter
+
+    # Table settings
+    table_class = ConfCentrosElementosOtrosDetalleTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return_url = reverse_lazy(
+                    crud_url_name(ConfCentrosElementosOtrosDetalleGrouped, 'list', 'app_index:codificadores:'))
+                context.update({
+                    'return_url': return_url,
+                })
+                return context
+
+            def get_queryset(self):
+                queryset = super(OFilterListView, self).get_queryset()
+
+                qfilter = {}
+                clave = self.request.GET.get('Clave', None)
+
+                if clave is not None:
+                    qfilter.update({
+                        'clave_id': clave,
+                    })
+                    queryset = queryset.filter(**qfilter)
+
+                return queryset
+
+        return OFilterListView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal_form_title': 'Centros de Costo | Elementos',
+                })
+                return ctx
+
+        return OEditView
+
+
+class ObtenrDatosModalFormView(BaseModalFormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = ObtenerDatosModalForm
+    viewname = 'app_index:appversat:prod_appversat'
+    hx_target = '#main_content_swap'
+    hx_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML',
+    modal_form_title = 'Obtener Datos'
+    max_width = '500px'
+
+
+class NormaConsumoDetalleModalFormView(FormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = NormaConsumoDetalleForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            norma_ramal = form.cleaned_data['norma_ramal']
+            norma_empresarial = form.cleaned_data['norma_empresarial']
+            operativo = form.cleaned_data['operativo']
+            producto = form.cleaned_data['producto']
+            medida = form.cleaned_data['medida']
+            self.success_url = reverse_lazy(
+                'app_index:appversat:prod_appversat',
+                kwargs={
+                    'norma_ramal': norma_ramal,
+                    'norma_empresarial': norma_empresarial,
+                    'operativo': operativo,
+                    'producto': producto,
+                    'medida': medida,
+                }
+            )
+
+            return HttpResponseLocation(
+                self.get_success_url(),
+                target='#main_content_swap',
+
+            )
+        else:
+            return render(self.request, 'app_index/modals/modal_form.html', {
+                'form': form,
+            })
+
+
+def classmatprima(request):
+    tipoproducto = request.GET.get('tipoproducto')
+    clasemp = request.GET.get('clase')
+    clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
+    tipoprod = TipoProducto.objects.all()
+    context = {
+        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
+        'clases_mp': clases_mp,
+        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
+        'tipoprod': tipoprod,
+        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
+    }
+    return render(request, 'app_index/partials/productclases.html', context)
+
+def rendimientocapa(request):
+    clasemp = request.GET.get('clase')
+    codigo = request.GET.get('codigo')
+    clasemp = '0' if not clasemp else clasemp
+    rendimientocapa = request.GET.get('rendimientocapa')
+    rendimientocapa = rendimientocapa if rendimientocapa else '0'
+    catvitolas = CategoriaVitola.objects.all()
+    seleccvitolas = []
+    prod = ProductoFlujo.objects.filter(codigo=codigo)
+    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
+        vitolas = prod.first().vitolas.all()
+        seleccvitolas = [x.pk for x in vitolas]
+    context = {
+        'show_rendimiento': True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False,
+        'valorrendimientocapa': rendimientocapa,
+        'seleccvitolas': seleccvitolas,
+        'vitolas': catvitolas,
+    }
+    return render(request, 'app_index/partials/rendimientocapa.html', context)
+
+def cargonorma(request):
+    produccion = request.GET.get('vinculo_produccion')
+    nr = request.GET.get('nr_media')
+    norma = request.GET.get('norma_tiempo')
+
+    context = {
+        'show_norma_tiempo': True,
+        'show_nr_media': produccion == str(ChoiceCargoProduccion.DIRECTO),
+        'valornr_media': nr if nr else 0,
+        'valornorma_tiempo': norma if norma else 0.0000,
+    }
+    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
+
+def calcula_nt(request):
+    nr = request.GET.get('nr_media')
+    norma = 8/int(nr) if nr and int(nr)>0 else 0.0000
+    nt = round(norma, 4)
+    context = {
+        'show_norma_tiempo': True,
+        'show_nr_media': True,
+        'valornorma_tiempo': '%.4f' % nt,
+        'valornr_media': nr if nr else 0,
+    }
+    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
+
+
+# ------ TipoDocumento / CRUD ------
+class TipoDocumentoCRUD(CommonCRUDView):
+    model = TipoDocumento
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'descripcion',
+        'operacion',
+        'generado',
+        'prefijo'
+    ]
+
+    add_form = TipoDocumentoForm
+    update_form = TipoDocumentoForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    views_available = ['list', 'update']
+    view_type = ['list', 'update']
+
+    # Table settings
+    paginate_by = 25
+    table_class = TipoDocumentoTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:numdoc_importar',
+                    'filter': False,
+                    'url_exportar': 'app_index:exportar:numdoc_exportar'
+                })
+                return context
+
+        return OFilterListView
+
+def confirm_nc(request, pk):
+    obj = NormaConsumo.objects.get(pk=pk)
+    if obj.normaconsumodetalle_normaconsumo.count() > 0:
+        obj.confirmada = True
+        obj.save()
+    else:
+        title = 'No puede ser confrimada la norma de consumo '
+        text = 'No tiene productos asociados'
+        message_error(request,
+                      title + obj.__str__() + '!',
+                      text=text)
+    return redirect(
+        reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')) + "?Producto=" + request.GET[
+            'Producto'])
+
+
+def activar_nc(request, pk):
+    with transaction.atomic():
+        obj = NormaConsumo.objects.get(pk=pk)
+        product = obj.producto
+        objs = NormaConsumo.objects.filter(producto=product).update(activa=False)
+        obj.activa = True
+        obj.save()
+    return redirect(
+        reverse_lazy(crud_url_name(NormaConsumo, 'list', 'app_index:codificadores:')) + "?Producto=" + request.GET[
+            'Producto'])
+
+
+def productmedida(request):
+    pk_prod = request.GET.get('producto')
+    producto = ProductoFlujo.objects.get(pk=pk_prod)
+    medida_seleccionada = producto.medida
+    medidas = Medida.objects.filter(activa=True)
+    context = {
+        'medidas': medidas,
+        'medida_seleccionada': medida_seleccionada,
+    }
+    return render(request, 'app_index/partials/productmedida.html', context)
+
+
+def productmedidadetalle(request):
+    pk_prod = request.GET.get('idproducto')
+    producto = ProductoFlujo.objects.get(pk=pk_prod)
+    medida_seleccionada = producto.medida
+    result = {"id": medida_seleccionada.pk}
+    return JsonResponse({"results": result})
+
+# ------ ClasificadorCargos / CRUD ------
+class ClasificadorCargosCRUD(CommonCRUDView):
+    model = ClasificadorCargos
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+            'codigo',
+            'descripcion',
+            'grupo__grupo',
+            'actividad',
+            'vinculo_produccion',
+            'activo',
+            'unidadcontable'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'codigo__contains',
+        'descripcion__icontains',
+        'grupo__grupo__icontains',
+        'actividad__icontains',
+        'grupo__salario__contains',
+        'vinculo_produccion__icontains',
+        'activo',
+        'unidadcontable__nombre__icontains',
+    ]
+
+    add_form = ClasificadorCargosForm
+    update_form = ClasificadorCargosForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = ClasificadorCargosFilter
+
+    # Table settings
+    table_class = ClasificadorCargosTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'url_importar': 'app_index:importar:clacargos_importar',
+                    'filtrar': True,
+                    'url_exportar': True,
+                })
+                return context
+
+            def get(self, request, *args, **kwargs):
+                myexport = request.GET.get("_export", None)
+                if myexport and myexport == 'sisgest':
+                    table = self.get_table(**self.get_table_kwargs())
+                    datos = table.data.data
+                    return crear_export_datos_table(request, "CLA_CARG", ClasificadorCargos, datos, None)
+                else:
+                    return super().get(request=request)
+
+        return OFilterListView
+
+# ------ FichaCostoFilas / CRUD ------
+class FichaCostoFilasCRUD(CommonCRUDView):
+    model = FichaCostoFilas
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+            'fila',
+            'descripcion',
+            'encabezado',
+            'salario',
+            'vacaciones',
+            'desglosado',
+            'calculado',
+            'sumafilas'
+    ]
+
+    # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
+    # y no distinga entre mayúsculas y minúsculas.
+    # En el caso de campos relacionados hay que agregar __<nombre_campo_que_se_muestra>__icontains
+    search_fields = [
+        'descripcion__icontains',
+        'encabezado',
+        'salario',
+        'vacaciones',
+        'desglosado',
+        'calculado',
+    ]
+
+    add_form = FichaCostoFilasForm
+    update_form = FichaCostoFilasForm
+
+    list_fields = fields
+
+    filter_fields = fields
+
+    filterset_class = FichaCostoFilasFilter
+
+    # Table settings
+    table_class = FichaCostoFilasTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    # 'url_importar': 'app_index:importar:clacargos_importar',
+                    'filtrar': True,
+                    # 'url_exportar': True,
+                })
+                return context
+
+        return OFilterListView
+
+

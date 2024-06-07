@@ -33,7 +33,7 @@ urlpatterns = [
     path('', include('app_versat.urls')),
     path('', include('exportar.urls')),
     path('', include('importar.urls')),
-
+    path('', include('flujo.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

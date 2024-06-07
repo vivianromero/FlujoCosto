@@ -92,10 +92,11 @@ MY_APPS = [
     'flujo.apps.FlujoConfig',
     'costo.apps.CostoConfig',
     'app_index',
-    'app_versat',
+    'app_versat.apps.AppVersatConfig',
     'app_apiversat',
     'app_auth.usuarios',
     'cruds_adminlte3',
+    # 'preparacarga.apps.PreparaCargaConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + MY_APPS
@@ -113,12 +114,15 @@ THUMBNAIL_PROCESSORS = (
 TIME_FORMAT = 'h:i A'
 DATETIME_FORMAT = 'd/m/Y H:i:s'
 DATE_FORMAT = 'd/m/Y'
+DATE_INPUT_FORMATS = [
+    '%d/%m/%Y',
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django_session_timeout.middleware.SessionTimeoutMiddleware',
+    # 'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,6 +131,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'django_auto_logout.middleware.auto_logout',
     'app_auth.usuarios.middleware.OneSessionPerUserMiddleware',
     'app_auth.usuarios.middleware.PasswordExpireMiddleware',
     'app_versat.middleware.DatabaseConectionMiddleware',
@@ -188,6 +193,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'django_auto_logout.context_processors.auto_logout_client',
             ],
         },
     },
@@ -225,7 +231,7 @@ DATABASES = {
         'NAME': 'flujo_costo',
         'USER': 'flujo_costo',
         'PASSWORD': 'flujo_costo.123*-',
-        'HOST': 'localhost',
+        'HOST': '172.17.0.3',
         'PORT': '5432',
     }
 }
@@ -306,24 +312,31 @@ BOOTSTRAP_DATEPICKER_PLUS = {
             "format": "DD/MM/YYYY",
         },
     },
-    "datetimepicker_js_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.js",
-    "datetimepicker_css_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.css",
-    "bootstrap_icon_css_url": "/static/plugins/bootstrap-icons/font/bootstrap-icons.css",
-    "app_static_url": "/static/plugins/bootstrap_datepicker_plus/",
+    # "datetimepicker_js_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.js",
+    # "datetimepicker_css_url": "/static/plugins/bootstrap-datetimepicker/4_17_47/bootstrap-datetimepicker.css",
+    # "bootstrap_icon_css_url": "/static/plugins/bootstrap-icons/font/bootstrap-icons.css",
+    # "app_static_url": "/static/plugins/bootstrap_datepicker_plus/",
     "momentjs_url": None,  # If you already have momentjs added into your template
 }
 
 # Session expiration
 # SESSION_EXPIRE_SECONDS = float(env('SESSION_EXPIRE_SECONDS')) TODO esto se habilita cuando funcione el environ
-SESSION_EXPIRE_SECONDS = 600
+# SESSION_EXPIRE_SECONDS = 600
 
 LOGIN_REDIRECT_URL = reverse_lazy('app_index:index')
 
 LOGOUT_REDIRECT_URL = reverse_lazy('app_index:usuario:login')
 
-SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
+# SESSION_TIMEOUT_REDIRECT = reverse_lazy('app_index:usuario:login')
 
-SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+# SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+AUTO_LOGOUT = {
+    'IDLE_TIME': timedelta(minutes=30),
+    # 'SESSION_TIME': timedelta(minutes=30),
+    'MESSAGE': 'La sessióh ha expirado. Por favor introduzca nuevamente sus credenciales para continuar.',
+    'REDIRECT_TO_LOGIN_IMMEDIATELY': True,
+}
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
@@ -352,6 +365,7 @@ PASSWORD_EXPIRE_EXCLUDE_SUPERUSERS = True
 # PASSWORD_API = env('PASSWORD_API')
 
 URL_API = 'http://127.0.0.1:8085/'
-CONNECTION_TOKEN_API = 'e57f3a72-5508-4935-af3d-36ff98997239'
+# CONNECTION_TOKEN_API = 'e57f3a72-5508-4935-af3d-36ff98997239'
+CONNECTION_TOKEN_API = '1a2d5d4c-a525-4126-a76a-c7b0b878828e'
 USERNAME_API = 'ettvcl'
 PASSWORD_API = 'Zxc123*-'

@@ -3,8 +3,9 @@
 {% load i18n %}
 {% load crud_tags %}
 
-<nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
-     style="padding-bottom: 0; padding-top: 0; height: 35px; display: none" hx-swap-oob="true"></nav>
+<div id="messages" hx-swap-oob="true" hx-swap="innerHTML">
+    {% include 'adminlte/lib/_messages.html' %}
+</div>
 
 <div id="main_content_swap">
     <div class="row" style="padding: 0;">
@@ -66,21 +67,33 @@
 
                 {% include "cruds/_form.html" with action='update' %}
 
-                {% if inlines%}
-                    <script src="{% static 'crispy_formset_modal/js/crispy-formset-modal.min.js' %}"></script>
-{#                    <div class="card-body row">#}
-{#                        <div class="col-md-12">#}
-{#    #}
-{#                            <div class="panel panel-default">#}
-{#                            {% for inline in inlines%}#}
-{#                            <div class="panel-heading">#}
-{#                                <h3 class="panel-title">{{inline.title}}</h3>#}
-{#                            </div>#}
-{#                            <div class="panel-body">#}
-{#                                <div id="{{inline.name}}_father">#}
-{#                                    {% if 'list' in inline.views_available %}#}
+                {% if inlines %}
+                    <div class="card-body row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                            {% for inline in inlines%}
+                            <div class="panel-heading">
+                                <h3 class="panel-title">{{inline.title}}</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="{{inline.name}}_father">
+                                    {% if 'create' in inline.views_available %}
+                                    <button class="btn btn-success"
+                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
+
+                                        id="#{{ name }}_{{ object.pk }}_add"
+                                        data-replace-inner="#edit_modal_inner"
+
+
+                                        data-replace-inner="#{{inline.name}}_editList"
+                                        data-ajax="" data-success="function(){}"
+                                        style="margin-top: 0px; margin-bottom: 5px;">
+                                        Adicionar
+                                    </button>
+                                    {% endif %}
+                                    {% if 'list' in inline.views_available %}
 {#                                    <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">#}
-{#    #}
+{##}
 {#                                        <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"#}
 {#                                            data-ajax="" data-success="function(){}"#}
 {#                                            data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">#}
@@ -90,27 +103,23 @@
 {#                                        $( document ).ready(function() {$("#{{inline.name}}_btn").click() });#}
 {#                                        </script>#}
 {#                                    </div>#}
-{#                                    {% endif %}#}
+                                        {% block table_navbar %}
+                                            {% include 'app_index/cruds/list_table_navbar.html' %}
+                                        {% endblock table_navbar %}
+                                        {% block datatable %}
+                                        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                            {% render_table table %}
+                                        </div>
+                                        {% endblock datatable %}
+                                    {% endif %}
 {#                                    <div id="{{inline.name}}_editList"></div>#}
-{#                                    {% if 'create' in inline.views_available %}#}
-{#                                    <button class="btn btn-success"#}
-{#                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"#}
-{#    #}
-{#                                        id="#{{ name }}_{{ object.pk }}_add"#}
-{#                                        data-replace-inner="#edit_modal_inner"#}
-{#    #}
-{#    #}
-{#                                        data-replace-inner="#{{inline.name}}_editList"#}
-{#                                        data-ajax="" data-success="function(){}" >#}
-{#                                        {% trans 'Create' %}#}
-{#                                    </button>#}
-{#                                    {% endif %}#}
-{#                                </div>#}
-{#                            </div>#}
-{#                            {% endfor %}#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
+
+                                </div>
+                            </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         </div>
