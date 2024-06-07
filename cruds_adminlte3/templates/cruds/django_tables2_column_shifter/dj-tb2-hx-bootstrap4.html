@@ -11,9 +11,9 @@
         <th {{ column.attrs.th.as_html }}
                 hx-get="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
                 hx-trigger="click"
-                hx-target="#main_content_swap"
-                hx-swap="outerHTML"
-                hx-replace-url="true"
+                hx-target="{{ table.hx_target }}"
+                hx-swap="{{ table.hx_swap }}"
+                hx-replace-url="{{ table.hx_replace_url }}"
                 role="button">
             {% if column.orderable %}
                 <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
@@ -51,9 +51,9 @@
     <li class="previous page-item">
         <div hx-get="{% querystring table.prefixed_page_field=table.page.previous_page_number %}"
              hx-trigger="click"
-             hx-target="#main_content_swap"
-             hx-swap="outerHTML"
-             hx-replace-url="true"
+             hx-target="{{ table.hx_target }}"
+             hx-swap="{{ table.hx_swap }}"
+             hx-replace-url="{{ table.hx_replace_url }}"
              class="page-link"
              role="button">
             <span aria-hidden="true">&laquo;</span>
@@ -68,9 +68,9 @@
             <div class="page-link" {% if p != '...' %}
                  hx-get="{% querystring table.prefixed_page_field=p %}"{% endif %}
                  hx-trigger="click"
-                 hx-target="#main_content_swap"
-                 hx-swap="outerHTML"
-                 hx-replace-url="true"
+                hx-target="{{ table.hx_target }}"
+                 hx-swap="{{ table.hx_swap }}"
+                 hx-replace-url="{{ table.hx_replace_url }}"
                  role="button">
                 {{ p }}
             </div>
@@ -82,9 +82,9 @@
     <li class="next page-item user-select">
         <div hx-get="{% querystring table.prefixed_page_field=table.page.next_page_number %}"
              hx-trigger="click"
-             hx-target="#main_content_swap"
-             hx-swap="outerHTML"
-             hx-replace-url="true"
+            hx-target="{{ table.hx_target }}"
+            hx-swap="{{ table.hx_swap }}"
+            hx-replace-url="{{ table.hx_replace_url }}"
              class="page-link"
              role="button">
             {% trans 'next' %}

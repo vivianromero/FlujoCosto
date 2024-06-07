@@ -1,12 +1,15 @@
 annotated-types==0.6.0
 asgiref==3.7.2
+beautifulsoup4==4.12.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
 crispy-bootstrap4==2023.1
 Django==5.0
 django-appconf==1.0.6
+django-auto-logout==0.5.1
 django-bootstrap-datepicker-plus==5.0.5
 django-bootstrap-daterangepicker==1.1.0
+django-bootstrap4==24.3
 django-bulk-sync==3.3.0
 django-bulk-update==2.2.0
 django-bulk-update-or-create==0.3.0
@@ -24,7 +27,6 @@ django-menu-generator==1.1.0
 django-mptt==0.16.0
 django-password-expire==0.2
 django-select2==8.1.2
-django-session-timeout==0.1.0
 django-tables2==2.7.0
 django-tarview==1.0.0
 django-template-partials==23.4
@@ -50,9 +52,10 @@ python-dotenv==1.0.0
 pytz==2023.3.post1
 requests==2.31.0
 six==1.16.0
+soupsieve==2.5
 sqlparse==0.4.4
 sweetify==2.3.1
 tablib==3.5.0
 tk==0.1.0
-typing_extensions==4.9.0
+typing_extensions==4.11.0
 urllib3==2.2.1

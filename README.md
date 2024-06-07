@@ -16,3 +16,9 @@ $cd FlujoCosto
 - Hacer que el fichero de config de las variables de entorno local .env.local no sea rastreado por el Git
 
 $git rm --cached config/.env.local
+
+-Correr las migraciones:
+python manage.py migrate
+
+-Cargar los datos iniciales
+python manage.py populatedb

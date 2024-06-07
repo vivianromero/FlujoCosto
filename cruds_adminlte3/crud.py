@@ -1,7 +1,8 @@
 # encoding: utf-8
-
+import json
 import types
 
+import sweetify
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -9,19 +10,21 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.views import SuccessMessageMixin
+from sweetify.views import SweetifySuccessMixin
 from django.db.models import ProtectedError
 from django.db.models.query_utils import Q
 from django.forms import Select, SelectMultiple
-from django.http.response import HttpResponseRedirect, HttpResponseForbidden
+from django.http.response import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import re_path
+from django.urls import re_path, include
 from django.urls.base import reverse_lazy, reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import (ListView, CreateView, DeleteView,
                                   UpdateView, DetailView)
+from django.views.generic.edit import FormMixin, ModelFormMixin
 from django_filters.views import FilterView
 from django_tables2 import RequestConfig
 from django_tables2.export import ExportMixin, TableExport
@@ -105,24 +108,30 @@ class CRUDMixin(object):
             else:
                 active_filters = self.filterset_class(self.request.GET).form.data != []
 
-        elif self.view_type in ['detail', 'update'] and self.request.htmx:
+        elif self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
             active_filters = self.request.htmx.current_url_abs_path.split('?').__len__() > 1
 
         if active_filters:
-            if self.view_type in ['detail', 'update'] and self.request.htmx:
-                filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i !='']
+            filters = []
+            if self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
+                if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
             else:
                 filters = self.request.GET.urlencode().split('&')
             getparams = self.getparams.split('&') or []
-            if filters[0]:
-                for filter in filters:
-                    value = filter.split('=')
-                    if value[1] and (
-                            value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
-                    ):
-                        param = filter
-                        if param and param not in getparams:
-                            filter_params.append(param)
+            if filters:
+                if filters[0]:
+                    for filter in filters:
+                        if '%3F' in filter:
+                            filter = filter.split('%3F')[0]
+                        value = filter.split('=')
+                        if value[1] and (
+                                value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
+                            0] != 'set_visibility_value'
+                        ):
+                            param = filter
+                            if param and param not in getparams:
+                                filter_params.append(param)
 
         if filter_params:
             if self.getparams:
@@ -249,10 +258,14 @@ class CRUDMixin(object):
         context.update({'blocks': self.template_blocks})
 
         if self.view_type in ['create', 'update', 'detail']:
-            context['crud_inlines'] = self.inlines
+            context['inlines'] = self.inlines
 
         if 'object' not in context:
             context['object'] = self.model
+        if 'view_type' not in context:
+            context['view_type'] = self.view_type
+        if 'inline_actions' not in context:
+            context['inline_actions'] = self.inline_actions
 
         self.get_urls_and_fields(context)
         self.get_check_perms(context)
@@ -273,6 +286,8 @@ class CRUDMixin(object):
                 context['page_length_menu'] = [5, 10, 25, 50, 100]
 
         context['template_father'] = self.template_father
+
+        context['inline_tables'] = self.inline_tables
 
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
@@ -299,12 +314,14 @@ class CRUDMixin(object):
                     related, str(self.context_rel[related].pk)))
         if params and params[0] != '':
             for param in params:
+                if '%3F' in param:
+                    param = param.split('%3F')[0]
                 value = param.split('=')
                 if value[1] and (
                         value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
                 ):
                     temp = param
-                    if temp:
+                    if temp and temp not in getparams:
                         getparams.append(param)
         if getparams:
             self.getparams = "&".join(getparams)
@@ -547,12 +564,16 @@ class CRUDView(object):
     paginate_position = 'Bottom'
     update_form = None
     add_form = None
+    detail_form = None
+    modal = False
     table_class = None
     table_data = None
     col_vis = []
     display_fields = None
     list_fields = None
     inlines = None
+    inline_tables = None
+    inline_actions = True
     views_available = None
     template_father = "cruds/base.html"
     search_method = None
@@ -599,19 +620,19 @@ class CRUDView(object):
     #  GET GENERIC CLASS
 
     def get_create_view_class(self):
-        if self.inlines:
-            return CreateWithInlinesView
-        else:
-            return CreateView
+        # if self.inlines:
+        #     return CreateWithInlinesView
+        # else:
+        return CreateView
 
     def get_create_view(self):
         CreateViewClass = self.get_create_view_class()
 
         class OCreateView(
             self.mixin,
-            SuccessMessageMixin,
+            SweetifySuccessMixin,
             LoginRequiredMixin,
-            CreateViewClass
+            CreateViewClass,
         ):
             namespace = self.namespace
             template_name_base = self.template_name_base
@@ -621,12 +642,15 @@ class CRUDView(object):
             form_class = self.add_form
             view_type = 'create'
             inlines = self.inlines
+            inline_actions = self.inline_actions
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
             success_message = _('Data creation was successful')
 
             def form_valid(self, form):
@@ -640,13 +664,20 @@ class CRUDView(object):
                 return HttpResponseRedirect(self.get_success_url())
 
             def get_success_url(self):
-                if "another" in self.request.POST:
+                if "another" in self.request.POST and not self.modal:
                     url = self.request.path
                 else:
                     url = super(OCreateView, self).get_success_url()
                 if self.getparams:  # fixed filter create action
                     url += '?' + self.getparams
                 return url
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal': self.modal
+                })
+                return ctx
 
         return OCreateView
 
@@ -656,7 +687,7 @@ class CRUDView(object):
     def get_detail_view(self):
         ODetailViewClass = self.get_detail_view_class()
 
-        class ODetailView(self.mixin, ODetailViewClass):
+        class ODetailView(self.mixin, ModelFormMixin, ODetailViewClass):
             namespace = self.namespace
             template_name_base = self.template_name_base
             partial_template_name_base = self.partial_template_name_base
@@ -665,12 +696,16 @@ class CRUDView(object):
             view_type = 'detail'
             display_fields = self.display_fields
             inlines = self.inlines
+            inline_actions = self.inline_actions
+            form_class = self.detail_form
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
 
             def get_success_url(self):
                 url = super(ODetailView, self).get_success_url()
@@ -678,20 +713,28 @@ class CRUDView(object):
                     url += '?' + self.getparams
                 return url
 
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'form': self.form_class(),
+                    'modal': self.modal,
+                })
+                return ctx
+
         return ODetailView
 
     def get_update_view_class(self):
-        if self.inlines:
-            return UpdateWithInlinesView
-        else:
-            return UpdateView
+        # if self.inlines:
+        #     return UpdateWithInlinesView
+        # else:
+        return UpdateView
 
     def get_update_view(self):
         EditViewClass = self.get_update_view_class()
 
         class OEditView(
             self.mixin,
-            SuccessMessageMixin,
+            SweetifySuccessMixin,
             LoginRequiredMixin,
             PermissionRequiredMixin,
             EditViewClass,
@@ -702,9 +745,12 @@ class CRUDView(object):
             partial_template_name_base = self.partial_template_name_base
             perms = self.perms['update']
             form_class = self.update_form
+            modal = self.modal
             all_perms = self.perms
             view_type = 'update'
             inlines = self.inlines
+            inline_actions = self.inline_actions
+            inline_tables = self.inline_tables
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -729,6 +775,14 @@ class CRUDView(object):
                     url += '?' + self.getparams
                 return url
 
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal': self.modal,
+                    # 'form': self.form_class
+                })
+                return ctx
+
         return OEditView
 
     def get_list_view_class(self):
@@ -745,6 +799,8 @@ class CRUDView(object):
             all_perms = self.perms
             table_class = self.table_class
             table_data = self.table_data
+            inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             list_fields = self.list_fields
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -769,6 +825,7 @@ class CRUDView(object):
             dynamic_filters = self.dynamic_filters
             queryset = self.queryset
             env = self.env
+            modal = self.modal
 
             def get_listfilter_queryset(self, queryset):
                 if self.list_filter:
@@ -816,19 +873,12 @@ class CRUDView(object):
                 queryset = self.get_listfilter_queryset(queryset)
                 return queryset
 
-            # def get_context_data(self, *, object_list=None, **kwargs):
-            #     context = super(OListView, self).get_context_data(**kwargs)
-            #
-            #     fields_order = []
-            #     context['filter'] = None
-            #     if 'fields' in context:
-            #         keys = list(context['fields'])
-            #         for key in keys:
-            #             fields_order.append(key)
-            #         context['fields_order'] = fields_order
-            #     else:
-            #         context['fields_order'] = None
-            #     return context
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'modal': self.modal
+                })
+                return context
 
         return OListView
 
@@ -847,6 +897,8 @@ class CRUDView(object):
             all_perms = self.perms
             list_fields = self.list_fields
             table_class = self.table_class
+            inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             table_data = self.table_data
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -872,6 +924,7 @@ class CRUDView(object):
             queryset = self.queryset
             env = self.env
             col_vis = self.col_vis
+            modal = self.modal
 
             if self.filterset_class is None:
                 filterset_class = get_filter_fields(
@@ -953,6 +1006,7 @@ class CRUDView(object):
                     on_ends=self.page_elide_range_on_ends
                 )
                 context['page_range'] = page_range
+                context['modal'] = self.modal
 
                 fields_order = []
                 if 'filter' in context:
@@ -962,14 +1016,19 @@ class CRUDView(object):
                     for key in keys:
                         this_type = type(context['filter'].form.fields[key].widget)
                         if this_type == Select or this_type == SelectMultiple:
-                            context['filter'].form.fields[key].widget.attrs = {
-                                'class': 'form-control select2',
-                                'style': 'width: 100%',
-                            }
+                            if 'class' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'class': 'form-control select2'}
+                                )
+                            if 'style' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'style': 'width: 100%'}
+                                )
                         else:
-                            context['filter'].form.fields[key].widget.attrs = {
-                                'class': 'form-control',
-                            }
+                            if 'class' not in context['filter'].form.fields[key].widget.attrs:
+                                context['filter'].form.fields[key].widget.attrs.update(
+                                    {'class': 'form-control'}
+                                )
 
                 return context
 
@@ -1008,19 +1067,22 @@ class CRUDView(object):
     def get_delete_view(self):
         ODeleteClass = self.get_delete_view_class()
 
-        class ODeleteView(self.mixin, SuccessMessageMixin, ODeleteClass):
+        class ODeleteView(self.mixin, SweetifySuccessMixin, ODeleteClass):
             namespace = self.namespace
             template_name_base = self.template_name_base
             partial_template_name_base = self.partial_template_name_base
             perms = self.perms['delete']
             all_perms = self.perms
             view_type = 'delete'
+            inline_tables = self.inline_tables
+            inline_actions = self.inline_actions
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             aggregates = self.aggregates
+            modal = self.modal
             success_message = _('The data was successfully deleted')
 
             def get_success_url(self):
@@ -1030,9 +1092,18 @@ class CRUDView(object):
                     url += '?' + self.getparams
                 return url
 
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                ctx.update({
+                    'modal': self.modal
+                })
+                return ctx
+
             # Esta redefinición de los métodos 'get' y 'post, para eliminar, obedece al uso de sweetalert2,
             # si no se va a usar, eliminar estas funciones
             def get(self, *args, **kwargs):
+                if 'model_id' in kwargs:
+                    return super().get(self.request)
                 return self.post(*args, **kwargs)
 
             def post(self, request, *args, **kwargs):
@@ -1045,11 +1116,12 @@ class CRUDView(object):
                     title = _('Cannot delete ')
                     text = _('This element is related to: ')
                     message_error(self.request,
-                        title + self.object.__str__() + '!',
-                        text=text + protected_details)
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
-                    messages.success(self.request, self.success_message)
+                    # messages.success(self.request, self.success_message)
+                    sweetify.success(self.request, self.success_message)
                 return HttpResponseRedirect(self.get_success_url())
 
         return ODeleteView
@@ -1074,10 +1146,14 @@ class CRUDView(object):
 
     def initialize_detail(self, basename):
         ODetailView = self.get_detail_view()
+        fields = self.fields
+        if self.detail_form:
+            fields = None
         self.detail = self.decorator_detail(
             ODetailView.as_view(
                 model=self.model,
-                template_name=basename
+                template_name=basename,
+                form_class=self.detail_form
             ))
 
     def initialize_update(self, basename):
@@ -1103,6 +1179,13 @@ class CRUDView(object):
             template_name=basename
         ))
 
+    def initialize_list_detail(self, basename):
+        OListView = self.get_list_view()
+        self.list_detail = self.decorator_list(OListView.as_view(
+            model=self.model,
+            template_name=basename
+        ))
+
     def initialize_delete(self, basename):
         ODeleteView = self.get_delete_view()
         url = utils.crud_url_name(
@@ -1118,6 +1201,13 @@ class CRUDView(object):
     def initialize_filter_list(self, basename):
         OFilterListView = self.get_filter_list_view()
         self.list = self.decorator_list(OFilterListView.as_view(
+            model=self.model,
+            template_name=basename
+        ))
+
+    def initialize_filter_list_detail(self, basename):
+        OFilterListView = self.get_filter_list_view()
+        self.list_detail = self.decorator_list(OFilterListView.as_view(
             model=self.model,
             template_name=basename
         ))
@@ -1241,6 +1331,15 @@ class CRUDView(object):
                 else:
                     self.initialize_filter_list(basename + '/list_table.html')
 
+        if 'list_detail' in self.views_available:
+            if self.filter_fields is None:
+                self.initialize_list_detail(basename + '/list_detail.html')
+            else:
+                if self.table_class is None:
+                    self.initialize_filter_list_detail(basename + '/list.html')
+                else:
+                    self.initialize_filter_list_detail(basename + '/list_detail_table.html')
+
         if 'delete' in self.views_available:
             self.initialize_delete(basename + '/delete.html')
 
@@ -1260,6 +1359,11 @@ class CRUDView(object):
                                   self.list,
                                   name=utils.crud_url_name(
                                       self.model, 'list', prefix=self.urlprefix)))
+        if 'list_detail' in self.views_available:
+            myurls.append(re_path("^%s/list_detail$" % (base_name,),
+                                  self.list_detail,
+                                  name=utils.crud_url_name(
+                                      self.model, 'list_detail', prefix=self.urlprefix)))
         if 'create' in self.views_available:
             myurls.append(re_path("^%s/create$" % (base_name,),
                                   self.create,
@@ -1285,33 +1389,25 @@ class CRUDView(object):
                                       self.model, 'delete', prefix=self.urlprefix))
                           )
 
-        # myurls += self.add_inlines(base_name)
+        myurls += self.add_inlines(base_name)
         return myurls
 
-    # def add_inlines(self, base_name):
-    #     dev = []
-    #     if self.inlines:
-    #         for i, inline in enumerate(self.inlines):
-    #             klass = inline
-    #             if isinstance(klass, type):
-    #                 # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-    #                 #        as those mean that inline is a type instance not a class from
-    #                 #        the second run onwars.
-    #                 klass = klass()
-    #             self.inlines[i] = klass
-    #             if self.namespace:
-    #                 dev.append(
-    #                     re_path('^inline/',
-    #                         include(klass.get_urls(),
-    #                                 # namespace=self.namespace
-    #                                 ))
-    #                 )
-    #             else:
-    #                 dev.append(
-    #                     re_path('^inline/', include(klass.get_urls()))
-    #
-    #                 )
-    #     return dev
+    def add_inlines(self, base_name):
+        dev = []
+        if self.inlines:
+            for i, inline in enumerate(self.inlines):
+                klass = inline
+                if isinstance(klass, type):
+                    # FIXME: This is a dirty hack to act on repeated calls to get_urls()
+                    #        as those mean that inline is a type instance not a class from
+                    #        the second run onwars.
+                    klass = klass()
+                self.inlines[i] = klass
+                if self.namespace:
+                    dev.append(re_path('^inline/', include(klass.get_urls(), )))
+                else:
+                    dev.append(re_path('^inline/', include(klass.get_urls())))
+        return dev
 
 
 class UserCRUDView(CRUDView):

@@ -1,10 +1,13 @@
 /.idea/
 /.venv/
 .venv/
+.vscode/
 /.env.local
 */__pycache__/*
 *.pyc
-/config/.env.local
 /staticfiles/download/*.*
 /staticfiles/upload/*.*
 /importar/fixtures/*.json
+/config/.env.local
+/codificadores/fixtures/ConfigTodas.json
+/preparacarga/

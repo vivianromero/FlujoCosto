@@ -1,0 +1,12 @@
+{% load i18n l10n crud_tags %}
+    <a hx-get="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
+       hx-trigger="click"
+       hx-target="#main_content_swap"
+       hx-swap="outerHTML"
+       hx-replace-url="true"
+        href="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
+       title="Obtener Documento">
+        <i class="fa-1x fa fa-list-alt"
+           style="margin-right: 5px;"></i>
+    </a>
+
