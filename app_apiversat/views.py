@@ -7,12 +7,12 @@ from utiles.decorators import adminempresa_required
 from utiles.utils import message_error, message_success
 from .functionapi import getAPI
 
+title_error = _("Couldn't connect")
+text_error = _('Connection error to Versat API')
 
 @adminempresa_required
 def UC_Versat(request):
     try:
-        title_error = _("Couldn't update")
-        text_error = _('Connection error')
         response = getAPI('unidad')
         if response and response.status_code == 200:
             data_json_data = response.json() # Assuming the response is in JSON format
@@ -30,8 +30,6 @@ def UC_Versat(request):
 @adminempresa_required
 def CC_Versat(request):
     try:
-        title_error = _("Couldn't update")
-        text_error = _('Connection error')
         response = getAPI('costo')
         if response and response.status_code == 200:
             data_json_data = response.json()  # Assuming the response is in JSON format
@@ -45,4 +43,5 @@ def CC_Versat(request):
         message_error(request=request, title=title_error, text=text_error)
 
     return redirect(crud_url_name(CentroCosto, 'list', 'app_index:codificadores:'))
+
 

@@ -1,29 +1,18 @@
-from django.shortcuts import render
+import datetime
 from datetime import datetime
-from django.db.models import F
+
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView
-from codificadores.models import Departamento
 from cruds_adminlte3.utils import crud_url_name
 from flujo.filters import DocumentoFilter
 from flujo.forms import DocumentoForm
-from flujo.models import Documento
 from flujo.tables import DocumentoTable, DocumentosVersatTable
 from utiles.utils import message_error
-from django.utils.translation import gettext_lazy as _
-from django.shortcuts import redirect
-from cruds_adminlte3.utils import crud_url_name
-from django.db import connections
-from django.conf import settings
-import datetime
 from .forms import DepartamentoDocumentosForm
-from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
-from app_apiversat.functionapi import getAPI
-
 from .models import *
 from .utils import ids_documentos_versat_procesados
 
@@ -151,8 +140,8 @@ class DocumentoCRUD(CommonCRUDView):
 def dame_documentos_versat(request, dpto):
     unidadcontable = request.user.ueb
 
-    title_error = _("Couldn't update")
-    text_error = _('Connection error')
+    title_error = _("Couldn't connect")
+    text_error = _('Connection error to Versat API')
 
     try:
         # TODO implemetar la funcionalidad para que devuelva la fecha de inicio de procesamiento, la fecha de procesamiento y

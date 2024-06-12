@@ -65,4 +65,7 @@ urlpatterns = [
     path('rendimientocapa/', views.rendimientocapa, name='rendimientocapa'),
     path('cargonorma/', views.cargonorma, name='cargonorma'),
     path('calcula_nt/', views.calcula_nt, name='calcula_nt'),
+    path('fila_encabezado/', views.fila_encabezado, name='fila_encabezado'),
+    path('fila_calculado/', views.fila_calculado, name='fila_calculado'),
+    path('fila_desglosado/', views.fila_desglosado, name='fila_desglosado'),
 ]

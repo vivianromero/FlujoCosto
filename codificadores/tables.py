@@ -335,16 +335,24 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
 
 # ------ FichaCostoFilas / Table ------
 class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_filasfichacosto_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = FichaCostoFilas
 
         fields = (
-            'get_fila',
+            'fila',
             'descripcion',
             'encabezado',
             'salario',
             'vacaciones',
             'desglosado',
             'calculado',
-            'sumafilas'
+            'filasasumar',
         )
+

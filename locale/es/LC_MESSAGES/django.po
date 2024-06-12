@@ -1542,8 +1542,9 @@ msgid "Couldn't update"
 msgstr "No se pudo actualizar"
 
 #: app_apiversat/views.py:64
-msgid "Connection error"
-msgstr "Error de conexión"
+#, python-format
+msgid "Connection error to Versat API"
+msgstr "Error de conexión con la API Versat"
 
 #: app_apiversat/views.py:64
 #, python-format
@@ -1595,4 +1596,10 @@ msgstr "Motivo de Ajuste"
 #, python-format
 msgctxt "Error conection"
 msgid "Database connect for %s not define"
-msgstr "La conexión a la base de datos al %s no está definida"
+msgstr "La conexión a la base de datos del %s no está definida"
+
+#: codificadores/middleware.py:472
+#, python-format
+msgctxt "Error conection"
+msgid "Connection error with %s system"
+msgstr "Error de conexión al sistema %s"

@@ -16,5 +16,6 @@ urlpatterns = [
     path('numdoc_exportar/', views.numdoc_exportar, name='numdoc_exportar'),
     path('clacargos_exportar/', views.clacargos_exportar, name='clacargos_exportar'),
     path('all_conf_exportar/', views.all_conf_exportar, name='all_conf_exportar'),
+    path('filafichacosto_exportar/', views.filafichacosto_exportar, name='filafichacosto_exportar'),
 ]
 

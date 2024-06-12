@@ -1,0 +1,23 @@
+{% load i18n %}
+<div id="id_filaencab" class="form-row">
+	 <div class="form-group col-md-2 mb-0">
+	   <div class="form-group">
+	     <div id="div_id_desglosado" class="custom-control  custom-checkbox" style="{% if not show_desglosado %}display:none{%else%} {%endif%}">
+	       <input type="checkbox" name="desglosado" {% if desglose_disabled %}disabled{%else%} {%endif%} hx-get="{% url 'app_index:codificadores:fila_desglosado' %}" hx-target="#id_filadesg" hx-trigger="load, change" hx-include="[name=&quot;fila&quot;], [name=&quot;encabezado&quot;]" hx-vals='{"padre": "{{ padre }}"}' class="checkboxinput custom-control-input" id="id_desglosado" {% if value_desglosado %}checked{%else%} {%endif%}>
+		 <label for="id_desglosado" class="custom-control-label">
+		            Desglosado
+		 </label>
+	     </div>
+	   </div>
+	 </div>
+	 <div class="form-group col-md-2 mb-0">
+	   <div class="form-group">
+	     <div id="div_id_calculado" class="custom-control  custom-checkbox" style="{% if not show_calculado %}display:none{%else%} {%endif%}">
+	       <input type="checkbox" name="calculado" hx-get="{% url 'app_index:codificadores:fila_calculado' %}" hx-target="#id_filacalc" hx-trigger="load, change" hx-include="[name=&quot;fila&quot;], [name=&quot;encabezado&quot;]" hx-vals='{"padre": "{{ padre }}"}' class="checkboxinput custom-control-input" id="id_calculado" {% if value_calculado %}checked{%else%} {%endif%}>
+		 <label for="id_calculado" class="custom-control-label">
+		            Calculado
+		 </label>
+	     </div>
+	   </div>
+	 </div>
+</div>

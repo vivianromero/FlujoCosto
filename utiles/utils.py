@@ -5,6 +5,8 @@ from decimal import *
 import sweetify
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from codificadores.models import FichaCostoFilas
+from django.db.models import Q, Max
 
 KEY_ENCRIP = "DATAZUCAR-ETTVC-SISGESFC"
 
@@ -37,6 +39,19 @@ def obtener_version():
     valor = app_version_file.read()
 
     return decodificar(valor)
+
+
+def obtener_numero_fila(pk_padre):
+    if pk_padre:
+        padre = FichaCostoFilas.objects.get(pk=pk_padre)
+        fila = padre.children.all().aggregate(ultima=Max('fila'))['ultima']
+        numero = int(fila.split('.')[1]) + 1 if fila else 1
+        numero = padre.fila + '.' + str(numero)
+        return numero
+
+    fila = FichaCostoFilas.objects.filter(~Q(fila__contains='.'), encabezado=True).aggregate(ultima=Max('fila'))[
+        'ultima']
+    return str(int(fila) + 1) if fila else '1'
 
 
 def message_error(request, title, text):
@@ -92,7 +107,6 @@ def json_response(message=None, success=True, **data):
 
     json_object.update(data)
     return json.dumps(json_object)
-
 
 # #TODO ver si se va a usar
 # def crear_superusuario(credentials):
