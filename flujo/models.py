@@ -7,6 +7,8 @@ from codificadores.models import UnidadContable, Departamento, TipoDocumento, Mo
     ProductoFlujo
 from django.utils.translation import gettext_lazy as _
 
+from cruds_adminlte3.utils import crud_url
+
 
 class Documento(models.Model):
     CHOICE_ESTADOS_DOCUMENTO = {
@@ -37,6 +39,12 @@ class Documento(models.Model):
         # unique_together = (('numeroconsecutivo', 'tipodocumento', 'departamento', 'ueb'),)
         ordering = ['ueb', 'departamento', 'tipodocumento', '-numeroconsecutivo']
 
+    def __str__(self):
+        return self.tipodocumento.descripcion
+
+    def get_absolute_url(self):
+        return crud_url(self, 'update', namespace='app_index:flujo')
+
 
 class DocumentoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -56,6 +64,10 @@ class DocumentoDetalle(models.Model):
 
     class Meta:
         db_table = 'fp_documentodetalle'
+
+    def __str__(self):
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+
 
 
 class DocumentoAjuste(models.Model):

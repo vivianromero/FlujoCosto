@@ -204,8 +204,6 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    # inlines = [NormaConsumoDetalleAjaxCRUD]
-
     inlines = [NormaConsumoDetalleAjaxCRUD]
 
     inline_actions = False
@@ -343,21 +341,21 @@ class NormaConsumoCRUD(CommonCRUDView):
 
         return OEditView
 
-    def get_detail_view(self):
-        view = super().get_detail_view()
-
-        class ODetailView(view):
-
-            def get_context_data(self, **kwargs):
-                ctx = super().get_context_data()
-                if 'pk' in kwargs:
-                    obj = self.model.objects.get(id=self.kwargs['pk'])
-                    ctx['form'] = self.form_class(instance=obj)
-                elif 'object' in kwargs:
-                    ctx['form'] = self.form_class(instance=kwargs['object'])
-                return ctx
-
-        return ODetailView
+    # def get_detail_view(self):
+    #     view = super().get_detail_view()
+    #
+    #     class ODetailView(view):
+    #
+    #         def get_context_data(self, **kwargs):
+    #             ctx = super().get_context_data()
+    #             if 'pk' in kwargs:
+    #                 obj = self.model.objects.get(id=self.kwargs['pk'])
+    #                 ctx['form'] = self.form_class(instance=obj)
+    #             elif 'object' in kwargs:
+    #                 ctx['form'] = self.form_class(instance=kwargs['object'])
+    #             return ctx
+    #
+    #     return ODetailView
 
 
 class NormaConsumoGroupedCRUD(CommonCRUDView):
@@ -478,6 +476,7 @@ class UnidadContableCRUD(CommonCRUDView):
     ]
 
     update_form = UnidadContableForm
+    detail_form = UnidadContableDetailForm
 
     list_fields = [
         'codigo',
@@ -495,7 +494,7 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_comercializadora',
     ]
 
-    views_available = ['list', 'update']
+    views_available = ['list', 'update', 'detail']
     view_type = ['list', 'update']
     filterset_class = UnidadContableFilter
 

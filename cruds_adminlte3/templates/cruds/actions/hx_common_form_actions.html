@@ -1,5 +1,9 @@
 {% include 'cruds/actions/acept_button.html' %}
-{% include 'cruds/actions/acept_and_add_another_button.html' %}
+{% if inlines %}
+    {% include 'cruds/actions/acept_and_add_inline_button.html' %}
+{% else %}
+    {% include 'cruds/actions/acept_and_add_another_button.html' %}
+{% endif %}
 {% include 'cruds/actions/hx_cancel_button.html' %}
 {% if not object.fila in "['1', '1.1', '1.2']" %}
     {% include 'cruds/actions/delete_button.html' %}

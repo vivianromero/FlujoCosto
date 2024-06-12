@@ -179,6 +179,9 @@ class EstadoProducto(models.Model):
     class Meta:
         db_table = 'cla_estadoproducto'
 
+    def __str__(self):
+        return self.descripcion
+
 
 class ClaseMateriaPrima(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceClasesMatPrima.CHOICE_CLASES, editable=False, )

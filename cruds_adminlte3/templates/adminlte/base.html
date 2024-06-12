@@ -133,22 +133,11 @@
         if (e.detail.target.id === "dialog") {
             modal.show()
         }
-        if (e.detail.target.id === "main_content_swap") {
-            console.log('el detail.target.id es main_content_swap')
-            console.log(e.detail)
-            if (e.detail.requestConfig.triggeringEvent !== undefined) {
-                console.log('el triggeringEvent es definido')
-                if (e.detail.requestConfig.triggeringEvent.type === 'submit') {
-                    console.log('el triggeringEvent.type  es submit')
-                    if (e.detail.requestConfig.triggeringEvent.submitter.id === "id_form_btn_acept") {
-                        console.log('el triggeringEvent.submitter.id es id_form_btn_acept')
-                        modal.hide()
-                    }
-                }
-            } else {
+        if (e.detail.target.id === "main_content_swap" || e.detail.target.id === 'table_content_documento_swap') {
+            console.log(e.detail.requestConfig.headers["HX-Trigger"])
+            if (e.detail.requestConfig.headers["HX-Trigger"] === "id_form_btn_acept" && e.detail.requestConfig.headers["submitted"] === "true") {
                 modal.hide()
             }
-
         }
       })
 
@@ -189,7 +178,6 @@
         }
     }
     $(function () {
-        console.log('Ready...')
         update_sidebar(window.location.pathname)
     });
 </script>

@@ -4,20 +4,65 @@ from datetime import datetime
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django_htmx.http import HttpResponseLocation
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView
+from codificadores.models import Departamento
+from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.utils import crud_url_name
 from flujo.filters import DocumentoFilter
 from flujo.forms import DocumentoForm
+from flujo.models import Documento
 from flujo.tables import DocumentoTable, DocumentosVersatTable
 from utiles.utils import message_error
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import redirect
+from cruds_adminlte3.utils import crud_url_name
+from django.db import connections
+from django.conf import settings
+import sweetify
+import datetime
+from .forms import *
+from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
+from app_apiversat.functionapi import getAPI
+
 from .forms import DepartamentoDocumentosForm
 from .models import *
 from .utils import ids_documentos_versat_procesados
 
 
 # Create your views here.
+
+# ------ DocumentoDetalle / AjaxCRUD ------
+class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
+    model = DocumentoDetalle
+    base_model = Documento
+    namespace = 'app_index:flujo'
+    inline_field = 'documento'
+    add_form = DocumentoDetalleForm
+    update_form = DocumentoDetalleForm
+    list_fields = [
+        'producto',
+        'cantidad',
+        'precio',
+        'importe',
+        'existencia',
+        # 'documento',
+        'estado',
+    ]
+
+    views_available = [
+        'list',
+        'list_detail',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
+    title = "Detalles del Documento"
+
 
 # ------ Documento / CRUD ------
 class DocumentoCRUD(CommonCRUDView):
@@ -60,6 +105,65 @@ class DocumentoCRUD(CommonCRUDView):
     paginate_by = 5
     table_class = DocumentoTable
 
+    inlines = [DocumentoDetalleAjaxCRUD]
+
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                departamento = self.request.GET.get('departamento', None)
+                if departamento is None and 'departamento' in self.request.htmx.current_url_abs_path:
+                    deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                    departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
+                tipo_doc = self.request.GET.get('tipo_doc', None)
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                        "departamento": departamento,
+                        "tipo_doc": tipo_doc,
+                    }
+                )
+                return form_kwargs
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'modal_form_title': 'Formaulario Modal',
+                    "hx_target": '#table_content_documento_swap',
+                })
+                return ctx
+
+            def get_success_url(self):
+                if "inline" in self.request.POST:
+                    # url = reverse_lazy(crud_url_name(self.model, 'update'), kwargs={"pk": self.object.id})
+                    url = self.model.get_absolute_url(self.object)
+                    # return HttpResponseLocation(url, target='#dialog',)
+                else:
+                    url = super().get_success_url()
+                return url
+
+            # def form_valid(self, form):
+            #     if "inline" in self.request.POST:
+            #         url = self.model.get_absolute_url(form.instance)
+            #         # return HttpResponseLocation(url, target='#dialog', )
+            #         ctx = self.get_context_data()
+            #         ctx['form'] = form
+            #         ctx['hx_target'] = '#dialog'
+            #         self.object = form.save(commit=False)
+            #         self.object.save()
+            #         tpl = 'app_index/flujo/partials/partial_update.html'
+            #         response = render(self.request, tpl, ctx)
+            #         response['HX-Retarget'] = ctx['hx_retarget']
+            #         response['HX-Reswap'] = ctx['hx_reswap']
+            #         return response
+            #     else:
+            #         return super().form_valid(form)
+
+        return OCreateView
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -69,6 +173,8 @@ class DocumentoCRUD(CommonCRUDView):
                 dep_queryset = context['form'].fields['departamento'].queryset
                 dep_queryset = dep_queryset.filter(unidadcontable=self.request.user.ueb)
                 context['form'].fields['departamento'].queryset = dep_queryset
+                tipo_doc_entrada = TipoDocumento.objects.filter(operacion='E')
+                tipo_doc_salida = TipoDocumento.objects.filter(operacion='S')
 
                 tableversat = None
                 if self.dep:
@@ -84,8 +190,11 @@ class DocumentoCRUD(CommonCRUDView):
                         crud_url_name(Documento, 'list', 'app_index:flujo:')) if self.dep else None,
                     'tableversat': tableversat if tableversat else None,
                     "hx_get": reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
-                    "hx_target": '#main_content_swap',
-                    "col_vis_hx_include": "[name='departamento'], [name='fecha']",
+                    "hx_target": '#table_content_documento_swap',
+                    "col_vis_hx_include": "[name='departamento'], [name='rango_fecha']",
+                    'create_link_menu': True,
+                    'tipo_doc_entrada': tipo_doc_entrada,
+                    'tipo_doc_salida': tipo_doc_salida,
                 })
                 return context
 
@@ -94,7 +203,7 @@ class DocumentoCRUD(CommonCRUDView):
                 queryset = super(OFilterListView, self).get_queryset()
                 formating = '%d/%m/%Y'
                 self.dep = self.request.GET.get('departamento', None)
-                fecha = self.request.GET.get('fecha', None)
+                rango_fecha = self.request.GET.get('rango_fecha', None)
                 # if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
                 #     depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                 # else:
@@ -105,8 +214,8 @@ class DocumentoCRUD(CommonCRUDView):
                 if self.dep == '' or self.dep is None:
                     # queryset = queryset.none()
                     return self.model.objects.none()
-                if fecha is not None and fecha is not '':
-                    fechas = fecha.strip().split('-')
+                if rango_fecha is not None and rango_fecha != '':
+                    fechas = rango_fecha.strip().split('-')
                     qdict['fecha__gte'] = datetime.datetime.strptime(fechas[0].strip(), formating).date()
                     qdict['fecha__lte'] = datetime.datetime.strptime(fechas[1].strip(), formating).date()
                     # queryset = queryset.filter(
@@ -130,11 +239,42 @@ class DocumentoCRUD(CommonCRUDView):
                 #             )
                 # else:
                 #     queryset = queryset.none()
-                if qdict:
-                    return queryset.filter(**qdict)
+                # if qdict:
+                #     return queryset.filter(**qdict)
                 return queryset
 
         return OFilterListView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super(OEditView, self).get_context_data(**kwargs)
+                ctx.update({
+                    'modal_form_title': 'Formaulario Modal',
+                    'max_width': '950px',
+                    'hx_target': '#table_content_documento_swap',
+                })
+                return ctx
+
+        return OEditView
+
+    def get_delete_view(self):
+        view = super().get_delete_view()
+
+        class ODeleteView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'hx_target': '#table_content_documento_swap',
+                    'hx-swap': 'outerHTML',
+                })
+                return ctx
+
+        return ODeleteView
 
 
 def dame_documentos_versat(request, dpto):
@@ -164,5 +304,5 @@ def dame_documentos_versat(request, dpto):
             return datos
 
     except Exception as e:
-        message_error(request=request, title=title_error, text=text_error)
+        sweetify.error(request=request, title=title_error, text=text_error)
         return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))

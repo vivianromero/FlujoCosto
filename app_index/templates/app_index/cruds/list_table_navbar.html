@@ -6,6 +6,75 @@
 {% load crud_tags %}
 {% load partials %}
 
+{% partialdef create_link_menu %}
+    {% if url_create %}
+        {% crud_url object "create" namespace as url %}
+        {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+            <li class="nav-item dropdown dropright">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-file-circle-plus" title="Adicionar documento"></i>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li><a class="dropdown-item dropdown-toggle" href="#">Entrada </a>
+                        <ul class="dropdown-menu">
+                            {% for tipo_doc in tipo_doc_entrada %}
+                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
+                                       class="dropdown-item" 
+                                       href="{{ url }}" 
+                                       hx-get="{{ url }}" 
+                                       hx-trigger="click" 
+                                       hx-target="#dialog" 
+                                       hx-swap="outerHTML"
+                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
+                                    {{ tipo_doc.descripcion }}
+                                </a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li><a class="dropdown-item dropdown-toggle" href="#">Salida </a>
+                        <ul class="dropdown-menu" style="margin-top: 35px;">
+                            {% for tipo_doc in tipo_doc_salida %}
+                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
+                                       class="dropdown-item" 
+                                       href="{{ url }}" 
+                                       hx-get="{{ url }}" 
+                                       hx-trigger="click" 
+                                       hx-target="#dialog" 
+                                       hx-swap="outerHTML"
+                                       hx-include='[name="departamento"]'
+                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
+                                    {{ tipo_doc.descripcion }}
+                                </a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endpartialdef %}
+
+{% partialdef create_link %}
+    {% if url_create %}
+        <div id="create_link_url_div" style="display: flex; align-items: center">
+            {% crud_url object "create" namespace as url %}
+            {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
+                <a id="id_create_url"
+                   href="{{ url }}{{ getparams }}"
+                   class="nav-link"
+                   hx-get="{{ url }}{{ getparams }}"
+                   hx-trigger="click"
+                   hx-target="#dialog"
+                   hx-swap="outerHTML"
+{#                       hx-replace-url="true"#}
+                   role="button">
+                    <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endpartialdef %}
+
 {% partialdef back_button %}
     {% if return_url %}
         <a hx-get="{{ return_url }}"
@@ -48,7 +117,7 @@
             <div class="my-auto">
                 <form class="form-inlineform-group form-control-sm col-md-12 mb-0" method="get" role="form">
                     {% csrf_token %}
-                        {{ form.fecha|as_crispy_field }}
+                        {{ form.rango_fecha|as_crispy_field }}
                 </form>
             </div>
         </div>
@@ -118,6 +187,16 @@
         </div>
     {% endif %}
 {% endpartialdef %}
+<style>
+    .dropdown-toggle.active-dropdown::after {
+        transform: rotate(-90deg);
+    }
+    .dropright .dropdown-menu{
+        left:auto!important;
+        right:0!important;
+        top: 35px!important;
+    }
+</style>
 
 <nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
     style="padding-bottom: 0; padding-top: 0; height: 35px;">
@@ -167,26 +246,31 @@
         {# aquí se debe poner el link de importar#}
         {% partial act_versat_link_url_partial %}
     {% endblock list_act_versat_table_main_header %}
-    <div id="create_link_url_div" style="display: flex; align-items: center">
-        {% if url_create %}
-            {% block list_create_table_main_header %}
-                {% crud_url object "create" namespace as url %}
-                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
-                    <a id="id_create_url"
-                       href="{{ url }}{{ getparams }}"
-                       class="nav-link"
-                       hx-get="{{ url }}{{ getparams }}"
-                       hx-trigger="click"
-                       hx-target="#dialog"
-                       hx-swap="outerHTML"
-{#                       hx-replace-url="true"#}
-                       role="button">
-                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
-                    </a>
-                {% endif %}
-            {% endblock list_create_table_main_header %}
+    {% block list_create_table_main_header %}
+{#        {% if url_create %}#}
+{#            <div id="create_link_url_div" style="display: flex; align-items: center">#}
+{#                {% crud_url object "create" namespace as url %}#}
+{#                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}#}
+{#                    <a id="id_create_url"#}
+{#                       href="{{ url }}{{ getparams }}"#}
+{#                       class="nav-link"#}
+{#                       hx-get="{{ url }}{{ getparams }}"#}
+{#                       hx-trigger="click"#}
+{#                       hx-target="#dialog"#}
+{#                       hx-swap="outerHTML"#}
+    {#                       hx-replace-url="true"#}
+{#                       role="button">#}
+{#                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        {% endif %}#}
+        {% if create_link_menu %}
+        	{% partial create_link_menu %}
+        {% else %} 
+            {% partial create_link %}
         {% endif %}
-    </div>
+    {% endblock list_create_table_main_header %}
     {% block list_export_table_main_header %}
         {# aquí se debe poner el link de exportar#}
         {% partial export_link_url_partial %}
@@ -324,11 +408,36 @@
          $(function () {
             //Initialize Select2 Elements
             $('.select2').select2()
-    
+        
             //Initialize Select2 Elements
             $('.select2bs4').select2({
               theme: 'bootstrap4'
             })
+            //htmx.on("htmx:afterSettle", (e) => {
+                $( '.dropdown-menu a.dropdown-toggle' ).on( 'click', function ( e ) {
+                    var $el = $( this );
+                    console.log($el)
+                    $el.toggleClass('active-dropdown');
+                    var $parent = $( this ).offsetParent( ".dropdown-menu" );
+                    if ( !$( this ).next().hasClass( 'show' ) ) {
+                        $( this ).parents( '.dropdown-menu' ).first().find( '.show' ).removeClass( "show" );
+                    }
+                    var $subMenu = $( this ).next( ".dropdown-menu" );
+                    $subMenu.toggleClass( 'show' );
+            
+                    $( this ).parent( "li" ).toggleClass( 'show' );
+            
+                    $( this ).parents( 'li.nav-item.dropdown.show' ).on( 'hidden.bs.dropdown', function ( e ) {
+                        $( '.dropdown-menu .show' ).removeClass( "show" );
+                        $el.removeClass('active-dropdown');
+                    } );
+            
+                     if ( !$parent.parent().hasClass( 'navbar-nav' ) ) {
+                        $el.next().css( { "top": $el[0].offsetTop, "left": $parent.outerWidth() - 4 } );
+                    }
+                    return false;
+                });
+            //})
         })
     </script>
 </nav>

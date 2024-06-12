@@ -2,7 +2,8 @@ from __future__ import unicode_literals
 
 import json
 
-from django.db.models import Sum, Count
+import sweetify
+from django.db.models import Sum, Count, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -12,6 +13,7 @@ from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
 
 from cruds_adminlte3.crud import CRUDView, MyTableExport
+from utiles.utils import message_error
 
 
 # from cruds_adminlte3.config import CONFIG
@@ -376,7 +378,31 @@ class CommonCRUDView(CRUDView):
 
                 return template_name
 
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                if 'pk' in kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    ctx['form'] = self.form_class(instance=obj)
+                elif 'object' in kwargs:
+                    ctx['form'] = self.form_class(instance=kwargs['object'])
+                return ctx
+
         return ODetailView
+
+    def get_delete_view(self):
+        view = super().get_delete_view()
+
+        class ODeleteView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'hx_target': '#main_content_swap',
+                    'hx-swap': 'outerHTML',
+                })
+                return ctx
+
+        return ODeleteView
 
 
 class BaseModalFormView(FormView):
