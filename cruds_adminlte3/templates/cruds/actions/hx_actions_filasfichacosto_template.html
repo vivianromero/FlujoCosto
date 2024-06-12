@@ -1,0 +1,77 @@
+{% load i18n l10n crud_tags %}
+{% crud_nurl object "detail" namespace as nurl %}
+{% if nurl and 'detail' in views_available and crud_perms.detail %}
+    <a hx-get="{% url nurl record.pk %}"
+       hx-trigger="click"
+       hx-target="#main_content_swap"
+       hx-swap="outerHTML"
+       hx-replace-url="true"
+        href="{% url nurl record.pk %}{{ getparams }}"
+       title="{% trans 'Show' %}">
+        <i class="fa-1x fa fa-eye"
+           style="margin-right: 5px;"></i>
+    </a>
+{% endif %}
+
+{% crud_nurl object "update" namespace as nurl %}
+{% if nurl and 'update' in views_available and crud_perms.update and not record.confirmada %}
+    <a hx-get="{% url nurl record.pk %}"
+       hx-trigger="click"
+       hx-target="#dialog"
+       hx-swap="outerHTML"
+       href="{% url nurl record.pk %}"
+       title="{% trans 'Edit' %}">
+        <i class="fa-1x fa fa-edit"
+           style="margin-right: 5px;"></i>
+    </a>
+{% endif %}
+{% crud_url object "create" namespace as url %}
+    {% if not record.fila in row_nodelete and record.encabezado %}
+    <a id="id_createhijo_url_{{record.pk}}"
+       href="{{ url }}?padre={{ record.pk|safe }}"
+       hx-get="{{ url }}?padre={{ record.pk|safe }}"
+       hx-trigger="click"
+       hx-target="#dialog"
+       hx-swap="outerHTML">
+        <i class="fa fa-file-circle-plus" title="{% trans 'Crear Hijo' %}"
+            style="margin-right: 5px;">
+        </i>
+    </a>
+{% endif %}
+{% crud_nurl object "delete" namespace as nurl %}
+{% if nurl and 'delete' in views_available and crud_perms.delete and not record.fila in row_nodelete %}
+    <a id="delete_href" href="{% url nurl record.pk %}{{ getparams }}"
+       is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+       class="delete_href"
+       title="{% trans 'Delete' %}">
+        <i id="trash_icon" class="fa-1x fa fa-trash">
+        </i>
+    </a>
+{% endif %}
+{% if confirm and not record.confirmada and crud_perms.update %}
+    {% crud_nurl object "confirm" namespace as nurl %}
+        <a id="confirm_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+           is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+            class="confirm_href"
+            texto="{{ texto_confirm }}"
+            title="{% trans 'Confirmar' %}">
+           <i id="check_icon" class="fa-1x fa fa-tasks">
+            </i>
+        </a>
+{% endif %}
+
+{% if activar and record.confirmada and not record.activa and crud_perms.update %}
+    {% crud_nurl object "activar" namespace as nurl %}
+        <a id="activar_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+           is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+            class="activar_href"
+            texto="{{ texto_activar }}"
+            title="{% trans 'Activar' %}">
+           <i id="check_icon" class="fa-1x fa fa-check-square">
+            </i>
+        </a>
+{% endif %}
+
+
+
+

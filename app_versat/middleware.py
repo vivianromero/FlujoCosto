@@ -75,6 +75,11 @@ class DatabaseConectionMiddleware:
                 }
                 with in_database(external_db, read=True, write=True):
                     response = self.get_response(request)
+
+                if not response.url:
+                    message_error(request=request, title=_("Couldn't connect"),
+                                  text=pgettext("Error conection", "Connection error with %s system") % (sistema))
+
                 return response if response.status_code == 200 else redirect(
                     crud_url_name(object, 'list', prefix))
 
@@ -84,8 +89,8 @@ class DatabaseConectionMiddleware:
                               text=pgettext("Error conection", "Database connect for %s not define") % (sistema))
                 return redirect(crud_url_name(object, 'list', prefix))
             except Exception as e:
-                message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))
+                message_error(request=request, title=_("Couldn't connect"), text=pgettext("Error conection", "Connection error with %s system") % (sistema))
                 return redirect(crud_url_name(object, 'list', prefix))
         except KeyError:
-            message_error(request=request, title=_("Couldn't connect"), text=_('Connection error'))
+            message_error(request=request, title=_("Couldn't connect"), text=pgettext("Error conection", "Connection error with %s system") % (sistema))
             return redirect(crud_url_name(object, 'list', prefix))

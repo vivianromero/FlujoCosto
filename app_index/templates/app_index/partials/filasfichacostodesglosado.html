@@ -1,0 +1,23 @@
+{% load i18n %}
+<div id="id_filadesg" class="form-row">
+	 <div class="form-group col-md-2 mb-0">
+	   <div class="form-group">
+	     <div id="div_id_salario" class="custom-control  custom-checkbox" style="{% if not show_salario %}display:none{%else%} {%endif%}">
+	       <input type="checkbox" name="salario" class="checkboxinput custom-control-input" id="id_salario" {% if value_salario %}checked disabled{%else%} {%endif%}>
+	         <label for="id_salario" class="custom-control-label">
+		            Salario
+		 </label>
+             </div>
+           </div>
+         </div>
+         <div class="form-group col-md-2 mb-0">
+           <div class="form-group">
+             <div id="div_id_vacaciones" class="custom-control  custom-checkbox" style="{% if not show_vacaciones %}display:none{%else%} {%endif%}">
+               <input type="checkbox" name="vacaciones" class="checkboxinput custom-control-input" id="id_vacaciones">
+                 <label for="id_vacaciones" class="custom-control-label">
+		            Vacaciones
+		 </label>
+	     </div>
+	   </div>
+	 </div>
+</div>

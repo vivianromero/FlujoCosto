@@ -34,6 +34,9 @@ class ConexionBaseDato(models.Model):
         verbose_name = _('Database conexion')
         unique_together = (('unidadcontable', 'sistema'),)
 
+    def __str__(self):
+        return "%s - %s" % (self.sistema, self.database_name)
+
 
 class ConsecutivoDocumento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

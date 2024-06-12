@@ -730,7 +730,7 @@ class ProductsCapasClaPesadas(ProductoFlujo):
 # Costos
 # Fichas de costo
 class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
-    id = models.IntegerField(primary_key=True, editable=False, )
+    id = models.AutoField(primary_key=True)
     fila = models.CharField(max_length=8, unique=True)
     descripcion = models.CharField(max_length=150)
     encabezado = models.BooleanField(default=False,
@@ -744,10 +744,15 @@ class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
     desglosado = models.BooleanField(default=False, db_comment='Si el concepto es resultado de los desgloses establecidos: Salario, '
                                                                 'Materia Prima y Materiales, Gastos Materia Prima Tabaco')
     calculado = models.BooleanField(default=False, db_comment='Si su valor depende de la suma de otras filas del encabezado')
-    sumafilas = models.CharField(max_length=250, db_comment='Filas encabezadas que se suman')
+    filasasumar = models.ManyToManyField('self',
+                                          blank=True, null=True,
+                                          related_name='sumafilasficha', symmetrical=False,
+                                          db_comment='Filas encabezadas que se suman', verbose_name=_("Filas a sumar"))
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    padre = models.CharField(max_length=10, null=True, blank=True)
     objects = models.Manager()
     tree = TreeManager()
+
 
     class Meta:
         db_table = 'cla_fichacostofilas'
@@ -764,6 +769,8 @@ class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
 
     def __str__(self):
         return "%s - %s" % (self.fila, self.descripcion)
+
+
 
 
 class GrupoEscalaCargo(ObjectsManagerAbstract):

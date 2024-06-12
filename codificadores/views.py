@@ -1753,7 +1753,8 @@ class FichaCostoFilasCRUD(CommonCRUDView):
             'vacaciones',
             'desglosado',
             'calculado',
-            'sumafilas'
+            'filasasumar',
+            'padre'
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1766,6 +1767,7 @@ class FichaCostoFilasCRUD(CommonCRUDView):
         'vacaciones',
         'desglosado',
         'calculado',
+        'filasasumar__fila__contains',
     ]
 
     add_form = FichaCostoFilasForm
@@ -1780,6 +1782,7 @@ class FichaCostoFilasCRUD(CommonCRUDView):
     # Table settings
     table_class = FichaCostoFilasTable
 
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -1787,12 +1790,103 @@ class FichaCostoFilasCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    # 'url_importar': 'app_index:importar:clacargos_importar',
-                    'filtrar': True,
-                    # 'url_exportar': True,
+                    'row_nodelete': ['1', '1.1', '1.2'],
+                    'url_importar': 'app_index:importar:filafichacosto_importar',
+                    'url_exportar': 'app_index:exportar:filafichacosto_exportar',
                 })
                 return context
 
         return OFilterListView
 
+    def get_create_view(self):
+        view = super().get_create_view()
 
+        class OCreateView(view):
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                padre = self.request.GET.get('padre', None)
+                form_kwargs.update(
+                    {
+                        "padre": padre,
+                    }
+                )
+                return form_kwargs
+
+        return OCreateView
+
+def fila_encabezado(request):
+    encabezado = False if not request.GET.get('encabezado') else True
+    fila = request.GET.get('fila')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    encabezado = True if not obj else obj.encabezado
+    padre = request.GET.get('padre')
+    if padre and int(padre)>0 and request.GET.get('encabezado') and request.GET.get('encabezado')=='on':
+        encabezado = True
+    elif int(padre)>0:
+        encabezado = False
+
+    calculado = False if not request.GET.get('calculado') else True
+    show_desglosado = not encabezado
+    show_calculado = encabezado
+    value_desglosado = obj.desglosado if obj and show_desglosado else False
+    value_calculado = False
+    desglose_disabled = fila in ['1.1', '1.2']
+    if show_calculado:
+        pk_padre = padre #if padre and padre != '0' else obj.parent.pk
+        filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
+        show_calculado =  False if not filasasumar else show_calculado
+        value_calculado = obj.calculado if obj and show_calculado else False
+
+    context = {
+        'show_desglosado': show_desglosado,
+        'show_calculado': show_calculado,
+        'value_desglosado': value_desglosado,
+        'value_calculado': value_calculado,
+        'desglose_disabled': desglose_disabled,
+        'padre': request.GET.get('padre'),
+    }
+    return render(request, 'app_index/partials/filasfichacostoencabezado.html', context)
+
+def fila_desglosado(request):
+    desglosado = True if request.GET.get('desglosado') and request.GET.get('desglosado')=='on' else False
+
+    fila = request.GET.get('fila')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    encabezado = True if not obj else True
+    if request.GET.get('padre') and int(request.GET.get('padre'))>0 and request.GET.get('encabezado') and request.GET.get('encabezado')=='on':
+        encabezado = True
+    elif int(request.GET.get('padre'))>0:
+        encabezado = False
+    show_salario = desglosado and not fila in ['1.1', '1.2']
+    show_vacaciones = not desglosado and not encabezado
+    value_salario = show_salario
+
+    context = {
+        'show_salario': show_salario,
+        'value_salario': value_salario,
+        'show_vacaciones': show_vacaciones,
+        'padre': request.GET.get('padre'),
+    }
+    return render(request, 'app_index/partials/filasfichacostodesglosado.html', context)
+
+def fila_calculado(request):
+    calculado = False if not request.GET.get('calculado') else True
+    fila = request.GET.get('fila')
+    padre = request.GET.get('padre')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    show_filasasumar = calculado
+    filasasumar=[]
+    filasasumarselecc=[]
+    pk_padre = padre #if padre and padre!='0' else obj.parent.pk
+    filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
+    show_filasasumar = calculado
+    selecc = obj.filasasumar.all() if obj else []
+    filasumarselecc = [x.pk for x in selecc]
+
+    context = {
+        'show_filasasumar': show_filasasumar,
+        'filasasumar': filasasumar,
+        'filasumarselecc': filasumarselecc,
+    }
+    return render(request, 'app_index/partials/filasfichacostocalculado.html', context)

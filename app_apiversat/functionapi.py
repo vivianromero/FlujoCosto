@@ -31,8 +31,5 @@ def getAPI(opcion, *param):
     # response = requests.get(url, auth=auth, headers=headers)
     response = requests.get(url, auth=auth, headers=headers)
     # Check the response
-    if response.status_code == 200:
-        return response
-    else:
-        print(f"Request failed with status code {response.status_code}")
-        print(response.text)
+    return response
+
