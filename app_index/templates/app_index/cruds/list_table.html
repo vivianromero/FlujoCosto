@@ -56,7 +56,7 @@
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
                 swal.fire({
-                    title: '¿Está seguro que desea eliminar este elemento?' + record,
+                    title: '¿Está seguro que desea eliminar este elemento: ' + record + '?',
                     text: '¡Esta acción no podrá revertirse!',
                     icon: 'question',
                     showCancelButton: true,
@@ -65,12 +65,13 @@
                     confirmButtonText: 'Confirmar Eliminar',
                     cancelButtonText: 'Cancelar',
                     backdrop: true,
-                    showLoaderOnConfirm: true,
-                    preConfirm:()=>{
-                        location.href = e.target.parentElement.href
-                    },
                     allowOutsideClick:()=>false,
                     allowEscapeKey:()=>false
+                }).then(function(result) {
+                      if(result.isConfirmed) {
+                          // e.detail.issueRequest(true) // use true to skip window.confirm
+                          htmx.trigger(e.target, 'confirmed')
+                      }
                 })
             })
         })
@@ -79,7 +80,7 @@
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
                 swal.fire({
-                    title: "Está seguro que desea activar " + record,
+                    title: "¿Está seguro que desea activar " + record + '?',
                     text: e.target.parentElement.attributes['texto'].nodeValue,
                     icon: 'question',
                     showCancelButton: true,
@@ -88,22 +89,22 @@
                     confirmButtonText: "Confirmar Activar",
                     cancelButtonText: 'Cancelar',
                     backdrop: true,
-                    showLoaderOnConfirm: true,
-                    preConfirm:()=>{
-                        location.href = e.target.parentElement.href
-                    },
                     allowOutsideClick:()=>false,
                     allowEscapeKey:()=>false
+                }).then(function(result) {
+                      if(result.isConfirmed) {
+                          // e.detail.issueRequest(true) // use true to skip window.confirm
+                          htmx.trigger(e.target, 'confirmed')
+                      }
                 })
             })
         })
-
-       document.querySelectorAll("a.confirm_href").forEach((ref) => {
+        document.querySelectorAll("a.confirm_href").forEach((ref) => {
             ref.addEventListener("click", function (e) {
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
                 swal.fire({
-                    title: "Está seguro que desea confirmar " + record,
+                    title: "¿Está seguro que desea confirmar " + record + '?',
                     text: e.target.parentElement.attributes['texto'].nodeValue,
                     icon: 'question',
                     showCancelButton: true,
@@ -112,12 +113,13 @@
                     confirmButtonText: "Confirmar",
                     cancelButtonText: 'Cancelar',
                     backdrop: true,
-                    showLoaderOnConfirm: true,
-                    preConfirm:()=>{
-                        location.href = e.target.parentElement.href
-                    },
                     allowOutsideClick:()=>false,
                     allowEscapeKey:()=>false
+                }).then(function(result) {
+                      if(result.isConfirmed) {
+                          // e.detail.issueRequest(true) // use true to skip window.confirm
+                          htmx.trigger(e.target, 'confirmed')
+                      }
                 })
             })
         })

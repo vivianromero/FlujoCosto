@@ -38,7 +38,12 @@
 {% endif %}
 {% if confirm and not record.confirmada and crud_perms.update %}
     {% crud_nurl object "confirm" namespace as nurl %}
-        <a id="confirm_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+        <a hx-get="{% url nurl pk=record.pk %}{{ getparams }}"
+           hx-trigger="confirmed"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           id="confirm_href"
+           href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="confirm_href"
             texto="{{ texto_confirm }}"
@@ -50,7 +55,12 @@
 
 {% if activar and record.confirmada and not record.activa and crud_perms.update %}
     {% crud_nurl object "activar" namespace as nurl %}
-        <a id="activar_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+        <a hx-get="{% url nurl pk=record.pk %}{{ getparams }}"
+           hx-trigger="confirmed"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           id="activar_href"
+           href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="activar_href"
             texto="{{ texto_activar }}"

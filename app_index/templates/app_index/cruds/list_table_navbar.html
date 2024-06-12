@@ -20,12 +20,11 @@
                             {% for tipo_doc in tipo_doc_entrada %}
                             	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
                                        class="dropdown-item" 
-                                       href="{{ url }}{{ getparams }}" 
-                                       hx-get="{{ url }}{{ getparams }}" 
+                                       href="{{ url }}" 
+                                       hx-get="{{ url }}" 
                                        hx-trigger="click" 
                                        hx-target="#dialog" 
-                                       hx-swap="outerHTML" 
-{#                                       hx-include='[name="departamento"]'#}
+                                       hx-swap="outerHTML"
                                        hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
                                     {{ tipo_doc.descripcion }}
                                 </a></li>
@@ -37,12 +36,12 @@
                             {% for tipo_doc in tipo_doc_salida %}
                             	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
                                        class="dropdown-item" 
-                                       href="{{ url }}{{ getparams }}" 
-                                       hx-get="{{ url }}{{ getparams }}" 
+                                       href="{{ url }}" 
+                                       hx-get="{{ url }}" 
                                        hx-trigger="click" 
                                        hx-target="#dialog" 
                                        hx-swap="outerHTML"
-{#                                       hx-include='[name="departamento"]'#}
+                                       hx-include='[name="departamento"]'
                                        hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
                                     {{ tipo_doc.descripcion }}
                                 </a></li>
