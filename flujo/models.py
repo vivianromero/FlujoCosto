@@ -263,6 +263,8 @@ class ExistenciaDpto(models.Model):
                                related_name='existenciadpto_productoestado')
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
+    precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
+                                 verbose_name=_("Price"))
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
                                   verbose_name=_("Amount"))
 
