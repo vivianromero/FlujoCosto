@@ -83,6 +83,41 @@ class UnidadContableForm(forms.ModelForm):
         )
 
 
+# ------------ Unidad Contable / Detail Form ------------
+class UnidadContableDetailForm(UnidadContableForm):
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(UnidadContableDetailForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_unidadcontable_detail_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'UEB',
+                    Row(
+                        Column(UneditableField('codigo'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('nombre'), css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column(UneditableField('activo'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('is_empresa'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('is_comercializadora'), css_class='form-group col-md-2 mb-0'),
+
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+
+
 # ------------ Unidad Contable / Form Filter ------------
 class UnidadContableFormFilter(forms.Form):
     class Meta:
