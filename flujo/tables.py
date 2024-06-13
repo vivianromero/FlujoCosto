@@ -28,7 +28,7 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 
 # ------ Documentos Versat / Table ------
-class DocumentosVersatTable(tables.Table):
+class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     iddocumento = tables.Column(verbose_name='Id',
                                 visible=True,
                                 orderable=True)
@@ -36,12 +36,13 @@ class DocumentosVersatTable(tables.Table):
     iddocumento_numero = tables.Column(verbose_name='Número')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
     iddocumento_detalle = tables.Column(verbose_name='Detalles', visible=False)
-    # actions = tables.TemplateColumn(
-    #     template_name='cruds/actions/hx_actions_documentosversat_template.html',
-    #     verbose_name=_('Actions'),
-    #     exclude_from_export=True,
-    #     orderable=False,
-    #     attrs={ "th": {'style': 'text-align: center;'},
-    #             "td": {'style': 'text-align: center;'},
-    #           }
-    # )
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_documentosversat_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs={"th": {'style': 'text-align: center;'},
+               "td": {'style': 'text-align: center;'},
+               }
+    )

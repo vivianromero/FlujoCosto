@@ -1,8 +1,8 @@
 {% load i18n l10n crud_tags %}
     <a hx-get="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
        hx-replace-url="true"
         href="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
        title="Obtener Documento">

@@ -6,7 +6,7 @@
 {% load i18n %}
 {% load l10n %}
 
-<div id="dialog" class="modal-dialog modal-dialog-centered" style="max-width: {{ max_width }}" role="document">
+<div id="dialog" class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: {{ max_width }}" role="document">
     <form 
             id="id_form_modal" 
 {#            hx-post="{{ request.path }}" #}
@@ -26,7 +26,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding-bottom: 0">
                 {% if form.helper %}
                     {% crispy form %}
                 {% else %}
@@ -34,7 +34,7 @@
                 {% endif %}
             </div>
             {% if inlines and action == 'update' %}
-                <div class="card-body row">
+                <div class="card-body row" style="padding-top: 0">
                     <div class="col-md-12">
                         <div class="panel panel-default">
                         {% for inline in inlines%}
@@ -79,12 +79,17 @@
                 </div>
             {% endif %}
             <div class="modal-footer">
-{#                {% if form_view %}#}
-{#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>#}
-{#                    <button hx-headers="{'submitted': 'true'}" id="id_form_btn_acept" type="submit" class="btn btn-primary">Aceptar</button>#}
-{#                {% else %}    #}
-{#                    {% include "cruds/actions/hx_common_form_actions.html"%}#}
-{#                {% endif %}#}
+                {% if form_view %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button hx-headers='{"submitted": "true"}'
+                            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+                            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                            id="id_form_btn_acept" 
+                            type="submit" 
+                            class="btn btn-primary">
+                        Aceptar
+                    </button>
+                {% endif %}
             </div>
             </div>
         

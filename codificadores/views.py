@@ -820,8 +820,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'filtrar': True,
                     'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
-                    "hx_target": '#dialog',
-                    "hx_swap": 'outerHTML',
+                    # "hx_target": '#dialog',
+                    # "hx_swap": 'outerHTML',
                     'sistema': 'VERSAT',
                 })
                 return context
@@ -1537,6 +1537,7 @@ def classmatprima(request):
     }
     return render(request, 'app_index/partials/productclases.html', context)
 
+
 def rendimientocapa(request):
     clasemp = request.GET.get('clase')
     codigo = request.GET.get('codigo')
@@ -1546,7 +1547,7 @@ def rendimientocapa(request):
     catvitolas = CategoriaVitola.objects.all()
     seleccvitolas = []
     prod = ProductoFlujo.objects.filter(codigo=codigo)
-    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
+    if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
         vitolas = prod.first().vitolas.all()
         seleccvitolas = [x.pk for x in vitolas]
     context = {
@@ -1556,6 +1557,7 @@ def rendimientocapa(request):
         'vitolas': catvitolas,
     }
     return render(request, 'app_index/partials/rendimientocapa.html', context)
+
 
 def cargonorma(request):
     produccion = request.GET.get('vinculo_produccion')
@@ -1570,9 +1572,10 @@ def cargonorma(request):
     }
     return render(request, 'app_index/partials/clasifcargosnormas.html', context)
 
+
 def calcula_nt(request):
     nr = request.GET.get('nr_media')
-    norma = 8/int(nr) if nr and int(nr)>0 else 0.0000
+    norma = 8 / int(nr) if nr and int(nr) > 0 else 0.0000
     nt = round(norma, 4)
     context = {
         'show_norma_tiempo': True,
@@ -1625,6 +1628,7 @@ class TipoDocumentoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 def confirm_nc(request, pk):
     obj = NormaConsumo.objects.get(pk=pk)
     if obj.normaconsumodetalle_normaconsumo.count() > 0:
@@ -1672,6 +1676,7 @@ def productmedidadetalle(request):
     result = {"id": medida_seleccionada.pk}
     return JsonResponse({"results": result})
 
+
 # ------ ClasificadorCargos / CRUD ------
 class ClasificadorCargosCRUD(CommonCRUDView):
     model = ClasificadorCargos
@@ -1679,13 +1684,13 @@ class ClasificadorCargosCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-            'codigo',
-            'descripcion',
-            'grupo__grupo',
-            'actividad',
-            'vinculo_produccion',
-            'activo',
-            'unidadcontable'
+        'codigo',
+        'descripcion',
+        'grupo__grupo',
+        'actividad',
+        'vinculo_produccion',
+        'activo',
+        'unidadcontable'
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1738,6 +1743,7 @@ class ClasificadorCargosCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ FichaCostoFilas / CRUD ------
 class FichaCostoFilasCRUD(CommonCRUDView):
     model = FichaCostoFilas
@@ -1745,15 +1751,15 @@ class FichaCostoFilasCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-            'fila',
-            'descripcion',
-            'encabezado',
-            'salario',
-            'vacaciones',
-            'desglosado',
-            'calculado',
-            'filasasumar',
-            'padre'
+        'fila',
+        'descripcion',
+        'encabezado',
+        'salario',
+        'vacaciones',
+        'desglosado',
+        'calculado',
+        'filasasumar',
+        'padre'
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1780,7 +1786,6 @@ class FichaCostoFilasCRUD(CommonCRUDView):
 
     # Table settings
     table_class = FichaCostoFilasTable
-
 
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
@@ -1814,15 +1819,16 @@ class FichaCostoFilasCRUD(CommonCRUDView):
 
         return OCreateView
 
+
 def fila_encabezado(request):
     encabezado = False if not request.GET.get('encabezado') else True
     fila = request.GET.get('fila')
     obj = FichaCostoFilas.objects.filter(fila=fila).first()
     encabezado = True if not obj else obj.encabezado
     padre = request.GET.get('padre')
-    if padre and int(padre)>0 and request.GET.get('encabezado') and request.GET.get('encabezado')=='on':
+    if padre and int(padre) > 0 and request.GET.get('encabezado') and request.GET.get('encabezado') == 'on':
         encabezado = True
-    elif int(padre)>0:
+    elif int(padre) > 0:
         encabezado = False
 
     calculado = False if not request.GET.get('calculado') else True
@@ -1832,9 +1838,9 @@ def fila_encabezado(request):
     value_calculado = False
     desglose_disabled = fila in ['1.1', '1.2']
     if show_calculado:
-        pk_padre = padre #if padre and padre != '0' else obj.parent.pk
+        pk_padre = padre  # if padre and padre != '0' else obj.parent.pk
         filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
-        show_calculado =  False if not filasasumar else show_calculado
+        show_calculado = False if not filasasumar else show_calculado
         value_calculado = obj.calculado if obj and show_calculado else False
 
     context = {
@@ -1847,15 +1853,16 @@ def fila_encabezado(request):
     }
     return render(request, 'app_index/partials/filasfichacostoencabezado.html', context)
 
+
 def fila_desglosado(request):
-    desglosado = True if request.GET.get('desglosado') and request.GET.get('desglosado')=='on' else False
+    desglosado = True if request.GET.get('desglosado') and request.GET.get('desglosado') == 'on' else False
 
     fila = request.GET.get('fila')
     obj = FichaCostoFilas.objects.filter(fila=fila).first()
     encabezado = True if not obj else True
-    if request.GET.get('padre') and int(request.GET.get('padre'))>0 and request.GET.get('encabezado') and request.GET.get('encabezado')=='on':
+    if request.GET.get('padre') and int(request.GET.get('padre')) > 0 and request.GET.get('encabezado') and request.GET.get('encabezado') == 'on':
         encabezado = True
-    elif int(request.GET.get('padre'))>0:
+    elif int(request.GET.get('padre')) > 0:
         encabezado = False
     show_salario = desglosado and not fila in ['1.1', '1.2']
     show_vacaciones = not desglosado and not encabezado
@@ -1869,15 +1876,16 @@ def fila_desglosado(request):
     }
     return render(request, 'app_index/partials/filasfichacostodesglosado.html', context)
 
+
 def fila_calculado(request):
     calculado = False if not request.GET.get('calculado') else True
     fila = request.GET.get('fila')
     padre = request.GET.get('padre')
     obj = FichaCostoFilas.objects.filter(fila=fila).first()
     show_filasasumar = calculado
-    filasasumar=[]
-    filasasumarselecc=[]
-    pk_padre = padre #if padre and padre!='0' else obj.parent.pk
+    filasasumar = []
+    filasasumarselecc = []
+    pk_padre = padre  # if padre and padre!='0' else obj.parent.pk
     filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
     show_filasasumar = calculado
     selecc = obj.filasasumar.all() if obj else []
