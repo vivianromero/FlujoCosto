@@ -130,9 +130,15 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
+                dep = self.request.GET.get('departamento', None)
+                tipo_doc = self.request.GET.get('tipo_doc', None)
+                departamento = Departamento.objects.get(pk=dep)
+                tipodocumento = TipoDocumento.objects.get(pk=tipo_doc)
+                title = 'Departamento: %s | Documento: %s' % (departamento, tipodocumento)
                 ctx.update({
-                    'modal_form_title': 'Formaulario Modal',
+                    'modal_form_title': title,
                     "hx_target": '#table_content_documento_swap',
+                    'max_width': '1250px',
                 })
                 return ctx
 
@@ -252,9 +258,10 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super(OEditView, self).get_context_data(**kwargs)
+                title = 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
                 ctx.update({
-                    'modal_form_title': 'Formaulario Modal',
-                    'max_width': '950px',
+                    'modal_form_title': title,
+                    'max_width': '1250px',
                     'hx_target': '#table_content_documento_swap',
                 })
                 return ctx

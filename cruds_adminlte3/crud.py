@@ -319,6 +319,14 @@ class CRUDMixin(object):
         context['getparams'] += "&" if self.getparams else ""
         context['getparams_hx'] = "?" + self.getparams_hx
         context['getparams_hx'] += "&" if self.getparams_hx else ""
+        context.update({
+            'hx_target': self.hx_target,
+            'hx_swap': self.hx_swap,
+            'hx_form_target': self.hx_form_target,
+            'hx_form_swap': self.hx_form_swap,
+            'hx_retarget': self.hx_retarget,
+            'hx_reswap': self.hx_reswap,
+        })
         context.update(CONFIG)
         return context
 
@@ -618,6 +626,15 @@ class CRUDView(object):
     split_space_search = False
     related_fields = None
     list_filter = None
+
+    # htmx config
+    hx_target = None
+    hx_swap = None
+    hx_form_target = None
+    hx_form_swap = None
+    hx_retarget = None
+    hx_reswap = None
+
     mixin = CRUDMixin
 
     """
@@ -688,6 +705,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
             success_message = _('Data creation was successful')
 
             def form_valid(self, form):
@@ -712,7 +735,7 @@ class CRUDView(object):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
-                    'modal': self.modal
+                    'modal': self.modal,
                 })
                 return ctx
 
@@ -743,6 +766,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_success_url(self):
                 url = super(ODetailView, self).get_success_url()
@@ -754,7 +783,6 @@ class CRUDView(object):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'form': self.form_class(),
-                    'modal': self.modal,
                 })
                 return ctx
 
@@ -795,6 +823,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             success_message = _('Data modification was successful')
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def form_valid(self, form):
                 if not self.related_fields:
@@ -816,7 +850,6 @@ class CRUDView(object):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'modal': self.modal,
-                    # 'form': self.form_class
                 })
                 return ctx
 
@@ -863,6 +896,12 @@ class CRUDView(object):
             queryset = self.queryset
             env = self.env
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_listfilter_queryset(self, queryset):
                 if self.list_filter:
@@ -962,6 +1001,12 @@ class CRUDView(object):
             env = self.env
             col_vis = self.col_vis
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             if self.filterset_class is None:
                 filterset_class = get_filter_fields(
@@ -1121,6 +1166,12 @@ class CRUDView(object):
             aggregates = self.aggregates
             modal = self.modal
             success_message = _('The data was successfully deleted')
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_success_url(self):
                 url = super(ODeleteView, self).get_success_url()

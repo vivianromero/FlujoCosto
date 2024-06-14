@@ -3,8 +3,8 @@
 {% if nurl and 'detail' in views_available and crud_perms.detail %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
+      {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
        hx-replace-url="true"
         href="{% url nurl record.pk %}{{ getparams }}"
        title="{% trans 'Show' %}">
@@ -17,8 +17,8 @@
 {% if nurl and 'update' in views_available and crud_perms.update and not record.confirmada %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
-       hx-target="#dialog"
-       hx-swap="outerHTML"
+       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
        href="{% url nurl record.pk %}"
        title="{% trans 'Edit' %}">
         <i class="fa-1x fa fa-edit"
@@ -31,8 +31,9 @@
        href="{{ url }}?padre={{ record.pk|safe }}"
        hx-get="{{ url }}?padre={{ record.pk|safe }}"
        hx-trigger="click"
-       hx-target="#dialog"
-       hx-swap="outerHTML">
+       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+    >
         <i class="fa fa-file-circle-plus" title="{% trans 'Crear Hijo' %}"
             style="margin-right: 5px;">
         </i>
@@ -40,7 +41,12 @@
 {% endif %}
 {% crud_nurl object "delete" namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete and not record.fila in row_nodelete %}
-    <a id="delete_href" href="{% url nurl record.pk %}{{ getparams }}"
+    <a hx-post="{% url nurl record.pk %}{{ getparams }}"
+       hx-trigger="confirmed"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+       id="delete_href"
+       href="{% url nurl record.pk %}{{ getparams }}"
        is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
        class="delete_href"
        title="{% trans 'Delete' %}">
@@ -50,7 +56,12 @@
 {% endif %}
 {% if confirm and not record.confirmada and crud_perms.update %}
     {% crud_nurl object "confirm" namespace as nurl %}
-        <a id="confirm_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+        <a hx-post="{% url nurl pk=record.pk %}{{ getparams }}"
+           hx-trigger="confirmed"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           id="confirm_href"
+           href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="confirm_href"
             texto="{{ texto_confirm }}"
@@ -62,7 +73,12 @@
 
 {% if activar and record.confirmada and not record.activa and crud_perms.update %}
     {% crud_nurl object "activar" namespace as nurl %}
-        <a id="activar_href" href="{% url nurl pk=record.pk %}{{ getparams }}"
+        <a hx-get="{% url nurl pk=record.pk %}{{ getparams }}"
+           hx-trigger="confirmed"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           id="activar_href"
+           href="{% url nurl pk=record.pk %}{{ getparams }}"
            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
             class="activar_href"
             texto="{{ texto_activar }}"

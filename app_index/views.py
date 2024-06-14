@@ -154,6 +154,8 @@ class CommonCRUDView(CRUDView):
 
     update_form = None  # Must be filled in descendant classes
 
+    detail_form = None  # Must be filled in descendant classes
+
     check_login = True
     check_perms = True
 
@@ -175,6 +177,22 @@ class CommonCRUDView(CRUDView):
 
     modal = True
 
+    hx_target = '#main_content_swap'
+    hx_swap = 'outerHTML'
+
+    hx_form_target = '#dialog'
+    hx_form_swap = 'outerHTML'
+
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML'
+
+    @staticmethod
+    def get_current_url_abs_path(request_htmx=None):
+        if request_htmx is not None:
+            if request_htmx.current_url_abs_path.split('?').__len__() > 1:
+                return '?' + request_htmx.current_url_abs_path.split('?')[1]
+        return ''
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -182,7 +200,15 @@ class CommonCRUDView(CRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 col_vis = ",".join(self.col_vis)
-                context.update({'col_vis': col_vis})
+                context.update({
+                    'col_vis': col_vis,
+                    'hx_target': self.hx_target,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
                 return context
 
             def get_template_names(self):
@@ -268,10 +294,10 @@ class CommonCRUDView(CRUDView):
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
-                    'hx_target': '#main_content_swap',
-                    'hx-swap': 'outerHTML',
-                    'hx_retarget': '#dialog',
-                    'hx_reswap': 'outerHTML',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
                 })
                 return ctx
 
@@ -289,8 +315,8 @@ class CommonCRUDView(CRUDView):
                 url = super(OEditView, self).get_success_url()
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
-                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                elif self.request.htmx:
+                    url += self.get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OEditView
@@ -329,10 +355,10 @@ class CommonCRUDView(CRUDView):
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
-                    'hx_target': '#main_content_swap',
-                    'hx-swap': 'outerHTML',
-                    'hx_retarget': '#dialog',
-                    'hx_reswap': 'outerHTML',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
                 })
                 return ctx
 
@@ -353,8 +379,8 @@ class CommonCRUDView(CRUDView):
                 url = super(OCreateView, self).get_success_url()
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
-                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                elif self.request.htmx:
+                    url += self.get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OCreateView
@@ -397,8 +423,8 @@ class CommonCRUDView(CRUDView):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
-                    'hx_target': '#main_content_swap',
-                    'hx-swap': 'outerHTML',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
                 })
                 return ctx
 
@@ -472,6 +498,10 @@ class BaseModalFormView(FormView):
         ctx.update({
             'modal_form_title': self.modal_form_title,
             'max_width': self.max_width,
+            'hx_target': self.hx_target,
+            'hx_swap': self.hx_swap,
+            'hx_retarget': self.hx_retarget,
+            'hx_reswap': self.hx_reswap,
             'form_view': True,
         })
         return ctx

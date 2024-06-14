@@ -22,8 +22,8 @@ class DocumentoForm(forms.ModelForm):
         label="Departamento Destino",
         required=False,
         widget=SelectWidget(attrs={
-                    'style': 'width: 100%;',
-                }
+            'style': 'width: 100%; display: none;',
+        }
         )
     )
 
@@ -77,11 +77,12 @@ class DocumentoForm(forms.ModelForm):
         self.post = kwargs.pop('post', None)
         self.departamento = kwargs.pop('departamento', None)
         self.tipo_doc = kwargs.pop('tipo_doc', None)
-        self.destino_tipo_documento = [3,]
+        self.destino_tipo_documento = [3, ]
         self.destino_tipo_documento_str = ['3', ]
         super(DocumentoForm, self).__init__(*args, **kwargs)
         destino_queryset = self.fields['departamento_destino'].queryset
         self.fields['departamento_destino'].disabled = True
+        self.fields['departamento_destino'].label = False
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
             self.fields['ueb'].widget.enabled_choices = [self.user.ueb]
@@ -94,6 +95,8 @@ class DocumentoForm(forms.ModelForm):
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
                 self.fields['departamento_destino'].widget.enabled_choices = [destino.departamento]
+                self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
+                self.fields['departamento_destino'].label = "Departamento Destino"
                 self.fields['departamento_destino'].disabled = False
                 self.fields['departamento_destino'].required = True
         elif data:
@@ -115,6 +118,8 @@ class DocumentoForm(forms.ModelForm):
                 if self.tipo_doc in self.destino_tipo_documento_str:
                     destino_queryset = destino_queryset.filter(relaciondepartamento=self.departamento)
                     self.fields['departamento_destino'].queryset = destino_queryset
+                    self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
+                    self.fields['departamento_destino'].label = "Departamento Destino"
                     self.fields['departamento_destino'].disabled = False
                     self.fields['departamento_destino'].required = True
         self.helper = FormHelper(self)
@@ -123,32 +128,26 @@ class DocumentoForm(forms.ModelForm):
         self.helper.form_tag = False
 
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Documento',
-                    Row(
-                        Column(
-                            Field('fecha', id='id_fecha_documento_form', ),
-                            css_class='form-group col-md-3 mb-0'
-                        ),
-                        Column('departamento', css_class='form-group col-md-3 mb-0'),
-                        Column('departamento_destino', css_class='form-group col-md-3 mb-0'),
-                        Column('tipodocumento', css_class='form-group col-md-3 mb-0'),
-                        Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-
-                        Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
-                        Column('suma_importe', css_class='form-group col-md-3 mb-0'),
-                        Column('estado', css_class='form-group col-md-3 mb-0'),
-                        # Column('comprob', css_class='form-group col-md-1 mb-0'),
-
-                        Column('ueb', css_class='form-group col-md-3 mb-0'),
-                        # Column('observaciones', css_class='form-group col-md-12 mb-0'),
-                        # Column('reproceso', css_class='form-group col-md-3 mb-0'),
-                        # Column('editar_nc', css_class='form-group col-md-3 mb-0'),
-                        css_class='form-row'
-                    ),
+            Row(
+                Column(
+                    Field('fecha', id='id_fecha_documento_form', ),
+                    css_class='form-group col-md-3 mb-0'
                 ),
+                # Column('departamento', css_class='form-group col-md-3 mb-0'),
+                # Column('tipodocumento', css_class='form-group col-md-3 mb-0'),
+                Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
 
+                Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
+                # Column('suma_importe', css_class='form-group col-md-3 mb-0'),
+                # Column('estado', css_class='form-group col-md-3 mb-0'),
+                # Column('comprob', css_class='form-group col-md-1 mb-0'),
+
+                # Column('ueb', css_class='form-group col-md-3 mb-0'),
+                # Column('observaciones', css_class='form-group col-md-12 mb-0'),
+                # Column('reproceso', css_class='form-group col-md-3 mb-0'),
+                # Column('editar_nc', css_class='form-group col-md-3 mb-0'),
+                Column('departamento_destino', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
             ),
         )
         self.helper.layout.append(

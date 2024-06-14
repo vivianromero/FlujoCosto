@@ -3,8 +3,8 @@
 {% if nurl and 'detail' in views_available and crud_perms.detail %}
     <a hx-get="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
         href="{% url nurl record.pk %}{{ getparams }}"
        title="{% trans 'Show' %}">
         <i class="fa-1x fa fa-eye"
@@ -16,8 +16,8 @@
 {% if nurl and 'update' in views_available and crud_perms.update %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
-       hx-target="#dialog"
-       hx-swap="outerHTML"
+       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
 {#       hx-replace-url="true"#}
        href="{% url nurl record.pk %}"
        title="{% trans 'Edit' %}">

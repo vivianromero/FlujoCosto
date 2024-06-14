@@ -2,10 +2,10 @@
 {% crud_nurl object2 "list" namespace as nurl %}
 {% if nurl and 'list' in views_available and crud_perms.list %}
     <a
-        hx-get="{% url nurl %}?Producto={{ record.Producto|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}"
+       hx-get="{% url nurl %}?Producto={{ record.Producto|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
        hx-replace-url="true"
         href="{% url nurl %}?Producto={{ record.Producto|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}"
        title="Listar normas asociadas al producto">
@@ -18,8 +18,8 @@
 {% if nurl and 'update' in views_available and crud_perms.update %}
     <a hx-get="{% url nurl record.Producto %}"
        hx-trigger="click"
-       hx-target="#main_content_swap"
-       hx-swap="outerHTML"
+       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
        hx-replace-url="true"
        href="{% url nurl record.Producto %}"
        title="{% trans 'Edit' %}">
@@ -29,7 +29,12 @@
 {% endif %}
 {% crud_nurl object2 "delete" namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete %}
-    <a id="delete_href" href="{% url nurl record.Producto %}{{ getparams }}"
+    <a hx-post="{% url nurl record.Producto %}{{ getparams }}"
+       hx-trigger="confirmed"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+       id="delete_href"
+       href="{% url nurl record.Producto %}{{ getparams }}"
        is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
        class="delete_href"
        title="{% trans 'Delete' %}">
