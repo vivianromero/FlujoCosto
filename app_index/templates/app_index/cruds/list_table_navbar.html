@@ -25,7 +25,7 @@
                                        hx-trigger="click"
                                        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
+                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}", "departamento": "{{ form.departamento.value|safe }}"}'>
                                     {{ tipo_doc.descripcion }}
                                 </a></li>
                             {% endfor %}
@@ -42,8 +42,7 @@
                                            hx-trigger="click"
                                            hx-target="#dialog"
                                            hx-swap="outerHTML"
-                                           hx-include='[name="departamento"]'
-                                           hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
+                                           hx-vals='{"tipo_doc": "{{ tipo_doc.id }}", "departamento": "{{ form.departamento.value|safe }}"}'>
                                         {{ tipo_doc.descripcion }}
                                     </a></li>
                                 {% endfor %}

@@ -100,9 +100,11 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento_destino'].disabled = False
                 self.fields['departamento_destino'].required = True
         elif data:
-            self.fields['departamento'].widget.enabled_choices = [data['departamento']]
-            self.fields['tipodocumento'].widget.enabled_choices = [data['tipodocumento']]
-            if data['tipodocumento'] in self.destino_tipo_documento_str:
+            self.fields['departamento'].widget.enabled_choices = [data.get('departamento', None)]
+            self.fields['tipodocumento'].widget.enabled_choices = [data.get('tipodocumento', None)]
+            estado = data.get('estado')
+            self.fields['estado'].initial = estado if estado != '' else 1
+            if data.get('tipodocumento') in self.destino_tipo_documento_str:
                 destino = data.get('departamento_destino')
                 self.fields['departamento_destino'].initial = destino
                 self.fields['departamento_destino'].disabled = False
@@ -111,6 +113,7 @@ class DocumentoForm(forms.ModelForm):
             if self.departamento:
                 self.fields['departamento'].initial = self.departamento
                 self.fields['departamento'].widget.enabled_choices = [self.departamento]
+                self.fields['estado'].initial = 1
             if self.tipo_doc:
                 print(self.tipo_doc)
                 self.fields['tipodocumento'].initial = self.tipo_doc
@@ -147,6 +150,11 @@ class DocumentoForm(forms.ModelForm):
                 # Column('reproceso', css_class='form-group col-md-3 mb-0'),
                 # Column('editar_nc', css_class='form-group col-md-3 mb-0'),
                 Column('departamento_destino', css_class='form-group col-md-3 mb-0'),
+                Field('departamento', type="hidden"),
+                Field('tipodocumento', type="hidden"),
+                Field('suma_importe', type="hidden"),
+                Field('estado', type="hidden"),
+                Field('ueb', type="hidden"),
                 css_class='form-row'
             ),
         )

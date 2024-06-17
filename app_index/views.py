@@ -487,6 +487,11 @@ class BaseModalFormView(FormView):
             return HttpResponseLocation(
                 self.get_success_url(),
                 target=self.hx_target,
+                headers={
+                    'HX-Trigger': self.request.htmx.trigger,
+                    'HX-Trigger-Name': self.request.htmx.trigger_name,
+                    'submitted': 'true',
+                }
             )
         else:
             return render(self.request, self.template_name, {

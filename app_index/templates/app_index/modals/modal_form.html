@@ -81,11 +81,14 @@
             <div class="modal-footer">
                 {% if form_view %}
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button hx-headers='{"submitted": "true"}'
+                    <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
+                            hx-post="{{ request.path }}"
+                            hx-trigger="click"
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                             id="id_form_btn_acept" 
                             type="submit" 
+                            name="form_btn_acept"
                             class="btn btn-primary">
                         Aceptar
                     </button>
