@@ -19,6 +19,13 @@ from utiles.utils import message_error
 # from cruds_adminlte3.config import CONFIG
 
 
+def get_current_url_abs_path(request_htmx=None):
+    if request_htmx is not None:
+        if request_htmx.current_url_abs_path.split('?').__len__() > 1:
+            return '?' + request_htmx.current_url_abs_path.split('?')[1]
+    return ''
+
+
 class Index(TemplateView):
     template_name = 'app_index/adminlte/index.html'
 
@@ -186,13 +193,6 @@ class CommonCRUDView(CRUDView):
     hx_retarget = '#dialog'
     hx_reswap = 'outerHTML'
 
-    @staticmethod
-    def get_current_url_abs_path(request_htmx=None):
-        if request_htmx is not None:
-            if request_htmx.current_url_abs_path.split('?').__len__() > 1:
-                return '?' + request_htmx.current_url_abs_path.split('?')[1]
-        return ''
-
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -316,7 +316,7 @@ class CommonCRUDView(CRUDView):
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
                 elif self.request.htmx:
-                    url += self.get_current_url_abs_path(self.request.htmx)
+                    url += get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OEditView
@@ -364,11 +364,19 @@ class CommonCRUDView(CRUDView):
 
             def get_retarget_response(self, form, ctx):
                 ctx['form'] = form
-                tpl = self.get_template_names()
+                tpl = "%s/%s" % (self.partial_template_name_base, 'partial_create.html')
                 response = render(self.request, tpl, ctx)
                 response['HX-Retarget'] = ctx['hx_retarget']
                 response['HX-Reswap'] = ctx['hx_reswap']
                 return response
+
+            def form_valid(self, form):
+                if form.is_valid():
+                    return super(OCreateView, self).form_valid(form)
+                else:
+                    return render(self.request, self.get_template_names(), {
+                        'form': form,
+                    })
 
             def form_invalid(self, form, **kwargs):
                 """If the form is invalid, render the invalid form."""
@@ -380,7 +388,7 @@ class CommonCRUDView(CRUDView):
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
                 elif self.request.htmx:
-                    url += self.get_current_url_abs_path(self.request.htmx)
+                    url += get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OCreateView
@@ -479,6 +487,11 @@ class BaseModalFormView(FormView):
             return HttpResponseLocation(
                 self.get_success_url(),
                 target=self.hx_target,
+                headers={
+                    'HX-Trigger': self.request.htmx.trigger,
+                    'HX-Trigger-Name': self.request.htmx.trigger_name,
+                    'submitted': 'true',
+                }
             )
         else:
             return render(self.request, self.template_name, {

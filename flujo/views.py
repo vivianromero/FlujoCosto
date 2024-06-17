@@ -117,7 +117,7 @@ class DocumentoCRUD(CommonCRUDView):
                 dep = self.request.GET.get('departamento', None)
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 departamento = Departamento.objects.get(pk=dep) if dep else None
-                tipodocumento = TipoDocumento.objects.get(pk=tipo_doc)
+                tipodocumento = TipoDocumento.objects.get(pk=tipo_doc) if tipo_doc else None
                 title = 'Departamento: %s | Documento: %s' % (departamento, tipodocumento)
                 ctx.update({
                     'modal_form_title': title,

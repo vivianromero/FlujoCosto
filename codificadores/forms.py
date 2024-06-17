@@ -771,6 +771,18 @@ class ProductoFlujoForm(forms.ModelForm):
                     producto_flujo_clase.save()
         return instance
 
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     codigo = cleaned_data.get('codigo')
+    #     if not codigo:
+    #         msg = _('Rellene este campo')
+    #         self.add_error('codigo', msg)
+    #     else:
+    #         if ProductoFlujo.objects.filter(codigo=codigo).exists():
+    #             msg = 'Este código ya existe'
+    #             self.add_error('codigo', msg)
+    #     return cleaned_data
+
 
 # ------------ ProductoFlujo / Update Form ------------
 class ProductoFlujoUpdateForm(forms.ModelForm):
@@ -1625,6 +1637,7 @@ class NormaConsumoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
+        data = kwargs.get('data', None)
         self.user = kwargs.pop('user', None)
         self.producto = kwargs.pop('producto', None)
         self.post = kwargs.pop('post', None)
@@ -1637,11 +1650,27 @@ class NormaConsumoForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["producto"].disabled = True if self.producto else False
-        self.fields["medida"].disabled = True if self.producto else False
+        self.fields["producto"].required = True
+        self.fields["medida"].required = True
 
-        self.fields["producto"].required = True if not self.producto else False
-        self.fields["medida"].required = True if not self.producto else False
+        if instance:
+            self.fields['producto'].widget.enabled_choices = [instance.producto]
+            self.fields['medida'].widget.enabled_choices = [instance.medida]
+        # self.fields["producto"].disabled = True if self.producto else False
+        # self.fields["medida"].disabled = True if self.producto else False
+
+        elif data:
+            self.fields['producto'].widget.enabled_choices = [data['producto']]
+            self.fields['medida'].widget.enabled_choices = [data['medida']]
+
+        # self.fields["producto"].required = True if not self.producto else False
+        # self.fields["medida"].required = True if not self.producto else False
+
+        elif self.producto:
+            # self.fields['producto'].initial = producto
+            self.fields['producto'].widget.enabled_choices = [producto]
+            # self.fields['medida'].initial = kwargs['initial']['medida']
+            self.fields['medida'].widget.enabled_choices = [kwargs['initial']['medida']]
 
         self.helper.layout = Layout(
             TabHolder(
@@ -1671,7 +1700,7 @@ class NormaConsumoForm(forms.ModelForm):
     def clean_cantidad(self):  # Validar que que la cantidad>0
         cantidad = self.cleaned_data.get('cantidad')
         if float(cantidad) <= 0:
-            raise forms.ValidationError('Debe introducir un valor>0')
+            raise forms.ValidationError('Debe introducir un valor > 0')
         return cantidad
 
     def save(self, commit=True):
