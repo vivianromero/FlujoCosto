@@ -7,7 +7,7 @@
 {% load partials %}
 
 {% partialdef create_link_menu %}
-    {% if url_create %}
+    {% if url_create and hay_departamento %}
         {% crud_url object "create" namespace as url %}
         {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
             <li class="nav-item dropdown dropright">
@@ -18,11 +18,11 @@
                     <li><a class="dropdown-item dropdown-toggle" href="#">Entrada </a>
                         <ul class="dropdown-menu">
                             {% for tipo_doc in tipo_doc_entrada %}
-                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
-                                       class="dropdown-item" 
-                                       href="{{ url }}" 
-                                       hx-get="{{ url }}" 
-                                       hx-trigger="click" 
+                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
+                                       class="dropdown-item"
+                                       href="{{ url }}"
+                                       hx-get="{{ url }}"
+                                       hx-trigger="click"
                                        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                                        hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
@@ -31,23 +31,25 @@
                             {% endfor %}
                         </ul>
                     </li>
-                    <li><a class="dropdown-item dropdown-toggle" href="#">Salida </a>
-                        <ul class="dropdown-menu" style="margin-top: 35px;">
-                            {% for tipo_doc in tipo_doc_salida %}
-                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}" 
-                                       class="dropdown-item" 
-                                       href="{{ url }}" 
-                                       hx-get="{{ url }}" 
-                                       hx-trigger="click" 
-                                       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
-                                       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-                                       hx-include='[name="departamento"]'
-                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
-                                    {{ tipo_doc.descripcion }}
-                                </a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
+                    {% if inicializado %}
+                        <li><a class="dropdown-item dropdown-toggle" href="#">Salida </a>
+                            <ul class="dropdown-menu" style="margin-top: 35px;">
+                                {% for tipo_doc in tipo_doc_salida %}
+                                    <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
+                                           class="dropdown-item"
+                                           href="{{ url }}"
+                                           hx-get="{{ url }}"
+                                           hx-trigger="click"
+                                           hx-target="#dialog"
+                                           hx-swap="outerHTML"
+                                           hx-include='[name="departamento"]'
+                                           hx-vals='{"tipo_doc": "{{ tipo_doc.id }}"}'>
+                                        {{ tipo_doc.descripcion }}
+                                    </a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
                 </ul>
             </li>
         {% endif %}

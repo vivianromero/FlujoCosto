@@ -35,7 +35,7 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     iddocumento_fecha = tables.Column(verbose_name='Fecha')
     iddocumento_numero = tables.Column(verbose_name='Número')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
-    iddocumento_detalle = tables.Column(verbose_name='Detalles', visible=False)
+    iddocumento_detalle = tables.JSONColumn(verbose_name='Detalles', visible=True)
 
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_documentosversat_template.html',

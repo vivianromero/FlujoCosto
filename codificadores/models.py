@@ -378,7 +378,6 @@ class Departamento(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     codigo = models.CharField(unique=True, max_length=125, verbose_name=_("Code"))
     descripcion = models.CharField(unique=True, max_length=125, verbose_name=_("Description"))
-    inicializado = models.BooleanField(default=False)
     centrocosto = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name='departamento_centrocosto',
                                     verbose_name=_("Cost Center"), unique=True)
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
@@ -411,6 +410,9 @@ class Departamento(ObjectsManagerAbstract):
 
     def __str__(self):
         return self.descripcion
+
+    def inicializado(self, ueb):
+        return False if not FechaInicio.objects.filter(departamento=self, ueb=ueb).first() else True
 
 
 class NormaConsumo(ObjectsManagerAbstract):
@@ -839,3 +841,25 @@ class ClasificadorCargos(ObjectsManagerAbstract):
     @property
     def salario(self):
         return self.grupo.salario
+
+class FechaInicio(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    fecha = models.DateField(verbose_name=_("Date"))
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                     related_name='fechainicio_departamento',
+                                     verbose_name=_("Department"))
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                            related_name='fechainicio_ueb',
+                            verbose_name="UEB")
+
+    class Meta:
+        db_table = 'fp_fechainicio'
+        unique_together = (('departamento', 'ueb'),)
+        indexes = [
+            models.Index(
+                fields=[
+                    'departamento',
+                    'ueb'
+                ]
+            ),
+        ]

@@ -2,31 +2,15 @@ import datetime
 from datetime import datetime
 
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django_htmx.http import HttpResponseLocation
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView
-from codificadores.models import Departamento
+from codificadores import ChoiceTiposDoc, ChoiceOperacionDocum
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
-from cruds_adminlte3.utils import crud_url_name
 from flujo.filters import DocumentoFilter
-from flujo.forms import DocumentoForm
-from flujo.models import Documento
 from flujo.tables import DocumentoTable, DocumentosVersatTable
-from utiles.utils import message_error
-from django.utils.translation import gettext_lazy as _
-from django.shortcuts import redirect
-from cruds_adminlte3.utils import crud_url_name
-from django.db import connections
-from django.conf import settings
-import sweetify
-import datetime
 from .forms import *
-from .models import DocumentoOrigenVersat, DocumentoVersatRechazado
-from app_apiversat.functionapi import getAPI
-
 from .forms import DepartamentoDocumentosForm
 from .models import *
 from .utils import ids_documentos_versat_procesados
@@ -115,7 +99,7 @@ class DocumentoCRUD(CommonCRUDView):
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
                 departamento = self.request.GET.get('departamento', None)
-                if departamento is None and 'departamento' in self.request.htmx.current_url_abs_path:
+                if departamento is None and self.request.htmx.current_url_abs_path and 'departamento' in self.request.htmx.current_url_abs_path:
                     deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                     departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
                 tipo_doc = self.request.GET.get('tipo_doc', None)
@@ -132,7 +116,7 @@ class DocumentoCRUD(CommonCRUDView):
                 ctx = super().get_context_data(**kwargs)
                 dep = self.request.GET.get('departamento', None)
                 tipo_doc = self.request.GET.get('tipo_doc', None)
-                departamento = Departamento.objects.get(pk=dep)
+                departamento = Departamento.objects.get(pk=dep) if dep else None
                 tipodocumento = TipoDocumento.objects.get(pk=tipo_doc)
                 title = 'Departamento: %s | Documento: %s' % (departamento, tipodocumento)
                 ctx.update({
@@ -177,16 +161,33 @@ class DocumentoCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 dep_queryset = context['form'].fields['departamento'].queryset
-                dep_queryset = dep_queryset.filter(unidadcontable=self.request.user.ueb)
+                ueb = self.request.user.ueb
+                dep_queryset = dep_queryset.filter(unidadcontable=ueb)
                 context['form'].fields['departamento'].queryset = dep_queryset
-                tipo_doc_entrada = TipoDocumento.objects.filter(operacion='E')
-                tipo_doc_salida = TipoDocumento.objects.filter(operacion='S')
+                tiposdoc = TipoDocumento.objects.filter(generado=False)
+                tipo_doc_entrada = tiposdoc.filter(operacion=ChoiceOperacionDocum.ENTRADA)
+                tipo_doc_salida = tiposdoc.filter(operacion=ChoiceOperacionDocum.SALIDA)
+                dpto = dep_queryset.get(pk=self.dep) if self.dep else None
+                inicializado = False if not self.dep else dpto.inicializado(ueb)
+                if not inicializado:
+                    tipo_doc_entrada = tipo_doc_entrada.filter(pk=ChoiceTiposDoc.CARGA_INICIAL)
+                else:
+                    tipo_doc_entrada = tipo_doc_entrada.exclude(pk=ChoiceTiposDoc.CARGA_INICIAL)
 
-                tableversat = None
-                if self.dep:
+                tableversat = DocumentosVersatTable([])
+
+                if not inicializado and self.dep:
+                    tableversat.empty_text = 'El departamento "%s" no se ha inicializado' % dpto
+
+                if not self.dep:
+                    tableversat.empty_text = "Seleccione un departamento"
+
+                if self.dep and inicializado:
                     dpto = self.request.GET.get('departamento', None)
                     datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
-                    tableversat = DocumentosVersatTable(datostableversat)
+                    tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
+                        datostableversat)
+                    tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
 
                 context.update({
                     'filter': False,
@@ -199,8 +200,10 @@ class DocumentoCRUD(CommonCRUDView):
                     "hx_target": '#table_content_documento_swap',
                     "col_vis_hx_include": "[name='departamento'], [name='rango_fecha']",
                     'create_link_menu': True,
+                    'hay_departamento': not self.dep == None,
                     'tipo_doc_entrada': tipo_doc_entrada,
                     'tipo_doc_salida': tipo_doc_salida,
+                    'inicializado': inicializado,
                 })
                 return context
 
@@ -291,14 +294,15 @@ def dame_documentos_versat(request, dpto):
     text_error = _('Connection error to Versat API')
 
     try:
-        # TODO implemetar la funcionalidad para que devuelva la fecha de inicio de procesamiento, la fecha de procesamiento y
-        # el mes de procesamiento
-        fecha_inicio_procesamiento = '2023-01-18'
-        fecha_procesamiento = '2023-01-25'
-        fecha_mes_procesamiento = '2023-01-01'
         dpto = Departamento.objects.get(pk=dpto)
-        param = {'fecha_desde': fecha_inicio_procesamiento,
-                 'fecha_hasta': fecha_procesamiento,
+        if not dpto.inicializado(unidadcontable):
+            return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
+
+        fecha_periodo = dpto.fechaperiodo_departamento.all()[0].fecha
+        fecha_mes_procesamiento = str(fecha_periodo.year) + '-' + str(fecha_periodo.month) + '-01'
+
+        param = {'fecha_desde': fecha_mes_procesamiento,
+                 'fecha_hasta': fecha_periodo.strftime('%Y-%m-%d'),
                  'unidad': unidadcontable.codigo,
                  'centro_costo': dpto.centrocosto.clave
                  }
@@ -306,10 +310,10 @@ def dame_documentos_versat(request, dpto):
 
         if response and response.status_code == 200:
             datos = response.json()['results']
-            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_procesamiento, dpto, unidadcontable)
+            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto, unidadcontable)
             datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
             return datos
-
     except Exception as e:
-        sweetify.error(request=request, title=title_error, text=text_error)
-        return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
+        return None
+        # sweetify.error(request=request, title=title_error, text=text_error)
+        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
