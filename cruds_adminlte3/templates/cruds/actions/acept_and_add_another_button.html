@@ -1,6 +1,22 @@
 {% load i18n %}
 {% if not url_update %}
-    <button id="id_form_btn_add_another" type="submit" name="another" class="btn btn-primary">
+    <button id="id_form_btn_add_another"
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
+            hx-post="{{ request.path }}"
+            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+            hx-trigger="click"
+            hx-on::after-request="if(event.detail.successful) this.form.reset()"
+            type="submit"
+            name="another"
+            class="btn btn-primary"
+            _="on keyup or keydown or change from closest <form/> debounced at 100ms
+            if (<[required]:invalid/>).length > 0
+                add @disabled
+                then exit
+            end
+            remove @disabled"
+        disabled>
         <i class="fa fa-plus"></i> {% translate 'Accept and add another' %}
     </button>
 {% endif %}

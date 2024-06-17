@@ -1,4 +1,21 @@
 {% load i18n %}
-<button hx-headers="{'submitted': 'true'}" id="id_form_btn_acept" type="submit" class="btn btn-primary">
+<button
+        hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
+        hx-post="{{ request.path }}"
+        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+        hx-trigger="click"
+        id="id_form_btn_acept"
+        type="submit"
+        class="btn btn-primary"
+        _="on keyup or keydown or change from closest <form/> debounced at 100ms
+            if (<[required]:invalid/>).length > 0
+                add @disabled
+                put 'Revise todos los campos' into me
+                then exit
+            end
+            remove @disabled
+            put 'Aceptar' into me"
+        disabled>
     <i class="fa fa-check"></i> {% translate 'Accept' %}
 </button>

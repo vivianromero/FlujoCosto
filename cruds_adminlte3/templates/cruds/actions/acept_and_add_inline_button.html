@@ -1,15 +1,21 @@
 {% load i18n %}
 {% if not url_update %}
     <button id="id_form_btn_add_inline"
-            hx-headers='{"submitted": "true"}'
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
             hx-post="{{ request.path }}"
             {% if hx_retarget %}hx-target="{{ hx_retarget }}" {% else %}hx-target="#dialog"{% endif %}
             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+            hx-trigger="click"
             type="submit"
             name="inline"
             class="btn btn-primary"
-{#            hx-vals='{"tipo_doc": "{{ form.tipodocumento.id }}", "departamento": "{{ form.departamento }}"}'#}
-    >
+            _="on keyup or keydown or change from closest <form/> debounced at 100ms
+            if (<[required]:invalid/>).length > 0
+                add @disabled
+                then exit
+            end
+            remove @disabled"
+        disabled>
         <i class="fa fa-plus"></i> Aceptar y adicionar detalles
     </button>
 {% endif %}

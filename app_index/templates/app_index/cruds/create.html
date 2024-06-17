@@ -1,8 +1,5 @@
-{% extends 'cruds/create.html' %}
+{% load django_tables2 %}
 {% load i18n %}
+{% load crud_tags %}
 
-{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
-{% block body_class %}{{ blocks.body_class|default:model_verbose_name_plural|lower }}{% endblock body_class %}
-{% block page_name %}{% endblock %}
-{% block page_description %}{% endblock %}
-
+{% include "app_index/modals/modal_form.html" with action='create' %}
