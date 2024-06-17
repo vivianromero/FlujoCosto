@@ -1,7 +1,7 @@
 {% if record.is_child_node %}
     {% for ancestor in record.get_ancestors %}
         {% if forloop.last %}
-            &#9492;&#9472;&#9472;
+            &nbsp;&nbsp;&nbsp;
         {% else %}
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         {% endif %}
@@ -11,7 +11,8 @@
     {% else %}
         {{ record.descripcion }}
     {% endif %}
-{% elif record.get_children %}
+{% endif %}
+{% if record.encabezado %}
         <strong><em>{{ record.descripcion }}</em></strong>
 {% else %}
     {{ record.descripcion }}
