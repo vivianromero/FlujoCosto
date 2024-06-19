@@ -46,3 +46,14 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
                "td": {'style': 'text-align: center;'},
                }
     )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        sequence = (
+            'iddocumento',
+            'iddocumento_fecha',
+            'iddocumento_numero',
+            'iddocumento_sumaimporte',
+            'iddocumento_sumaimporte',
+            'iddocumento_detalle',
+            'actions',
+        )
