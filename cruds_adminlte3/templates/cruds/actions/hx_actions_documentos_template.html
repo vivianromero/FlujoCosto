@@ -7,7 +7,7 @@
        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
         href="{% url nurl record.pk %}{{ getparams }}"
        title="{% trans 'Show' %}">
-        <i class="fa-xs fa fa-eye"
+        <i class="fa-sm fa fa-eye"
            style="margin-right: 5px;"></i>
     </a>
 {% endif %}
@@ -21,10 +21,28 @@
 {#       hx-replace-url="true"#}
        href="{% url nurl record.pk %}"
        title="{% trans 'Edit' %}">
-        <i class="fa-xs fa fa-edit"
+        <i class="fa-sm fa fa-edit"
            style="margin-right: 5px;"></i>
     </a>
 {% endif %}
+
+{% if confirm and record.estado == 1 and crud_perms.update %}
+    {% crud_nurl object "confirm" namespace as nurl %}
+        <a hx-post="{% url nurl pk=record.pk %}{{ getparams }}"
+           hx-trigger="confirmed"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           id="confirm_href"
+           href="{% url nurl pk=record.pk %}{{ getparams }}"
+           is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+            class="confirm_href"
+            texto="{{ texto_confirm }}"
+            title="{% trans 'Confirmar' %}">
+           <i id="check_icon" class="fa-sm fa fa-tasks">
+            </i>
+        </a>
+{% endif %}
+
 {% crud_nurl object "delete" namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete %}
     <a hx-post="{% url nurl record.pk %}{{ getparams }}"
@@ -37,7 +55,7 @@
        class="delete_href"
        title="{% trans 'Delete' %}"
     >
-        <i id="trash_icon" class="fa-xs fa fa-trash">
+        <i id="trash_icon" class="fa-sm fa fa-trash">
         </i>
     </a>
 {% endif %}

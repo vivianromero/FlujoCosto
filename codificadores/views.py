@@ -1,3 +1,4 @@
+import sweetify
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -14,6 +15,7 @@ from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from exportar.views import crear_export_datos_table
+from flujo.models import Documento
 from utiles.utils import message_error
 from . import ChoiceTiposProd
 

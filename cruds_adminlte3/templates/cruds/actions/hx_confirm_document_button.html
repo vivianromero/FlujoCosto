@@ -1,0 +1,17 @@
+{% load crud_tags %}
+{% load i18n %}
+{% if confirm and object.estado == 1 and crud_perms.update %}
+    {% crud_nurl object_model "confirm" namespace as nurl %}
+    <button
+        hx-headers='{"confirmed": "true"}'
+        hx-post="{% url nurl pk=object.pk %}{{ getparams }}"
+        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#table_content_documento_swap"{% endif %}
+        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+        hx-trigger="click"
+        id="id_form_btn_confirm"
+        name="confirm"
+        class="btn btn-primary">
+    <i class="fa fa-tasks"></i> Confirmar
+</button>
+{% endif %}
+

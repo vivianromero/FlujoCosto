@@ -1,0 +1,75 @@
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% load departamento_tags %}
+{% load static %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load crud_tags %}
+{% load partials %}
+
+{% partialdef back_button %}
+    {% if return_url %}
+        <a hx-get="{{ return_url }}"
+           hx-trigger="click"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           hx-replace-url="true"
+           href="{{ return_url }}"
+           class="nav-link"
+        role="button"
+        >
+            <i class="fa fa-angle-double-left"></i>
+            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+        </a>
+    {% endif %}
+{% endpartialdef %}
+
+
+
+{% partialdef  inicializar_departamento_partial %}
+    {% is_initialized form.departamento.value request.user.ueb as inicializado %}
+    {% get_departamento_name form.departamento.value as departamento_name %}
+    {% get_departamento_object form.departamento.value as departamento_object %}
+    {% if not inicializado and form.departamento.value %}
+        {% crud_nurl departamento_object "inicializar" namespace as nurl %}
+        <div id="inicializar_departamento_link_url_div" style="display: flex; align-items: center">
+            <a id="inicializar_departamento_link_url_div_a"
+               hx-post="{% url nurl pk=departamento_object.pk %}{{ getparams }}"
+               hx-trigger="confirmed"
+               {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#table_content_documento_swap"{% endif %}
+               {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+               id="confirm_href_{{ departamento_object.pk }}"
+               href="{% url nurl pk=departamento_object.pk %}{{ getparams }}"
+               is="{{ departamento_object }}"
+               class="nav-link inicializar_href"
+               texto="{{ texto_inicializar }}"
+               role="button" {% if hx %}hx-select-oob="true"{% endif %}>
+                <i class="fa fa-folder-open" title="Inicializar Departamento {% if departamento_name %} {{ departamento_name }}{% endif %}"></i>
+            </a>
+        </div>
+    {% endif %}
+{% endpartialdef %}
+
+<style>
+    .dropdown-toggle.active-dropdown::after {
+        transform: rotate(-90deg);
+    }
+    .dropright .dropdown-menu{
+        left:auto!important;
+        right:0!important;
+        top: 35px!important;
+    }
+</style>
+
+<nav id="id_list_departamento_navbar" class="navbar navbar-expand navbar-white navbar-light"
+    style="padding-bottom: 0; padding-top: 0; height: 35px;">
+    <!-- Right table navbar links -->
+    {% block right_departamento_navbar_links %}
+        <ul class="navbar-nav ml-auto">
+            {% block list_import_departamento_main_header %}
+                {# aquí se debe poner el link de importar#}
+                {% partial inicializar_departamento_partial %}
+            {% endblock list_import_departamento_main_header %}
+        </ul>
+    {% endblock right_departamento_navbar_links %}
+</nav>

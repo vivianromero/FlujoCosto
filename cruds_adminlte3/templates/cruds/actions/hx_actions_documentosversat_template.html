@@ -1,12 +1,13 @@
 {% load i18n l10n crud_tags %}
-    <a hx-get="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
-       hx-trigger="click"
-       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
-       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-       hx-replace-url="true"
-        href="{% url nurl %}?Clave={{ record.iddocumento|safe }}"
+    <a
+{#        hx-get="{% url nurl %}?Clave={{ record.iddocumento|safe }}"#}
+{#       hx-trigger="click"#}
+{#       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}#}
+{#       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}#}
+{#       hx-replace-url="true"#}
+        href="#"
        title="Obtener Documento">
-        <i class="fa-1x fa fa-list-alt"
+        <i class="fa-sm fa fa-list-alt"
            style="margin-right: 5px;"></i>
     </a>
 

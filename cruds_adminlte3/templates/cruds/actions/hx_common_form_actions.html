@@ -4,6 +4,7 @@
 {% else %}
     {% include 'cruds/actions/acept_and_add_another_button.html' %}
 {% endif %}
+{% include 'cruds/actions/hx_confirm_document_button.html' %}
 {% include 'cruds/actions/hx_cancel_button.html' %}
 {% if not object.fila in "['1', '1.1', '1.2']" %}
     {% include 'cruds/actions/delete_button.html' %}
