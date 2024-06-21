@@ -11,11 +11,11 @@
         _="on load from closest <form/> or keyup or keydown or change from closest <form/> debounced at 100ms
             if (<[required]:invalid/>).length > 0
                 add @disabled
-                put 'Revise todos los campos' into me
+                put `<i class='fa fa-exclamation'></i> Revise todos los campos` into me
                 then exit
             end
             remove @disabled
-            put 'Aceptar' into me"
+            put `<i class='fa fa-check'></i> Aceptar` into me"
         disabled>
     <i class="fa fa-check"></i> {% translate 'Accept' %}
 </button>

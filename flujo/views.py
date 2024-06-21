@@ -1,12 +1,15 @@
 import datetime
 from datetime import datetime
 
+import sweetify
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
+from django_htmx.http import HttpResponseLocation
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView
 from codificadores import ChoiceTiposDoc, ChoiceOperacionDocum
+from codificadores.models import FechaInicio
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from flujo.filters import DocumentoFilter
 from flujo.tables import DocumentoTable, DocumentosVersatTable
@@ -204,6 +207,10 @@ class DocumentoCRUD(CommonCRUDView):
                     'tipo_doc_entrada': tipo_doc_entrada,
                     'tipo_doc_salida': tipo_doc_salida,
                     'inicializado': inicializado,
+
+                    'confirm': True,
+                    'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+                    'texto_inicializar': "Una vez iniciado el departamento, podrá realizar acciones en él.",
                 })
                 return context
 
@@ -266,6 +273,9 @@ class DocumentoCRUD(CommonCRUDView):
                     'modal_form_title': title,
                     'max_width': '1250px',
                     'hx_target': '#table_content_documento_swap',
+                    'confirm': True,
+                    'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+                    'object_model': self.model,
                 })
                 return ctx
 
@@ -285,6 +295,54 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
         return ODeleteView
+
+
+def confirmar_documento(request, pk):
+    obj = Documento.objects.get(pk=pk)
+    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    if obj.documentodetalle_documento.count() > 0:
+        obj.estado = 2  # Confirmado
+        obj.save()
+    else:
+        title = 'No puede ser confrimado el documento '
+        text = 'No tiene detalles asociados'
+        sweetify.error(request, title + obj.__str__() + '!', text=text, persistent=True)
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'confirmed': 'true',
+        }
+    )
+
+
+def departamento_inicializar(request, pk):
+    departamento = Departamento.objects.get(pk=pk)
+    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    fecha_inicio, created = FechaInicio.objects.get_or_create(
+        fecha=date.today(),
+        departamento=departamento,
+        ueb=request.user.ueb,
+    )
+    if created:
+        title = 'El departamento %s se inicializó correctamente para la UEB %s!' % (departamento, request.user.ueb)
+        text = 'Con fecha de inicio: %s' % date.today()
+        sweetify.success(request, title, text=text, persistent=True)
+    else:
+        title = 'El departamento %s ya ha sido inicializado anteriormente' % departamento
+        text = ''
+        sweetify.info(request, title, text=text, persistent=True)
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'initialized': 'true',
+        }
+    )
 
 
 def dame_documentos_versat(request, dpto):

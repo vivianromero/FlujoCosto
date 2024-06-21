@@ -1,3 +1,6 @@
+{% load crud_tags %}
+{% load departamento_tags %}
+{% load partials %}
 {% load django_tables2 %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
@@ -12,7 +15,7 @@
         {% include 'app_index/cruds/list_table_navbar.html' %}
     {% endblock table_navbar %}
     {% block datatable %}
-        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+        <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" style="height: 627px;">
             {% render_table table %}
         </div>
     {% endblock datatable %}
@@ -97,15 +100,44 @@
                 })
             })
         })
+        
+        document.querySelectorAll("a.inicializar_href").forEach((ref) => {
+            ref.addEventListener("click", function (e) {
+                e.preventDefault()
+                let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                swal.fire({
+                    title: "¿Está seguro que desea inicializar el departamento " + record + '?',
+                    text: e.target.parentElement.attributes['texto'].nodeValue,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: "Confirmar",
+                    cancelButtonText: 'Cancelar',
+                    backdrop: true,
+                    allowOutsideClick:()=>false,
+                    allowEscapeKey:()=>false
+                }).then(function(result) {
+                      if(result.isConfirmed) {
+                          // e.detail.issueRequest(true) // use true to skip window.confirm
+                          htmx.trigger(e.target, 'confirmed')
+                      }
+                })
+            })
+        })
     </script>
 </div>
 
 <div id="id_datatableversat_swap" hx-swap-oob="true">
     {% block datatableversat %}
-        <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+        <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" 
+             style="height: 315px;">
             {% if tableversat %} {% render_table tableversat %} {% endif %}
         </div>
     {% endblock datatableversat %}
 </div>
 
-
+<div class="card-header" id="id_card_header_departamentos" style="padding: 0;" hx-swap-oob="true">
+    Listado de departamentos
+     {% include 'app_index/partials/partialdef_templates.html#inicializar_departamento_partial' %}
+</div>

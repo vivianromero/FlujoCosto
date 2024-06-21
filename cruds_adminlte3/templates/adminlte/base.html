@@ -137,6 +137,8 @@
             console.log(e.detail.requestConfig.headers["HX-Trigger"])
             if (e.detail.requestConfig.headers["HX-Trigger"] === "id_form_btn_acept" && e.detail.requestConfig.headers["submitted"] === "true") {
                 modal.hide()
+            } else if (e.detail.requestConfig.headers["HX-Trigger"] === "id_form_btn_confirm" && e.detail.requestConfig.headers["confirmed"] === "true") {
+                modal.hide()
             }
         }
       })
