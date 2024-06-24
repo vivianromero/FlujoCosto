@@ -13,24 +13,24 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-file-circle-plus" title="Adicionar documento"></i>
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <li><a class="dropdown-item dropdown-toggle" href="#">Entrada </a>
-                        <ul class="dropdown-menu">
-                            {% for tipo_doc in tipo_doc_entrada %}
-                            	<li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
-                                       class="dropdown-item"
-                                       href="{{ url }}"
-                                       hx-get="{{ url }}"
-                                       hx-trigger="click"
-                                       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
-                                       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}", "departamento": "{{ form.departamento.value|safe }}"}'>
-                                    {{ tipo_doc.descripcion }}
-                                </a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    {% if inicializado %}
+                {% if inicializado %}
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item dropdown-toggle" href="#">Entrada </a>
+                            <ul class="dropdown-menu">
+                                {% for tipo_doc in tipo_doc_entrada %}
+                                    <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
+                                           class="dropdown-item"
+                                           href="{{ url }}"
+                                           hx-get="{{ url }}"
+                                           hx-trigger="click"
+                                           {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                           {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                           hx-vals='{"tipo_doc": "{{ tipo_doc.id }}", "departamento": "{{ form.departamento.value|safe }}"}'>
+                                        {{ tipo_doc.descripcion }}
+                                    </a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
                         <li><a class="dropdown-item dropdown-toggle" href="#">Salida </a>
                             <ul class="dropdown-menu" style="margin-top: 35px;">
                                 {% for tipo_doc in tipo_doc_salida %}
@@ -47,8 +47,23 @@
                                 {% endfor %}
                             </ul>
                         </li>
-                    {% endif %}
-                </ul>
+                    </ul>
+                {% else %}
+                       <ul class="dropdown-menu">
+                            {% for tipo_doc in tipo_doc_entrada %}
+                                <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
+                                       class="dropdown-item"
+                                       href="{{ url }}"
+                                       hx-get="{{ url }}"
+                                       hx-trigger="click"
+                                       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                       hx-vals='{"tipo_doc": "{{ tipo_doc.id }}", "departamento": "{{ form.departamento.value|safe }}"}'>
+                                    {{ tipo_doc.descripcion }}
+                                </a></li>
+                            {% endfor %}
+                        </ul>
+                {% endif %}
             </li>
         {% endif %}
     {% endif %}

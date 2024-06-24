@@ -23,5 +23,14 @@ class CosCentro(models.Model):
     class Meta:
         managed = False
         db_table = 'cos_centro'
-        unique_together = (('clave', 'idapertura'), ('idapertura', 'clavenivel'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['clave', 'idapertura'],
+                name='unique_centro_clave_idapertura'
+            ),
+            models.UniqueConstraint(
+                fields=['idapertura', 'clavenivel'],
+                name='unique_centro_idapertura_clavenivel'
+            ),
+        ]
 

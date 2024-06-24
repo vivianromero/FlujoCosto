@@ -7,15 +7,14 @@ from django.db.models import Count, F, Value, Case, When
 from django.db.models.functions import Now, Concat
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
-
+from django_choices_field import IntegerChoicesField, TextChoicesField
 from mptt.managers import TreeManager
 from mptt.models import MPTTModel, TreeForeignKey
 
 from cruds_adminlte3.utils import crud_url
-from . import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceDestinos, ChoiceCategoriasVit, \
-    ChoiceTiposVitola, ChoiceTiposNormas, ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, \
-    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum, ChoiceCargoProduccion
-
+from . import ChoiceTiposProd, ChoiceClasesMatPrima, ChoiceCategoriasVit, \
+    ChoiceMotivosAjuste, ChoiceTiposDoc, \
+    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum
 
 class ObjectsManagerAbstract(models.Model):
     objects = BulkUpdateOrCreateQuerySet.as_manager()
@@ -97,7 +96,13 @@ class MedidaConversion(ObjectsManagerAbstract):
                 ]
             ),
         ]
-        unique_together = (('medidao', 'medidad'),)
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['medidao', 'medidad'],
+                name='unique_medidaconversion_medidao_medidad'
+            ),
+        ]
         ordering = ['medidao__descripcion']
         verbose_name_plural = _('Convert measurement units')
         verbose_name = _('Convert unit of measurement')
@@ -172,15 +177,21 @@ class TipoProducto(models.Model):
         return ChoiceTiposProd.CHOICE_TIPOS_PROD[self.id]
 
 
-class EstadoProducto(models.Model):
-    id = models.AutoField(primary_key=True, choices=ChoiceEstadosProd.CHOICE_ESTADOS, editable=False, )
-    descripcion = models.CharField(unique=True, max_length=80)
+class EstadoProducto(models.IntegerChoices):
+    BUENO = 1, 'Bueno'
+    DEFICIENTE = 2, 'Deficiente'
+    RECHAZO = 3, 'Rechazo'
 
-    class Meta:
-        db_table = 'cla_estadoproducto'
 
-    def __str__(self):
-        return self.descripcion
+# class EstadoProducto(models.Model):
+#     id = models.AutoField(primary_key=True, choices=ChoiceEstadosProd.CHOICE_ESTADOS, editable=False, )
+#     descripcion = models.CharField(unique=True, max_length=80)
+#
+#     class Meta:
+#         db_table = 'cla_estadoproducto'
+#
+#     def __str__(self):
+#         return self.descripcion
 
 
 class ClaseMateriaPrima(models.Model):
@@ -253,9 +264,14 @@ class ProductoFlujoClase(ObjectsManagerAbstract):
         return self.clasemateriaprima.descripcion
 
 
+class Destino(models.TextChoices):
+    CONSUMONACIONAL = 'C', 'Consumo Nacional'
+    EXPORTACION = 'E', 'Exportación'
+
+
 class ProductoFlujoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
+    destino = TextChoicesField(choices_enum=Destino,
                                verbose_name=_("Destination"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE,
                                  related_name='productoflujodestino_producto')
@@ -273,15 +289,9 @@ class ProductoFlujoCuenta(models.Model):
         db_table = 'cla_productoflujocuenta'
 
 
-class TipoVitola(models.Model):
-    id = models.AutoField(primary_key=True, choices=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA, editable=False, )
-    descripcion = models.CharField(unique=True, max_length=50)
-
-    class Meta:
-        db_table = 'cla_tipovitola'
-
-    def __str__(self):
-        return "%s" % (self.descripcion)
+class TipoVitola(models.IntegerChoices):
+    PICADURA = 1, 'Picadura'
+    HOJA = 2, 'Hoja'
 
 
 class Vitola(ObjectsManagerAbstract):
@@ -289,13 +299,12 @@ class Vitola(ObjectsManagerAbstract):
     diametro = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,
                                    verbose_name=_("Diameter"))
     longitud = models.IntegerField(default=0, verbose_name=_("Length"))
-    destino = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
+    destino = TextChoicesField(choices_enum=Destino,
                                verbose_name=_("Destination"))
     cepo = models.IntegerField(default=0)
     categoriavitola = models.ForeignKey(CategoriaVitola, on_delete=models.PROTECT, related_name='vitola_categotia')
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_producto')
-    tipovitola = models.ForeignKey(TipoVitola, on_delete=models.PROTECT, related_name='vitola_tipo',
-                                   verbose_name=_("Type"))
+    tipovitola = IntegerChoicesField(choices_enum=TipoVitola, verbose_name=_("Type"))
     capa = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_productocapa')
     pesada = models.ForeignKey(ProductoFlujo, on_delete=models.CASCADE, related_name='vitola_productopesada')
 
@@ -460,7 +469,12 @@ class NormaconsumoDetalle(models.Model):
 
     class Meta:
         db_table = 'cla_normaconsumodetalle'
-        unique_together = (('normaconsumo', 'producto'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['normaconsumo', 'producto'],
+                name='unique_normaconsumodetalle_normaconsumo_producto'
+            ),
+        ]
 
     def __str__(self):
         return "%s | %s de la norma %s" % (
@@ -468,6 +482,14 @@ class NormaconsumoDetalle(models.Model):
             self.producto.descripcion,
             self.normaconsumo.__str__()
         )
+
+
+class TiposNormas(models.IntegerChoices):
+    PESADA = 1, 'Pesada'
+    MATERIAPRIMA = 2, 'Materia Prima'
+    LINEASALIDA = 4, 'Línea de Salida'
+    VITOLA = 5, 'Vitola'
+    HABILITADOS = 7, 'Habilitados'
 
 
 class NormaConsumoGroupedManager(models.Manager):
@@ -478,11 +500,11 @@ class NormaConsumoGroupedManager(models.Manager):
             Producto=Concat(F('producto__codigo'), Value(' | '), F('producto__descripcion')),
         ).annotate(Cantidad_Normas=Count('producto'),
                    Tipo=Case(
-                       When(tipo=1, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[1])),
-                       When(tipo=2, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[2])),
-                       When(tipo=4, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[4])),
-                       When(tipo=5, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[5])),
-                       When(tipo=7, then=Value(ChoiceTiposNormas.CHOICE_TIPOS_NORMAS[7])),
+                       When(tipo=1, then=Value(TiposNormas.PESADA.label)),
+                       When(tipo=2, then=Value(TiposNormas.MATERIAPRIMA.label)),
+                       When(tipo=4, then=Value(TiposNormas.LINEASALIDA.label)),
+                       When(tipo=5, then=Value(TiposNormas.VITOLA.label)),
+                       When(tipo=7, then=Value(TiposNormas.HABILITADOS.label)),
                    ), )
 
 
@@ -529,9 +551,18 @@ class TipoDocumento(models.Model):
         return self.descripcion
 
 
+class TipoNumeroDoc(models.IntegerChoices):
+    NUMERO_CONSECUTIVO = 1, "Número Consecutivo"
+    NUMERO_CONTROL = 2, "Número de Control"
+
+class ConfigNumero(models.IntegerChoices):
+    DEPARTAMENTOTIPODOCUMENTO = 1, 'Por departamento y tipo de documento'
+    DEPARTAMENTO = 2, 'Por departamento'
+    TIPODOCUMENTO = 3, 'Por tipo de documento'
+    UNICO = 4, 'Unico en el sistema'
+
 class NumeracionDocumentos(ObjectsManagerAbstract):
-    tiponumeracion = models.IntegerField(unique=True, choices=ChoiceTipoNumeroDoc.CHOICE_TIPO_NUMERO_DOC,
-                                         verbose_name=_("Tipo de Enumeración"))
+    id = models.AutoField(primary_key=True, choices=TipoNumeroDoc, verbose_name=_("Tipo de Número"))
     sistema = models.BooleanField(default=False, db_comment='Si es controlado por el sistema',
                                   verbose_name=_("Controlada por el sistema"))
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento',
@@ -544,6 +575,34 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
 
     class Meta:
         db_table = 'cla_numeraciondocumentos'
+
+    def to_dict(self):
+        confignumero = ConfigNumero.UNICO
+        mess = 'Ya el ' + (TipoNumeroDoc.NUMERO_CONSECUTIVO.label
+                                  if self.id == TipoNumeroDoc.NUMERO_CONSECUTIVO
+                                  else TipoNumeroDoc.NUMERO_CONTROL.label) + ' existe '
+        peri = ' en el año' if self.id == TipoNumeroDoc.NUMERO_CONTROL else ' en el mes'
+
+        if self.departamento and self.tipo_documento:
+            mess = mess + 'para el Departamento y el Tipo de Documento'
+            confignumero = ConfigNumero.DEPARTAMENTOTIPODOCUMENTO
+        elif self.self.departamento:
+            mess = mess + 'para el Departamento'
+            confignumero = ConfigNumero.DEPARTAMENTO
+        elif self.tipo_documento:
+            mess = mess + 'para el Tipo de Documento'
+            confignumero = ConfigNumero.TIPODOCUMENTO
+        mess = mess + peri
+
+        return {
+            "tiponumero": self.id,
+            'sistema': self.sistema,
+            'departamento': self.departamento,
+            'tipo_documento': self.tipo_documento,
+            'prefijo': self.prefijo,
+            'mensaje_error': mess,
+            'confignumero': confignumero
+        }
 
 
 # Documento que se va a configurar la cuenta para su contabilizacion
@@ -639,7 +698,12 @@ class CambioProducto(models.Model):
 
     class Meta:
         db_table = 'cla_cambioproducto'
-        unique_together = (('productoo', 'productod'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['productoo', 'productod'],
+                name='unique_cambioproducto_productoo_productod'
+            ),
+        ]
         ordering = ['productoo__descripcion']
 
         indexes = [
@@ -686,7 +750,12 @@ class ConfCentrosElementosOtrosDetalle(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cla_confcentroselementosotrosdetalle'
         ordering = ['clave__clave', 'descripcion']
-        unique_together = (('clave', 'valor'))
+        constraints = [
+            models.UniqueConstraint(
+                fields=['clave', 'valor'],
+                name='unique_confcentroselementosotrosdetalle_clave_valor'
+            ),
+        ]
 
         indexes = [
             models.Index(
@@ -744,20 +813,22 @@ class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
                                                 'Ejemplo Fila 1 es encabezado si exiten filas 1.1, 1.2, 1.n '
                                                 'y el valor de Fila 1 es la suma de sus hijos')
     salario = models.BooleanField(default=False, db_comment='Si el concepto constituye salario')
-    vacaciones = models.BooleanField(default=False, db_comment='Si es vacaciones y se relaciona con el concepto salario '
-                                                               'para calcularlo como el 9.09 del salario')
-    desglosado = models.BooleanField(default=False, db_comment='Si el concepto es resultado de los desgloses establecidos: Salario, '
-                                                                'Materia Prima y Materiales, Gastos Materia Prima Tabaco')
-    calculado = models.BooleanField(default=False, db_comment='Si su valor depende de la suma de otras filas del encabezado')
+    vacaciones = models.BooleanField(default=False,
+                                     db_comment='Si es vacaciones y se relaciona con el concepto salario '
+                                                'para calcularlo como el 9.09 del salario')
+    desglosado = models.BooleanField(default=False,
+                                     db_comment='Si el concepto es resultado de los desgloses establecidos: Salario, '
+                                                'Materia Prima y Materiales, Gastos Materia Prima Tabaco')
+    calculado = models.BooleanField(default=False,
+                                    db_comment='Si su valor depende de la suma de otras filas del encabezado')
     filasasumar = models.ManyToManyField('self',
-                                          blank=True, null=True,
-                                          related_name='sumafilasficha', symmetrical=False,
-                                          db_comment='Filas encabezadas que se suman', verbose_name=_("Filas a sumar"))
+                                         blank=True, null=True,
+                                         related_name='sumafilasficha', symmetrical=False,
+                                         db_comment='Filas encabezadas que se suman', verbose_name=_("Filas a sumar"))
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     padre = models.CharField(max_length=10, null=True, blank=True)
     objects = models.Manager()
     tree = TreeManager()
-
 
     class Meta:
         db_table = 'cla_fichacostofilas'
@@ -776,6 +847,10 @@ class FichaCostoFilas(MPTTModel, ObjectsManagerAbstract):
         return "%s - %s" % (self.fila, self.descripcion)
 
 
+class VinculoCargoProduccion(models.IntegerChoices):
+    DIRECTO = 1, 'Directo'
+    INDIRECTOPRIDUCCION = 2, 'Indirecto Producción'
+    INDIRECTO = 3, 'Indirecto'
 
 
 class GrupoEscalaCargo(ObjectsManagerAbstract):
@@ -799,12 +874,12 @@ class ClasificadorCargos(ObjectsManagerAbstract):
     descripcion = models.CharField(unique=True, max_length=160)
     grupo = models.ForeignKey(GrupoEscalaCargo, on_delete=models.PROTECT, related_name='cargo_grupo',
                               verbose_name="Grupo Escala")
-    actividad = models.CharField(max_length=1, choices=ChoiceDestinos.CHOICE_DESTINOS,
-                                 verbose_name=_("Actividad"))
-    vinculo_produccion = models.SmallIntegerField(choices=ChoiceCargoProduccion.CHOICE_CARGOPRODUCCION,
-                                                  db_comment='Directo (1), Indirecto Producción (2), Indirecto (3)',
-                                                  verbose_name=_("Vinculo Producción"),
-                                                  default=1)
+    actividad = TextChoicesField(choices_enum=Destino, verbose_name=_("Actividad"))
+    vinculo_produccion = IntegerChoicesField(choices_enum=VinculoCargoProduccion,
+                                             db_comment='Directo (1), Indirecto Producción (2), Indirecto (3)',
+                                             verbose_name=_("Vinculo Producción"),
+                                             default=VinculoCargoProduccion.DIRECTO)
+
     activo = models.BooleanField(default=True, verbose_name=_("Active"))
     nr_media = models.IntegerField(default=0, verbose_name=_("Norma Rendimiento Media"),
                                    db_comment='Norma de Rendimiento Media para los trabajadores directos')
@@ -842,6 +917,7 @@ class ClasificadorCargos(ObjectsManagerAbstract):
     def salario(self):
         return self.grupo.salario
 
+
 class FechaInicio(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
@@ -854,7 +930,12 @@ class FechaInicio(models.Model):
 
     class Meta:
         db_table = 'fp_fechainicio'
-        unique_together = (('departamento', 'ueb'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['departamento', 'ueb'],
+                name='unique_fechainicio_departamento_ueb'
+            ),
+        ]
         indexes = [
             models.Index(
                 fields=[

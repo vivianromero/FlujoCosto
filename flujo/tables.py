@@ -13,18 +13,14 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         model = Documento
 
         fields = (
-            'fecha',
-            # 'numerocontrol',
             'numeroconsecutivo',
-            # 'suma_importe',
-            # 'observaciones',
-            'estado',
-            # 'reproceso',
-            # 'editar_nc',
-            # 'comprob',
-            'departamento',
             'tipodocumento',
-            'ueb',
+            'numerocontrol',
+            'estado',
+            'fecha',
+            'tipodocumento__operacion',
+            # 'departamento',
+            # 'ueb',
         )
 
     actions = tables.TemplateColumn(
@@ -39,10 +35,12 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 # ------ Documentos Versat / Table ------
 class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     iddocumento = tables.Column(verbose_name='Id',
-                                visible=True,
-                                orderable=True)
-    iddocumento_fecha = tables.Column(verbose_name='Fecha')
+                                visible=False)
     iddocumento_numero = tables.Column(verbose_name='Número')
+    iddocumento_numctrl = tables.Column(verbose_name='Número Ctrl')
+    iddocumento_fecha = tables.Column(verbose_name='Fecha')
+    iddocumento_concepto = tables.Column(verbose_name='Concepto')
+    iddocumento_almacen = tables.Column(verbose_name='Almacén')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
     iddocumento_detalle = tables.JSONColumn(verbose_name='Detalles', visible=False)
 
@@ -70,8 +68,11 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         }
         sequence = (
             'iddocumento',
-            'iddocumento_fecha',
             'iddocumento_numero',
+            'iddocumento_numctrl',
+            'iddocumento_fecha',
+            'iddocumento_concepto',
+            'iddocumento_almacen',
             'iddocumento_sumaimporte',
             'iddocumento_detalle',
             'actions',

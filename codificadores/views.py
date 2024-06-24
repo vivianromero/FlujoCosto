@@ -11,6 +11,7 @@ from django_htmx.http import HttpResponseLocation
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
 from codificadores.forms import *
+from codificadores.models import VinculoCargoProduccion
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
@@ -1292,7 +1293,7 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-        'tiponumeracion',
+        'id',
         'sistema',
         'departamento',
         'tipo_documento',
@@ -1568,7 +1569,7 @@ def cargonorma(request):
 
     context = {
         'show_norma_tiempo': True,
-        'show_nr_media': produccion == str(ChoiceCargoProduccion.DIRECTO),
+        'show_nr_media': produccion == str(VinculoCargoProduccion.DIRECTO),
         'valornr_media': nr if nr else 0,
         'valornorma_tiempo': norma if norma else 0.0000,
     }

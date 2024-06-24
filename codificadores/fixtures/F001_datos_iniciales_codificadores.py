@@ -1,5 +1,3 @@
-from codificadores import ChoiceTiposProd, ChoiceEstadosProd, ChoiceClasesMatPrima, ChoiceCategoriasVit, \
-    ChoiceMotivosAjuste, ChoiceTiposDoc, ChoiceTipoNumeroDoc, ChoiceConfCentrosElementosOtros
 from codificadores.models import *
 
 modulo = "codificadores"
@@ -7,13 +5,11 @@ modulo = "codificadores"
 
 def init_data(apps, schema_editor):
     act_model_tipo_poducto = apps.get_model(modulo, "TipoProducto")
-    act_model_estadoproducto = apps.get_model(modulo, "EstadoProducto")
     act_model_clasemateriaprima = apps.get_model(modulo, "ClaseMateriaPrima")
     act_model_categoriavitola = apps.get_model(modulo, "CategoriaVitola")
-    act_model_tipovitola = apps.get_model(modulo, "TipoVitola")
     act_model_motivoajuste = apps.get_model(modulo, "MotivoAjuste")
     act_model_tipodocumento = apps.get_model(modulo, "TipoDocumento")
-    act_model_numeraciondocumentos = apps.get_model(modulo, "NumeracionDocumentos")
+    # act_model_numeraciondocumentos = apps.get_model(modulo, "NumeracionDocumentos")
     act_model_unidadcontable = apps.get_model(modulo, "UnidadContable")
     act_model_confcentroselementosotros = apps.get_model(modulo, "ConfCentrosElementosOtros")
     act_model_confcentroselementosotrosdetalle = apps.get_model(modulo, "ConfCentrosElementosOtrosDetalle")
@@ -36,16 +32,6 @@ def init_data(apps, schema_editor):
                      descripcion=ChoiceTiposProd.CHOICE_TIPOS_PROD[ChoiceTiposProd.LINEASINTERMINAR], orden=7),
     ]
     act_model_tipo_poducto.objects.bulk_create(tipo_poducto)
-
-    estado_poducto = [
-        EstadoProducto(pk=ChoiceEstadosProd.BUENO,
-                       descripcion=ChoiceEstadosProd.CHOICE_ESTADOS[ChoiceEstadosProd.BUENO]),
-        EstadoProducto(pk=ChoiceEstadosProd.DEFICIENTE,
-                       descripcion=ChoiceEstadosProd.CHOICE_ESTADOS[ChoiceEstadosProd.DEFICIENTE]),
-        EstadoProducto(pk=ChoiceEstadosProd.RECHAZO,
-                       descripcion=ChoiceEstadosProd.CHOICE_ESTADOS[ChoiceEstadosProd.RECHAZO]),
-    ]
-    act_model_estadoproducto.objects.bulk_create(estado_poducto)
 
     clasemp = [
         ClaseMateriaPrima(pk=ChoiceClasesMatPrima.CAPOTE,
@@ -85,14 +71,6 @@ def init_data(apps, schema_editor):
                         descripcion=ChoiceCategoriasVit.CHOICE_CATEGORIAS[ChoiceCategoriasVit.VIII], orden=4),
     ]
     act_model_categoriavitola.objects.bulk_create(categvit)
-
-    tipovitola = [
-        TipoVitola(pk=ChoiceTiposVitola.PICADURA,
-                   descripcion=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA[ChoiceTiposVitola.PICADURA]),
-        TipoVitola(pk=ChoiceTiposVitola.HOJA,
-                   descripcion=ChoiceTiposVitola.CHOICE_TIPOS_VITOLA[ChoiceTiposVitola.HOJA]),
-    ]
-    act_model_tipovitola.objects.bulk_create(tipovitola)
 
     motivoajuste = [
         MotivoAjuste(pk=ChoiceMotivosAjuste.MERMA,
@@ -171,14 +149,10 @@ def init_data(apps, schema_editor):
     ]
     act_model_tipodocumento.objects.bulk_create(tipodoc)
 
-    numdoc = [
-        NumeracionDocumentos(pk=ChoiceTipoNumeroDoc.NUMERO_CONSECUTIVO,
-                             tiponumeracion=ChoiceTipoNumeroDoc.NUMERO_CONSECUTIVO, sistema=True, departamento=True,
-                             tipo_documento=True, prefijo=False),
-        NumeracionDocumentos(pk=ChoiceTipoNumeroDoc.NUMERO_CONTROL, tiponumeracion=ChoiceTipoNumeroDoc.NUMERO_CONTROL,
-                             sistema=False, departamento=True, tipo_documento=True, prefijo=False),
-    ]
-    act_model_numeraciondocumentos.objects.bulk_create(numdoc)
+    NumeracionDocumentos.objects.create(pk=TipoNumeroDoc.NUMERO_CONSECUTIVO, sistema=False, departamento=True,
+                                        tipo_documento=True, prefijo=False)
+    NumeracionDocumentos.objects.create(pk=TipoNumeroDoc.NUMERO_CONTROL, sistema=True, departamento=True,
+                                        tipo_documento=True, prefijo=False)
 
     ucontab = [
         UnidadContable(pk="000603fa-af2d-4713-b0e5-c2991a289f4b", codigo="01", nombre="UEB SANTA CLARA"),
@@ -200,7 +174,8 @@ def init_data(apps, schema_editor):
                        is_empresa=True),
         UnidadContable(pk="889d9e9f-4064-4214-a051-a1f78ea26b65", codigo="22", nombre="UEB SANTO DOMINGO"),
         UnidadContable(pk="879d9e9f-4064-4214-a051-a1f78ea26b65", codigo="23", nombre="UEB JICOTEA"),
-        UnidadContable(pk="57042ce6-b154-4663-88dd-507d79701504", codigo="24", nombre="UEB SERVICIOS"),
+        UnidadContable(pk="57042ce6-b154-4663-88dd-507d79701504", codigo="24", nombre="UEB SERVICIOS",
+                       activo=False),
     ]
     act_model_unidadcontable.objects.bulk_create(ucontab)
 

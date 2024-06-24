@@ -1,14 +1,15 @@
 import uuid
-from django.contrib.auth.models import AbstractUser, Permission
-from django.db import models
 
-from codificadores.models import UnidadContable, Departamento, TipoDocumento, NumeracionDocumentos
-from cruds_adminlte3.utils import crud_url
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from codificadores.models import UnidadContable
+from cruds_adminlte3.utils import crud_url
 from . import ChoiceSystems
 
-class ConexionBaseDato(models.Model):
 
+class ConexionBaseDato(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     database_name = models.CharField(max_length=250, verbose_name=_("Database Name"))
     database_user = models.CharField(max_length=250, verbose_name=_("User Name"))
@@ -17,7 +18,7 @@ class ConexionBaseDato(models.Model):
     port = models.CharField(max_length=100, verbose_name=_("Port"))
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, verbose_name="UEB")
     sistema = models.CharField(choices=ChoiceSystems.CHOICE_SYSTEMS, default=ChoiceSystems.VERSATSARASOLA,
-                                  verbose_name=_("System"))
+                               verbose_name=_("System"))
 
     class Meta:
         db_table = 'cfg_conexionbasedato'
@@ -32,46 +33,51 @@ class ConexionBaseDato(models.Model):
         ordering = ['unidadcontable__codigo', 'sistema']
         verbose_name_plural = _('Conexions of data bases')
         verbose_name = _('Database conexion')
-        unique_together = (('unidadcontable', 'sistema'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['unidadcontable', 'sistema'],
+                name='unique_conexionbasedato_unidadcontable_sistema'
+            ),
+        ]
 
     def __str__(self):
         return "%s - %s" % (self.sistema, self.database_name)
 
 
-class ConsecutivoDocumento(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    numeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
-                                            related_name='consecutivodocumento_numeracion',
-                                            verbose_name=_("Enumeration Type"))
-    numero = models.IntegerField(verbose_name=_("Number"))
-    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb',
-                            verbose_name="UEB")
-
-    class Meta:
-        db_table = 'cfg_consecutivodocumento'
-
-
-class ConsecutivoDocumentoDepartamento(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-                                             related_name='consecutivodocumentodpto_consecutivodocumento')
-    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                     related_name='consecutivodocumentodpto_departamento',
-                                     verbose_name=_("Department"))
-
-    class Meta:
-        db_table = 'cfg_consecutivodocumentodepartamento'
+# class ConsecutivoDocumento(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     numeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
+#                                             related_name='consecutivodocumento_numeracion',
+#                                             verbose_name=_("Enumeration Type"))
+#     numero = models.IntegerField(verbose_name=_("Number"))
+#     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb',
+#                             verbose_name="UEB")
+#
+#     class Meta:
+#         db_table = 'cfg_consecutivodocumento'
 
 
-class ConsecutivoDocumentoTipoDocumento(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-                                             related_name='consecutivodocumentotipodoc_consecutivodocumento')
-    tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT,
-                                      related_name='consecutivodocumentotipodoc_tipodocumento')
+# class ConsecutivoDocumentoDepartamento(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
+#                                              related_name='consecutivodocumentodpto_consecutivodocumento')
+#     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+#                                      related_name='consecutivodocumentodpto_departamento',
+#                                      verbose_name=_("Department"))
+#
+#     class Meta:
+#         db_table = 'cfg_consecutivodocumentodepartamento'
 
-    class Meta:
-        db_table = 'cfg_consecutivodocumentotipodocumento'
+
+# class ConsecutivoDocumentoTipoDocumento(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
+#                                              related_name='consecutivodocumentotipodoc_consecutivodocumento')
+#     tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT,
+#                                       related_name='consecutivodocumentotipodoc_tipodocumento')
+#
+#     class Meta:
+#         db_table = 'cfg_consecutivodocumentotipodocumento'
 
 
 class UserUeb(AbstractUser):
