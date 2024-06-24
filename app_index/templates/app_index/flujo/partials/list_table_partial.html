@@ -15,7 +15,7 @@
         {% include 'app_index/cruds/list_table_navbar.html' %}
     {% endblock table_navbar %}
     {% block datatable %}
-        <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" style="height: 627px;">
+        <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" style="height: inherit;">
             {% render_table table %}
         </div>
     {% endblock datatable %}
@@ -128,14 +128,14 @@
     </script>
 </div>
 
-<div id="id_datatableversat_swap" hx-swap-oob="true">
-    {% block datatableversat %}
-        <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" 
-             style="height: 315px;">
-            {% if tableversat %} {% render_table tableversat %} {% endif %}
-        </div>
-    {% endblock datatableversat %}
+{#<div id="id_datatableversat_swap" hx-swap-oob="true">#}
+{#{% block datatableversat %}#}
+<div id="id_datatableversat_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" 
+     style="height: inherit;" hx-swap-oob="true">
+    {% if tableversat %} {% render_table tableversat %} {% endif %}
 </div>
+{#{% endblock datatableversat %}#}
+{#</div>#}
 
 <div class="card-header" id="id_card_header_departamentos" style="padding: 0;" hx-swap-oob="true">
     Listado de departamentos
