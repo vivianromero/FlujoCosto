@@ -63,7 +63,7 @@ class DepartamentoFilter(MyGenericFilter):
 class NormaConsumoFilter(MyGenericFilter):
     tipo = django_filters.ChoiceFilter(
         field_name='tipo',
-        choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
+        choices=TiposNormas.choices,
         empty_label='Todas',
         widget=forms.Select(
             attrs={
@@ -134,7 +134,7 @@ class NormaConsumoFilter(MyGenericFilter):
 class NormaConsumoGroupedFilter(MyGenericFilter):
     tipo = django_filters.ChoiceFilter(
         field_name='tipo',
-        choices=ChoiceTiposNormas.CHOICE_TIPOS_NORMAS,
+        choices=TiposNormas.choices,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(
             attrs={

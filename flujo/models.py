@@ -1,22 +1,24 @@
 import uuid
 
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.functions import Now
+from django.utils.translation import gettext_lazy as _
+from django_choices_field import IntegerChoicesField
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
-    ProductoFlujo
-from django.utils.translation import gettext_lazy as _
-
+    ProductoFlujo, ConfigNumero
 from cruds_adminlte3.utils import crud_url
 
 
-class Documento(models.Model):
-    CHOICE_ESTADOS_DOCUMENTO = {
-        1: 'Edición',
-        2: 'Confirmado',
-        3: 'Rechazado',
-    }
+class EstadosDocumentos(models.IntegerChoices):
+    EDICION = 1, 'Edición'
+    CONFIRMADO = 2, 'Confirmado'
+    RECHAZADO = 3, 'Rechazado'
+    CANCELADO = 4, 'Cancelado'
 
+class Documento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
     fecha_creacion = models.DateTimeField(db_default=Now(), verbose_name=_("Create at"))
@@ -24,7 +26,7 @@ class Documento(models.Model):
     numeroconsecutivo = models.IntegerField(verbose_name=_("Consecutive Number"))
     suma_importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00, verbose_name=_("Amount"))
     observaciones = models.TextField(blank=True, null=True, verbose_name=_("Observations"))
-    estado = models.IntegerField(choices=CHOICE_ESTADOS_DOCUMENTO,
+    estado = IntegerChoicesField(choices_enum=EstadosDocumentos,
                                  db_comment="Estado del documento 1:Edición, 2:Confirmado, 3:Rechazado",
                                  verbose_name=_("Status"))
     reproceso = models.BooleanField(default=False, verbose_name=_("Reprocessing"))
@@ -32,12 +34,62 @@ class Documento(models.Model):
     comprob = models.CharField(max_length=150, blank=True, null=True)
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documento_departamento')
     tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='documento_tipodocumento')
-    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_tipodocumento')
+    anno = models.IntegerField(default=0)
+    mes = models.IntegerField(default=0)
+    confconsec = IntegerChoicesField(choices_enum=ConfigNumero,
+                                 db_comment="Para guardar el tipo de conf para el consecutivo y poder establecer la constarint",
+                                 default=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO)
+    confcontrol = IntegerChoicesField(choices_enum=ConfigNumero,
+                                 db_comment="Para guardar el tipo de conf para el numero de control y poder establecer la constarint",
+                                 default=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO)
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_ueb')
 
     class Meta:
         db_table = 'fp_documento'
-        # unique_together = (('numeroconsecutivo', 'tipodocumento', 'departamento', 'ueb'),)
-        ordering = ['ueb', 'departamento', 'tipodocumento', '-numeroconsecutivo']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['numeroconsecutivo', 'departamento', 'tipodocumento', 'mes', 'anno', 'ueb'],
+                condition=Q(confconsec=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO),
+                name='unique_numeroconsecutivo_departamento_tipodocumento'
+            ),
+            models.UniqueConstraint(
+                fields=['numeroconsecutivo', 'departamento', 'mes', 'anno', 'ueb'],
+                condition=Q(confconsec=ConfigNumero.DEPARTAMENTO),
+                name='unique_numeroconsecutivo_departamento'
+            ),
+            models.UniqueConstraint(
+                fields=['numeroconsecutivo', 'tipodocumento', 'mes', 'anno', 'ueb'],
+                condition=Q(confconsec=ConfigNumero.TIPODOCUMENTO),
+                name='unique_numeroconsecutivo_tipodocumento'
+            ),
+            models.UniqueConstraint(
+                fields=['numeroconsecutivo', 'mes', 'anno', 'ueb'],
+                condition=Q(confconsec=ConfigNumero.UNICO),
+                name='unique_numeroconsecutivo_ueb'
+            ),
+
+            models.UniqueConstraint(
+                fields=['numerocontrol', 'departamento', 'tipodocumento', 'anno', 'ueb'],
+                condition=Q(confcontrol=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO),
+                name='unique_numerocontrol_departamento_tipodocumento'
+            ),
+            models.UniqueConstraint(
+                fields=['numerocontrol', 'departamento', 'anno', 'ueb'],
+                condition=Q(confcontrol=ConfigNumero.DEPARTAMENTO),
+                name='unique_numerocontrol_departamento'
+            ),
+            models.UniqueConstraint(
+                fields=['numerocontrol', 'tipodocumento', 'anno', 'ueb'],
+                condition=Q(confcontrol=ConfigNumero.TIPODOCUMENTO),
+                name='unique_numerocontrol_tipodocumento'
+            ),
+            models.UniqueConstraint(
+                fields=['numerocontrol', 'anno', 'ueb'],
+                condition=Q(confcontrol=ConfigNumero.UNICO),
+                name='unique_numerocontrol_ueb'
+            ),
+        ]
+        ordering = ['ueb', 'departamento', '-numeroconsecutivo', 'tipodocumento']
 
     def __str__(self):
         return self.tipodocumento.descripcion
@@ -45,29 +97,46 @@ class Documento(models.Model):
     def get_absolute_url(self):
         return crud_url(self, 'update', namespace='app_index:flujo')
 
+    def get_numerocontrol(self):
+        nros = self.numerocontrol.split('/')
+        return int(self.numerocontrol[len(nros)-1])
+
+    def get_numerocontrol_prefijo(self):
+        return '' if not '/' in self.numerocontrol else self.numerocontrol.split('/')[0]
 
 class DocumentoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cantidad = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Quantity"))
+                                   verbose_name=_("Quantity"),
+                                   validators=[MinValueValidator(0.0001, message=_(
+                                       'El valor debe ser >= 0'))]
+                                   )
     precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
-                                 verbose_name=_("Price"))
+                                 verbose_name=_("Price"),
+                                 validators=[MinValueValidator(0.0000001, message=_(
+                                     'El valor debe ser >= 0'))]
+                                 )
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
                                   verbose_name=_("Amount"))
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentodetalle_documento')
-    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
-                               related_name='documentodetalle_productoestado', verbose_name=_("Status"))
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentodetalle_documento')
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
                                  verbose_name=_("Product"))
 
     class Meta:
         db_table = 'fp_documentodetalle'
 
+        constraints = [
+            models.UniqueConstraint(
+                fields=['documento', 'estado', 'producto'],
+                name='unique_documentodetalle_documento_estado_producto'
+            )
+        ]
+
     def __str__(self):
         return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
-
 
 
 class DocumentoAjuste(models.Model):
@@ -97,9 +166,11 @@ class DocumentoTransfDepartamento(models.Model):
 class DocumentoDetalleTransfDptoControlTecnico(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cantidad = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Quantity"))
+                                   verbose_name=_("Quantity")
+                                   )
     precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
-                                 verbose_name=_("Price"))
+                                 verbose_name=_("Price")
+                                 )
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
                                   verbose_name=_("Amount"))
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
@@ -193,9 +264,7 @@ class DocumentoDetalleEstado(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     existencia = models.DecimalField(max_digits=18, decimal_places=6, default=0.00,
                                      verbose_name=_("Existence"))
-    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
-                               related_name='documentodetalleestado_estado',
-                               verbose_name=_("Status"))
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
     documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
                                          related_name='documentodetalleestado_detalle')
 
@@ -264,26 +333,6 @@ class DocumentoVersatRechazado(models.Model):
         db_table = 'fp_documentoversatrechazado'
 
 
-# Existencia por departamentos
-class ExistenciaDpto(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='existenciadpto_departamento')
-    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='existenciadpto_ueb')
-    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
-                                 related_name='existenciadpto_producto')
-    estado = models.ForeignKey(EstadoProducto, on_delete=models.PROTECT,
-                               related_name='existenciadpto_productoestado')
-    existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                     verbose_name=_("Existence"))
-    precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
-                                 verbose_name=_("Price"))
-    importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
-                                  verbose_name=_("Amount"))
-
-    class Meta:
-        db_table = 'fp_existenciadpto'
-
-
 class FechaPeriodo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fecha = models.DateField(verbose_name=_("Date"))
@@ -296,7 +345,25 @@ class FechaPeriodo(models.Model):
 
     class Meta:
         db_table = 'fp_fechaperiodo'
-        unique_together = (('fecha', 'departamento', 'ueb'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['fecha', 'departamento', 'ueb'],
+                name='unique_fechaperiodo_fecha_departamento_ueb'
+            ),
+        ]
+
+    def to_dict(self):
+        return {
+            "ueb": self.ueb,
+            self.departamento: {
+            "fecha_procesamiento": self.fecha,
+            "fecha_mes_procesamiento": self.fecha_mes_procesamiento
+            }
+        }
+
+    @property
+    def fecha_mes_procesamiento(self):
+        return str(self.fecha.year) + '-' + str(self.fecha.month) + '-01'
 
 
 class FechaCierreMes(models.Model):
@@ -308,4 +375,90 @@ class FechaCierreMes(models.Model):
 
     class Meta:
         db_table = 'fp_fechacierremes'
-        unique_together = (('fecha', 'ueb'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['fecha', 'ueb'],
+                name='unique_fechacierremes_fecha_ueb'
+            ),
+        ]
+
+class NumerosDocumentos(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='numerodoc_tipodocumento')
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                     related_name='numerodoc_departamento',
+                                     verbose_name=_("Department"))
+    consecutivo = models.IntegerField(verbose_name=_("Consecutive Number"), default=0)
+    control = models.IntegerField(verbose_name=_("Consecutive Number"), default=0)
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                            related_name='numerodoc_ueb',
+                            verbose_name="UEB")
+
+
+    class Meta:
+        db_table = 'fp_numerosdocumentos'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tipodocumento', 'departamento', 'ueb'],
+                name='unique_numerosdocumentos_tipodocumento_departamento_ueb'
+            ),
+        ]
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'tipodocumento',
+                    'departamento',
+                    'ueb'
+                ]),
+            models.Index(fields=[
+                    'tipodocumento',
+                    'ueb'
+                ]),
+            models.Index(fields=[
+                    'departamento',
+                    'ueb'
+                ]),
+            models.Index(fields=[
+                    'ueb'
+                ]
+            ),
+        ]
+
+class ExistenciaDpto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='existencias_producto',
+                                 verbose_name=_("Product"))
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
+    cantidad_inicial =models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
+                                   verbose_name=_("Cantidad Inicial"))
+    cantidad_entrada = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
+                                   verbose_name=_("Entradas"))
+    cantidad_salida = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
+                                   verbose_name=_("Salidas"))
+    cantidad_final = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
+                                   verbose_name=_("Cantidad Final"))
+    precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
+                                 verbose_name=_("Price"))
+    importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
+                                  verbose_name=_("Amount"))
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='existencias_departamento')
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='existencias_ueb')
+
+    class Meta:
+        db_table = 'fp_existenciadpto'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['producto', 'estado', 'departamento', 'ueb'],
+                name='unique_existencias_producto_estado_departamento_ueb'
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=[
+                    'producto',
+                    'estado',
+                    'departamento',
+                    'ueb']
+            )
+        ]

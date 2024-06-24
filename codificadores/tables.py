@@ -258,7 +258,7 @@ class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveAction
         model = NumeracionDocumentos
 
         fields = (
-            'tiponumeracion',
+            'id',
             'sistema',
             'departamento',
             'tipo_documento',

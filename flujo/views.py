@@ -17,6 +17,9 @@ from .forms import *
 from .forms import DepartamentoDocumentosForm
 from .models import *
 from .utils import ids_documentos_versat_procesados
+from django.db import IntegrityError
+from django.conf import settings
+from django.db.models import Min
 
 
 # Create your views here.
@@ -48,7 +51,7 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
         'detail',
     ]
 
-    title = "Detalles del Documento"
+    title = ""
 
 
 # ------ Documento / CRUD ------
@@ -138,22 +141,16 @@ class DocumentoCRUD(CommonCRUDView):
                     url = super().get_success_url()
                 return url
 
-            # def form_valid(self, form):
-            #     if "inline" in self.request.POST:
-            #         url = self.model.get_absolute_url(form.instance)
-            #         # return HttpResponseLocation(url, target='#dialog', )
-            #         ctx = self.get_context_data()
-            #         ctx['form'] = form
-            #         ctx['hx_target'] = '#dialog'
-            #         self.object = form.save(commit=False)
-            #         self.object.save()
-            #         tpl = 'app_index/flujo/partials/partial_update.html'
-            #         response = render(self.request, tpl, ctx)
-            #         response['HX-Retarget'] = ctx['hx_retarget']
-            #         response['HX-Reswap'] = ctx['hx_reswap']
-            #         return response
-            #     else:
-            #         return super().form_valid(form)
+            def form_valid(self, form):
+                try:
+                    return super().form_valid(form)
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = settings.NUMERACION_DOCUMENTOS_CONFIG[
+                        TipoNumeroDoc.NUMERO_CONSECUTIVO if e.args[0].find(
+                            'numeroconsecutivo') > 0 else TipoNumeroDoc.NUMERO_CONTROL]['mensaje_error']
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
 
         return OCreateView
 
@@ -207,10 +204,9 @@ class DocumentoCRUD(CommonCRUDView):
                     'tipo_doc_entrada': tipo_doc_entrada,
                     'tipo_doc_salida': tipo_doc_salida,
                     'inicializado': inicializado,
-
                     'confirm': True,
                     'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
-                    'texto_inicializar': "Una vez iniciado el departamento, podrá realizar acciones en él.",
+                    'texto_inicializar': "Una vez inicializado el departamento, podrá realizar acciones en él.",
                 })
                 return context
 
@@ -232,8 +228,8 @@ class DocumentoCRUD(CommonCRUDView):
                     return self.model.objects.none()
                 if rango_fecha is not None and rango_fecha != '':
                     fechas = rango_fecha.strip().split('-')
-                    qdict['fecha__gte'] = datetime.datetime.strptime(fechas[0].strip(), formating).date()
-                    qdict['fecha__lte'] = datetime.datetime.strptime(fechas[1].strip(), formating).date()
+                    qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
+                    qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
                     # queryset = queryset.filter(
                     #     fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
                     #     fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
@@ -279,6 +275,17 @@ class DocumentoCRUD(CommonCRUDView):
                 })
                 return ctx
 
+            def form_valid(self, form):
+                try:
+                    return super().form_valid(form)
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = settings.NUMERACION_DOCUMENTOS_CONFIG[
+                        TipoNumeroDoc.NUMERO_CONSECUTIVO if e.args[0].find(
+                            'numeroconsecutivo') > 0 else TipoNumeroDoc.NUMERO_CONTROL]['mensaje_error']
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+
         return OEditView
 
     def get_delete_view(self):
@@ -298,42 +305,91 @@ class DocumentoCRUD(CommonCRUDView):
 
 
 def confirmar_documento(request, pk):
-    obj = Documento.objects.get(pk=pk)
-    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-    if obj.documentodetalle_documento.count() > 0:
-        obj.estado = 2  # Confirmado
-        obj.save()
-    else:
-        title = 'No puede ser confrimado el documento '
-        text = 'No tiene detalles asociados'
-        sweetify.error(request, title + obj.__str__() + '!', text=text, persistent=True)
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'confirmed': 'true',
-        }
+    # Para confirmar un documento se valida:
+    #  - que contenga detalles
+    #  - que no existan documentos en edición anteriores a él
+    with transaction.atomic():
+        obj = Documento.objects.select_for_update().get(pk=pk)
+        params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+        departamento = obj.departamento
+        operacion = obj.tipodocumento.operacion
+        max_numero_editado = 0
+        detalles_count = obj.documentodetalle_documento.count()
+        if detalles_count > 0 and not existen_documentos_sin_confirmar(obj):
+            obj.estado = EstadosDocumentos.CONFIRMADO # Confirmado
+            obj.save()
+        else:
+            title = 'No puede ser confrimado el documento '
+            text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
+            sweetify.error(request, title + obj.__str__() + '!', text=text, persistent=True)
+
+        return HttpResponseLocation(
+            reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
+            target='#table_content_documento_swap',
+            headers={
+                'HX-Trigger': request.htmx.trigger,
+                'HX-Trigger-Name': request.htmx.trigger_name,
+                'confirmed': 'true',
+            }
     )
+
+
+def existen_documentos_sin_confirmar(obj):
+    conf = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]
+    departamento = obj.departamento
+    ueb = obj.ueb
+    tipodoc = obj.tipodocumento
+    numeroconsecutivo = obj.numeroconsecutivo
+
+    docs = Documento.objects.filter(ueb=ueb, estado=EstadosDocumentos.EDICION,
+                                    numeroconsecutivo__lt=numeroconsecutivo)
+
+    if conf['tipo_documento'] and conf['departamento']:
+        doc = docs.filter(tipodocumento=tipodoc, departamento=departamento)
+    elif conf['departamento']:
+        doc = docs.filter(departamento=departamento)
+    elif conf['tipo_documento']:
+        doc = docs.filter(tipodocumento=tipodoc)
+    else:
+        doc = docs
+
+    numero = doc.aggregate(numconsec=Max('numeroconsecutivo'))['numconsec']
+    numero = numero if numero else 0
+    return numeroconsecutivo - numero > 1
 
 
 def departamento_inicializar(request, pk):
+    docs = Documento.objects.filter(departamento=pk, ueb=request.user.ueb).exclude(
+        estado__in=[EstadosDocumentos.CONFIRMADO, EstadosDocumentos.CANCELADO])
     departamento = Departamento.objects.get(pk=pk)
     params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-    fecha_inicio, created = FechaInicio.objects.get_or_create(
-        fecha=date.today(),
-        departamento=departamento,
-        ueb=request.user.ueb,
-    )
-    if created:
-        title = 'El departamento %s se inicializó correctamente para la UEB %s!' % (departamento, request.user.ueb)
-        text = 'Con fecha de inicio: %s' % date.today()
-        sweetify.success(request, title, text=text, persistent=True)
+
+    if not docs.exists():
+        fecha_inicio, created = FechaInicio.objects.get_or_create(
+            fecha=date.today().replace(day=1).replace(month=1),
+            departamento=departamento,
+            ueb=request.user.ueb,
+        )
+        if created:
+            fecha_inicio, created = FechaPeriodo.objects.get_or_create(
+                fecha=date.today().replace(month=1).replace(day=31),
+                departamento=departamento,
+                ueb=request.user.ueb,
+            )
+            title = 'El departamento %s se inicializó correctamente para %s!' % (departamento, request.user.ueb)
+            text = 'Con fecha de inicio: %s' % date.today().replace(day=1)
+            sweetify.success(request, title, text=text, persistent=True)
+        else:
+            title = 'El departamento %s para %s ya ha sido inicializado anteriormente' % (
+                departamento, request.user.ueb)
+            text = ''
+            sweetify.info(request, title, text=text, persistent=True)
     else:
-        title = 'El departamento %s ya ha sido inicializado anteriormente' % departamento
-        text = ''
-        sweetify.info(request, title, text=text, persistent=True)
+        title = 'No se completó la incialización'
+        text = 'Existen documentos sin Confirmar, el departamento %s para %s no se puede inicializar' % (
+            departamento, request.user.ueb)
+        sweetify.warning(request, title, text=text, persistent=True)
+
     return HttpResponseLocation(
         reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
         target='#table_content_documento_swap',
@@ -373,5 +429,3 @@ def dame_documentos_versat(request, dpto):
             return datos
     except Exception as e:
         return None
-        # sweetify.error(request=request, title=title_error, text=text_error)
-        # return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))

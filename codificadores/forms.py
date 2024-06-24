@@ -771,18 +771,6 @@ class ProductoFlujoForm(forms.ModelForm):
                     producto_flujo_clase.save()
         return instance
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     codigo = cleaned_data.get('codigo')
-    #     if not codigo:
-    #         msg = _('Rellene este campo')
-    #         self.add_error('codigo', msg)
-    #     else:
-    #         if ProductoFlujo.objects.filter(codigo=codigo).exists():
-    #             msg = 'Este código ya existe'
-    #             self.add_error('codigo', msg)
-    #     return cleaned_data
-
 
 # ------------ ProductoFlujo / Update Form ------------
 class ProductoFlujoUpdateForm(forms.ModelForm):
@@ -2390,10 +2378,11 @@ class LineaSalidaFormFilter(forms.Form):
 
 # ------------ NumeracionDocumentos / Form ------------
 class NumeracionDocumentosForm(forms.ModelForm):
+    tiponum = forms.CharField(max_length=50, label=_("Tipo Numero"), required=False)
+    prefijo = forms.CheckboxInput()
     class Meta:
         model = NumeracionDocumentos
         fields = [
-            'tiponumeracion',
             'sistema',
             'departamento',
             'tipo_documento',
@@ -2404,28 +2393,30 @@ class NumeracionDocumentosForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {
+            'tiponum': TipoNumeroDoc.NUMERO_CONSECUTIVO.label if TipoNumeroDoc.NUMERO_CONSECUTIVO == instance.pk else TipoNumeroDoc.NUMERO_CONTROL.label}
         super(NumeracionDocumentosForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_numeraciondocumentosform_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["tiponumeracion"].disabled = True
-        self.fields["tiponumeracion"].required = False
+        self.fields["tiponum"].disabled = True
+        self.fields["tiponum"].required = False
 
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     _('Numeración de los documentos'),
                     Row(
-                        Column('tiponumeracion', css_class='form-group col-md-5 mb-0'),
+                        Column('tiponum', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
                         Column('sistema', css_class='form-group col-md-5 mb-0'),
                         Column('departamento', css_class='form-group col-md-5 mb-0'),
                         Column('tipo_documento', css_class='form-group col-md-5 mb-0'),
-                        Column('prefijo', css_class='form-group col-md-5 mb-0'),
+                        Field('prefijo', type='hidden' if instance.pk == TipoNumeroDoc.NUMERO_CONSECUTIVO else ''),
                         css_class='form-row'
                     ),
                 ),
@@ -2914,7 +2905,6 @@ class ClasificadorCargosFormFilter(forms.Form):
 
 # ------------- FichaCostoFilas / Form --------------
 class FichaCostoFilasForm(forms.ModelForm):
-
     class Meta:
         model = FichaCostoFilas
         fields = [

@@ -64,7 +64,7 @@ class DocumentoFilter(MyGenericFilter):
     )
 
     estado = django_filters.ChoiceFilter(
-        choices=Documento.CHOICE_ESTADOS_DOCUMENTO,
+        choices=EstadosDocumentos.choices,
         empty_label=EMPTY_LABEL,
         widget=forms.Select(attrs={
             'style': 'width: 100%',

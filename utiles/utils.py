@@ -5,8 +5,10 @@ from decimal import *
 import sweetify
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from codificadores.models import FichaCostoFilas
-from django.db.models import Q, Max
+from codificadores.models import FichaCostoFilas, TipoNumeroDoc, TipoDocumento, FechaInicio, NumeracionDocumentos
+from flujo.models import NumerosDocumentos, FechaPeriodo
+from django.db.models import Q, Max, F
+from django.db import transaction
 
 KEY_ENCRIP = "DATAZUCAR-ETTVC-SISGESFC"
 
@@ -107,6 +109,65 @@ def json_response(message=None, success=True, **data):
 
     json_object.update(data)
     return json.dumps(json_object)
+
+def genera_numero_doc(departamento, ueb, tipodoc):
+    config = settings.NUMERACION_DOCUMENTOS_CONFIG
+    consecutivo_conf = config[TipoNumeroDoc.NUMERO_CONSECUTIVO]
+    control_conf = config[TipoNumeroDoc.NUMERO_CONTROL]
+
+    numeros_consec_control = [(), ()]
+
+    numeros = NumerosDocumentos.objects.filter(ueb=ueb)
+
+    numeros_consec_control[0] = dame_numero(numeros, consecutivo_conf, departamento, tipodoc, TipoNumeroDoc.NUMERO_CONSECUTIVO)
+    numeros_consec_control[1] = dame_numero(numeros, control_conf, departamento, tipodoc, TipoNumeroDoc.NUMERO_CONTROL)
+    return numeros_consec_control
+
+def dame_numero(numeros, conf, departamento, tipodoc, tiponumero):
+
+    if conf['tipo_documento'] and conf['departamento']:
+        numero = numeros.filter(tipodocumento=tipodoc, departamento=departamento)
+    elif conf['departamento']:
+        numero = numeros.filter(departamento=departamento)
+    elif conf['tipo_documento']:
+        numero = numeros.filter(tipodocumento=tipodoc)
+    else:
+        numero = numeros
+
+    if numero:
+        prefijo = numero[0].tipodocumento.prefijo if conf['prefijo'] else ''
+        return (numero[0].consecutivo + 1 if tiponumero == TipoNumeroDoc.NUMERO_CONSECUTIVO else numero[0].control + 1,
+                conf['sistema'], '' if not prefijo else prefijo)
+
+    pre = ''
+    if conf['prefijo']:
+        tipo = TipoDocumento.objects.get(pk=tipodoc)
+        pre = tipo.prefijo
+    prefijo = '' if not pre else pre
+    return (1, conf['sistema'], prefijo)
+
+def get_fechas_procesamiento_inicio():
+    fechas = FechaPeriodo.objects.all()
+    fechasinicio = FechaInicio.objects.all()
+    list_dicc = [objeto.to_dict() for objeto in fechas]
+    fechas_dict = {}
+    for item in list_dicc:
+        ueb = item.pop('ueb')
+        dpto = [x for x in item.keys()][0]
+        inicio = fechasinicio.filter(ueb=ueb, departamento=dpto).first()
+        if ueb in fechas_dict.keys():
+            fechas_dict[ueb][dpto] = item[dpto]
+            fechas_dict[ueb][dpto]['fecha_inicio'] = inicio.fecha if inicio else None
+        else:
+            fechas_dict[ueb] = item
+            fechas_dict[ueb][dpto]['fecha_inicio'] = inicio.fecha if inicio else None
+    return fechas_dict
+
+def get_configuracion_numeracion():
+    numeracion = NumeracionDocumentos.objects.all()
+    list_dicc = [objeto.to_dict() for objeto in numeracion]
+    return {item["tiponumero"]: item for item in list_dicc}
+
 
 # #TODO ver si se va a usar
 # def crear_superusuario(credentials):

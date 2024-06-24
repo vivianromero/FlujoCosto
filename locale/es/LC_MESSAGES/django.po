@@ -1389,7 +1389,7 @@ msgstr "Número Consecutivo"
 #: flujo/models.py:22 flujo/models.py:47 flujo/models.py:90 flujo/models.py:167
 #: flujo/models.py:261
 msgid "Amount"
-msgstr "Cantidad"
+msgstr "Importe"
 
 #: flujo/models.py:23
 msgid "Observations"

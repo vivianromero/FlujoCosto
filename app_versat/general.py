@@ -96,8 +96,12 @@ class GenNivelclasprod(models.Model):
     class Meta:
         managed = True
         db_table = 'gen_nivelclasprod'
-        unique_together = (('idapertura', 'clavenivel'),)
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=['idapertura', 'clavenivel'],
+                name='unique_nivelclasprod_idapertura_clavenivel'
+            ),
+        ]
 
 class GenAperturaprod(models.Model):
     idapertura = models.AutoField(primary_key=True)
