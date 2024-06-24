@@ -94,6 +94,8 @@ class CRUDMixin(object):
     def get_filters(self, context):
         filter_params = []
         active_filters = False
+        filter_params_hx = []
+        active_filters_hx = False
         if self.view_type == 'list' and self.list_filter:
             filters = get_filters(self.model, self.list_filter, self.request)
             context['filters'] = filters
@@ -108,35 +110,58 @@ class CRUDMixin(object):
             else:
                 active_filters = self.filterset_class(self.request.GET).form.data != []
 
-        elif self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
-            active_filters = self.request.htmx.current_url_abs_path.split('?').__len__() > 1
+        elif self.view_type in ['list', 'detail', 'update', 'delete'] and self.request.htmx:
+            active_filters_hx = self.request.htmx.current_url_abs_path.split('?').__len__() > 1
 
-        if active_filters:
+        if active_filters or active_filters_hx:
             filters = []
-            if self.view_type in ['list', 'detail', 'update'] and self.request.htmx:
+            filters_hx = []
+            if self.view_type in ['list', 'detail', 'update', 'delete'] and self.request.htmx:
                 if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    filters = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
-            else:
-                filters = self.request.GET.urlencode().split('&')
+                    filters_hx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+            filters = self.request.GET.urlencode().split('&')
             getparams = self.getparams.split('&') or []
+            getparams_hx = self.getparams_hx.split('&') or []
             if filters:
-                if filters[0]:
-                    for filter in filters:
-                        if '%3F' in filter:
-                            filter = filter.split('%3F')[0]
-                        value = filter.split('=')
-                        if value[1] and (
-                                value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[
-                            0] != 'set_visibility_value'
-                        ):
-                            param = filter
-                            if param and param not in getparams:
-                                filter_params.append(param)
+                filter_params = self.get_filter_params(filters=filters, getparams=getparams)
+            if filters_hx:
+                filter_params_hx = self.get_filter_params(filters=filters_hx, getparams=getparams_hx)
+                # if filters[0]:
+                #     for filter in filters:
+                #         if '%3F' in filter:
+                #             filter = filter.split('%3F')[0]
+                #         value = filter.split('=')
+                #         if value[1] and (
+                #                 value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
+                #         ):
+                #             param = filter
+                #             if param and param not in getparams:
+                #                 filter_params.append(param)
 
         if filter_params:
             if self.getparams:
                 self.getparams += "&"
             self.getparams += "&".join(filter_params)
+        if filter_params_hx:
+            if self.getparams_hx:
+                self.getparams_hx *= "&"
+            self.getparams_hx += "&".join(filter_params_hx)
+
+    @staticmethod
+    def get_filter_params(filters=None, getparams=None):
+        filter_params = []
+        if filters is not None and filters[0]:
+            for flt in filters:
+                if '%3F' in flt:
+                    flt = flt.split('%3F')[0]
+                value = flt.split('=')
+                if value[1] and (
+                        value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
+                ):
+                    param = flt
+                    if param and param not in getparams:
+                        filter_params.append(param)
+        return filter_params
 
     def validate_user_perms(self, user, perm, view):
         if isinstance(perm, types.FunctionType):
@@ -292,6 +317,16 @@ class CRUDMixin(object):
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
         context['getparams'] += "&" if self.getparams else ""
+        context['getparams_hx'] = "?" + self.getparams_hx
+        context['getparams_hx'] += "&" if self.getparams_hx else ""
+        context.update({
+            'hx_target': self.hx_target,
+            'hx_swap': self.hx_swap,
+            'hx_form_target': self.hx_form_target,
+            'hx_form_swap': self.hx_form_swap,
+            'hx_retarget': self.hx_retarget,
+            'hx_reswap': self.hx_reswap,
+        })
         context.update(CONFIG)
         return context
 
@@ -302,7 +337,12 @@ class CRUDMixin(object):
         self.context_rel = {}
         getparams = []
         self.getparams = ''
+        getparams_hx = []
+        params_hx = []
+        self.getparams_hx = ''
         params = self.request.GET.urlencode().split('&')
+        if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+            params_hx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
         for related in self.related_fields:
             pk = self.request.GET.get(related, '')
             if pk:
@@ -313,18 +353,23 @@ class CRUDMixin(object):
                 getparams.append("%s=%s" % (
                     related, str(self.context_rel[related].pk)))
         if params and params[0] != '':
-            for param in params:
-                if '%3F' in param:
-                    param = param.split('%3F')[0]
-                value = param.split('=')
-                if value[1] and (
-                        value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
-                ):
-                    temp = param
-                    if temp and temp not in getparams:
-                        getparams.append(param)
+            getparams = self.get_filter_params(filters=params, getparams=getparams)
+        if params_hx and params_hx[0] != '':
+            getparams_hx = self.get_filter_params(filters=params_hx, getparams=getparams_hx)
+            # for param in params:
+            #     if '%3F' in param:
+            #         param = param.split('%3F')[0]
+            #     value = param.split('=')
+            #     if value[1] and (
+            #             value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
+            #     ):
+            #         temp = param
+            #         if temp and temp not in getparams:
+            #             getparams.append(param)
         if getparams:
             self.getparams = "&".join(getparams)
+        if getparams_hx:
+            self.getparams_hx = "&".join(getparams_hx)
         if self.validate_user_object_perms(self, *args, **kwargs):
             return View.dispatch(self, request, *args, **kwargs)
         for perm in self.perms:
@@ -581,6 +626,15 @@ class CRUDView(object):
     split_space_search = False
     related_fields = None
     list_filter = None
+
+    # htmx config
+    hx_target = None
+    hx_swap = None
+    hx_form_target = None
+    hx_form_swap = None
+    hx_retarget = None
+    hx_reswap = None
+
     mixin = CRUDMixin
 
     """
@@ -651,6 +705,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
             success_message = _('Data creation was successful')
 
             def form_valid(self, form):
@@ -675,7 +735,7 @@ class CRUDView(object):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
-                    'modal': self.modal
+                    'modal': self.modal,
                 })
                 return ctx
 
@@ -706,6 +766,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_success_url(self):
                 url = super(ODetailView, self).get_success_url()
@@ -717,7 +783,6 @@ class CRUDView(object):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'form': self.form_class(),
-                    'modal': self.modal,
                 })
                 return ctx
 
@@ -758,6 +823,12 @@ class CRUDView(object):
             related_fields = self.related_fields
             aggregates = self.aggregates
             success_message = _('Data modification was successful')
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def form_valid(self, form):
                 if not self.related_fields:
@@ -779,7 +850,6 @@ class CRUDView(object):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'modal': self.modal,
-                    # 'form': self.form_class
                 })
                 return ctx
 
@@ -826,6 +896,12 @@ class CRUDView(object):
             queryset = self.queryset
             env = self.env
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_listfilter_queryset(self, queryset):
                 if self.list_filter:
@@ -925,6 +1001,12 @@ class CRUDView(object):
             env = self.env
             col_vis = self.col_vis
             modal = self.modal
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             if self.filterset_class is None:
                 filterset_class = get_filter_fields(
@@ -1084,6 +1166,12 @@ class CRUDView(object):
             aggregates = self.aggregates
             modal = self.modal
             success_message = _('The data was successfully deleted')
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_success_url(self):
                 url = super(ODeleteView, self).get_success_url()
@@ -1093,7 +1181,7 @@ class CRUDView(object):
                 return url
 
             def get_context_data(self, **kwargs):
-                ctx = super().get_context_data()
+                ctx = super().get_context_data(**kwargs)
                 ctx.update({
                     'modal': self.modal
                 })
@@ -1103,7 +1191,7 @@ class CRUDView(object):
             # si no se va a usar, eliminar estas funciones
             def get(self, *args, **kwargs):
                 if 'model_id' in kwargs:
-                    return super().get(self.request)
+                    return super().get(self.request, *args, **kwargs)
                 return self.post(*args, **kwargs)
 
             def post(self, request, *args, **kwargs):
@@ -1113,11 +1201,12 @@ class CRUDView(object):
                 except ProtectedError as e:
                     protected_details = ", ".join([str(obj) for obj in e.protected_objects])
                     # messages.error(self.request, 'No se puede eliminar, está siendo utilizado.')
-                    title = _('Cannot delete ')
-                    text = _('This element is related to: ')
+                    title = 'No se puede eliminar '
+                    text = 'Este elemento contiene o está relacionaco con: \n'
                     message_error(self.request,
                                   title + self.object.__str__() + '!',
                                   text=text + protected_details)
+                    sweetify.error(self.request, title + self.object.__str__() + '!', text=text + protected_details, persistent=True)
                     return HttpResponseRedirect(self.get_success_url())
                 if self.success_message:
                     # messages.success(self.request, self.success_message)

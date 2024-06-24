@@ -124,6 +124,11 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Cuenta / Table ------
 class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    # shifter_template = "cruds/django_tables2_column_shifter/my-tree-hx-bootstrap4-responsive.html"
+
+    descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node.html')
+    clave = tables.TemplateColumn(template_name='cruds/tables/tree_node_clave.html')
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = Cuenta
 
@@ -253,7 +258,7 @@ class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveAction
         model = NumeracionDocumentos
 
         fields = (
-            'tiponumeracion',
+            'id',
             'sistema',
             'departamento',
             'tipo_documento',
@@ -335,16 +340,27 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
 
 # ------ FichaCostoFilas / Table ------
 class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node_ficha.html')
+    fila = tables.TemplateColumn(template_name='cruds/tables/tree_node_fila.html')
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_filasfichacosto_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = FichaCostoFilas
 
         fields = (
-            'get_fila',
+            'fila',
             'descripcion',
             'encabezado',
             'salario',
             'vacaciones',
             'desglosado',
             'calculado',
-            'sumafilas'
+            'filasasumar',
         )
+

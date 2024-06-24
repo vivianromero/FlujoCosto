@@ -4,7 +4,7 @@
 
 {% block table %}
 {% if table.shift_table_column %}
-    <div id="{{ table.uniq_table_class_name }}" class="column-shifter-container">
+    <div id="{{ table.uniq_table_class_name }}" class="column-shifter-container" style="height: inherit">
         {% if table.button_above_table %}
             {% block button_group %}
                 {% if table.nav_link %}
@@ -24,7 +24,7 @@
         {% endblock table_loader %}
 
         {# Wrapper default is hide #}
-        <div class="table-wrapper" style="display:block;">
+        <div class="table-wrapper" style="display:block; overflow-y: scroll; height: inherit">
             {# Load default table content   #}
             {{ block.super }}
         </div> {# End table-wrapper #}

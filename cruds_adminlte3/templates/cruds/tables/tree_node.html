@@ -6,7 +6,13 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         {% endif %}
     {% endfor %}
-    {{ record.descripcion }}
+    {% if record.get_children %}
+        <strong><em>{{ record.descripcion }}</em></strong>
+    {% else %}
+        {{ record.descripcion }}
+    {% endif %}
+{% elif record.get_children %}
+        <strong><em>{{ record.descripcion }}</em></strong>
 {% else %}
     {{ record.descripcion }}
 {% endif %}

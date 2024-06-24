@@ -1,0 +1,22 @@
+{% load i18n %}
+
+ <div class="form-group col-md-4 mb-0" >
+   <div id="div_id_filasasumar" class="form-group" style="{% if not show_filasasumar %}display:none{%else%} {%endif%}">
+	 <label for="id_filasasumar" class= "{% if show_filasasumar %}requiredField{%else%} {%endif%}">
+			Filas a sumar
+		 {% if show_filasasumar %}<span class="asteriskField">*</span>{% endif %}
+	 </label>
+	 <div>
+		<select name="filasasumar" class="selectmultiple custom-select" {% if show_filasasumar %}required{%else%} {%endif%} id="id_filasasumar" multiple="">
+			{% for v in filasasumar %}
+				<option
+					value="{{ v.pk }}"
+					{% if v.pk in filasumarselecc %}selected{% endif %}>
+					{{ v.fila }}-{{ v.descripcion }}
+				</option>
+			{% endfor %}
+	   </select>
+	 </div>
+   </div>
+ </div>
+

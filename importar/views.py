@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 
 from codificadores.models import Medida, UnidadContable, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
     Departamento, ProductoFlujo, CambioProducto, Vitola, LineaSalida, NumeracionDocumentos, MotivoAjuste, \
-    ConfCentrosElementosOtrosDetalleGrouped, NormaConsumoGrouped, ClasificadorCargos, \
+    ConfCentrosElementosOtrosDetalleGrouped, NormaConsumoGrouped, ClasificadorCargos, FichaCostoFilas,\
     CategoriaVitola
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
@@ -111,6 +111,9 @@ def all_conf_importar(request):
 def clacargos_importar(request):
     return importacion(request, 'CLA_CARG', ClasificadorCargos)
 
+@login_required
+def filafichacosto_importar(request):
+    return importacion(request, 'FILAS_FICHA', FichaCostoFilas)
 
 def importar_datos_desde_tar(request, archivo_tar, opcion):
     try:

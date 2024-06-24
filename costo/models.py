@@ -60,7 +60,12 @@ class FichaCostoProductoFilas(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cos_fichacostoproductofila'
         ordering = ['fila']
-        unique_together = (('fila', 'fichacostoproducto'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['fila', 'fichacostoproducto'],
+                name='unique_fichacostoproductofila_fila_fichacostoproducto'
+            ),
+        ]
 
 
 class FichaCostoProductoFilaDesgloseMPMat(ObjectsManagerAbstract):
@@ -93,4 +98,9 @@ class FichaCostoProductoFilaDesgloseMPMat(ObjectsManagerAbstract):
     class Meta:
         db_table = 'cos_fichacostoproductofiladesglosempmat'
         ordering = ['fila', 'producto']
-        unique_together = (('fila', 'producto'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['fila', 'producto'],
+                name='unique_fichacostoproductofiladesglosempmat_fila_producto'
+            ),
+        ]
