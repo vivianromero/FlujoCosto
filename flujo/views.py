@@ -20,7 +20,7 @@ from .utils import ids_documentos_versat_procesados
 from django.db import IntegrityError
 from django.conf import settings
 from django.db.models import Min
-
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -53,6 +53,25 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
 
     title = ""
 
+    def get_create_view(self):
+        create_view = super().get_create_view()
+
+        class CreateView(create_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def form_valid(self, form):
+                self.object = form.save(commit=False)
+                setattr(self.object, self.inline_field, self.model_id)
+                self.object.save()
+                # crud_inline_url(self.model_id,
+                #                 self.object, 'list', self.namespace)
+
+                return HttpResponse(""" """)
+
+        return CreateView
 
 # ------ Documento / CRUD ------
 class DocumentoCRUD(CommonCRUDView):
