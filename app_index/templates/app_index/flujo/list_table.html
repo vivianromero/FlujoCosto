@@ -25,171 +25,223 @@
             background-color: white;
         }
         
+        #win1{
+            background-color: white;
+        }
+        #win4{
+            background-color: white;
+        }
+        #win2{
+            background-color: white;
+        }
+        #win3{
+            background-color: white;
+        }
+
     </style>
     <section class="content">
         <div class="container-fluid">
             <div id="main_content_swap">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-12 border border-dark" style="height: 350px">
-                                <div class="card" style="padding: 0; height: 100%">
-                                    <div class="card-header" id="id_card_header_departamentos" style="padding: 0;">
-                                        Listado de departamentos
-                                        {% include 'app_index/partials/partialdef_templates.html#inicializar_departamento_partial' %}
-                                    </div>
-                                    <div class="card-body" style="padding: 0;">
-                                        <div id="list_content_departamento_swap">
-                                            <form>
-                                                {% csrf_token %}
-                                                <div class="card-body row">
-                                                    <div class="col-md-12">
-                                                       <form class="form-inlineform col-md-12 mb-0" method="get" role="form">
-                                                            {% csrf_token %}
-                                                            <div class="input-group input-group-sm">
-                                                                {{ form.departamento|as_crispy_field }}
+                    <div class="col-12">
+                        <div id="main">
+                            <div class="resizable-left border border-dark" id="win1">
+                                <div class="resizable-top border border-dark" id="win3">
+        {#                            <div class="col-12 border border-dark">#}
+                                        <div class="card" style="padding: 0; height: 100%">
+                                            <div class="card-header" id="id_card_header_departamentos" style="padding: 0;">
+                                                Listado de departamentos
+                                                {% include 'app_index/partials/partialdef_templates.html#inicializar_departamento_partial' %}
+                                            </div>
+                                            <div class="card-body" style="padding: 0;">
+                                                <div id="list_content_departamento_swap">
+                                                    <form>
+                                                        {% csrf_token %}
+                                                        <div class="card-body row">
+                                                            <div class="col-md-12">
+                                                               <form class="form-inlineform col-md-12 mb-0" method="get" role="form">
+                                                                    {% csrf_token %}
+                                                                    <div class="input-group input-group-sm">
+                                                                        {{ form.departamento|as_crispy_field }}
+                                                                    </div>
+                                                                </form>
                                                             </div>
-                                                        </form> 
-                                                    </div>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                            </form>
+                                            </div>
                                         </div>
+        {#                            </div>#}
+                                </div>
+                                <div class="resizable-bottom border border-dark" id="win4">
+        {#                            <div class="col-12 border border-dark">#}
+                                        <div class="card" style="padding: 0; height: 100%">
+                                            <div class="card-header" style="padding: 0 15px;">
+                                                Documentos del Versat
+                                                {% if url_docversat %}
+                                                    <a id="act_versat_link_url_div_a" style="float:right;padding:0;"
+                                                       href="{{ url_docversat }}"
+                                                       class="nav-link"
+                                                       {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
+                                                       {% if hx_target %}hx-target="{{ hx_target }}"{% endif %}
+                                                       role="button" {% if hx %}hx-select-oob="true"{% endif %}>
+                                                        <i class="fa fa-refresh fa-ms" title="{% trans 'Actualizar' %}"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="card-body" style="padding: 0; height: inherit">
+        {#                                        <div id="id_datatableversat_swap">#}
+                                                    {% block datatableversat %}
+                                                        <div id="id_datatableversat_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]"
+                                                             style="height: inherit;">
+                                                            {% if tableversat %} {% render_table tableversat %} {% endif %}
+                                                        </div>
+                                                    {% endblock datatableversat %}
+        {#                                        </div>#}
+                                            </div>
+        {#                                    <div class="card-footer">Footer</div>#}
+                                        </div>
+        {#                            </div>#}
+                                </div>
+                            </div>
+                            <div class="resizable-right border border-dark" id="win2">
+{#                        <div class="col-md border border-dark" style="max-height: 100%">#}
+                            <div class="card" style="padding: 0; height: 100%">
+                                <div class="card-header" style="padding: 0;">
+                                    Listado de documentos
+                                </div>
+                                <div class="card-body" style="padding: 0;">
+                                    <div id="table_content_documento_swap" style="height: inherit">
+                                        {% block table_navbar %}
+                                            {% include 'app_index/cruds/list_table_navbar.html' %}
+                                        {% endblock table_navbar %}
+                                        {% block datatable %}
+                                            <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" style="height: inherit;">
+                                                {% render_table table %}
+                                            </div>
+                                        {% endblock datatable %}
+                                        <script>
+                                            window.data = {
+                                                button_shift_class_container: '{{ table.button_shift_class_container|safe }}',
+                                                js_swal_title: '{{ js_swal_title|safe }}',
+                                                js_swal_text: '{{ js_swal_text|safe }}',
+                                                js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
+                                                js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
+                                            }
+                                            document.querySelectorAll("a.delete_href").forEach((ref) => {
+                                                ref.addEventListener("click", function (e) {
+                                                    e.preventDefault()
+                                                    let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                                                    swal.fire({
+                                                        title: '¿Está seguro que desea eliminar este elemento: ' + record + '?',
+                                                        text: '¡Esta acción no podrá revertirse!',
+                                                        icon: 'question',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#3085d6',
+                                                        cancelButtonColor: '#d33',
+                                                        confirmButtonText: 'Confirmar Eliminar',
+                                                        cancelButtonText: 'Cancelar',
+                                                        backdrop: true,
+                                                        allowOutsideClick:()=>false,
+                                                        allowEscapeKey:()=>false
+                                                    }).then(function(result) {
+                                                          if(result.isConfirmed) {
+                                                              // e.detail.issueRequest(true) // use true to skip window.confirm
+                                                              htmx.trigger(e.target, 'confirmed')
+                                                          }
+                                                    })
+                                                })
+                                            })
+                                            document.querySelectorAll("a.activar_href").forEach((ref) => {
+                                                ref.addEventListener("click", function (e) {
+                                                    e.preventDefault()
+                                                    let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                                                    swal.fire({
+                                                        title: "¿Está seguro que desea activar " + record + '?',
+                                                        text: e.target.parentElement.attributes['texto'].nodeValue,
+                                                        icon: 'question',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#3085d6',
+                                                        cancelButtonColor: '#d33',
+                                                        confirmButtonText: "Confirmar Activar",
+                                                        cancelButtonText: 'Cancelar',
+                                                        backdrop: true,
+                                                        allowOutsideClick:()=>false,
+                                                        allowEscapeKey:()=>false
+                                                    }).then(function(result) {
+                                                          if(result.isConfirmed) {
+                                                              // e.detail.issueRequest(true) // use true to skip window.confirm
+                                                              htmx.trigger(e.target, 'confirmed')
+                                                          }
+                                                    })
+                                                })
+                                            })
+
+                                           document.querySelectorAll("a.confirm_href").forEach((ref) => {
+                                                ref.addEventListener("click", function (e) {
+                                                    e.preventDefault()
+                                                    let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
+                                                    swal.fire({
+                                                        title: "¿Está seguro que desea confirmar " + record + '?',
+                                                        text: e.target.parentElement.attributes['texto'].nodeValue,
+                                                        icon: 'question',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#3085d6',
+                                                        cancelButtonColor: '#d33',
+                                                        confirmButtonText: "Confirmar",
+                                                        cancelButtonText: 'Cancelar',
+                                                        backdrop: true,
+                                                        allowOutsideClick:()=>false,
+                                                        allowEscapeKey:()=>false
+                                                    }).then(function(result) {
+                                                          if(result.isConfirmed) {
+                                                              // e.detail.issueRequest(true) // use true to skip window.confirm
+                                                              htmx.trigger(e.target, 'confirmed')
+                                                          }
+                                                    })
+                                                })
+                                            })
+                                        </script>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 border border-dark" style="height: 350px">
-                                <div class="card" style="padding: 0; height: 100%">
-                                    <div class="card-header" style="padding: 0;">
-                                        Documentos del Versat
-                                        {% if url_docversat %}
-                                            <a id="act_versat_link_url_div_a" style="float:right;padding:0;"
-                                               href="{{ url_docversat }}"
-                                               class="nav-link"
-                                               {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
-                                               {% if hx_target %}hx-target="{{ hx_target }}"{% endif %}
-                                               role="button" {% if hx %}hx-select-oob="true"{% endif %}>
-                                                <i class="fa fa-refresh fa-ms" title="{% trans 'Actualizar' %}"></i>
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="card-body" style="padding: 0; height: inherit">
-                                        <div id="id_datatableversat_swap">
-                                            {% block datatableversat %}
-                                                <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" 
-                                                     style="height: 315px;">
-                                                    {% if tableversat %} {% render_table tableversat %} {% endif %}
-                                                </div>
-                                            {% endblock datatableversat %}
-                                        </div>
-                                    </div>
-{#                                    <div class="card-footer">Footer</div>#}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <div class="col-md border border-dark" style="max-height: 100%">
-                    <div class="card" style="padding: 0; height: 100%">
-                        <div class="card-header" style="padding: 0;">
-                            Listado de documentos
-                        </div>
-                        <div class="card-body" style="padding: 0;">
-                            <div id="table_content_documento_swap" style="height: inherit">
-                                {% block table_navbar %}
-                                    {% include 'app_index/cruds/list_table_navbar.html' %}
-                                {% endblock table_navbar %}
-                                {% block datatable %}
-                                    <div class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]" style="height: 627px;">
-                                        {% render_table table %}
-                                    </div>
-                                {% endblock datatable %}
-                                <script>
-                                    window.data = {
-                                        button_shift_class_container: '{{ table.button_shift_class_container|safe }}',
-                                        js_swal_title: '{{ js_swal_title|safe }}',
-                                        js_swal_text: '{{ js_swal_text|safe }}',
-                                        js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
-                                        js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
-                                    }
-                                    document.querySelectorAll("a.delete_href").forEach((ref) => {
-                                        ref.addEventListener("click", function (e) {
-                                            e.preventDefault()
-                                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
-                                            swal.fire({
-                                                title: '¿Está seguro que desea eliminar este elemento: ' + record + '?',
-                                                text: '¡Esta acción no podrá revertirse!',
-                                                icon: 'question',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: 'Confirmar Eliminar',
-                                                cancelButtonText: 'Cancelar',
-                                                backdrop: true,
-                                                allowOutsideClick:()=>false,
-                                                allowEscapeKey:()=>false
-                                            }).then(function(result) {
-                                                  if(result.isConfirmed) {
-                                                      // e.detail.issueRequest(true) // use true to skip window.confirm
-                                                      htmx.trigger(e.target, 'confirmed')
-                                                  }
-                                            })
-                                        })
-                                    })
-                                    document.querySelectorAll("a.activar_href").forEach((ref) => {
-                                        ref.addEventListener("click", function (e) {
-                                            e.preventDefault()
-                                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
-                                            swal.fire({
-                                                title: "¿Está seguro que desea activar " + record + '?',
-                                                text: e.target.parentElement.attributes['texto'].nodeValue,
-                                                icon: 'question',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: "Confirmar Activar",
-                                                cancelButtonText: 'Cancelar',
-                                                backdrop: true,
-                                                allowOutsideClick:()=>false,
-                                                allowEscapeKey:()=>false
-                                            }).then(function(result) {
-                                                  if(result.isConfirmed) {
-                                                      // e.detail.issueRequest(true) // use true to skip window.confirm
-                                                      htmx.trigger(e.target, 'confirmed')
-                                                  }
-                                            })
-                                        })
-                                    })
-                            
-                                   document.querySelectorAll("a.confirm_href").forEach((ref) => {
-                                        ref.addEventListener("click", function (e) {
-                                            e.preventDefault()
-                                            let record = "\n" + e.target.parentElement.attributes['is'].nodeValue
-                                            swal.fire({
-                                                title: "¿Está seguro que desea confirmar " + record + '?',
-                                                text: e.target.parentElement.attributes['texto'].nodeValue,
-                                                icon: 'question',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: "Confirmar",
-                                                cancelButtonText: 'Cancelar',
-                                                backdrop: true,
-                                                allowOutsideClick:()=>false,
-                                                allowEscapeKey:()=>false
-                                            }).then(function(result) {
-                                                  if(result.isConfirmed) {
-                                                      // e.detail.issueRequest(true) // use true to skip window.confirm
-                                                      htmx.trigger(e.target, 'confirmed')
-                                                  }
-                                            })
-                                        })
-                                    })
-                                </script>
-                            </div>
-                        </div>
+{#                        </div>#}
                     </div>
                 </div>
+                    </div>
                 </div>
             </div>
         </div>
+         <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            //...
+            document.getElementById("main").style.width = Math.round(window.innerWidth - window.innerWidth * 0.05) + "px";
+            document.getElementById("main").style.height = Math.round(window.innerHeight - window.innerHeight * 0.05) + "px";
+            console.log(document.getElementById("main").style.width)
+            console.log(document.getElementById("main").style.height)
+            console.log(window.innerWidth)
+            console.log(window.innerHeight)
+
+            const sizes = {
+                "win1": 0.5,
+                "win2": 0.5,
+                "win3": 0.5,
+                "win4": 0.5,
+            };
+
+            //let resizerThickness = 10;
+            //Resizable.initialise("main", sizes, resizerThickness);
+            Resizable.initialise("main", {});
+
+        });
+
+        window.addEventListener("resize", () => {
+            Resizable.activeContentWindows[0].changeSize(window.innerWidth, window.innerHeight);
+            Resizable.activeContentWindows[0].childrenResize();
+        });
+
+
+    </script>
     </section>
 {% endblock content %}
