@@ -4,7 +4,7 @@
         <div id="div_id_rendimientocapa" class="form-group">
             <label for="id_rendimientocapa" style="{% if not show_rendimiento %}display:none{%else%} {%endif%}" class= "{% if show_rendimiento %}requiredField{%else%} {%endif%}">{% translate 'Rendimiento x Millar' %}{% if show_rendimiento %}<span class="asteriskField">*</span>{% endif %}</label>
             <div style="{% if not show_rendimiento %}display:none{%else%} {%endif%}">
-                <input type="number" name="rendimientocapa" value="{{valorrendimientocapa}}" step="1" min="0" class="numberinput form-control" "{% if show_rendimiento %}required{%else%} {%endif%}" id="id_rendimientocapa">
+                <input type="number" name="rendimientocapa" value="{{valorrendimientocapa}}" step="1" min="0" class="numberinput form-control" {% if show_rendimiento %}required{%else%} {%endif%} id="id_rendimientocapa">
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
                         Vitolas
               {% if show_rendimiento %}<span class="asteriskField">*</span>{% endif %} </label>
              <div style="{% if not show_rendimiento %}display:none{%else%} {%endif%}">
-              <select name="vitolas" class="selectmultiple custom-select" "{% if show_rendimiento %}required{%else%} {%endif%}" id="id_vitolas" multiple="">
+              <select name="vitolas" class="selectmultiple custom-select" {% if show_rendimiento %}required{%else%} {%endif%} id="id_vitolas" multiple="">
                 {% for v in vitolas %}
                     <option
                         value="{{ v.pk }}"

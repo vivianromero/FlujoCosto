@@ -20,7 +20,12 @@ class ConCuenta(models.Model):
     class Meta:
         managed = True
         db_table = 'con_cuenta'
-        unique_together = (('idapertura', 'clave'),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['idapertura', 'clave'],
+                name='unique_concuenta_idapertura_clave'
+            ),
+        ]
 
 class ConCuentanat(models.Model):
     idcuenta = models.ForeignKey('ConCuenta', models.DO_NOTHING, db_column='idcuenta')

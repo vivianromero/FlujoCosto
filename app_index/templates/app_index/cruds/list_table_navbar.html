@@ -6,118 +6,16 @@
 {% load crud_tags %}
 {% load partials %}
 
-{% partialdef back_button %}
-    {% if return_url %}
-        <a hx-get="{{ return_url }}"
-           hx-trigger="click"
-           hx-target="#main_content_swap"
-           hx-swap="outerHTML"
-           hx-replace-url="true"
-           href="{{ return_url }}"
-           class="nav-link"
-        role="button"
-        >
-            <i class="fa fa-angle-double-left"></i>
-            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
-        </a>
-    {% endif %}
-{% endpartialdef %}
-
-{% partialdef form_select_filter %}
-    {% if request.user.is_adminempresa and url_list_normaconsumo %} {# si tiene permiso#}
-        <div style="align-items: center; font-size: x-large">&nbsp&#9474&nbsp</div>
-        <div class="my-auto" style="align-items: center">Tipo de Producto: </div>
-        <div id="form_select_filter_div" style="display: flex; align-items: center">
-            <form class="form-inlineform-group col-md-12 mb-0" method="get" role="form">
-                {% csrf_token %}
-                <div class="input-group input-group-sm">
-                    {{ filter.form.tipo }}
-                </div>
-            </form>
-        </div>
-    {% endif %}
-{% endpartialdef %}
-
-{% partialdef form_select_period %}
-    {% if request.user.is_operflujo and select_period %} {# si tiene permiso#}
-        {% if object_list %}
-        	<div style="align-items: center; font-size: x-large;">&nbsp&#9474&nbsp</div>
-        {% endif %}
-        <div class="my-auto" style="align-items: center">Período: </div>
-        <div id="form_select_period_div" style="display: flex; align-items: center">
-            <div class="my-auto">
-                <form class="form-inlineform-group form-control-sm col-md-12 mb-0" method="get" role="form">
-                    {% csrf_token %}
-                        {{ form.fecha|as_crispy_field }}
-                </form>
-            </div>
-        </div>
-    {% endif %}
-{% endpartialdef %}
-
-{% partialdef act_versat_link_url_partial %}
-    {% if request.user.is_adminempresa and url_apiversat %} {# si tiene permiso#}
-        <div id="act_versat_link_url_div" style="display: flex; align-items: center">
-                {# aquí se debe poner el link de importar#}
-                <a id="act_versat_link_url_div_a"
-                   href="{% url url_apiversat %}"
-
-                   class="nav-link"
-                   {% if hx_get %}hx-get="{{ hx_get }}"{% endif %}
-                   {% if hx_target %}hx-target="{{ hx_target }}"{% endif %}
-                   {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}
-            {#               hx-get="{{ url }}{{ getparams }}"#}
-            {#               hx-trigger="click"#}
-            {#               hx-target="#main_content_swap"#}
-            {#               hx-swap="outerHTML"#}
-            {#               hx-replace-url="true"#}
-                   role="button" {% if hx %}hx-select-oob="true"{% endif %}>
-            {#                <img#}
-            {#                        src="{% static 'dist/img/database-import.svg' %}"#}
-            {#                        class="icon"#}
-            {#                        style="height: 20px;"#}
-            {#                        alt="{% translate 'Update from Versat' %}"/>#}
-                    <i class="fa fa-database" title="{% trans 'Update from ' %}{{sistema}}"></i>
-                </a>
-        </div>
-    {% endif %}
-{% endpartialdef %}
-
-{% partialdef  import_link_url_partial %}
-    {% if url_importar %}
-        <div id="import_link_url_div" style="display: flex; align-items: center">
-            <a id="import_link_url_div_a"
-               href="{% url url_importar %}"
-               class="nav-link"
-        {#               hx-get="{{ url }}{{ getparams }}"#}
-        {#               hx-trigger="click"#}
-        {#               hx-target="#main_content_swap"#}
-        {#               hx-swap="outerHTML"#}
-        {#               hx-replace-url="true"#}
-               role="button" {% if hx %}hx-select-oob="true"{% endif %}>
-                <i class="fa fa-file-import" title="{% trans 'Import' %}"></i>
-            </a>
-        </div>
-    {% endif %}
-{% endpartialdef %}
-
-{% partialdef  export_link_url_partial %}
-    {% if request.user.is_adminempresa and url_exportar %}
-        <div id="export_link_url_div" style="display: flex; align-items: center">
-            <a id="export_link_url_div_a"
-               href={% if filtrar %} "{% export_url "sisgest" %}" {% else %} "{% url url_exportar %}" {% endif %}
-               class="nav-link"
-            {#               hx-get="{{ url }}{{ getparams }}"#}
-            {#               hx-trigger="click"#}
-            {#               hx-target="#main_content_swap"#}
-            {#               hx-swap="outerHTML"#}
-            {#               hx-replace-url="true"#}
-               role="button" {% if hx %}hx-select-oob="true"{% endif %}>
-                <i class="fa fa-file-export" title="{% trans 'Export' %}"></i>
-            </a>
-        </div>
-    {% endif %}
-{% endpartialdef %}
+<style>
+    .dropdown-toggle.active-dropdown::after {
+        transform: rotate(-90deg);
+    }
+    .dropright .dropdown-menu{
+        left:auto!important;
+        right:0!important;
+        top: 35px!important;
+    }
+</style>
 
 <nav id="id_table_navbar" class="navbar navbar-expand navbar-white navbar-light"
     style="padding-bottom: 0; padding-top: 0; height: 35px;">
@@ -135,8 +33,8 @@
                                 <select name='length_change' id='length_change' style="height: fit-content;"
                                     hx-get="{{ url_list }}{{getparams}}"
                                     hx-trigger="change"
-                                    hx-target="#main_content_swap"
-                                    hx-swap="outerHTML"
+                                    {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+                                    {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                                 >
                                     {% for option in page_length_menu %}
                                         <option value="{{ option|stringformat:"i" }}" {% if option == paginator.per_page %} selected{% endif %}>{{ option }}</option>
@@ -151,12 +49,12 @@
         {% endblock left_table_navbar_links_change_menu %}
         {% block left_table_navbar_links_other %}
             {% if object_list %}
-                {% partial form_select_filter %}
+                {% include 'app_index/partials/partialdef_templates.html#form_select_filter' %}
             {% endif %}
-            {% partial form_select_period %}
+            {% include 'app_index/partials/partialdef_templates.html#form_select_period' %}
         {% endblock left_table_navbar_links_other %}
         {% block left_table_navbar_links_back_button %}
-            {% partial back_button %}
+            {% include 'app_index/partials/partialdef_templates.html#back_button' %}
         {% endblock %}
     </ul>
 {% endblock left_table_navbar_links %}
@@ -165,35 +63,40 @@
 <ul class="navbar-nav ml-auto">
     {% block list_act_versat_table_main_header %}
         {# aquí se debe poner el link de importar#}
-        {% partial act_versat_link_url_partial %}
+        {% include 'app_index/partials/partialdef_templates.html#act_versat_link_url_partial' %}
     {% endblock list_act_versat_table_main_header %}
-    <div id="create_link_url_div" style="display: flex; align-items: center">
-        {% if url_create %}
-            {% block list_create_table_main_header %}
-                {% crud_url object "create" namespace as url %}
-                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}
-                    <a id="id_create_url"
-                       href="{{ url }}{{ getparams }}"
-                       class="nav-link"
-                       hx-get="{{ url }}{{ getparams }}"
-                       hx-trigger="click"
-                       hx-target="#dialog"
-                       hx-swap="outerHTML"
-{#                       hx-replace-url="true"#}
-                       role="button">
-                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>
-                    </a>
-                {% endif %}
-            {% endblock list_create_table_main_header %}
+    {% block list_create_table_main_header %}
+{#        {% if url_create %}#}
+{#            <div id="create_link_url_div" style="display: flex; align-items: center">#}
+{#                {% crud_url object "create" namespace as url %}#}
+{#                {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %}#}
+{#                    <a id="id_create_url"#}
+{#                       href="{{ url }}{{ getparams }}"#}
+{#                       class="nav-link"#}
+{#                       hx-get="{{ url }}{{ getparams }}"#}
+{#                       hx-trigger="click"#}
+{#                       hx-target="#dialog"#}
+{#                       hx-swap="outerHTML"#}
+    {#                       hx-replace-url="true"#}
+{#                       role="button">#}
+{#                        <i class="fa fa-file-circle-plus" title="{% trans 'Create new ' %} {{ model_verbose_name|lower }}"></i>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        {% endif %}#}
+        {% if create_link_menu %}
+        	 {% include 'app_index/partials/partialdef_templates.html#create_link_menu' %}
+        {% else %} 
+             {% include 'app_index/partials/partialdef_templates.html#create_link' %}
         {% endif %}
-    </div>
+    {% endblock list_create_table_main_header %}
     {% block list_export_table_main_header %}
         {# aquí se debe poner el link de exportar#}
-        {% partial export_link_url_partial %}
+        {% include 'app_index/partials/partialdef_templates.html#export_link_url_partial' %}
     {% endblock list_export_table_main_header %}
     {% block list_import_table_main_header %}
         {# aquí se debe poner el link de importar#}
-        {% partial import_link_url_partial %}
+        {% include 'app_index/partials/partialdef_templates.html#import_link_url_partial' %}
     {% endblock list_import_table_main_header %}
     {% if object_list %}
         <a id="table_export_url" class="nav-link" href="{% export_url "xlsx" %}&excluded_columns={{ col_vis }}" role="button">
@@ -228,9 +131,9 @@
                                         id="set_{{ column.name }}_visibility_value"
                                         hx-get="{{ url_list }}{{ getparams }}vis={{ column.name }}"
                                         hx-trigger="click"
-                                        hx-target="#main_content_swap"
-                                        hx-swap="outerHTML"
-                                           {% if col_vis_hx_include %}hx-include="{{ col_vis_hx_include }}"{% endif %} 
+                                        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+                                        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                        {% if col_vis_hx_include %}hx-include="{{ col_vis_hx_include }}"{% endif %} 
 {#                                        hx-replace-url="true"#}
                                     >
                                     <label class="form-check-label" for="set_{{ column.name }}_visibility_value" style="margin-left: 20px;">{{ column.header }}</label>
@@ -324,11 +227,36 @@
          $(function () {
             //Initialize Select2 Elements
             $('.select2').select2()
-    
+        
             //Initialize Select2 Elements
             $('.select2bs4').select2({
               theme: 'bootstrap4'
             })
+            //htmx.on("htmx:afterSettle", (e) => {
+                $( '.dropdown-menu a.dropdown-toggle' ).on( 'click', function ( e ) {
+                    var $el = $( this );
+                    console.log($el)
+                    $el.toggleClass('active-dropdown');
+                    var $parent = $( this ).offsetParent( ".dropdown-menu" );
+                    if ( !$( this ).next().hasClass( 'show' ) ) {
+                        $( this ).parents( '.dropdown-menu' ).first().find( '.show' ).removeClass( "show" );
+                    }
+                    var $subMenu = $( this ).next( ".dropdown-menu" );
+                    $subMenu.toggleClass( 'show' );
+            
+                    $( this ).parent( "li" ).toggleClass( 'show' );
+            
+                    $( this ).parents( 'li.nav-item.dropdown.show' ).on( 'hidden.bs.dropdown', function ( e ) {
+                        $( '.dropdown-menu .show' ).removeClass( "show" );
+                        $el.removeClass('active-dropdown');
+                    } );
+            
+                     if ( !$parent.parent().hasClass( 'navbar-nav' ) ) {
+                        $el.next().css( { "top": $el[0].offsetTop, "left": $parent.outerWidth() - 4 } );
+                    }
+                    return false;
+                });
+            //})
         })
     </script>
 </nav>

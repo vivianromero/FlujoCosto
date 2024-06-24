@@ -18,6 +18,7 @@ from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
+from utiles.utils import obtener_numero_fila
 
 
 class UpperField(forms.CharField):
@@ -79,6 +80,41 @@ class UnidadContableForm(forms.ModelForm):
                     get_template('cruds/actions/hx_common_form_actions.html').template.source
                 )
             )
+        )
+
+
+# ------------ Unidad Contable / Detail Form ------------
+class UnidadContableDetailForm(UnidadContableForm):
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(UnidadContableDetailForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_unidadcontable_detail_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'UEB',
+                    Row(
+                        Column(UneditableField('codigo'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('nombre'), css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column(UneditableField('activo'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('is_empresa'), css_class='form-group col-md-2 mb-0'),
+                        Column(UneditableField('is_comercializadora'), css_class='form-group col-md-2 mb-0'),
+
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
         )
 
 
@@ -696,15 +732,15 @@ class ProductoFlujoForm(forms.ModelForm):
                         css_class='form-row'),
                     Row(
                         Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                            Div(Column('clase', css_class='form-group col-md-2 mb-0'),
-                                Column('precio_lop', css_class='form-group col-md-2 mb-0'),
-                                css_class='form-row', css_id='prec_id'
-                                ),
-                            Div(
-                                Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
-                                Column('vitolas', css_class='form-group col-md-4 mb-0'),
-                                css_class='form-row', css_id='rd_id'
-                                ),
+                        Div(Column('clase', css_class='form-group col-md-2 mb-0'),
+                            Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                            css_class='form-row', css_id='prec_id'
+                            ),
+                        Div(
+                            Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                            Column('vitolas', css_class='form-group col-md-4 mb-0'),
+                            css_class='form-row', css_id='rd_id'
+                        ),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -815,7 +851,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
             'hx-target': '#rd_id',
             'hx-trigger': 'load, change',
-            'hx-include': "[name='codigo'], [name='rendimientocapa']",
+            'hx-include': "[name='codigo'], [name='rendimientocapa'], [name='rendimientocapa']",
         }
 
         self.fields[
@@ -834,8 +870,10 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             "rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
         self.fields["rendimientocapa"].required = False
 
-        self.fields["vitolas"].widget.attrs = {"style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
-        self.fields["vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
+        self.fields["vitolas"].widget.attrs = {
+            "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
+        self.fields[
+            "vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
@@ -854,7 +892,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
                         Div(Column('rendimientocapa', css_class='form-group col-md-6 mb-0'),
                             Column('vitolas', css_class='form-group col-md-4 mb-0'),
                             css_class='form-row col-md-6', css_id='rd_id'
-                        ),
+                            ),
                         css_class='form-row'),
                     Row(
                         Column('activo', css_class='form-group col-md-2 mb-0'),
@@ -888,7 +926,6 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
                                                                                    })
             else:
                 ProductoFlujoClase.objects.filter(producto=instance).delete()
-
 
         return instance
 
@@ -1588,6 +1625,7 @@ class NormaConsumoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
+        data = kwargs.get('data', None)
         self.user = kwargs.pop('user', None)
         self.producto = kwargs.pop('producto', None)
         self.post = kwargs.pop('post', None)
@@ -1600,11 +1638,27 @@ class NormaConsumoForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["producto"].disabled = True if self.producto else False
-        self.fields["medida"].disabled = True if self.producto else False
+        self.fields["producto"].required = True
+        self.fields["medida"].required = True
 
-        self.fields["producto"].required = True if not self.producto else False
-        self.fields["medida"].required = True if not self.producto else False
+        if instance:
+            self.fields['producto'].widget.enabled_choices = [instance.producto]
+            self.fields['medida'].widget.enabled_choices = [instance.medida]
+        # self.fields["producto"].disabled = True if self.producto else False
+        # self.fields["medida"].disabled = True if self.producto else False
+
+        elif data:
+            self.fields['producto'].widget.enabled_choices = [data['producto']]
+            self.fields['medida'].widget.enabled_choices = [data['medida']]
+
+        # self.fields["producto"].required = True if not self.producto else False
+        # self.fields["medida"].required = True if not self.producto else False
+
+        elif self.producto:
+            # self.fields['producto'].initial = producto
+            self.fields['producto'].widget.enabled_choices = [producto]
+            # self.fields['medida'].initial = kwargs['initial']['medida']
+            self.fields['medida'].widget.enabled_choices = [kwargs['initial']['medida']]
 
         self.helper.layout = Layout(
             TabHolder(
@@ -1634,7 +1688,7 @@ class NormaConsumoForm(forms.ModelForm):
     def clean_cantidad(self):  # Validar que que la cantidad>0
         cantidad = self.cleaned_data.get('cantidad')
         if float(cantidad) <= 0:
-            raise forms.ValidationError('Debe introducir un valor>0')
+            raise forms.ValidationError('Debe introducir un valor > 0')
         return cantidad
 
     def save(self, commit=True):
@@ -2324,10 +2378,11 @@ class LineaSalidaFormFilter(forms.Form):
 
 # ------------ NumeracionDocumentos / Form ------------
 class NumeracionDocumentosForm(forms.ModelForm):
+    tiponum = forms.CharField(max_length=50, label=_("Tipo Numero"), required=False)
+    prefijo = forms.CheckboxInput()
     class Meta:
         model = NumeracionDocumentos
         fields = [
-            'tiponumeracion',
             'sistema',
             'departamento',
             'tipo_documento',
@@ -2338,28 +2393,30 @@ class NumeracionDocumentosForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        kwargs['initial'] = {
+            'tiponum': TipoNumeroDoc.NUMERO_CONSECUTIVO.label if TipoNumeroDoc.NUMERO_CONSECUTIVO == instance.pk else TipoNumeroDoc.NUMERO_CONTROL.label}
         super(NumeracionDocumentosForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_numeraciondocumentosform_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["tiponumeracion"].disabled = True
-        self.fields["tiponumeracion"].required = False
+        self.fields["tiponum"].disabled = True
+        self.fields["tiponum"].required = False
 
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
                     _('Numeración de los documentos'),
                     Row(
-                        Column('tiponumeracion', css_class='form-group col-md-5 mb-0'),
+                        Column('tiponum', css_class='form-group col-md-5 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
                         Column('sistema', css_class='form-group col-md-5 mb-0'),
                         Column('departamento', css_class='form-group col-md-5 mb-0'),
                         Column('tipo_documento', css_class='form-group col-md-5 mb-0'),
-                        Column('prefijo', css_class='form-group col-md-5 mb-0'),
+                        Field('prefijo', type='hidden' if instance.pk == TipoNumeroDoc.NUMERO_CONSECUTIVO else ''),
                         css_class='form-row'
                     ),
                 ),
@@ -2676,7 +2733,7 @@ class ClasificadorCargosForm(forms.ModelForm):
                 attrs={'style': 'width: 100%',
                        }
             ),
-            'vinculo_produccion':SelectWidget(
+            'vinculo_produccion': SelectWidget(
                 attrs={'style': 'width: 100%',
                        'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
                        'hx-target': '#nr_id',
@@ -2718,7 +2775,7 @@ class ClasificadorCargosForm(forms.ModelForm):
                     ),
                     Row(
                         Column('vinculo_produccion', css_class='form-group col-md-2 mb-0'),
-                        Div( Column('nr_media', css_class='form-group col-md-4 mb-0'),
+                        Div(Column('nr_media', css_class='form-group col-md-4 mb-0'),
                             Column('norma_tiempo', css_class='form-group col-md-6 mb-0'),
                             css_class='form-row', css_id='nr_id'
                             ),
@@ -2764,6 +2821,7 @@ class ClasificadorCargosForm(forms.ModelForm):
             msg = _('Debe seleccionar al menos una UEB')
             self.add_error('unidadcontable', msg)
         return cleaned_data
+
 
 class ClasificadorCargosFormFilter(forms.Form):
     unidadcontable = forms.MultipleChoiceField(
@@ -2857,20 +2915,76 @@ class FichaCostoFilasForm(forms.ModelForm):
             'vacaciones',
             'desglosado',
             'calculado',
-            'sumafilas'
+            'filasasumar',
+            'padre',
         ]
 
+        widgets = {
+            'fila': forms.TextInput(
+                attrs={
+                    'readonly': True,
+                },
+            ),
+            'padre': forms.HiddenInput(),
+            'encabezado': forms.CheckboxInput(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy('app_index:codificadores:fila_encabezado'),
+                    'hx-target': '#id_filaencab',
+                    'hx-trigger': 'load, change',
+                    'hx-include': '[name="calculado"], [name="fila"]',
+                }
+            ),
+            'desglosado': forms.CheckboxInput(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy('app_index:codificadores:fila_desglosado'),
+                    'hx-target': '#id_filadesg',
+                    'hx-trigger': 'load, change',
+                    'hx-include': '[name="fila"], [name="encabezado"]',
+                    # Incluido para obtener el 'id' del clase seleccionado en el GET
+                }
+            ),
+            'calculado': forms.CheckboxInput(
+                attrs={
+                    'style': 'width: 100%',
+                    'hx-get': reverse_lazy('app_index:codificadores:fila_calculado'),
+                    'hx-target': '#id_filacalc',
+                    'hx-trigger': 'load, change',
+                    'hx-include': '[name="fila"], [name="encabezado"]',
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        self.padre = kwargs.pop('padre', None)
+        kwargs['initial'] = {'fila': instance.fila if instance else obtener_numero_fila(self.padre),
+                             'encabezado': instance.encabezado if instance else True if not self.padre else False,
+                             'padre': self.padre}
         super(FichaCostoFilasForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_filasficha_Form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
+
+        self.fields["encabezado"].widget.attrs['disabled'] = not self.padre
+        self.fields["encabezado"].widget.attrs[
+            'hx-vals'] = '{"padre": "' + self.padre + '"}' if self.padre else '{"padre": "0"}'
+
+        self.fields["descripcion"].widget.attrs['readonly'] = True if instance and instance.fila in ['1', '1.1',
+                                                                                                     '1.2'] else False
+        self.fields["desglosado"].widget.attrs['disabled'] = True if instance and instance.fila in ['1', '1.1',
+                                                                                                    '1.2'] else False
+        self.fields["desglosado"].widget.attrs[
+            'hx-vals'] = '{"padre": "' + self.padre + '"}' if self.padre else '{"padre": "0"}'
+        self.fields["filasasumar"].required = False
+
+        self.fields["calculado"].widget.attrs[
+            'hx-vals'] = '{"padre": "' + self.padre + '"}' if self.padre else '{"padre": "0"}'
 
         self.helper.layout = Layout(
             TabHolder(
@@ -2883,12 +2997,25 @@ class FichaCostoFilasForm(forms.ModelForm):
                     ),
                     Row(
                         Column('encabezado', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row',
+                    ),
+                    Div(
                         Column('desglosado', css_class='form-group col-md-2 mb-0'),
                         Column('calculado', css_class='form-group col-md-2 mb-0'),
-                        Column('sumafila', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row', css_id='id_filaencab'
+                    ),
+                    Div(
+                        Column('filasasumar', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row', css_id='id_filacalc'
+                    ),
+                    Div(
                         Column('salario', css_class='form-group col-md-2 mb-0'),
                         Column('vacaciones', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
+                        css_class='form-row', css_id='id_filadesg'
+                    ),
+                    Row(
+                        Column('padre', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row',
                     ),
                 ),
             ),
@@ -2901,8 +3028,20 @@ class FichaCostoFilasForm(forms.ModelForm):
             )
         )
 
-class FichaCostoFilasFormFilter(forms.Form):
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            padre = self.cleaned_data.get("padre")
+            obj_padre = None
+            if padre:
+                obj_padre = FichaCostoFilas.objects.get(pk=padre)
+            self.instance.parent = obj_padre
+            self.instance.padre = None
+            self.instance.encabezado = True if self.cleaned_data.get("encabezado") == True else padre == None
+            instance = super().save(*args, **kwargs)
+        return instance
 
+
+class FichaCostoFilasFormFilter(forms.Form):
     class Meta:
         model = FichaCostoFilas
         fields = [
@@ -2911,6 +3050,7 @@ class FichaCostoFilasFormFilter(forms.Form):
             'vacaciones',
             'desglosado',
             'calculado',
+            'filasasumar'
         ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -2946,7 +3086,7 @@ class FichaCostoFilasFormFilter(forms.Form):
                         Column('encabezado', css_class='form-group col-md-2 mb-0'),
                         Column('desglosado', css_class='form-group col-md-2 mb-0'),
                         Column('calculado', css_class='form-group col-md-2 mb-0'),
-                        Column('sumafila', css_class='form-group col-md-2 mb-0'),
+                        Column('filasasumar', css_class='form-group col-md-2 mb-0'),
                         Column('salario', css_class='form-group col-md-2 mb-0'),
                         Column('vacaciones', css_class='form-group col-md-2 mb-0'),
                         css_class='form-row'

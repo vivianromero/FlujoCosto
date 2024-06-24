@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from codificadores import ChoiceTiposProd, ChoiceClasesMatPrima
 from codificadores.models import UnidadContable, Medida, MarcaSalida, Cuenta, ProductoFlujo, TipoProducto, \
-    ClaseMateriaPrima, ProductoFlujoClase, Vitola, CategoriaVitola, TipoVitola
+    ClaseMateriaPrima, ProductoFlujoClase, Vitola, CategoriaVitola
 from flujo.models import Documento
 from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_success, message_error
@@ -220,7 +220,7 @@ class VitolaList(APIView):
                 clase_capa.append(ProductoFlujoClase(clasemateriaprima=claseCapa, producto=prod_capa if not prodCapa else prodCapa))
 
                 categoriavitola = CategoriaVitola.objects.get(pk=item.fk_cat.id)
-                tipovitola = TipoVitola.objects.get(pk=item.fk_tipo.id)
+                tipovitola = item.fk_tipo.id
 
                 prodVit = all_prods.filter(codigo=prod.codigo).first()
                 prodPesada = all_prods.filter(codigo=prod_pesada.codigo).first()

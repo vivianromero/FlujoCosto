@@ -1,3 +1,4 @@
+import sweetify
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -10,10 +11,12 @@ from django_htmx.http import HttpResponseLocation
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
 from codificadores.forms import *
+from codificadores.models import VinculoCargoProduccion
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from exportar.views import crear_export_datos_table
+from flujo.models import Documento
 from utiles.utils import message_error
 from . import ChoiceTiposProd
 
@@ -204,8 +207,6 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    # inlines = [NormaConsumoDetalleAjaxCRUD]
-
     inlines = [NormaConsumoDetalleAjaxCRUD]
 
     inline_actions = False
@@ -343,21 +344,21 @@ class NormaConsumoCRUD(CommonCRUDView):
 
         return OEditView
 
-    def get_detail_view(self):
-        view = super().get_detail_view()
-
-        class ODetailView(view):
-
-            def get_context_data(self, **kwargs):
-                ctx = super().get_context_data()
-                if 'pk' in kwargs:
-                    obj = self.model.objects.get(id=self.kwargs['pk'])
-                    ctx['form'] = self.form_class(instance=obj)
-                elif 'object' in kwargs:
-                    ctx['form'] = self.form_class(instance=kwargs['object'])
-                return ctx
-
-        return ODetailView
+    # def get_detail_view(self):
+    #     view = super().get_detail_view()
+    #
+    #     class ODetailView(view):
+    #
+    #         def get_context_data(self, **kwargs):
+    #             ctx = super().get_context_data()
+    #             if 'pk' in kwargs:
+    #                 obj = self.model.objects.get(id=self.kwargs['pk'])
+    #                 ctx['form'] = self.form_class(instance=obj)
+    #             elif 'object' in kwargs:
+    #                 ctx['form'] = self.form_class(instance=kwargs['object'])
+    #             return ctx
+    #
+    #     return ODetailView
 
 
 class NormaConsumoGroupedCRUD(CommonCRUDView):
@@ -379,7 +380,6 @@ class NormaConsumoGroupedCRUD(CommonCRUDView):
         'Tipo',
         'Cantidad_Normas',
     ]
-
 
     views_available = [
         'list',
@@ -479,6 +479,7 @@ class UnidadContableCRUD(CommonCRUDView):
     ]
 
     update_form = UnidadContableForm
+    detail_form = UnidadContableDetailForm
 
     list_fields = [
         'codigo',
@@ -496,7 +497,7 @@ class UnidadContableCRUD(CommonCRUDView):
         'is_comercializadora',
     ]
 
-    views_available = ['list', 'update']
+    views_available = ['list', 'update', 'detail']
     view_type = ['list', 'update']
     filterset_class = UnidadContableFilter
 
@@ -822,8 +823,8 @@ class ProductoFlujoCRUD(CommonCRUDView):
                     'filtrar': True,
                     'url_exportar': True,
                     "hx_get": reverse_lazy('app_index:codificadores:obtener_datos'),
-                    "hx_target": '#dialog',
-                    "hx_swap": 'outerHTML',
+                    # "hx_target": '#dialog',
+                    # "hx_swap": 'outerHTML',
                     'sistema': 'VERSAT',
                 })
                 return context
@@ -1292,7 +1293,7 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-        'tiponumeracion',
+        'id',
         'sistema',
         'departamento',
         'tipo_documento',
@@ -1539,6 +1540,7 @@ def classmatprima(request):
     }
     return render(request, 'app_index/partials/productclases.html', context)
 
+
 def rendimientocapa(request):
     clasemp = request.GET.get('clase')
     codigo = request.GET.get('codigo')
@@ -1548,7 +1550,7 @@ def rendimientocapa(request):
     catvitolas = CategoriaVitola.objects.all()
     seleccvitolas = []
     prod = ProductoFlujo.objects.filter(codigo=codigo)
-    if int(clasemp)== ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
+    if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
         vitolas = prod.first().vitolas.all()
         seleccvitolas = [x.pk for x in vitolas]
     context = {
@@ -1559,6 +1561,7 @@ def rendimientocapa(request):
     }
     return render(request, 'app_index/partials/rendimientocapa.html', context)
 
+
 def cargonorma(request):
     produccion = request.GET.get('vinculo_produccion')
     nr = request.GET.get('nr_media')
@@ -1566,15 +1569,16 @@ def cargonorma(request):
 
     context = {
         'show_norma_tiempo': True,
-        'show_nr_media': produccion == str(ChoiceCargoProduccion.DIRECTO),
+        'show_nr_media': produccion == str(VinculoCargoProduccion.DIRECTO),
         'valornr_media': nr if nr else 0,
         'valornorma_tiempo': norma if norma else 0.0000,
     }
     return render(request, 'app_index/partials/clasifcargosnormas.html', context)
 
+
 def calcula_nt(request):
     nr = request.GET.get('nr_media')
-    norma = 8/int(nr) if nr and int(nr)>0 else 0.0000
+    norma = 8 / int(nr) if nr and int(nr) > 0 else 0.0000
     nt = round(norma, 4)
     context = {
         'show_norma_tiempo': True,
@@ -1627,6 +1631,7 @@ class TipoDocumentoCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 def confirm_nc(request, pk):
     obj = NormaConsumo.objects.get(pk=pk)
     if obj.normaconsumodetalle_normaconsumo.count() > 0:
@@ -1674,6 +1679,7 @@ def productmedidadetalle(request):
     result = {"id": medida_seleccionada.pk}
     return JsonResponse({"results": result})
 
+
 # ------ ClasificadorCargos / CRUD ------
 class ClasificadorCargosCRUD(CommonCRUDView):
     model = ClasificadorCargos
@@ -1681,13 +1687,13 @@ class ClasificadorCargosCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-            'codigo',
-            'descripcion',
-            'grupo__grupo',
-            'actividad',
-            'vinculo_produccion',
-            'activo',
-            'unidadcontable'
+        'codigo',
+        'descripcion',
+        'grupo__grupo',
+        'actividad',
+        'vinculo_produccion',
+        'activo',
+        'unidadcontable'
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1740,6 +1746,7 @@ class ClasificadorCargosCRUD(CommonCRUDView):
 
         return OFilterListView
 
+
 # ------ FichaCostoFilas / CRUD ------
 class FichaCostoFilasCRUD(CommonCRUDView):
     model = FichaCostoFilas
@@ -1747,14 +1754,15 @@ class FichaCostoFilasCRUD(CommonCRUDView):
     namespace = 'app_index:codificadores'
 
     fields = [
-            'fila',
-            'descripcion',
-            'encabezado',
-            'salario',
-            'vacaciones',
-            'desglosado',
-            'calculado',
-            'sumafilas'
+        'fila',
+        'descripcion',
+        'encabezado',
+        'salario',
+        'vacaciones',
+        'desglosado',
+        'calculado',
+        'filasasumar',
+        'padre'
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -1767,6 +1775,7 @@ class FichaCostoFilasCRUD(CommonCRUDView):
         'vacaciones',
         'desglosado',
         'calculado',
+        'filasasumar__fila__contains',
     ]
 
     add_form = FichaCostoFilasForm
@@ -1788,12 +1797,106 @@ class FichaCostoFilasCRUD(CommonCRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 context.update({
-                    # 'url_importar': 'app_index:importar:clacargos_importar',
-                    'filtrar': True,
-                    # 'url_exportar': True,
+                    'row_nodelete': ['1', '1.1', '1.2'],
+                    'url_importar': 'app_index:importar:filafichacosto_importar',
+                    'url_exportar': 'app_index:exportar:filafichacosto_exportar',
                 })
                 return context
 
         return OFilterListView
 
+    def get_create_view(self):
+        view = super().get_create_view()
 
+        class OCreateView(view):
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                padre = self.request.GET.get('padre', None)
+                form_kwargs.update(
+                    {
+                        "padre": padre,
+                    }
+                )
+                return form_kwargs
+
+        return OCreateView
+
+
+def fila_encabezado(request):
+    encabezado = False if not request.GET.get('encabezado') else True
+    fila = request.GET.get('fila')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    encabezado = True if not obj else obj.encabezado
+    padre = request.GET.get('padre')
+    if padre and int(padre) > 0 and request.GET.get('encabezado') and request.GET.get('encabezado') == 'on':
+        encabezado = True
+    elif int(padre) > 0:
+        encabezado = False
+
+    calculado = False if not request.GET.get('calculado') else True
+    show_desglosado = not encabezado
+    show_calculado = encabezado
+    value_desglosado = obj.desglosado if obj and show_desglosado else False
+    value_calculado = False
+    desglose_disabled = fila in ['1.1', '1.2']
+    if show_calculado:
+        pk_padre = padre  # if padre and padre != '0' else obj.parent.pk
+        filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
+        show_calculado = False if not filasasumar else show_calculado
+        value_calculado = obj.calculado if obj and show_calculado else False
+
+    context = {
+        'show_desglosado': show_desglosado,
+        'show_calculado': show_calculado,
+        'value_desglosado': value_desglosado,
+        'value_calculado': value_calculado,
+        'desglose_disabled': desglose_disabled,
+        'padre': request.GET.get('padre'),
+    }
+    return render(request, 'app_index/partials/filasfichacostoencabezado.html', context)
+
+
+def fila_desglosado(request):
+    desglosado = True if request.GET.get('desglosado') and request.GET.get('desglosado') == 'on' else False
+
+    fila = request.GET.get('fila')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    encabezado = True if not obj else True
+    if request.GET.get('padre') and int(request.GET.get('padre')) > 0 and request.GET.get('encabezado') and request.GET.get('encabezado') == 'on':
+        encabezado = True
+    elif int(request.GET.get('padre')) > 0:
+        encabezado = False
+    show_salario = desglosado and not fila in ['1.1', '1.2']
+    show_vacaciones = not desglosado and not encabezado
+    value_salario = show_salario
+
+    context = {
+        'show_salario': show_salario,
+        'value_salario': value_salario,
+        'show_vacaciones': show_vacaciones,
+        'padre': request.GET.get('padre'),
+    }
+    return render(request, 'app_index/partials/filasfichacostodesglosado.html', context)
+
+
+def fila_calculado(request):
+    calculado = False if not request.GET.get('calculado') else True
+    fila = request.GET.get('fila')
+    padre = request.GET.get('padre')
+    obj = FichaCostoFilas.objects.filter(fila=fila).first()
+    show_filasasumar = calculado
+    filasasumar = []
+    filasasumarselecc = []
+    pk_padre = padre  # if padre and padre!='0' else obj.parent.pk
+    filasasumar = FichaCostoFilas.objects.filter(encabezado=True, parent=None).exclude(fila=fila).exclude(pk=pk_padre).all()
+    show_filasasumar = calculado
+    selecc = obj.filasasumar.all() if obj else []
+    filasumarselecc = [x.pk for x in selecc]
+
+    context = {
+        'show_filasasumar': show_filasasumar,
+        'filasasumar': filasasumar,
+        'filasumarselecc': filasumarselecc,
+    }
+    return render(request, 'app_index/partials/filasfichacostocalculado.html', context)

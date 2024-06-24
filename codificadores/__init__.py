@@ -17,16 +17,6 @@ class ChoiceTiposProd:
         LINEASINTERMINAR: "Línea sin Terminar",
     }
 
-class ChoiceEstadosProd:
-    BUENO = 1
-    DEFICIENTE = 2
-    RECHAZO = 3
-    CHOICE_ESTADOS = {
-        BUENO: 'Bueno',
-        DEFICIENTE: 'Deficiente',
-        RECHAZO: 'Rechazo',
-    }
-
 class ChoiceClasesMatPrima:
     CAPOTE = 1
     F1 = 2
@@ -46,13 +36,6 @@ class ChoiceClasesMatPrima:
         CAPASINCLASIFICAR: 'Capa sin Clasificar',
     }
 
-class ChoiceDestinos:
-    CONSUMONACIONAL = 'C'
-    EXPORTACION = 'E'
-
-    CHOICE_DESTINOS = {CONSUMONACIONAL: 'Consumo Nacional',
-                       EXPORTACION: 'Exportación'}
-
 class ChoiceCategoriasVit:
     V = 7
     VI = 8
@@ -68,29 +51,6 @@ class ChoiceCategoriasVit:
         IX: 'IX',
     }
 
-class ChoiceTiposVitola:
-    PICADURA = 1
-    HOJA = 2
-
-    CHOICE_TIPOS_VITOLA = {
-        1: 'Picadura',
-        2: 'Hoja',
-    }
-
-class ChoiceTiposNormas:
-    PESADA = 1
-    MATERIAPRIMA = 2
-    LINEASALIDA = 4
-    VITOLA = 5
-    HABILITADOS = 7
-
-    CHOICE_TIPOS_NORMAS = {
-        PESADA: 'Pesada',
-        MATERIAPRIMA: 'Materia Prima',
-        LINEASALIDA: 'Línea de Salida',
-        VITOLA: 'Vitola',
-        HABILITADOS: 'Habilitados'
-    }
 
 class ChoiceMotivosAjuste:
     MERMA = 1
@@ -148,15 +108,6 @@ class ChoiceTiposDoc:
         CAMBIO_PRODUCTO: 'Cambio de Producto',
     }
 
-class ChoiceTipoNumeroDoc:
-    NUMERO_CONSECUTIVO = 1
-    NUMERO_CONTROL = 2
-
-    CHOICE_TIPO_NUMERO_DOC = {
-        NUMERO_CONSECUTIVO: 'Número Consecutivo',
-        NUMERO_CONTROL: 'Número de Control',
-    }
-
 class ChoiceConfCentrosElementosOtros:
     CENTROSCOSTO = 1
     ELEMENTOSGASTO = 2
@@ -174,13 +125,3 @@ class ChoiceOperacionDocum:
         ENTRADA: "Entrada",
         SALIDA: 'Salida',
     }
-
-class ChoiceCargoProduccion:
-    DIRECTO = 1
-    INDIRECTOPRIDUCCION = 2
-    INDIRECTO = 3
-
-    CHOICE_CARGOPRODUCCION = {DIRECTO: 'Directo',
-                              INDIRECTOPRIDUCCION: 'Indirecto Producción',
-                              INDIRECTO: 'Indirecto',
-                             }

@@ -2,7 +2,8 @@ from __future__ import unicode_literals
 
 import json
 
-from django.db.models import Sum, Count
+import sweetify
+from django.db.models import Sum, Count, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -12,9 +13,17 @@ from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
 
 from cruds_adminlte3.crud import CRUDView, MyTableExport
+from utiles.utils import message_error
 
 
 # from cruds_adminlte3.config import CONFIG
+
+
+def get_current_url_abs_path(request_htmx=None):
+    if request_htmx is not None:
+        if request_htmx.current_url_abs_path.split('?').__len__() > 1:
+            return '?' + request_htmx.current_url_abs_path.split('?')[1]
+    return ''
 
 
 class Index(TemplateView):
@@ -152,6 +161,8 @@ class CommonCRUDView(CRUDView):
 
     update_form = None  # Must be filled in descendant classes
 
+    detail_form = None  # Must be filled in descendant classes
+
     check_login = True
     check_perms = True
 
@@ -173,6 +184,15 @@ class CommonCRUDView(CRUDView):
 
     modal = True
 
+    hx_target = '#main_content_swap'
+    hx_swap = 'outerHTML'
+
+    hx_form_target = '#dialog'
+    hx_form_swap = 'outerHTML'
+
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML'
+
     def get_filter_list_view(self):
         view = super().get_filter_list_view()
 
@@ -180,7 +200,15 @@ class CommonCRUDView(CRUDView):
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 col_vis = ",".join(self.col_vis)
-                context.update({'col_vis': col_vis})
+                context.update({
+                    'col_vis': col_vis,
+                    'hx_target': self.hx_target,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
                 return context
 
             def get_template_names(self):
@@ -266,10 +294,10 @@ class CommonCRUDView(CRUDView):
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
-                    'hx_target': '#main_content_swap',
-                    'hx-swap': 'outerHTML',
-                    'hx_retarget': '#dialog',
-                    'hx_reswap': 'outerHTML',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
                 })
                 return ctx
 
@@ -287,8 +315,8 @@ class CommonCRUDView(CRUDView):
                 url = super(OEditView, self).get_success_url()
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
-                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                elif self.request.htmx:
+                    url += get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OEditView
@@ -327,20 +355,28 @@ class CommonCRUDView(CRUDView):
                 ctx.update({
                     'modal_form_title': 'Formaulario Modal',
                     'max_width': '950px',
-                    'hx_target': '#main_content_swap',
-                    'hx-swap': 'outerHTML',
-                    'hx_retarget': '#dialog',
-                    'hx_reswap': 'outerHTML',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
                 })
                 return ctx
 
             def get_retarget_response(self, form, ctx):
                 ctx['form'] = form
-                tpl = self.get_template_names()
+                tpl = "%s/%s" % (self.partial_template_name_base, 'partial_create.html')
                 response = render(self.request, tpl, ctx)
                 response['HX-Retarget'] = ctx['hx_retarget']
                 response['HX-Reswap'] = ctx['hx_reswap']
                 return response
+
+            def form_valid(self, form):
+                if form.is_valid():
+                    return super(OCreateView, self).form_valid(form)
+                else:
+                    return render(self.request, self.get_template_names(), {
+                        'form': form,
+                    })
 
             def form_invalid(self, form, **kwargs):
                 """If the form is invalid, render the invalid form."""
@@ -351,8 +387,8 @@ class CommonCRUDView(CRUDView):
                 url = super(OCreateView, self).get_success_url()
                 if self.getparams:  # fixed filter edit action
                     url += '?' + self.getparams
-                elif self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    url += '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                elif self.request.htmx:
+                    url += get_current_url_abs_path(self.request.htmx)
                 return url
 
         return OCreateView
@@ -376,7 +412,31 @@ class CommonCRUDView(CRUDView):
 
                 return template_name
 
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                if 'pk' in kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    ctx['form'] = self.form_class(instance=obj)
+                elif 'object' in kwargs:
+                    ctx['form'] = self.form_class(instance=kwargs['object'])
+                return ctx
+
         return ODetailView
+
+    def get_delete_view(self):
+        view = super().get_delete_view()
+
+        class ODeleteView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                })
+                return ctx
+
+        return ODeleteView
 
 
 class BaseModalFormView(FormView):
@@ -427,6 +487,11 @@ class BaseModalFormView(FormView):
             return HttpResponseLocation(
                 self.get_success_url(),
                 target=self.hx_target,
+                headers={
+                    'HX-Trigger': self.request.htmx.trigger,
+                    'HX-Trigger-Name': self.request.htmx.trigger_name,
+                    'submitted': 'true',
+                }
             )
         else:
             return render(self.request, self.template_name, {
@@ -446,6 +511,10 @@ class BaseModalFormView(FormView):
         ctx.update({
             'modal_form_title': self.modal_form_title,
             'max_width': self.max_width,
+            'hx_target': self.hx_target,
+            'hx_swap': self.hx_swap,
+            'hx_retarget': self.hx_retarget,
+            'hx_reswap': self.hx_reswap,
             'form_view': True,
         })
         return ctx
