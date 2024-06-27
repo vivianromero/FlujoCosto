@@ -1857,14 +1857,6 @@ class NormaConsumoDetalleForm(forms.ModelForm):
             ),
         )
 
-    def clean_producto(self):
-        producto = self.cleaned_data.get('producto')
-        detallenc = NormaconsumoDetalle.objects.filter(~Q(pk=self.instance.pk), producto=producto)
-
-        if detallenc.exists():
-            raise forms.ValidationError('Ya existe este producto para la norma')
-        return producto
-
     def clean_norma_ramal(self):  # Validar que que la cantidad>0
         norma_ramal = self.cleaned_data.get('norma_ramal')
         if float(norma_ramal) <= 0:
