@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
 from django_htmx.http import HttpResponseLocation
@@ -19,6 +19,7 @@ from exportar.views import crear_export_datos_table
 from flujo.models import Documento
 from utiles.utils import message_error
 from . import ChoiceTiposProd
+from django.db import IntegrityError
 
 
 # ------ Departamento / CRUD ------
@@ -112,15 +113,50 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
                 return context
 
             def form_valid(self, form):
-                self.object = form.save(commit=False)
-                setattr(self.object, self.inline_field, self.model_id)
-                self.object.save()
-                # crud_inline_url(self.model_id,
-                #                 self.object, 'list', self.namespace)
-
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "El producto ya existe para la norma"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
                 return HttpResponse(""" """)
 
         return CreateView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class OEditView(view):
+
+            # def get_context_data(self, **kwargs):
+            #     ctx = super(OEditView, self).get_context_data(**kwargs)
+            #     title = 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
+            #     ctx.update({
+            #         'modal_form_title': title,
+            #         'max_width': '1250px',
+            #         'hx_target': '#table_content_documento_swap',
+            #         'confirm': True,
+            #         'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+            #         'object_model': self.model,
+            #     })
+            #     return ctx
+
+            def form_valid(self, form):
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "El producto ya existe para la norma"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponse(""" """)
+
+        return OEditView
 
     def get_delete_view(self):
         delete_view = super().get_delete_view()
