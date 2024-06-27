@@ -77,3 +77,57 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'iddocumento_detalle',
             'actions',
         )
+
+
+# ------ Documentos Versat / Table ------
+class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    idmovimiento = tables.Column(verbose_name='Id Movimiento', orderable=False, visible=False)
+    iddocumento = tables.Column(verbose_name='Id Documento', orderable=False, visible=False)
+    idproducto = tables.Column(verbose_name='Id Producto', orderable=False, visible=False)
+    producto_codigo = tables.Column(verbose_name='Código')
+    producto_descripcion = tables.Column(verbose_name='Descripción')
+    idmedida = tables.Column(verbose_name='Id Medida', orderable=False, visible=False)
+    medida_clave = tables.Column(verbose_name='Clave Medida', orderable=False, visible=False)
+    medida_descripcion = tables.Column(verbose_name='Medida')
+    cantidad = tables.Column(verbose_name='Cantidad')
+    precio = tables.Column(verbose_name='Precio')
+    importe = tables.Column(verbose_name='Importe')
+    existencia = tables.Column(verbose_name='Existencia')
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_documentosversat_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs={"th": {'style': 'text-align: center;'},
+               "td": {'style': 'text-align: center;'},
+               }
+    )
+
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        attrs = {
+            "class": 'table display table-sm table-bordered table-striped table-hover',
+            "style": 'line-height: 1;',
+            "td": {
+                "class": "align-middle",
+                "style": 'padding: 0px;',
+            },
+            'th': {
+                "style": 'position: sticky; top: 0;'
+            }
+        }
+        sequence = (
+            'idmovimiento',
+            'iddocumento',
+            'idproducto',
+            'producto_codigo',
+            'producto_descripcion',
+            'idmedida',
+            'medida_clave',
+            'medida_descripcion',
+            'cantidad',
+            'precio',
+            'importe',
+            'existencia',
+            'actions',
+        )

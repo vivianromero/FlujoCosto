@@ -1,3 +1,5 @@
+{% load django_tables2 %}
+{% load flujo_tags %}
 {% load crud_tags %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
@@ -78,9 +80,23 @@
                     </div>
                 </div>
             {% endif %}
+            {% if inline_table %}
+            	<div class="card-body row" style="padding-top: 0">
+                    <div class="col-md-12">
+                        <div id="id_datatable_doc_versat_detalle_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]"
+                             style="height: inherit;">
+                            {% get_documento_versat_detalle_table inline_table detalle as tableversat_detalles %}
+                            {% if tableversat_detalles %} {% render_table tableversat_detalles %} {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %} 
             <div class="modal-footer">
                 {% if form_view %}
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fa fa-close"></i>
+                        Cancelar
+                    </button>
                     <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
                             hx-post="{{ request.path }}"
                             hx-trigger="click"
@@ -90,8 +106,23 @@
                             type="submit" 
                             name="form_btn_acept"
                             class="btn btn-primary">
-                        Aceptar
+                        <i class="fa fa-check"></i> 
+                        {{  btn_aceptar }}
                     </button>
+                    {% if btn_rechazar %}
+                    	<button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "refused": "true"}'
+                            hx-post="{{ request.path }}"
+                            hx-trigger="click"
+                            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+                            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                            id="id_form_btn_refuse" 
+                            type="submit" 
+                            name="form_btn_refuse"
+                            class="btn btn-danger">
+                        <i class="fa fa-ban"></i> 
+                        {{  btn_rechazar }}
+                    </button>
+                    {% endif %} 
                 {% endif %}
             </div>
             </div>

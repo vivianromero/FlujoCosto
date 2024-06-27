@@ -1,8 +1,11 @@
 import datetime
 from datetime import datetime
+from ast import literal_eval
 import calendar
 
 import sweetify
+from django.http import HttpResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import Max, F
@@ -12,11 +15,13 @@ from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
 from app_apiversat.functionapi import getAPI
-from app_index.views import CommonCRUDView
+from app_index.views import CommonCRUDView, BaseModalFormView
+from codificadores import ChoiceTiposDoc, ChoiceOperacionDocum
 from codificadores.models import FechaInicio
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from flujo.filters import DocumentoFilter
-from flujo.tables import DocumentoTable, DocumentosVersatTable
+from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
 from .forms import *
 from .forms import DepartamentoDocumentosForm
 from .models import *
@@ -65,8 +70,10 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
             def form_valid(self, form):
                 try:
                     doc = self.model_id
-                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(doc, form.cleaned_data['producto'], form.cleaned_data['estado'],
-                                               form.cleaned_data['cantidad'])
+                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(doc, form.cleaned_data[
+                        'producto'], form.cleaned_data['estado'],
+                                                                                                                                   form.cleaned_data[
+                                                                                                                                       'cantidad'])
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and not existencia:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
@@ -502,6 +509,7 @@ def existen_documentos_sin_confirmar(obj):
 
     return numeroconsecutivo - numero > 1
 
+
 @transaction.atomic
 def inicializar_departamento(request, pk):
     docs = Documento.objects.filter(departamento=pk, ueb=request.user.ueb).exclude(
@@ -576,9 +584,9 @@ def dame_documentos_versat(request, dpto):
     except Exception as e:
         return None
 
+
 @transaction.atomic
 def valida_existencia_producto(doc, producto, estado, cantidad):
-
     departamento = doc.departamento
     ueb = doc.ueb
 
@@ -617,3 +625,49 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
     # se actualiza la existencia del producto en el detalle actual
     existencia_product = float(cantidad_existencia) + float(cantidad) * operacion + float(total_anterior)
     return None if existencia_product < 0 else existencia_product
+
+
+class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = ObtenerDocumentoVersatForm
+    viewname = 'app_index:appversat:prod_appversat'
+    inline_table = DocumentosVersatDetalleTable([])
+    hx_target = '#table_content_documento_swap'
+    hx_swap = 'outerHTML'
+    hx_form_target = '#dialog'
+    hx_form_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML'
+    modal_form_title = 'Obtener Documento del Versat'
+    max_width = '1150px'
+
+    def get_context_data(self, **kwargs):
+        detalle = self.request.GET.get('detalle', None)
+        if detalle:
+            detalle = literal_eval(detalle)
+        ctx = super().get_context_data(**kwargs)
+        ctx.update({
+            'btn_rechazar': 'Rechazar Documento',
+            'btn_aceptar': 'Aceptar Documento',
+            'inline_table': self.inline_table,
+            'detalle': detalle,
+        })
+        return ctx
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        iddocumento_numero = self.request.GET.get('iddocumento_numero')
+        iddocumento_numctrl = self.request.GET.get('iddocumento_numctrl')
+        iddocumento_fecha = self.request.GET.get('iddocumento_fecha')
+        iddocumento_concepto = self.request.GET.get('iddocumento_concepto')
+        iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
+        iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
+        kwargs['initial'].update({
+            "iddocumento_numero": iddocumento_numero,
+            "iddocumento_numctrl": iddocumento_numctrl,
+            "iddocumento_fecha": iddocumento_fecha,
+            "iddocumento_concepto": iddocumento_concepto,
+            "iddocumento_almacen": iddocumento_almacen,
+            "iddocumento_sumaimporte": iddocumento_sumaimporte,
+        })
+        return kwargs

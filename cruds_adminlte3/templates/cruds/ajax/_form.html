@@ -8,13 +8,15 @@
 
 <form
     id="{{name}}_{{object.pk}}_addedit"
+    class="addedit"
     action="{% crud_inline_url base_model inline_model action namespace %}"
     method="POST" enctype="multipart/form-data"
     data-replace-inner="#{{name}}_editList"
-    data-ajax-submit=""
+    data-ajax-submit="my_submit()"
     data-refresh-inner="#{{name}}_myList"
     data-success="success"
-    onsubmit="return false;">
+    onsubmit="return false;"
+>
     {% csrf_token %}
     <div class="card-body row">
         <div class="col-md-12">
@@ -52,6 +54,14 @@
 
     function success() {
         $('#edit_modal').modal('hide');
+    }
+
+    function on_submit() {
+        console.log($('.addedit').find('.is-invalid'))
+        console.log($('#edit_modal').find('.is-invalid'))
+        let invalid = document.querySelectorAll(".is-invalid");
+        console.log(invalid.length)
+        return true
     }
 
     function productoMedida(){
