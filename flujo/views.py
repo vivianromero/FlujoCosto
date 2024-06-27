@@ -1,4 +1,3 @@
-import calendar
 import datetime
 from datetime import datetime
 from ast import literal_eval
@@ -68,10 +67,11 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
             def form_valid(self, form):
                 try:
                     doc = self.model_id
-                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(doc, form.cleaned_data[
-                        'producto'], form.cleaned_data['estado'],
-                                                                                                                                   form.cleaned_data[
-                                                                                                                                       'cantidad'])
+                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(
+                        doc, form.cleaned_data[
+                            'producto'], form.cleaned_data['estado'],
+                        form.cleaned_data[
+                            'cantidad'])
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and not existencia:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
@@ -587,6 +587,8 @@ def dame_documentos_versat(request, dpto):
 def valida_existencia_producto(doc, producto, estado, cantidad):
     departamento = doc.departamento
     ueb = doc.ueb
+
+    operacion = 1 if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
 
     # tomo la existencia del producto
     existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
