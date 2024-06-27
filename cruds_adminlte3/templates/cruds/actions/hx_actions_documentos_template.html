@@ -3,8 +3,8 @@
 {% if nurl and 'detail' in views_available and crud_perms.detail %}
     <a hx-get="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="click"
-       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
-       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
         href="{% url nurl record.pk %}{{ getparams }}"
        title="{% trans 'Show' %}">
         <i class="fa-sm fa fa-eye"
@@ -13,7 +13,7 @@
 {% endif %}
 
 {% crud_nurl object "update" namespace as nurl %}
-{% if nurl and 'update' in views_available and crud_perms.update %}
+{% if nurl and 'update' in views_available and crud_perms.update and record.estado == 1 %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
@@ -26,7 +26,7 @@
     </a>
 {% endif %}
 
-{% if confirm and record.estado == 1 and crud_perms.update %}
+{% if confirm and record.estado == 1 and crud_perms.update and not record.error %}
     {% crud_nurl object "confirm" namespace as nurl %}
         <a hx-post="{% url nurl pk=record.pk %}{{ getparams }}"
            hx-trigger="confirmed"
@@ -44,7 +44,7 @@
 {% endif %}
 
 {% crud_nurl object "delete" namespace as nurl %}
-{% if nurl and 'delete' in views_available and crud_perms.delete %}
+{% if nurl and 'delete' in views_available and crud_perms.delete and record.estado == 1 %}
     <a hx-post="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="confirmed"
        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}

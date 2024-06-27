@@ -14,7 +14,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from cruds_adminlte3.utils import crud_url
 from . import ChoiceTiposProd, ChoiceClasesMatPrima, ChoiceCategoriasVit, \
     ChoiceMotivosAjuste, ChoiceTiposDoc, \
-    ChoiceConfCentrosElementosOtros, ChoiceOperacionDocum
+    ChoiceConfCentrosElementosOtros
 
 class ObjectsManagerAbstract(models.Model):
     objects = BulkUpdateOrCreateQuerySet.as_manager()
@@ -533,12 +533,16 @@ class MotivoAjuste(ObjectsManagerAbstract):
     def __str__(self):
         return self.descripcion
 
+class OperacionDocumento(models.TextChoices):
+    ENTRADA = 'E', 'Entrada'
+    SALIDA = 'S', 'Salida'
 
 class TipoDocumento(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceTiposDoc.CHOICE_TIPOS_DOC, editable=False, )
     descripcion = models.CharField(unique=True, max_length=128)
-    operacion = models.CharField(max_length=1, choices=ChoiceOperacionDocum.CHOICE_OPERACION_DOCUM,
-                                 db_comment='Operación de Entrada (E) o Salida (S)')
+    operacion = TextChoicesField(choices_enum=OperacionDocumento,
+                                 db_comment='Operación de Entrada (E) o Salida (S)',
+                                 verbose_name=_("Operación"))
     generado = models.BooleanField(default=False, db_comment='Si se genera automáticamente',
                                    verbose_name=_("Generado"))
     prefijo = models.CharField(max_length=5, db_comment='Prefijo para el número de control', null=True, blank=True)

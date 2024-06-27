@@ -4,12 +4,14 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Now
+from django.db.models.signals import pre_save, post_save
 from django.utils.translation import gettext_lazy as _
 from django_choices_field import IntegerChoicesField
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
-    ProductoFlujo, ConfigNumero
+    ProductoFlujo, ConfigNumero, ObjectsManagerAbstract
 from cruds_adminlte3.utils import crud_url
+from django.dispatch import receiver
 
 
 class EstadosDocumentos(models.IntegerChoices):
@@ -42,6 +44,7 @@ class Documento(models.Model):
     confcontrol = IntegerChoicesField(choices_enum=ConfigNumero,
                                  db_comment="Para guardar el tipo de conf para el numero de control y poder establecer la constarint",
                                  default=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO)
+    error = models.BooleanField(default=False, verbose_name=_("Error"))
     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_ueb')
 
     class Meta:
@@ -425,7 +428,7 @@ class NumerosDocumentos(models.Model):
             ),
         ]
 
-class ExistenciaDpto(models.Model):
+class ExistenciaDpto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='existencias_producto',
                                  verbose_name=_("Product"))
@@ -462,3 +465,28 @@ class ExistenciaDpto(models.Model):
                     'ueb']
             )
         ]
+
+    # def to_dict(self):
+    #     return {
+    #         "ueb": self.ueb,
+    #         self.departamento: {
+    #         self.producto: {
+    #             self.estado: {'cantidad_inicial': self.cantidad_inicial,
+    #                           'cantidad_entrada': self.cantidad_entrada,
+    #                           'cantidad_salida': self.cantidad_salida,
+    #                           'cantidad_final': self.cantidad_final,
+    #                           'precio': self.precio,
+    #                           'importe': self.importe
+    #                           }
+    #         }
+    #         }
+    #     }
+
+
+# @receiver(pre_save, sender=ExistenciaDpto)
+# def set_cantidad_final(sender, instance, **kwargs):
+#     instance.cantidad_final = instance.cantidad_inicial + instance.cantidad_entrada - instance.cantidad_salida
+#
+# @receiver(pre_save, sender=ExistenciaDpto)
+# def set_importe(sender, instance, **kwargs):
+#     instance.importe = instance.precio * instance.cantidad_final

@@ -1,6 +1,6 @@
 {% load crud_tags %}
 {% load i18n %}
-{% if confirm and object.estado == 1 and crud_perms.update %}
+{% if confirm and object.estado == 1 and crud_perms.update and not object.error %}
     {% crud_nurl object_model "confirm" namespace as nurl %}
     <button
         hx-headers='{"confirmed": "true"}'
