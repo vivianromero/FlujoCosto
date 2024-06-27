@@ -5,10 +5,8 @@ import calendar
 
 import sweetify
 from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Max, F
+from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -16,7 +14,6 @@ from django_htmx.http import HttpResponseLocation
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
-from codificadores import ChoiceTiposDoc, ChoiceOperacionDocum
 from codificadores.models import FechaInicio
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
@@ -70,10 +67,11 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
             def form_valid(self, form):
                 try:
                     doc = self.model_id
-                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(doc, form.cleaned_data[
-                        'producto'], form.cleaned_data['estado'],
-                                                                                                                                   form.cleaned_data[
-                                                                                                                                       'cantidad'])
+                    existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(
+                        doc, form.cleaned_data[
+                            'producto'], form.cleaned_data['estado'],
+                        form.cleaned_data[
+                            'cantidad'])
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and not existencia:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
@@ -589,6 +587,8 @@ def dame_documentos_versat(request, dpto):
 def valida_existencia_producto(doc, producto, estado, cantidad):
     departamento = doc.departamento
     ueb = doc.ueb
+
+    operacion = 1 if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
 
     # tomo la existencia del producto
     existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
