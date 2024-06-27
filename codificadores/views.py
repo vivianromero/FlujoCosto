@@ -6,7 +6,8 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
-from django_htmx.http import HttpResponseLocation
+from django_ajax.response import JSONResponse
+from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.filters import *
@@ -123,6 +124,20 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
                 return HttpResponse(""" """)
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                # return HttpResponseClientRedirect(
+                #     crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                # )
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = '#edit_modal_inner'
+                response['HX-Reswap'] = 'innerHTML'
+                return response
 
         return CreateView
 

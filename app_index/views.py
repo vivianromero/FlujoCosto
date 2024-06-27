@@ -454,6 +454,9 @@ class BaseModalFormView(FormView):
     # Por defecto es None por lo que debe definirse en los descendientes.
     viewname = None
 
+    # Si el formulario contine alguna tabla 'inline'. None por defecto
+    inline_table = None
+
     # Si se usa htmx, el 'id' del elemento donde se va a introducir la plantilla parcial correspondiente al viewname.
     # Por defecto es '#main_content_swap' pero debe definirse de acuerdo a las nececidades propias del viewform.
     hx_target = '#main_content_swap'
@@ -462,6 +465,15 @@ class BaseModalFormView(FormView):
     # con la plantilla parcial correspondiente al viewname.
     # Por defecto es 'outerHTML' pero debe definirse de acuerdo a las nececidades propias del viewform.
     hx_swap = 'outerHTML',
+
+    # Si se usa htmx, el 'id' del elemento donde se va a introducir la plantilla parcial correspondiente al form.
+    # Por defecto es '#dialog' pero debe definirse de acuerdo a las nececidades propias del viewform.
+    hx_form_target = '#dialog'
+
+    # Si se usa htmx, la estrategia de intercambio a la hora de reemplazar el elemento definido en 'hx_form_target'
+    # con la plantilla parcial correspondiente al form.
+    # Por defecto es 'outerHTML' pero debe definirse de acuerdo a las nececidades propias del viewform.
+    hx_form_swap = 'outerHTML',
 
     # Si se usa htmx, el 'id' del elemento del formulario modal donde se va a volver hacer render una vez que el
     # formulario es inválido. Por defecto es '#dialog'
@@ -513,9 +525,14 @@ class BaseModalFormView(FormView):
             'max_width': self.max_width,
             'hx_target': self.hx_target,
             'hx_swap': self.hx_swap,
+            'hx_form_target': self.hx_form_target,
+            'hx_form_swap': self.hx_form_swap,
             'hx_retarget': self.hx_retarget,
             'hx_reswap': self.hx_reswap,
             'form_view': True,
+            'inline_table': self.inline_table,
+            'btn_rechazar': None,
+            'btn_aceptar': 'Aceptar',
         })
         return ctx
 

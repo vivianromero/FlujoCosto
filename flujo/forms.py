@@ -629,3 +629,44 @@ class DocumentoDetalleForm(forms.ModelForm):
             instance.importe = instance.precio * instance.cantidad
 
             return self.instance
+
+
+# ------------ ObtenerDocumentoVersat / Form ------------
+class ObtenerDocumentoVersatForm(forms.Form):
+    iddocumento_numero = forms.CharField(label='No Doc', required=False)
+    iddocumento_numctrl = forms.CharField(label='Nro Control', required=False)
+    iddocumento_fecha = forms.DateField(label='Fecha', required=False)
+    iddocumento_concepto = forms.CharField(label='Concepto', required=False)
+    iddocumento_almacen = forms.CharField(label='Almacén', required=False)
+    iddocumento_sumaimporte = forms.CharField(label='Importe', required=False)
+
+    class Meta:
+        fields = [
+            'iddocumento_numero',
+            'iddocumento_numctrl',
+            'iddocumento_fecha',
+            'iddocumento_concepto',
+            'iddocumento_almacen',
+            'iddocumento_sumaimporte',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ObtenerDocumentoVersatForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'GET'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            Row(
+                Column(UneditableField('iddocumento_numero'), css_class='form-group col-md-1 mb-0'),
+                Column(UneditableField('iddocumento_numctrl'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('iddocumento_fecha'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('iddocumento_concepto'), css_class='form-group col-md-3 mb-0'),
+                Column(UneditableField('iddocumento_almacen'), css_class='form-group col-md-3 mb-0'),
+                Column(UneditableField('iddocumento_sumaimporte'), css_class='form-group col-md-1 mb-0'),
+                css_class='form-row'
+            ),
+        )
