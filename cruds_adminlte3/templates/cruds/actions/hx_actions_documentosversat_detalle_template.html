@@ -7,8 +7,8 @@
        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
 {#       hx-replace-url="true"#}
        {% if object.id %}href="{% url 'app_index:flujo:obtener_documento_versat' %}" {% else %}href="#"{% endif %}
-       title="Obtener Documento {{ record.iddocumento }}">
-        <i class="fa fa-person-carry"
+       title="Traer Producto {{ record.producto_codigo }}">
+        <i class="fa fa-box-open"
            style="margin-right: 5px;"></i>
     </a>
 

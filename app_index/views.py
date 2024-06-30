@@ -11,6 +11,7 @@ from django.views.generic import TemplateView, FormView
 from django_htmx.http import HttpResponseLocation
 from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
+from django_tables2.views import SingleTableMixin
 
 from cruds_adminlte3.crud import CRUDView, MyTableExport
 from utiles.utils import message_error
@@ -101,6 +102,12 @@ class Index(TemplateView):
             # login/logout messages
             'title_success': _('Success'),
             'success_message': _("User <<%(user)s>> were successfully logged in."),
+
+            # Tabla Documentos iconos
+            'documento_edicion_icon':  '/dist/img/icons8-pencil-48.png',
+            'documento_confirmado_icon': '/dist/img/icons8-check-mark-48.png',
+            'documento_rechazado_icon': '/dist/img/icons8-no-entry-trafic-rules-24.png',
+            'documento_cancelado_icon': '/dist/img/icons8-cancel-48.png',
         }
 
         context = super().get_context_data()
@@ -450,9 +457,14 @@ class BaseModalFormView(FormView):
     # Por defecto es None por lo que debe definirse en los descendientes.
     form_class = None
 
-    # Nombre de la vista a la cual se retorna una vez que los datos introducidos son correctos.
-    # Por defecto es None por lo que debe definirse en los descendientes.
-    viewname = None
+    # Es un diccionario, con el nombre del evento/acción como llave y con el nombre de la vista a la cual se retorna una vez se ejecute
+    # la acción asociada a dicho evento. Debe definirse como parámetro en el botoón del formulario (mediante hx-vals).
+    # ....en el template...
+    # hx-vals='{"event_action": "submitted"}'
+    # ....en el form.....
+    # viewname = {"submitted": nombre_del_view_que_ejecuta_la_acción}
+    # Por defecto es {} por lo que debe definirse en los descendientes.
+    viewname = {}
 
     # Si el formulario contine alguna tabla 'inline'. None por defecto
     inline_table = None
@@ -489,12 +501,31 @@ class BaseModalFormView(FormView):
     # Ancho máximo de la ventana modal. debe ajustarse de acuerdo al contenido y campos del formulario.
     max_width = '500px'
 
+    def get_fields_kwargs(self, form):
+        """
+        Retorna el valor de cada 'field' en el diccionario 'kw'.
+        Esta función es útil a la hora de definir qué valores del formulario se retornan,
+        por defecto se retornan todos, pero si se quiere devolver alguno o algunos de manera
+        específica se debe heredar y rehacer la función.
+        """
+        kw = {}
+        for field in form.fields:
+            kw.update({field: form.cleaned_data[field]})
+        return kw
+
     def form_valid(self, form):
         kw = {}
+        event_action = None
+        if self.request.method == 'POST':
+            event_action = self.request.POST.get('event_action', None)
+        elif self.request.method == 'GET':
+            event_action = self.request.GET.get('event_action', None)
         if form.is_valid():
-            for field in form.fields:
-                kw.update({field: form.cleaned_data[field]})
-            self.success_url = reverse_lazy(self.viewname, kwargs=kw)
+            kw.update(self.get_fields_kwargs(form))
+            self.success_url = reverse_lazy(
+                self.viewname[event_action],
+                kwargs=kw
+            )
 
             return HttpResponseLocation(
                 self.get_success_url(),
@@ -502,7 +533,10 @@ class BaseModalFormView(FormView):
                 headers={
                     'HX-Trigger': self.request.htmx.trigger,
                     'HX-Trigger-Name': self.request.htmx.trigger_name,
-                    'submitted': 'true',
+                    'event_action': event_action,
+                },
+                values={
+                    'event_action': event_action,
                 }
             )
         else:
@@ -530,7 +564,7 @@ class BaseModalFormView(FormView):
             'hx_retarget': self.hx_retarget,
             'hx_reswap': self.hx_reswap,
             'form_view': True,
-            'inline_table': self.inline_table,
+            'inline_table': self.inline_table([]),
             'btn_rechazar': None,
             'btn_aceptar': 'Aceptar',
         })

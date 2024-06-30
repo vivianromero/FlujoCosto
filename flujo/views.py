@@ -416,6 +416,11 @@ def confirmar_documento(request, pk):
     with transaction.atomic():
         obj = Documento.objects.select_for_update().get(pk=pk)
         params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+        event_action = None
+        if request.method == 'POST':
+            event_action = request.POST.get('event_action', None)
+        elif request.method == 'GET':
+            event_action = request.GET.get('event_action', None)
         departamento = obj.departamento
         ueb = obj.ueb
         operacion = obj.tipodocumento.operacion
@@ -476,7 +481,7 @@ def confirmar_documento(request, pk):
             headers={
                 'HX-Trigger': request.htmx.trigger,
                 'HX-Trigger-Name': request.htmx.trigger_name,
-                'confirmed': 'true',
+                'event_action': event_action,
             }
         )
 
@@ -630,8 +635,11 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
 class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDocumentoVersatForm
-    viewname = 'app_index:appversat:prod_appversat'
-    inline_table = DocumentosVersatDetalleTable([])
+    viewname = {
+        'submitted': 'app_index:flujo:flujo_documento_versat_aceptar',
+        'refused': 'app_index:flujo:flujo_documento_versat_rechazar',
+    }
+    inline_table = DocumentosVersatDetalleTable
     hx_target = '#table_content_documento_swap'
     hx_swap = 'outerHTML'
     hx_form_target = '#dialog'
@@ -649,13 +657,13 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         ctx.update({
             'btn_rechazar': 'Rechazar Documento',
             'btn_aceptar': 'Aceptar Documento',
-            'inline_table': self.inline_table,
-            'detalle': detalle,
+            'inline_table': self.inline_table(detalle),
         })
         return ctx
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        iddocumento = self.request.GET.get('iddocumento')
         iddocumento_numero = self.request.GET.get('iddocumento_numero')
         iddocumento_numctrl = self.request.GET.get('iddocumento_numctrl')
         iddocumento_fecha = self.request.GET.get('iddocumento_fecha')
@@ -663,6 +671,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
         iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
         kwargs['initial'].update({
+            "iddocumento": iddocumento,
             "iddocumento_numero": iddocumento_numero,
             "iddocumento_numctrl": iddocumento_numctrl,
             "iddocumento_fecha": iddocumento_fecha,
@@ -671,3 +680,55 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
             "iddocumento_sumaimporte": iddocumento_sumaimporte,
         })
         return kwargs
+
+    def get_fields_kwargs(self, form):
+        kw = {}
+        for field in form.fields:
+            if field == 'iddocumento':
+                kw.update({field: form.cleaned_data[field]})
+        return kw
+
+
+def aceptar_documento_versat(request, iddocumento):
+    """
+    Aceptar un documento
+    """
+    # with transaction.atomic():  # Esto no sé si irá
+
+    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    event_action = request.GET.get('event_action', None)
+
+    # Aquí va la lógica de la vista
+
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': event_action,
+        }
+    )
+
+
+def rechazar_documento_versat(request, iddocumento):
+    """
+    Rechazar un documento
+    """
+
+    # with transaction.atomic():  # Esto no sé si irá
+
+    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    event_action = request.GET.get('event_action', None)
+
+    # Aquí va la lógica de la vista
+
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': event_action,
+        }
+    )

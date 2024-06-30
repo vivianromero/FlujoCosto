@@ -2,7 +2,7 @@ import sweetify
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
@@ -1535,7 +1535,7 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
 class ObtenrDatosModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDatosModalForm
-    viewname = 'app_index:appversat:prod_appversat'
+    viewname = {'submitted': 'app_index:appversat:prod_appversat'}
     hx_target = '#main_content_swap'
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'

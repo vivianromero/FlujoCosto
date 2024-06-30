@@ -30,6 +30,7 @@
     {% crud_nurl object "confirm" namespace as nurl %}
         <a hx-post="{% url nurl pk=record.pk %}{{ getparams }}"
            hx-trigger="confirmed"
+           hx-vals='{"event_action": "confirmed"}'
            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
            id="confirm_href"

@@ -85,8 +85,9 @@
                     <div class="col-md-12">
                         <div id="id_datatable_doc_versat_detalle_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]"
                              style="height: inherit;">
-                            {% get_documento_versat_detalle_table inline_table detalle as tableversat_detalles %}
-                            {% if tableversat_detalles %} {% render_table tableversat_detalles %} {% endif %}
+{#                            {% get_documento_versat_detalle_table inline_table detalle as tableversat_detalles %}#}
+{#                            {% if tableversat_detalles %} {% render_table tableversat_detalles %} {% endif %}#}
+                            {% render_table inline_table %}
                         </div>
                     </div>
                 </div>
@@ -97,7 +98,8 @@
                         <i class="fa fa-close"></i>
                         Cancelar
                     </button>
-                    <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "submitted": "true"}'
+                    <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
+                            hx-vals='{"event_action": "submitted"}'
                             hx-post="{{ request.path }}"
                             hx-trigger="click"
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
@@ -110,9 +112,10 @@
                         {{  btn_aceptar }}
                     </button>
                     {% if btn_rechazar %}
-                    	<button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "refused": "true"}'
+                    	<button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "refused"}'
                             hx-post="{{ request.path }}"
                             hx-trigger="click"
+                            hx-vals='{"event_action": "refused"}'
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                             id="id_form_btn_refuse" 
