@@ -2,19 +2,22 @@ import sweetify
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import FormView
 from django_ajax.response import JSONResponse
 from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
+from django_tables2 import SingleTableMixin
+from django_tables2.export import ExportMixin
 
-from app_index.views import CommonCRUDView, BaseModalFormView
+from app_index.views import CommonCRUDView, BaseModalFormView, get_current_url_abs_path
 from codificadores.filters import *
 from codificadores.forms import *
 from codificadores.models import VinculoCargoProduccion
 from codificadores.tables import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
+from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
 from exportar.views import crear_export_datos_table
 from flujo.models import Documento
@@ -144,34 +147,57 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
     def get_update_view(self):
         view = super().get_update_view()
 
-        class OEditView(view):
+        class UpdateView(view):
 
-            # def get_context_data(self, **kwargs):
-            #     ctx = super(OEditView, self).get_context_data(**kwargs)
-            #     title = 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
-            #     ctx.update({
-            #         'modal_form_title': title,
-            #         'max_width': '1250px',
-            #         'hx_target': '#table_content_documento_swap',
-            #         'confirm': True,
-            #         'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
-            #         'object_model': self.model,
-            #     })
-            #     return ctx
+            def get_context_data(self, **kwargs):
+                ctx = super(UpdateView, self).get_context_data(**kwargs)
+                title = 'Formulario Ajax Modal'  # 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
+                ctx.update({
+                    'modal_form_title': title,
+                    'max_width': '950px',
+                    'hx_target': '#id_' + self.name + '_myList',
+                    'confirm': True,
+                    'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+                    'object_model': self.model,
+                })
+                return ctx
 
             def form_valid(self, form):
                 try:
                     self.object = form.save(commit=False)
                     setattr(self.object, self.inline_field, self.model_id)
                     self.object.save()
+                    event_action = None
+                    if self.request.method == 'POST':
+                        event_action = self.request.POST.get('event_action', None)
+                    elif self.request.method == 'GET':
+                        event_action = self.request.GET.get('event_action', None)
+                    kwargs = {'pk': self.model_id.id}
+                    success_url = crud_url(
+                        self.model_id,
+                        'update',
+                        namespace='app_index:codificadores',
+                    )
+                    success_url2 = crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
                 except IntegrityError as e:
                     # Maneja el error de integridad (duplicación de campos únicos)
                     mess_error = "El producto ya existe para la norma"
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
-                return HttpResponse(""" """)
+                return HttpResponseLocation(
+                    success_url2,
+                    target='#id_' + self.name + '_myList',
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
+                )
 
-        return OEditView
+        return UpdateView
 
     def get_delete_view(self):
         delete_view = super().get_delete_view()
@@ -206,6 +232,275 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
 
         return DeleteView
 
+    def get_filter_list_view(self):
+        filter_list_view = super(InlineAjaxCRUD, self).get_filter_list_view()
+
+        class FilterListView(filter_list_view):
+            inline_field = self.inline_field
+            base_model = self.base_model
+            name = self.name
+            views_available = self.views_available[:]
+
+            def get_context_data(self, **kwargs):
+                context = super(FilterListView, self).get_context_data(**kwargs)
+                table = self.get_table(**self.get_table_kwargs())
+                table.empty_text = 'No existen productos aún'
+                context[self.get_context_table_name(table)] = table
+                context['base_model'] = self.model_id
+                context['name'] = self.name
+                context['views_available'] = self.views_available
+                return context
+
+            def get_queryset(self):
+                queryset = super(FilterListView, self).get_queryset()
+                params = {
+                    self.inline_field: self.model_id
+                }
+                queryset = queryset.filter(**params)
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return filter_list_view.get(self, request, *args, **kwargs)
+
+        return FilterListView
+
+
+# ------ NormaConsumoDetalle / HtmxCRUD ------
+class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
+    model = NormaconsumoDetalle
+    base_model = NormaConsumo
+    namespace = 'app_index:codificadores'
+    inline_field = 'normaconsumo'
+    add_form = NormaConsumoDetalleForm
+    update_form = NormaConsumoDetalleForm
+    detail_form = NormaConsumoDetalleDetailForm
+    list_fields = [
+        'norma_ramal',
+        'norma_empresarial',
+        'operativo',
+        'producto',
+        'medida',
+    ]
+
+    views_available = [
+        'list',
+        'list_detail',
+        'create',
+        'update',
+        'delete',
+        'detail',
+    ]
+
+    title = "Detalles de normas de consumo"
+    table_class = NormaConsumoDetalleTable
+    url_father = None
+
+    def get_create_view(self):
+        create_view = super().get_create_view()
+
+        class CreateView(create_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                title = 'Formulario Ajax Modal'  # 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
+                context.update({
+                    'modal_form_title': title,
+                    'max_width': '950px',
+                    'hx_target': '#id_' + self.name + '_myList',
+                    'confirm': True,
+                    'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+                    'object_model': self.model,
+                })
+                return context
+
+            def get_success_url(self):
+                return crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
+
+            def form_valid(self, form):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+
+                    success_url2 = crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "El producto ya existe para la norma"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
+                )
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                # return HttpResponseClientRedirect(
+                #     crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                # )
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = '#edit_modal_inner'
+                response['HX-Reswap'] = 'innerHTML'
+                return response
+
+        return CreateView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class UpdateView(view):
+
+            def get_context_data(self, **kwargs):
+                ctx = super(UpdateView, self).get_context_data(**kwargs)
+                title = 'Formulario Ajax Modal'  # 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
+                ctx.update({
+                    'modal_form_title': title,
+                    'max_width': '950px',
+                    'hx_target': '#id_' + self.name + '_myList',
+                    'confirm': True,
+                    'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
+                    'object_model': self.model,
+                })
+                return ctx
+
+            def get_success_url(self):
+                return crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
+
+            def form_valid(self, form):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "El producto ya existe para la norma"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
+                )
+
+        return UpdateView
+
+    def get_delete_view(self):
+        delete_view = super().get_delete_view()
+
+        class DeleteView(delete_view):
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
+            def get_success_url(self):
+                return crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return self.post(self, request, *args, **kwargs)
+
+            def post(self, request, *args, **kwargs):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id']
+                )
+                if self.model_id:
+                    url_father = reverse_lazy(
+                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'),
+                        args=[self.model.normaconsumo_id]
+                    )
+                else:
+                    url_father = self.get_success_url()
+                response = delete_view.post(self, request, *args, **kwargs)
+                # return HttpResponse(" ")
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
+                )
+
+        return DeleteView
+
+    def get_filter_list_view(self):
+        filter_list_view = super(InlineAjaxCRUD, self).get_filter_list_view()
+
+        class FilterListView(filter_list_view):
+            inline_field = self.inline_field
+            base_model = self.base_model
+            name = self.name
+            views_available = self.views_available[:]
+
+            def get_context_data(self, **kwargs):
+                context = super(FilterListView, self).get_context_data(**kwargs)
+                table = self.get_table(**self.get_table_kwargs())
+                table.empty_text = 'No existen productos aún'
+                context[self.get_context_table_name(table)] = table
+                context['base_model'] = self.model_id
+                context['name'] = self.name
+                context['views_available'] = self.views_available
+                return context
+
+            def get_queryset(self):
+                queryset = super(FilterListView, self).get_queryset()
+                params = {
+                    self.inline_field: self.model_id
+                }
+                queryset = queryset.filter(**params)
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return filter_list_view.get(self, request, *args, **kwargs)
+
+        return FilterListView
 
 # ------ NormaConsumoDetalle / HtmxCRUD ------
 
@@ -258,7 +553,15 @@ class NormaConsumoCRUD(CommonCRUDView):
     # Table settings
     table_class = NormaConsumoTable
 
-    inlines = [NormaConsumoDetalleAjaxCRUD]
+    inlines = [NormaConsumoDetalleHtmxCRUD]
+
+    # inline_tables = [
+    #     {
+    #         "table": NormaConsumoDetalleTable([]),
+    #         "name": "normaconsumodetalletable",
+    #         "visible": True,
+    #     }
+    # ]
 
     inline_actions = False
 
@@ -293,14 +596,6 @@ class NormaConsumoCRUD(CommonCRUDView):
                 )
                 return form_kwargs
 
-            def get_success_url(self):
-                if "another" in self.request.POST:
-                    url = self.request.path
-                else:
-                    url = super(OCreateView, self).get_success_url()
-                if self.getparams:
-                    url += '?' + self.getparams
-                return url
 
         return OCreateView
 
@@ -367,15 +662,20 @@ class NormaConsumoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data()
-                if 'pk' in self.kwargs and self.inlines:
-                    for inline in self.inlines:
-                        mdl = inline.model
-                        base_mdl = inline.base_model
-                        inline_field = inline.inline_field
-                        filter_id = inline.inline_field + '__id'
-                        filter_dict = {filter_id: self.kwargs['pk']}
-                        inline.object_list = inline.model.objects.filter(**filter_dict)
-                        inline.table = inline.table_class(inline.object_list)
+                if 'pk' in self.kwargs and self.inline_tables:
+                    filter_dict = {'normaconsumo__id': self.kwargs['pk']}
+                    data = NormaconsumoDetalle.objects.filter(**filter_dict)
+                    self.inline_tables[0].update({
+                        "table": NormaConsumoDetalleTable(data),
+                    })
+                    # for inline in self.inline_tables:
+                    #     mdl = inline.model
+                    #     base_mdl = inline.base_model
+                    #     inline_field = inline.inline_field
+                    #     filter_id = inline.inline_field + '__id'
+                    #     filter_dict = {filter_id: self.kwargs['pk']}
+                    #     inline.object_list = inline.model.objects.filter(**filter_dict)
+                    #     inline.table = inline.table_class(inline.object_list)
                 else:
                     inline_object_list = None
                     table = None
@@ -390,6 +690,7 @@ class NormaConsumoCRUD(CommonCRUDView):
                     "acept_btn_hx_get": self.get_success_url(),
                     "acept_btn_hx_target": '#main_content_swap',
                     "acept_btn_hx_swap": 'outerHTML',
+                    "inline_tables": self.inline_tables,
                 })
                 return ctx
 
@@ -1535,7 +1836,7 @@ class ConfCentrosElementosOtrosDetalleCRUD(CommonCRUDView):
 class ObtenrDatosModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDatosModalForm
-    viewname = 'app_index:appversat:prod_appversat'
+    viewname = {'submitted': 'app_index:appversat:prod_appversat'}
     hx_target = '#main_content_swap'
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'

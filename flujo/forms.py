@@ -99,7 +99,6 @@ class DocumentoForm(forms.ModelForm):
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
             self.fields['tipodocumento'].widget.enabled_choices = [instance.tipodocumento]
             if settings.NUMERACION_DOCUMENTOS_CONFIG:
-
                 self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
 
@@ -262,6 +261,7 @@ class DocumentoForm(forms.ModelForm):
         instance = super().save(commit=True)
         return instance
 
+
 class DocumentoDetailForm(DocumentoForm):
     class Meta:
         model = Documento
@@ -300,7 +300,6 @@ class DocumentoDetailForm(DocumentoForm):
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
             self.fields['tipodocumento'].widget.enabled_choices = [instance.tipodocumento]
             if settings.NUMERACION_DOCUMENTOS_CONFIG:
-
                 self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
 
@@ -374,6 +373,7 @@ class DocumentoDetailForm(DocumentoForm):
                 css_class='form-row'
             ),
         )
+
 
 # ------------ DepartamentosDocumento / Form ------------
 class DepartamentoDocumentosForm(DocumentoForm):
@@ -555,7 +555,6 @@ class DocumentoDetalleForm(forms.ModelForm):
             ),
         )
 
-
     def save(self, commit=True, doc=None, existencia=None):
         with transaction.atomic():
             instance = super().save(commit=False)
@@ -569,9 +568,8 @@ class DocumentoDetalleForm(forms.ModelForm):
             existencia_actual = (instance.existencia - self.cantidad_anterior * operacion) + instance.cantidad * operacion if not exisencia else existencia
             instance.existencia = existencia_actual + instance.cantidad
 
-
-            #actualizar las existencias de los demás documentos
-            #tomo la existencia del producto
+            # actualizar las existencias de los demás documentos
+            # tomo la existencia del producto
             existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
                                                                            producto=producto, ueb=ueb)
             importe_exist = 0.00
@@ -585,16 +583,16 @@ class DocumentoDetalleForm(forms.ModelForm):
             fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][departamento][
                 'fecha_procesamiento'] if settings.FECHAS_PROCESAMIENTO else None
 
-            dicc = {'documento__estado':EstadosDocumentos.EDICION,
-                    'documento__departamento': departamento, 'producto':producto, 'estado':estado, 'documento__ueb':ueb}
+            dicc = {'documento__estado': EstadosDocumentos.EDICION,
+                    'documento__departamento': departamento, 'producto': producto, 'estado': estado, 'documento__ueb': ueb}
 
-            #detalles de los doc que están en edición de la ueb y el departamento y contienen el producto
+            # detalles de los doc que están en edición de la ueb y el departamento y contienen el producto
             docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
 
-            #docum anteriores al actual que tienen el producto
+            # docum anteriores al actual que tienen el producto
             docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=doc.numeroconsecutivo)
 
-            #se obtiene el total del producto se suman las entradas y se restan las salidas
+            # se obtiene el total del producto se suman las entradas y se restan las salidas
             total_anterior = docs_anteriors.annotate(
                 adjusted_quantity=Case(
                     When(documento__tipodocumento__operacion=OperacionDocumento.ENTRADA, then=F('cantidad')),
@@ -619,7 +617,7 @@ class DocumentoDetalleForm(forms.ModelForm):
             for p in docs_posteriores:
                 operacion = 1 if p.documento.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
                 existencia_product = float(p.cantidad) * operacion + float(existencia_product)
-                p.error = True if not error and existencia_product<0 else False
+                p.error = True if not error and existencia_product < 0 else False
                 p.existencia = existencia_product if not error else p.existencia
                 p.error = error
                 documento_detalles.append(p)
@@ -633,12 +631,13 @@ class DocumentoDetalleForm(forms.ModelForm):
 
 # ------------ ObtenerDocumentoVersat / Form ------------
 class ObtenerDocumentoVersatForm(forms.Form):
-    iddocumento_numero = forms.CharField(label='No Doc', required=False)
-    iddocumento_numctrl = forms.CharField(label='Nro Control', required=False)
-    iddocumento_fecha = forms.DateField(label='Fecha', required=False)
-    iddocumento_concepto = forms.CharField(label='Concepto', required=False)
-    iddocumento_almacen = forms.CharField(label='Almacén', required=False)
-    iddocumento_sumaimporte = forms.CharField(label='Importe', required=False)
+    iddocumento = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_numero = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_numctrl = forms.CharField(label='Nro Control', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_fecha = forms.DateField(label='Fecha', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_concepto = forms.CharField(label='Concepto', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_almacen = forms.CharField(label='Almacén', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_sumaimporte = forms.CharField(label='Importe', required=False, widget=forms.TextInput(attrs={'readonly': True}))
 
     class Meta:
         fields = [
@@ -661,12 +660,14 @@ class ObtenerDocumentoVersatForm(forms.Form):
 
         self.helper.layout = Layout(
             Row(
-                Column(UneditableField('iddocumento_numero'), css_class='form-group col-md-1 mb-0'),
-                Column(UneditableField('iddocumento_numctrl'), css_class='form-group col-md-2 mb-0'),
-                Column(UneditableField('iddocumento_fecha'), css_class='form-group col-md-2 mb-0'),
-                Column(UneditableField('iddocumento_concepto'), css_class='form-group col-md-3 mb-0'),
-                Column(UneditableField('iddocumento_almacen'), css_class='form-group col-md-3 mb-0'),
-                Column(UneditableField('iddocumento_sumaimporte'), css_class='form-group col-md-1 mb-0'),
+                Field('iddocumento', type="hidden"),
+                # Column('iddocumento', css_class='form-group col-md-1 mb-0'),
+                Column('iddocumento_numero', css_class='form-group col-md-1 mb-0'),
+                Column('iddocumento_numctrl', css_class='form-group col-md-2 mb-0'),
+                Column('iddocumento_fecha', css_class='form-group col-md-2 mb-0'),
+                Column('iddocumento_concepto', css_class='form-group col-md-3 mb-0'),
+                Column('iddocumento_almacen', css_class='form-group col-md-3 mb-0'),
+                Column('iddocumento_sumaimporte', css_class='form-group col-md-1 mb-0'),
                 css_class='form-row'
             ),
         )

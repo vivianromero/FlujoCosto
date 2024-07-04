@@ -11,8 +11,10 @@ from django.views.generic import TemplateView, FormView
 from django_htmx.http import HttpResponseLocation
 from django_tables2 import RequestConfig
 from django.utils.translation import gettext as _
+from django_tables2.views import SingleTableMixin
 
 from cruds_adminlte3.crud import CRUDView, MyTableExport
+from cruds_adminlte3.utils import crud_url_name
 from utiles.utils import message_error
 
 
@@ -101,6 +103,12 @@ class Index(TemplateView):
             # login/logout messages
             'title_success': _('Success'),
             'success_message': _("User <<%(user)s>> were successfully logged in."),
+
+            # Tabla Documentos iconos
+            'documento_edicion_icon': '/dist/img/icons8-pencil-48.png',
+            'documento_confirmado_icon': '/dist/img/icons8-check-mark-48.png',
+            'documento_rechazado_icon': '/dist/img/icons8-no-entry-trafic-rules-24.png',
+            'documento_cancelado_icon': '/dist/img/icons8-cancel-48.png',
         }
 
         context = super().get_context_data()
@@ -325,6 +333,7 @@ class CommonCRUDView(CRUDView):
         view = super().get_create_view()
 
         class OCreateView(view):
+            hx_target = self.hx_target
 
             def get_template_names(self):
                 template = 'create.html'
@@ -371,8 +380,26 @@ class CommonCRUDView(CRUDView):
                 return response
 
             def form_valid(self, form):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
                 if form.is_valid():
-                    return super(OCreateView, self).form_valid(form)
+                    rtn = super(OCreateView, self).form_valid(form)
+                    return HttpResponseLocation(
+                        # rtn,
+                        self.get_success_url(),
+                        target=self.hx_target,
+                        headers={
+                            'HX-Trigger': self.request.htmx.trigger,
+                            'HX-Trigger-Name': self.request.htmx.trigger_name,
+                            'event_action': event_action,
+                        },
+                        values={
+                            'event_action': event_action,
+                        }
+                    )
                 else:
                     return render(self.request, self.get_template_names(), {
                         'form': form,
@@ -384,8 +411,17 @@ class CommonCRUDView(CRUDView):
                 return self.get_retarget_response(form=form, ctx=ctx)
 
             def get_success_url(self):
-                url = super(OCreateView, self).get_success_url()
-                if self.getparams:  # fixed filter edit action
+                if ("another" in self.request.POST) and not self.modal:
+                    url = self.request.path
+                elif "inline" in self.request.POST:
+                    namespace = self.namespace + ':'
+                    self.hx_target = '#dialog'
+                    url = reverse_lazy(
+                        crud_url_name(self.model, 'update', namespace), args=[self.object.pk]
+                    )
+                else:
+                    url = super(OCreateView, self).get_success_url()
+                if self.getparams:  # fixed filter create action
                     url += '?' + self.getparams
                 elif self.request.htmx:
                     url += get_current_url_abs_path(self.request.htmx)
@@ -414,11 +450,20 @@ class CommonCRUDView(CRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
+                ctx.update({
+                    'max_width': '950px',
+                    'hx_target': self.hx_target,
+                    'hx-swap': self.hx_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
                 if 'pk' in kwargs:
                     obj = self.model.objects.get(id=self.kwargs['pk'])
                     ctx['form'] = self.form_class(instance=obj)
+                    ctx['modal_form_title'] = 'Ver Detalles de ' + obj.__str__()
                 elif 'object' in kwargs:
                     ctx['form'] = self.form_class(instance=kwargs['object'])
+                    ctx['modal_form_title'] = 'Ver Detalles de ' + kwargs['object'].__str__()
                 return ctx
 
         return ODetailView
@@ -450,12 +495,25 @@ class BaseModalFormView(FormView):
     # Por defecto es None por lo que debe definirse en los descendientes.
     form_class = None
 
-    # Nombre de la vista a la cual se retorna una vez que los datos introducidos son correctos.
-    # Por defecto es None por lo que debe definirse en los descendientes.
-    viewname = None
+    # Es un diccionario, con el nombre del evento/acción como llave y con el nombre de la vista a la cual se retorna una vez se ejecute
+    # la acción asociada a dicho evento. Debe definirse como parámetro en el botoón del formulario (mediante hx-vals).
+    # ....en el template...
+    # hx-vals='{"event_action": "submitted"}'
+    # ....en el form.....
+    # viewname = {"submitted": nombre_del_view_que_ejecuta_la_acción}
+    # Por defecto es {} por lo que debe definirse en los descendientes.
+    viewname = {}
 
-    # Si el formulario contine alguna tabla 'inline'. None por defecto
-    inline_table = None
+    # Si el formulario contine alguna tabla 'inline'. Utiliza un formato de lista de diccionarios con el formato siguiente:
+    # [{
+    #       "table": table_class, #-------> Clase que contiene la tabla
+    #       "name": table_name,  #--------> Nombre de la tabla
+    #       "visible": True/False, #------> Si la tabla será visible o no
+    #       "title": "table_title", #-----> Título de la tabla
+    #   }]
+    # Se le pueden adicionar otros parámetros al diccionario en el descendiente seg�n se necesite
+    #   None por defecto
+    inline_tables = None
 
     # Si se usa htmx, el 'id' del elemento donde se va a introducir la plantilla parcial correspondiente al viewname.
     # Por defecto es '#main_content_swap' pero debe definirse de acuerdo a las nececidades propias del viewform.
@@ -489,12 +547,31 @@ class BaseModalFormView(FormView):
     # Ancho máximo de la ventana modal. debe ajustarse de acuerdo al contenido y campos del formulario.
     max_width = '500px'
 
+    def get_fields_kwargs(self, form):
+        """
+        Retorna el valor de cada 'field' en el diccionario 'kw'.
+        Esta función es útil a la hora de definir qué valores del formulario se retornan,
+        por defecto se retornan todos, pero si se quiere devolver alguno o algunos de manera
+        específica se debe heredar y rehacer la función.
+        """
+        kw = {}
+        for field in form.fields:
+            kw.update({field: form.cleaned_data[field]})
+        return kw
+
     def form_valid(self, form):
         kw = {}
+        event_action = None
+        if self.request.method == 'POST':
+            event_action = self.request.POST.get('event_action', None)
+        elif self.request.method == 'GET':
+            event_action = self.request.GET.get('event_action', None)
         if form.is_valid():
-            for field in form.fields:
-                kw.update({field: form.cleaned_data[field]})
-            self.success_url = reverse_lazy(self.viewname, kwargs=kw)
+            kw.update(self.get_fields_kwargs(form))
+            self.success_url = reverse_lazy(
+                self.viewname[event_action],
+                kwargs=kw
+            )
 
             return HttpResponseLocation(
                 self.get_success_url(),
@@ -502,7 +579,10 @@ class BaseModalFormView(FormView):
                 headers={
                     'HX-Trigger': self.request.htmx.trigger,
                     'HX-Trigger-Name': self.request.htmx.trigger_name,
-                    'submitted': 'true',
+                    'event_action': event_action,
+                },
+                values={
+                    'event_action': event_action,
                 }
             )
         else:
@@ -530,7 +610,7 @@ class BaseModalFormView(FormView):
             'hx_retarget': self.hx_retarget,
             'hx_reswap': self.hx_reswap,
             'form_view': True,
-            'inline_table': self.inline_table,
+            'inline_table': self.inline_tables,
             'btn_rechazar': None,
             'btn_aceptar': 'Aceptar',
         })

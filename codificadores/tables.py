@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.template.loader import render_to_string
 
 from codificadores.models import *
 from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions, \
@@ -54,7 +55,7 @@ class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions
             'norma_ramal',
             'norma_empresarial',
             'operativo',
-            'normaconsumo',
+            # 'normaconsumo',
             'producto',
             'medida'
         )
@@ -62,6 +63,21 @@ class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions
     # hx_target = "#normaconsumodetalle_father"
     # hx_swap = "innerHTML"
     # hx_replace_url = "true"
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_normaconsumo_detalles_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
+    @staticmethod
+    def render_operativo(value):
+        if value:
+            return render_to_string('app_index/table_icons/true_icon.html')
+        else:
+            return render_to_string('app_index/table_icons/false_icon.html')
 
 
 # ------ NormaConsumoGrouped / Table ------
@@ -322,6 +338,7 @@ class TipoDocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'prefijo',
         )
 
+
 # ------ ClasificadorCargos / Table ------
 class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
@@ -338,6 +355,7 @@ class ClasificadorCargosTable(CommonColumnShiftTableBootstrap4ResponsiveActions)
             'unidadcontable',
         )
 
+
 # ------ FichaCostoFilas / Table ------
 class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node_ficha.html')
@@ -350,6 +368,7 @@ class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         orderable=False,
         attrs=attrs_center_center
     )
+
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         model = FichaCostoFilas
 
@@ -363,4 +382,3 @@ class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'calculado',
             'filasasumar',
         )
-

@@ -16,6 +16,7 @@
 {% if nurl and 'update' in views_available and crud_perms.update %}
     <a hx-get="{% url nurl record.pk %}"
        hx-trigger="click"
+       hx-vals='{"pk": "{{ record.pk }}"}'
        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
 {#       hx-replace-url="true"#}

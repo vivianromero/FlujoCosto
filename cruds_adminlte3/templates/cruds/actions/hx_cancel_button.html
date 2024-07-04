@@ -1,5 +1,15 @@
 {% load i18n %}
-{% if modal %}<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-remove"></i> Cancelar</button>
+{% if modal %}
+    <button hx-get="{{ url_list }}{{getparams}}"
+            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+            hx-trigger="click"
+            type="button"
+            class="btn btn-secondary"
+            data-dismiss="modal"
+    >
+        <i class="fa fa-remove"></i> Cancelar
+    </button>
 {% else %}
     {% if url_list %}
         <a href="{{ url_list }}{{getparams}}"

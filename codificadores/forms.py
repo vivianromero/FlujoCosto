@@ -1661,20 +1661,15 @@ class NormaConsumoForm(forms.ModelForm):
             self.fields['medida'].widget.enabled_choices = [kwargs['initial']['medida']]
 
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Norma de Consumo',
-                    Row(
-                        Column(
-                            Field('fecha', id='id_fecha_normaconsumo', ),
-                            css_class='form-group col-md-2 mb-0'
-                        ),
-                        Column('producto', css_class='form-group col-md-4 mb-0'),
-                        Column('medida', css_class='form-group col-md-2 mb-0'),
-                        Column('cantidad', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
-                    ),
+            Row(
+                Column(
+                    Field('fecha', id='id_fecha_normaconsumo', ),
+                    css_class='form-group col-md-2 mb-0'
                 ),
+                Column('producto', css_class='form-group col-md-4 mb-0'),
+                Column('medida', css_class='form-group col-md-2 mb-0'),
+                Column('cantidad', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'
             ),
         )
         self.helper.layout.append(
@@ -1812,6 +1807,10 @@ class NormaConsumoDetalleForm(forms.ModelForm):
             'medida',
         ]
         widgets = {
+            'operativo': forms.CheckboxInput(
+                attrs={'style': 'width: inherit;'}
+            ),
+
             'producto': SelectWidget(
                 attrs={
                     'style': 'width: 100%',
@@ -1838,22 +1837,17 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         self.helper.form_tag = False
 
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Detalles Norma de Consumo',
-                    Row(
-                        Column('producto', css_class='form-group col-md-8 mb-0', css_id='productodetalle'),
-                        Column('medida', css_class='form-group col-md-4 mb-0', css_id='medidadetalle'),
-                        css_class='form-row'
-                    ),
-                    Row(Column('norma_ramal', css_class='form-group col-md-4 mb-0'),
-                        Column('norma_empresarial', css_class='form-group col-md-4 mb-0'),
-                        css_class='form-row'),
-                    Row(
-                        Column('operativo', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
-                    ),
-                ),
+            Row(
+                Column('producto', css_class='form-group col-md-8 mb-0', css_id='productodetalle'),
+                Column('medida', css_class='form-group col-md-4 mb-0', css_id='medidadetalle'),
+                css_class='form-row'
+            ),
+            Row(Column('norma_ramal', css_class='form-group col-md-4 mb-0'),
+                Column('norma_empresarial', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'),
+            Row(
+                Column('operativo', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'
             ),
         )
 
@@ -1868,6 +1862,33 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         if float(norma_empresarial) <= 0:
             raise forms.ValidationError('Debe introducir un valor>0')
         return norma_empresarial
+
+
+class NormaConsumoDetalleDetailForm(NormaConsumoDetalleForm):
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_normaconsumodetall_detail_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                Column(UneditableField('producto'), css_class='form-group col-md-8 mb-0', css_id='productodetalle'),
+                Column(UneditableField('medida'), css_class='form-group col-md-4 mb-0', css_id='medidadetalle'),
+                css_class='form-row'
+            ),
+            Row(Column(UneditableField('norma_ramal'), css_class='form-group col-md-4 mb-0'),
+                Column(UneditableField('norma_empresarial'), css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'),
+            Row(
+                Column(UneditableField('operativo'), css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'
+            ),
+        )
 
 
 class NormaConsumoGroupedFormFilter(forms.Form):
@@ -2372,6 +2393,7 @@ class LineaSalidaFormFilter(forms.Form):
 class NumeracionDocumentosForm(forms.ModelForm):
     tiponum = forms.CharField(max_length=50, label=_("Tipo Numero"), required=False)
     prefijo = forms.CheckboxInput()
+
     class Meta:
         model = NumeracionDocumentos
         fields = [

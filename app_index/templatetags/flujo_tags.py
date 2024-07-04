@@ -10,4 +10,4 @@ register = template.Library()
 
 @register.simple_tag
 def get_documento_versat_detalle_table(table_class=None, detalle=None):
-    return DocumentosVersatDetalleTable(detalle) if detalle and table_class else None
+    return table_class(detalle) if detalle and table_class else None

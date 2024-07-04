@@ -9,10 +9,11 @@
 <form
     id="{{name}}_{{object.pk}}_addedit"
     class="addedit"
+    style="max-width: {{ max_width }}"
     action="{% crud_inline_url base_model inline_model action namespace %}"
     method="POST" enctype="multipart/form-data"
     data-replace-inner="#{{name}}_editList"
-    data-ajax-submit="my_submit()"
+    data-ajax-submit=""
     data-refresh-inner="#{{name}}_myList"
     data-success="success"
     onsubmit="return false;"

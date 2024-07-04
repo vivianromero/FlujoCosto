@@ -1,3 +1,8 @@
+from crispy_forms.layout import HTML
+from django.template.loader import get_template, render_to_string
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+
 from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions
 from cruds_adminlte3.utils import attrs_center_center
 from flujo.models import Documento
@@ -30,6 +35,21 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
         orderable=False,
         attrs=attrs_center_center
     )
+
+    @staticmethod
+    def render_estado(value):
+        if value == 'Edición':
+            return render_to_string('app_index/table_icons/edicion_icon.html')
+        elif value == 'Confirmado':
+            return render_to_string('app_index/table_icons/confirmado_icon.html')
+        elif value == 'Rechazado':
+            return render_to_string('app_index/table_icons/rechazado_icon.html')
+        elif value == 'Cancelado':
+            return render_to_string('app_index/table_icons/cancelado_icon.html')
+
+    @staticmethod
+    def value_estado(value):
+        return value
 
 
 # ------ Documentos Versat / Table ------
@@ -95,7 +115,7 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
     existencia = tables.Column(verbose_name='Existencia')
 
     actions = tables.TemplateColumn(
-        template_name='cruds/actions/hx_actions_documentosversat_template.html',
+        template_name='cruds/actions/hx_actions_documentosversat_detalle_template.html',
         verbose_name=_('Actions'),
         exclude_from_export=True,
         orderable=False,
