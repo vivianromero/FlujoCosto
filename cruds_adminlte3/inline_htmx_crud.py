@@ -8,6 +8,7 @@ Created on 14/4/2017
 """
 from __future__ import unicode_literals
 
+from django.contrib.auth.decorators import login_required
 from django.urls import re_path
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -39,7 +40,8 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
     }
 
     def check_decorator(self, viewclass):
-        viewclass = super(InlineHtmxCRUD, self).check_decorator(viewclass)
+        if self.check_login:
+            return login_required(viewclass)
         return viewclass
 
     def get_create_view(self):
@@ -58,6 +60,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # context['inline_model'] = self.model
                 # context['name'] = self.name
                 # context['views_available'] = self.views_available
+                context.update(self.htmx)
                 return context
 
             def form_valid(self, form):
@@ -91,6 +94,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             # inline_field = self.inline_field
             # views_available = self.views_available[:]
             # name = self.name
+            htmx = self.htmx
 
             def get_context_data(self, **kwargs):
                 context = super(DetailView, self).get_context_data(**kwargs)
@@ -98,6 +102,15 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # context['inline_model'] = self.object
                 # context['name'] = self.name
                 # context['views_available'] = self.views_available
+                # context.update({
+                #     'form': self.form_class(),
+                # })
+                if 'pk' in kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    context['form'] = self.form_class(instance=obj)
+                elif 'object' in kwargs:
+                    context['form'] = self.form_class(instance=kwargs['object'])
+                context.update(self.htmx)
                 return context
 
             def get(self, request, *args, **kwargs):
@@ -122,6 +135,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # context['inline_model'] = self.object
                 # context['name'] = self.name
                 # context['views_available'] = self.views_available
+                context.update(self.htmx)
                 return context
 
             def get(self, request, *args, **kwargs):
@@ -163,6 +177,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # context['base_model'] = self.model_id
                 # context['name'] = self.name
                 # context['views_available'] = self.views_available
+                context.update(self.htmx)
                 return context
 
             def get_queryset(self):
@@ -180,14 +195,45 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
 
         return ListView
 
-    def get_delete_view(self):
-        delete_view = super(InlineHtmxCRUD, self).get_delete_view()
+    def get_filter_list_view(self):
+        filter_list_view = super(InlineAjaxCRUD, self).get_filter_list_view()
 
-        class DeleteView(delete_view):
+        class FilterListView(filter_list_view):
             inline_field = self.inline_field
             base_model = self.base_model
             name = self.name
             views_available = self.views_available[:]
+
+            def get_context_data(self, **kwargs):
+                context = super(FilterListView, self).get_context_data(**kwargs)
+                context['base_model'] = self.model_id
+                context['name'] = self.name
+                context['views_available'] = self.views_available
+                return context
+
+            def get_queryset(self):
+                queryset = super(FilterListView, self).get_queryset()
+                params = {
+                    self.inline_field: self.model_id
+                }
+                queryset = queryset.filter(**params)
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return filter_list_view.get(self, request, *args, **kwargs)
+
+        return FilterListView
+
+    def get_delete_view(self):
+        delete_view = super(InlineHtmxCRUD, self).get_delete_view()
+
+        class DeleteView(delete_view):
+            # inline_field = self.inline_field
+            # base_model = self.base_model
+            # name = self.name
+            # views_available = self.views_available[:]
             htmx = self.htmx
 
             def get_context_data(self, **kwargs):
@@ -201,12 +247,14 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # else:
                 #     url_father = self.get_success_url()
                 # context['url_father'] = url_father
+                context.update(self.htmx)
                 return context
 
             def get(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
-                    self.base_model, pk=kwargs['model_id'])
-                return super().get(self, request, *args, **kwargs)
+                    self.base_model, pk=kwargs['model_id']
+                )
+                return self.post(self, request, *args, **kwargs)
 
             def get_success_url(self):
                 url = super().get_success_url()
@@ -223,6 +271,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 else:
                     url_father = self.get_success_url()
                 response = delete_view.post(self, request, *args, **kwargs)
+                # return HttpResponse(" ")
                 return response
 
         return DeleteView

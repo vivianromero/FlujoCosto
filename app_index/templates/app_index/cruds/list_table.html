@@ -27,7 +27,7 @@
                                     {% include 'app_index/cruds/list_table_navbar.html' %}
                                 {% endblock table_navbar %}
                                 {% block datatable %}
-                                    <div class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
+                                    <div id="main_content_table_swap" class="shadow overflow-auto border dark:border border-gray-200 sm:rounded-lg max-h-[650px] overflow-y-auto">
                                         {% render_table table %}
                                     </div>
                                 {% endblock datatable %}

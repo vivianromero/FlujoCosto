@@ -24,7 +24,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                 <h5 class="modal-title">{{  modal_form_title }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                <button hx-get="{{ url_list }}{{getparams}}" 
+                        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+                        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                        hx-trigger="click"
+                        type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -34,64 +38,75 @@
                 {% else %}
                     {{ form|crispy }}
                 {% endif %}
-            </div>
-            {% if inlines and action == 'update' %}
-                <div class="card-body row" style="padding-top: 0">
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                        {% for inline in inlines%}
-                        <div class="panel-heading">
-                            <h3 class="panel-title">{{inline.title}}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div id="{{inline.name}}_father">
-                                {% if 'create' in inline.views_available %}
-                                    <button class="btn btn-success"
-                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
-                
-                                        id="#{{ name }}_{{ object.pk }}_add"
-                                        data-replace-inner="#edit_modal_inner"
-                
-                
-                                        data-replace-inner="#{{inline.name}}_editList"
-                                        data-ajax="" data-success="function(){}"
-                                        style="margin-top: 0px; margin-bottom: 5px;">
-                                        Adicionar Productos
-                                    </button>
-                                {% endif %}
-                                {% if 'list' in inline.views_available %}
-                                    <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">
-                
-                                        <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"
-                                            data-ajax="" data-success="function(){}"
-                                            data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">
-                                            <i class='fa fa-spinner fa-spin '></i>
-                                        </a>
-                                        <script>
-                                        $( document ).ready(function() {$("#{{inline.name}}_btn").click() });
-                                        </script>
+                {% if inlines and action == 'update' %}
+                    <div class="card-body row" style="padding: 0">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                {% for inline in inlines%}
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">{{inline.title}} {{ inline.}}</h3>
+                                </div>
+                                <div class="card-body" style="padding: 0">
+                                    <div id="{{inline.name}}_father">
+                                        {% if 'create' in inline.views_available %}
+                                            <button class="btn btn-success"
+                                                    hx-get="{% crud_inline_url form.instance inline.model 'create' namespace %}"
+                                                    hx-target="#edit_modal_inner"
+{#                                                data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"#}
+                                                id="#{{ name }}_{{ object.pk }}_add"
+{#                                                data-replace-inner="#edit_modal_inner"#}
+                        
+                        
+{#                                                data-replace-inner="#{{inline.name}}_editList"#}
+{#                                                data-ajax="" data-success="function(){}"#}
+                                                style="margin-top: 0px; margin-bottom: 5px;">
+                                                Adicionar Productos
+                                            </button>
+                                        {% endif %}
+                                        {% if 'list' in inline.views_available %}
+                                            <div id="id_{{ inline.name }}_myList">
+                                                <a id="id_{{inline.name}}_btn" 
+                                                   hx-get="{% crud_inline_url form.instance inline.model 'list' namespace %}" 
+                                                   hx-target="#id_{{inline.name}}_myList"
+                                                   hx-trigger="load"
+                                                   href="{% crud_inline_url form.instance inline.model 'list' namespace %}"
+                                                >
+                                                    <i class='fa fa-spinner fa-spin '></i>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        <div id="{{inline.name}}_editList"></div>
                                     </div>
-                                {% endif %}
-                                <div id="{{inline.name}}_editList"></div>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
-                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if inline_tables and action is not 'create' %}
+                    <div class="card-body row" style="padding: 0">
+                        <div class="col-md-12">
+                            {% for inline_table in inline_tables %}
+                                {% if inline_table.visible %}
+                                    {% if inline_table.title %}
+                                        <div class="panel-heading">
+                                            <h5 class="panel-title">{{ inline_table.title }}</h5>
+                                        </div>
+                                    {% endif %}                                      
+                                    <div id="id_{{inline_table.name}}_father">
+                                        <div id="id_{{ inline_table.name }}_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]"
+                                             style="height: inherit;">
+                                            {% render_table inline_table.table %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
-                </div>
-            {% endif %}
-            {% if inline_table %}
-            	<div class="card-body row" style="padding-top: 0">
-                    <div class="col-md-12">
-                        <div id="id_datatable_doc_versat_detalle_swap" class="shadow border dark:border border-gray-200 sm:rounded-lg max-h-[650px]"
-                             style="height: inherit;">
-{#                            {% get_documento_versat_detalle_table inline_table detalle as tableversat_detalles %}#}
-{#                            {% if tableversat_detalles %} {% render_table tableversat_detalles %} {% endif %}#}
-                            {% render_table inline_table %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %} 
+                {% endif %} 
+            </div>
+            
+            
             <div class="modal-footer">
                 {% if form_view %}
                     <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">

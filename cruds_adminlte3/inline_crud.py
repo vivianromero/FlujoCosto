@@ -12,6 +12,8 @@ from django.urls import re_path
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
+from django_tables2 import SingleTableMixin
+from django_tables2.export import ExportMixin
 
 from cruds_adminlte3 import utils
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
@@ -161,6 +163,37 @@ class InlineAjaxCRUD(CRUDView):
                 return djListView.get(self, request, *args, **kwargs)
 
         return ListView
+
+    def get_filter_list_view(self):
+        filter_list_view = super(InlineAjaxCRUD, self).get_filter_list_view()
+
+        class FilterListView(filter_list_view):
+            inline_field = self.inline_field
+            base_model = self.base_model
+            name = self.name
+            views_available = self.views_available[:]
+
+            def get_context_data(self, **kwargs):
+                context = super(FilterListView, self).get_context_data(**kwargs)
+                context['base_model'] = self.model_id
+                context['name'] = self.name
+                context['views_available'] = self.views_available
+                return context
+
+            def get_queryset(self):
+                queryset = super(FilterListView, self).get_queryset()
+                params = {
+                    self.inline_field: self.model_id
+                }
+                queryset = queryset.filter(**params)
+                return queryset
+
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return filter_list_view.get(self, request, *args, **kwargs)
+
+        return FilterListView
 
     def get_delete_view(self):
         djDeleteView = super(InlineAjaxCRUD, self).get_delete_view()

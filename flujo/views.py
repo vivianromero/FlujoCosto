@@ -639,7 +639,12 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         'submitted': 'app_index:flujo:flujo_documento_versat_aceptar',
         'refused': 'app_index:flujo:flujo_documento_versat_rechazar',
     }
-    inline_table = DocumentosVersatDetalleTable
+    inline_tables = [{
+        "table": DocumentosVersatDetalleTable([]),
+        "name": "documentosversatdetalletable",
+        "visible": True,
+        # "title": "Detalles del Documento"
+    }]
     hx_target = '#table_content_documento_swap'
     hx_swap = 'outerHTML'
     hx_form_target = '#dialog'
@@ -653,11 +658,14 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         detalle = self.request.GET.get('detalle', None)
         if detalle:
             detalle = literal_eval(detalle)
+        self.inline_tables[0].update({
+            "table": DocumentosVersatDetalleTable(detalle),
+        })
         ctx = super().get_context_data(**kwargs)
         ctx.update({
             'btn_rechazar': 'Rechazar Documento',
             'btn_aceptar': 'Aceptar Documento',
-            'inline_table': self.inline_table(detalle),
+            'inline_tables': self.inline_tables,
         })
         return ctx
 

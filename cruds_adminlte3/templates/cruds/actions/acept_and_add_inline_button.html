@@ -1,7 +1,8 @@
 {% load i18n %}
 {% if not url_update %}
     <button id="id_form_btn_add_inline"
-            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "inline_submitted"}'
+            hx-vals='{"event_action": "inline_submitted"}'
             hx-post="{{ request.path }}"
             {% if hx_retarget %}hx-target="{{ hx_retarget }}" {% else %}hx-target="#dialog"{% endif %}
             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}

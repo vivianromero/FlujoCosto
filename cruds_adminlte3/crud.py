@@ -41,6 +41,7 @@ from cruds_adminlte3.domains import (
 from cruds_adminlte3.filter import get_filters, get_filter_fields
 from utiles.utils import message_error
 from .config import CONFIG
+from .utils import crud_url_name
 
 User = get_user_model()
 
@@ -724,12 +725,7 @@ class CRUDView(object):
                 return HttpResponseRedirect(self.get_success_url())
 
             def get_success_url(self):
-                if "another" in self.request.POST and not self.modal:
-                    url = self.request.path
-                else:
-                    url = super(OCreateView, self).get_success_url()
-                if self.getparams:  # fixed filter create action
-                    url += '?' + self.getparams
+                url = super(OCreateView, self).get_success_url()
                 return url
 
             def get_context_data(self, **kwargs):
@@ -1412,7 +1408,7 @@ class CRUDView(object):
             self.initialize_update(basename + '/update.html')
 
         if 'list' in self.views_available:
-            if self.filter_fields is None:
+            if self.filter_fields is None and self.table_class is None:
                 self.initialize_list(basename + '/list.html')
             else:
                 if self.table_class is None:
