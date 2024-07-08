@@ -1,26 +1,31 @@
-import calendar
+import uuid
 import datetime
-from ast import literal_eval
 from datetime import datetime
+from ast import literal_eval
+import calendar
 
 from django.db import IntegrityError
 from django.db.models import Max
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
+from django.views.generic.edit import FormView
 
+import settings
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
-from codificadores.models import FechaInicio
+from codificadores.models import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
 from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
 from .forms import *
-from .forms import DepartamentoDocumentosForm
 from .models import *
-from .utils import ids_documentos_versat_procesados
+from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, actualiza_numero_eliminado, \
+    existencia_anterior
+from rest_framework.views import APIView
+from utiles.utils import message_error
 
 
 # Create your views here.
@@ -73,7 +78,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                             'producto'], form.cleaned_data['estado'],
                         form.cleaned_data[
                             'cantidad'])
-                    if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and not existencia:
+                    if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
                         return self.form_invalid(form)
@@ -110,14 +115,9 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
         return OEditView
 
     def get_delete_view(self):
-        # djDeleteView = super(InlineAjaxCRUD, self).get_delete_view()
         delete_view = super().get_delete_view()
 
         class DeleteView(delete_view):
-            # inline_field = self.inline_field
-            # base_model = self.base_model
-            # name = self.name
-            # views_available = self.views_available[:]
 
             def get_context_data(self, **kwargs):
                 context = super(DeleteView, self).get_context_data(**kwargs)
@@ -150,7 +150,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                     url_father = self.get_success_url()
                 doc = self.model_id
                 producto = self.kwargs['pk']
-
+                existencia_anterior(doc, producto, True)
                 response = delete_view.post(self, request, *args, **kwargs)
 
                 return HttpResponse(" ")
@@ -218,15 +218,19 @@ class DocumentoCRUD(CommonCRUDView):
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
                 departamento = self.request.GET.get('departamento', None)
+
                 if departamento is None and self.request.htmx.current_url_abs_path and 'departamento' in self.request.htmx.current_url_abs_path:
                     deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                     departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
+                dpto = Departamento.objects.get(pk=departamento)
+                dpto.fechaperiodo_departamento.all()
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 form_kwargs.update(
                     {
                         "user": self.request.user,
                         "departamento": departamento,
                         "tipo_doc": tipo_doc,
+                        # "fecha_procesam": ,
                     }
                 )
                 return form_kwargs
@@ -247,9 +251,7 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_success_url(self):
                 if "inline" in self.request.POST:
-                    # url = reverse_lazy(crud_url_name(self.model, 'update'), kwargs={"pk": self.object.id})
                     url = self.model.get_absolute_url(self.object)
-                    # return HttpResponseLocation(url, target='#dialog',)
                 else:
                     url = super().get_success_url()
                 return url
@@ -263,6 +265,9 @@ class DocumentoCRUD(CommonCRUDView):
                         TipoNumeroDoc.NUMERO_CONSECUTIVO if e.args[0].find(
                             'numeroconsecutivo') > 0 else TipoNumeroDoc.NUMERO_CONTROL]['mensaje_error']
                     form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                except Exception as e:
+                    form.add_error(None, 'Existe un error al salvar los datos')
                     return self.form_invalid(form)
 
         return OCreateView
@@ -301,7 +306,7 @@ class DocumentoCRUD(CommonCRUDView):
                     tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
                         datostableversat)
                     tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
-                    DepartamentoDocumentosForm(initial={'departamento': self.dep}),
+                    DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
                 context.update({
@@ -330,43 +335,14 @@ class DocumentoCRUD(CommonCRUDView):
                 formating = '%d/%m/%Y'
                 self.dep = self.request.GET.get('departamento', None)
                 rango_fecha = self.request.GET.get('rango_fecha', None)
-                # if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                #     depx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
-                # else:
-                #     depx = []
                 if self.dep is not None and self.dep != '':
                     qdict['departamento'] = self.dep
-                    # queryset = queryset.filter(departamento=self.dep)
                 if self.dep == '' or self.dep is None:
-                    # queryset = queryset.none()
                     return self.model.objects.none()
                 if rango_fecha is not None and rango_fecha != '':
                     fechas = rango_fecha.strip().split('-')
                     qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
                     qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
-                    # queryset = queryset.filter(
-                    #     fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
-                    #     fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
-                    # )
-                # if len(depx) > 0:
-                #     depxs = depx[0].split('=')
-                #     if self.dep is None:
-                #         if depxs[0] == 'departamento':
-                #             queryset = queryset.filter(departamento=depxs[1])
-                #             self.dep = depxs[1]
-                #     elif fecha is None:
-                #         if depxs[0] == 'fecha':
-                #             fechas = depxs[1].strip().split('-')
-                #             fechas[0] = fechas[0].replace('%20', '').replace('%2F', '/')
-                #             fechas[1] = fechas[1].replace('%20', '').replace('%2F', '/')
-                #             queryset = queryset.filter(
-                #                 fecha__gte=datetime.datetime.strptime(fechas[0].strip(), formating).date(),
-                #                 fecha__lte=datetime.datetime.strptime(fechas[1].strip(), formating).date()
-                #             )
-                # else:
-                #     queryset = queryset.none()
-                # if qdict:
-                #     return queryset.filter(**qdict)
                 return queryset
 
         return OFilterListView
@@ -413,7 +389,34 @@ class DocumentoCRUD(CommonCRUDView):
                     'hx_target': '#table_content_documento_swap',
                     'hx-swap': 'outerHTML',
                 })
+
                 return ctx
+
+            @transaction.atomic
+            def post(self, request, *args, **kwargs):
+                self.object = self.get_object()
+                try:
+                    detalles = self.object.documentodetalle_documento.all()
+                    doc = self.object
+                    control = doc.get_numerocontrol()
+                    consecutivo = doc.numeroconsecutivo
+                    for d in detalles:
+                        existencia_anterior(doc, d.pk, True)
+                    self.object.delete()
+                    actualiza_numero_eliminado(doc.ueb, doc.departamento, control, consecutivo)
+                except ProtectedError as e:
+                    protected_details = ", ".join([str(obj) for obj in e.protected_objects])
+                    title = 'No se puede eliminar '
+                    text = 'Este elemento contiene o está relacionaco con: \n'
+                    message_error(self.request,
+                                  title + self.object.__str__() + '!',
+                                  text=text + protected_details)
+                    sweetify.error(self.request, title + self.object.__str__() + '!', text=text + protected_details,
+                                   persistent=True)
+                    return HttpResponseRedirect(self.get_success_url())
+                if self.success_message:
+                    sweetify.success(self.request, self.success_message)
+                return HttpResponseRedirect(self.get_success_url())
 
         return ODeleteView
 
@@ -432,68 +435,77 @@ class DocumentoCRUD(CommonCRUDView):
 def confirmar_documento(request, pk):
     # Para confirmar un documento se valida:
     #  - que contenga detalles
-    #  - que no existan documentos en edición anteriores a él
-    with transaction.atomic():
-        obj = Documento.objects.select_for_update().get(pk=pk)
-        params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-        event_action = None
-        if request.method == 'POST':
-            event_action = request.POST.get('event_action', None)
-        elif request.method == 'GET':
-            event_action = request.GET.get('event_action', None)
-        departamento = obj.departamento
-        ueb = obj.ueb
-        operacion = obj.tipodocumento.operacion
-        max_numero_editado = 0
-        detalles = obj.documentodetalle_documento.all()
-        detalles_count = detalles.count()
-        if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
-            exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
-            # list_dicc = [objeto.to_dict() for objeto in exist_dpto]
-            # dicc_existencias = dame_diccionario_exist(list_dicc)
-            actualizar_existencia = []
-            for d in detalles:
-                producto = d.producto
-                estado = d.estado
-                exist = exist_dpto.filter(producto=producto, estado=estado).first()
-                inicial_exist = 0 if not exist else exist.cantidad_inicial
-                entradas_exist = 0 if not exist else exist.cantidad_entrada
-                salidas_exist = 0 if not exist else exist.cantidad_salida
-                cantidad_final_exist = 0 if not exist else exist.cantidad_final
-                importe_exist = 0 if not exist else exist.importe
+    #  - que no existan documentos en edición anteriores a él, que el umtimo consecutivo confirmado sea el anterior a su numero
+    # Procedimiento
+    #  - Despues de validar y todo ok se procede a la confirmación
+    #  - Si actualizan las existencias
+    #  - Si es un documento de entrada se actualiza el precio
+    #  - Si el documento lo requiere se genera el documento en el destino
 
-                precio = d.precio
-                cantidad = d.cantidad
-                importe = d.importe
+    obj = Documento.objects.select_for_update().get(pk=pk)
+    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    departamento = obj.departamento
+    ueb = obj.ueb
+    operacion = obj.tipodocumento.operacion
+    max_numero_editado = 0
+    detalles = obj.documentodetalle_documento.all()
+    detalles_count = detalles.count()
+    if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
+        exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
+        actualizar_existencia = []
+        for d in detalles:
+            producto = d.producto
+            estado = d.estado
+            exist = exist_dpto.filter(producto=producto, estado=estado).first()
+            inicial_exist = 0 if not exist else exist.cantidad_inicial
+            entradas_exist = 0 if not exist else exist.cantidad_entrada
+            salidas_exist = 0 if not exist else exist.cantidad_salida
+            cantidad_final_exist = 0 if not exist else exist.cantidad_final
 
-                if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
-                    importe_t = importe + importe_exist
-                    cantidad_t = cantidad + cantidad_final_exist
-                    precio = importe_t / cantidad_t
+            precio = d.precio if not exist else exist.precio
+            cantidad = d.cantidad
 
-                cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
-                cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
-                cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
+            if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
+                importe = d.cantidad * d.precio
+                importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
+                importe_t = importe + importe_exist
+                cantidad_t = cantidad + cantidad_final_exist
+                precio = importe_t / cantidad_t
 
-                importe = cantidad_final * precio
+            cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
+            cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
+            cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
 
-                actualizar_existencia.append(
-                    ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
-                                   cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
-                                   cantidad_final=cantidad_final, importe=importe,
-                                   precio=precio))
-            ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
-                                                         ['cantidad_entrada', 'cantidad_salida', 'precio',
-                                                          'cantidad_final', 'importe'],
-                                                         match_field=['ueb', 'departamento', 'producto', 'estado'])
-            obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
-            obj.save()
-        else:
-            title = 'No puede ser confrimado el documento '
-            text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
-            text = 'Este documento contiene errores' if obj.error else text
-            sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
-                           persistent=True)
+            importe = cantidad_final * precio
+
+            actualizar_existencia.append(
+                ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
+                               cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
+                               cantidad_final=cantidad_final, importe=importe,
+                               precio=precio))
+        ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
+                                                     ['cantidad_entrada', 'cantidad_salida', 'precio',
+                                                      'cantidad_final', 'importe'],
+                                                     match_field=['ueb', 'departamento', 'producto', 'estado'])
+        obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
+        obj.save()
+
+        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
+            new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
+            departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
+            new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
+
+            departamento_origen = departamento
+            DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
+
+            crea_detalles_generado(new_doc, detalles)
+
+    else:
+        title = 'No puede ser confrimado el documento '
+        text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
+        text = 'Este documento contiene errores' if obj.error else text
+        sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
+                       persistent=True)
 
         return HttpResponseLocation(
             reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
@@ -506,6 +518,42 @@ def confirmar_documento(request, pk):
         )
 
 
+def crea_documento_generado(ueb, departamento, tipodoc, doc_origen):
+    numeros = genera_numero_doc(departamento, ueb, tipodoc)
+    numerocontrol = str(numeros[1][0]) if not numeros[1][2] else str(numeros[1][0]) + '/' + str(numeros[1][2])
+    numeroconsecutivo = numeros[0][0]
+
+    fecha = settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento']
+    confconsec = ConfigNumero.DEPARTAMENTO if numeros[0][3]['departamento'] == True else ConfigNumero.UNICO
+    confcontrol = ConfigNumero.DEPARTAMENTO if numeros[1][3]['departamento'] == True else ConfigNumero.UNICO
+
+    return Documento.objects.create(fecha=fecha, numerocontrol=numerocontrol,
+                                    numeroconsecutivo=numeroconsecutivo,
+                                    departamento=departamento, tipodocumento=TipoDocumento.objects.get(pk=tipodoc),
+                                    confconsec=confconsec,
+                                    confcontrol=confcontrol, ueb=ueb)
+
+
+@transaction.atomic
+def crea_detalles_generado(doc, detalles):
+    dicc = {'documento__estado': EstadosDocumentos.EDICION,
+            'documento__departamento': doc.departamento, 'documento__ueb': doc.ueb}
+
+    docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+    detalles_new = []
+    for d in detalles:
+        docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+        existencia_product = existencia_producto(docs_en_edicion.filter(producto=d.producto, estado=d.estado), doc,
+                                                 d.producto, d.estado, d.cantidad)
+        d.existencia = existencia_product
+        d.id = uuid.uuid4()
+        d.documento = doc
+        detalles_new.append(d)
+
+    DocumentoDetalle.objects.bulk_create(detalles_new)
+    return
+
+
 def existen_documentos_sin_confirmar(obj):
     conf = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]
     departamento = obj.departamento
@@ -515,12 +563,8 @@ def existen_documentos_sin_confirmar(obj):
 
     docs = Documento.objects.filter(ueb=ueb, numeroconsecutivo__lt=numeroconsecutivo)
 
-    if conf['tipo_documento'] and conf['departamento']:
-        doc = docs.filter(tipodocumento=tipodoc, departamento=departamento)
-    elif conf['departamento']:
+    if conf['departamento']:
         doc = docs.filter(departamento=departamento)
-    elif conf['tipo_documento']:
-        doc = docs.filter(tipodocumento=tipodoc)
     else:
         doc = docs
 
@@ -613,7 +657,7 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
     departamento = doc.departamento
     ueb = doc.ueb
 
-    operacion = 1 if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
+    operacion = doc.operacion
 
     # tomo la existencia del producto
     existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
@@ -629,29 +673,27 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
     dicc = {'documento__estado': EstadosDocumentos.EDICION,
             'documento__departamento': departamento, 'producto': producto, 'estado': estado, 'documento__ueb': ueb}
 
-    # detalles de los doc que están en edición de la ueb y el departamento y contienen el producto
     docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-
-    # docum anteriores al actual que tienen el producto
-    docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=doc.numeroconsecutivo)
-
-    # se obtiene el total del producto se suman las entradas y se restan las salidas
-    total_anterior = docs_anteriors.annotate(
-        adjusted_quantity=Case(
-            When(documento__tipodocumento__operacion=OperacionDocumento.ENTRADA, then=F('cantidad')),
-            When(documento__tipodocumento__operacion=OperacionDocumento.SALIDA, then=-F('cantidad')),
-            default=Value(0),
-            output_field=DecimalField()
-        )
-    ).aggregate(
-        total_ant=Coalesce(Sum('adjusted_quantity'), Value(0), output_field=DecimalField())
-    )['total_ant']
+    total_anterior = dame_valor_anterior(doc, docs_en_edicion)
 
     # se actualiza la existencia del producto en el detalle actual
     existencia_product = float(cantidad_existencia) + float(cantidad) * operacion + float(total_anterior)
     return None if existencia_product < 0 else existencia_product
 
 
+def precioproducto(request):
+    tipoproducto = request.GET.get('tipoproducto')
+    clasemp = request.GET.get('clase')
+    clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
+    tipoprod = TipoProducto.objects.all()
+    context = {
+        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
+        'clases_mp': clases_mp,
+        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
+        'tipoprod': tipoprod,
+        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
+    }
+    return render(request, 'app_index/partials/productclases.html', context)
 def aceptar_documento_versat(kwargs):
     """
     Aceptar un documento

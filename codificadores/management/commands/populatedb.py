@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from configuracion.models import UserUeb, UnidadContable
+from codificadores.models import ProductoDepartamento, TipoProductoDepartamento
 
 DICC_GROUP_PERMISSION = {
     (1, 2, 3, 4, 5):
@@ -76,6 +77,17 @@ DICC_GROUP_PERMISSION = {
 class Command(BaseCommand):
     def add_datos_group_permission(self):
 
+        departamento_poducto = [
+            ProductoDepartamento(pk=TipoProductoDepartamento.MATERIAPRIMA),
+            ProductoDepartamento(pk=TipoProductoDepartamento.MANOJOS),
+            ProductoDepartamento(pk=TipoProductoDepartamento.CAPASINCLASIFICAR),
+            ProductoDepartamento(pk=TipoProductoDepartamento.CAPACLASIFICADA),
+            ProductoDepartamento(pk=TipoProductoDepartamento.PESADA),
+            ProductoDepartamento(pk=TipoProductoDepartamento.LINEASINTERMINAR),
+            ProductoDepartamento(pk=TipoProductoDepartamento.LINEASALIDA),
+            ProductoDepartamento(pk=TipoProductoDepartamento.VITOLA),
+        ]
+
         print("CREANDO GRUPOS DE USUARIOS")
         print("    Administrador")
         print("    Administrador Empresa")
@@ -91,6 +103,7 @@ class Command(BaseCommand):
         ]
         try:
             Group.objects.bulk_create(groups)
+            ProductoDepartamento.objects.bulk_create(departamento_poducto)
         except Exception as e:
             print("GRUPOS DE USUARIOS YA EXISTEN")
 

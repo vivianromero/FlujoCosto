@@ -9,10 +9,9 @@ from django.utils.translation import gettext_lazy as _
 from django_choices_field import IntegerChoicesField
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
-    ProductoFlujo, ConfigNumero, ObjectsManagerAbstract
+    ProductoFlujo, ConfigNumero, ObjectsManagerAbstract, OperacionDocumento, TipoNumeroDoc
 from cruds_adminlte3.utils import crud_url
 from django.dispatch import receiver
-
 
 class EstadosDocumentos(models.IntegerChoices):
     EDICION = 1, 'Edición'
@@ -30,7 +29,7 @@ class Documento(models.Model):
     observaciones = models.TextField(blank=True, null=True, verbose_name=_("Observations"))
     estado = IntegerChoicesField(choices_enum=EstadosDocumentos,
                                  db_comment="Estado del documento 1:Edición, 2:Confirmado, 3:Rechazado",
-                                 verbose_name=_("Status"))
+                                 verbose_name=_("Status"), default=EstadosDocumentos.EDICION)
     reproceso = models.BooleanField(default=False, verbose_name=_("Reprocessing"))
     editar_nc = models.BooleanField(default=False)
     comprob = models.CharField(max_length=150, blank=True, null=True)
@@ -40,10 +39,10 @@ class Documento(models.Model):
     mes = models.IntegerField(default=0)
     confconsec = IntegerChoicesField(choices_enum=ConfigNumero,
                                  db_comment="Para guardar el tipo de conf para el consecutivo y poder establecer la constarint",
-                                 default=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO)
+                                 default=ConfigNumero.DEPARTAMENTO)
     confcontrol = IntegerChoicesField(choices_enum=ConfigNumero,
                                  db_comment="Para guardar el tipo de conf para el numero de control y poder establecer la constarint",
-                                 default=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO)
+                                 default=ConfigNumero.DEPARTAMENTO)
     error = models.BooleanField(default=False, verbose_name=_("Error"))
     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_ueb')
 
@@ -51,40 +50,19 @@ class Documento(models.Model):
         db_table = 'fp_documento'
         constraints = [
             models.UniqueConstraint(
-                fields=['numeroconsecutivo', 'departamento', 'tipodocumento', 'mes', 'anno', 'ueb'],
-                condition=Q(confconsec=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO),
-                name='unique_numeroconsecutivo_departamento_tipodocumento'
-            ),
-            models.UniqueConstraint(
                 fields=['numeroconsecutivo', 'departamento', 'mes', 'anno', 'ueb'],
                 condition=Q(confconsec=ConfigNumero.DEPARTAMENTO),
-                name='unique_numeroconsecutivo_departamento'
-            ),
-            models.UniqueConstraint(
-                fields=['numeroconsecutivo', 'tipodocumento', 'mes', 'anno', 'ueb'],
-                condition=Q(confconsec=ConfigNumero.TIPODOCUMENTO),
-                name='unique_numeroconsecutivo_tipodocumento'
+                name='unique_numeroconsecutivo_departamento_tipodocumento'
             ),
             models.UniqueConstraint(
                 fields=['numeroconsecutivo', 'mes', 'anno', 'ueb'],
                 condition=Q(confconsec=ConfigNumero.UNICO),
                 name='unique_numeroconsecutivo_ueb'
             ),
-
-            models.UniqueConstraint(
-                fields=['numerocontrol', 'departamento', 'tipodocumento', 'anno', 'ueb'],
-                condition=Q(confcontrol=ConfigNumero.DEPARTAMENTOTIPODOCUMENTO),
-                name='unique_numerocontrol_departamento_tipodocumento'
-            ),
             models.UniqueConstraint(
                 fields=['numerocontrol', 'departamento', 'anno', 'ueb'],
                 condition=Q(confcontrol=ConfigNumero.DEPARTAMENTO),
                 name='unique_numerocontrol_departamento'
-            ),
-            models.UniqueConstraint(
-                fields=['numerocontrol', 'tipodocumento', 'anno', 'ueb'],
-                condition=Q(confcontrol=ConfigNumero.TIPODOCUMENTO),
-                name='unique_numerocontrol_tipodocumento'
             ),
             models.UniqueConstraint(
                 fields=['numerocontrol', 'anno', 'ueb'],
@@ -102,10 +80,14 @@ class Documento(models.Model):
 
     def get_numerocontrol(self):
         nros = self.numerocontrol.split('/')
-        return int(self.numerocontrol[len(nros)-1])
+        return int(nros[len(nros)-1])
 
     def get_numerocontrol_prefijo(self):
         return '' if not '/' in self.numerocontrol else self.numerocontrol.split('/')[0]
+
+    @property
+    def operacion(self):
+        return 1 if self.tipodocumento.operacion==OperacionDocumento.ENTRADA else -1
 
 class DocumentoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -154,7 +136,7 @@ class DocumentoAjuste(models.Model):
 
 class DocumentoTransfDepartamento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE,
                                   related_name='documentotransfdepartamento_documento')
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
                                      related_name='documentotransfdepartamento_departamento',
@@ -385,49 +367,6 @@ class FechaCierreMes(models.Model):
             ),
         ]
 
-class NumerosDocumentos(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT, related_name='numerodoc_tipodocumento')
-    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                     related_name='numerodoc_departamento',
-                                     verbose_name=_("Department"))
-    consecutivo = models.IntegerField(verbose_name=_("Consecutive Number"), default=0)
-    control = models.IntegerField(verbose_name=_("Consecutive Number"), default=0)
-    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
-                            related_name='numerodoc_ueb',
-                            verbose_name="UEB")
-
-
-    class Meta:
-        db_table = 'fp_numerosdocumentos'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['tipodocumento', 'departamento', 'ueb'],
-                name='unique_numerosdocumentos_tipodocumento_departamento_ueb'
-            ),
-        ]
-
-        indexes = [
-            models.Index(
-                fields=[
-                    'tipodocumento',
-                    'departamento',
-                    'ueb'
-                ]),
-            models.Index(fields=[
-                    'tipodocumento',
-                    'ueb'
-                ]),
-            models.Index(fields=[
-                    'departamento',
-                    'ueb'
-                ]),
-            models.Index(fields=[
-                    'ueb'
-                ]
-            ),
-        ]
-
 class ExistenciaDpto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='existencias_producto',
@@ -466,27 +405,35 @@ class ExistenciaDpto(ObjectsManagerAbstract):
             )
         ]
 
-    # def to_dict(self):
-    #     return {
-    #         "ueb": self.ueb,
-    #         self.departamento: {
-    #         self.producto: {
-    #             self.estado: {'cantidad_inicial': self.cantidad_inicial,
-    #                           'cantidad_entrada': self.cantidad_entrada,
-    #                           'cantidad_salida': self.cantidad_salida,
-    #                           'cantidad_final': self.cantidad_final,
-    #                           'precio': self.precio,
-    #                           'importe': self.importe
-    #                           }
-    #         }
-    #         }
-    #     }
+class NumeroDocumentos(ObjectsManagerAbstract):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tiponumero = IntegerChoicesField(choices_enum=TipoNumeroDoc, verbose_name=_("Tipo número"),
+                                     default=TipoNumeroDoc.NUMERO_CONSECUTIVO)
+    departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                     related_name='numdoc_departamento',
+                                     verbose_name=_("Department"),
+                                     blank=True, null=True)
+    numero = models.IntegerField(verbose_name=_("Número"), default=0)
+    ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
+                            related_name='numdoc_ueb',
+                            verbose_name="UEB")
 
+    class Meta:
+        db_table = 'fp_numerodocumentos'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tiponumero', 'departamento', 'ueb'],
+                name='unique_numdocumentos_tiponumero_departamento_ueb'
+            ),
+        ]
 
-# @receiver(pre_save, sender=ExistenciaDpto)
-# def set_cantidad_final(sender, instance, **kwargs):
-#     instance.cantidad_final = instance.cantidad_inicial + instance.cantidad_entrada - instance.cantidad_salida
-#
-# @receiver(pre_save, sender=ExistenciaDpto)
-# def set_importe(sender, instance, **kwargs):
-#     instance.importe = instance.precio * instance.cantidad_final
+        indexes = [
+            models.Index(fields=[
+                'departamento',
+                'ueb'
+            ]),
+            models.Index(fields=[
+                'ueb'
+            ]
+            ),
+        ]

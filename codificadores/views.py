@@ -38,7 +38,8 @@ class DepartamentoCRUD(CommonCRUDView):
         'centrocosto',
         'unidadcontable',
         'relaciondepartamento',
-        'departamentoproducto',
+        'departamentoproductoentrada',
+        'departamentoproductosalida',
     ]
 
     # Hay que agregar __icontains luego del nombre del campo para que busque el contenido
@@ -134,9 +135,6 @@ class NormaConsumoDetalleAjaxCRUD(InlineAjaxCRUD):
                 ctx['form'] = form
                 tpl = self.get_template_names()
                 crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
-                # return HttpResponseClientRedirect(
-                #     crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
-                # )
                 response = render(self.request, tpl, ctx)
                 response['HX-Retarget'] = '#edit_modal_inner'
                 response['HX-Reswap'] = 'innerHTML'

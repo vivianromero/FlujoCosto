@@ -40,44 +40,9 @@ class ConexionBaseDato(models.Model):
             ),
         ]
 
+
     def __str__(self):
         return "%s - %s" % (self.sistema, self.database_name)
-
-
-# class ConsecutivoDocumento(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     numeraciondocumento = models.ForeignKey(NumeracionDocumentos, on_delete=models.PROTECT,
-#                                             related_name='consecutivodocumento_numeracion',
-#                                             verbose_name=_("Enumeration Type"))
-#     numero = models.IntegerField(verbose_name=_("Number"))
-#     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='consecutivo_ueb',
-#                             verbose_name="UEB")
-#
-#     class Meta:
-#         db_table = 'cfg_consecutivodocumento'
-
-
-# class ConsecutivoDocumentoDepartamento(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-#                                              related_name='consecutivodocumentodpto_consecutivodocumento')
-#     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-#                                      related_name='consecutivodocumentodpto_departamento',
-#                                      verbose_name=_("Department"))
-#
-#     class Meta:
-#         db_table = 'cfg_consecutivodocumentodepartamento'
-
-
-# class ConsecutivoDocumentoTipoDocumento(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     consecutivodocumento = models.ForeignKey(ConsecutivoDocumento, on_delete=models.CASCADE,
-#                                              related_name='consecutivodocumentotipodoc_consecutivodocumento')
-#     tipodocumento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT,
-#                                       related_name='consecutivodocumentotipodoc_tipodocumento')
-#
-#     class Meta:
-#         db_table = 'cfg_consecutivodocumentotipodocumento'
 
 
 class UserUeb(AbstractUser):

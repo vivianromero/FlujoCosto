@@ -36,7 +36,6 @@ class NormaConsumoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
         fields = (
             'fecha',
-            # 'tipo',
             'producto',
             'cantidad',
             'medida',
@@ -140,8 +139,6 @@ class MedidaConversionTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Cuenta / Table ------
 class CuentaTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
-    # shifter_template = "cruds/django_tables2_column_shifter/my-tree-hx-bootstrap4-responsive.html"
-
     descripcion = tables.TemplateColumn(template_name='cruds/tables/tree_node.html')
     clave = tables.TemplateColumn(template_name='cruds/tables/tree_node_clave.html')
 
@@ -277,7 +274,6 @@ class NumeracionDocumentosTable(CommonColumnShiftTableBootstrap4ResponsiveAction
             'id',
             'sistema',
             'departamento',
-            'tipo_documento',
             'prefijo'
         )
 
