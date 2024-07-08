@@ -1860,6 +1860,10 @@ class NormaConsumoDetalleForm(forms.ModelForm):
             raise forms.ValidationError('Debe introducir un valor>0')
         return norma_empresarial
 
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        return instance
+
 
 class NormaConsumoDetalleDetailForm(NormaConsumoDetalleForm):
 

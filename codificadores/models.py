@@ -527,7 +527,7 @@ class NormaConsumoGrouped(NormaConsumo):
         ordering = ['producto__tipoproducto', 'producto__descripcion', 'fecha']
 
     def __str__(self):
-        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion) if self.cantidad else ''
 
 
 class MotivoAjuste(ObjectsManagerAbstract):

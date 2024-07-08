@@ -73,7 +73,7 @@ class Documento(models.Model):
         ordering = ['ueb', 'departamento', '-numeroconsecutivo', 'tipodocumento']
 
     def __str__(self):
-        return self.tipodocumento.descripcion
+        return self.tipodocumento.descripcion if self.numeroconsecutivo else ''
 
     def get_absolute_url(self):
         return crud_url(self, 'update', namespace='app_index:flujo')

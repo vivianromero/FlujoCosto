@@ -1590,7 +1590,6 @@ class NumeracionDocumentosCRUD(CommonCRUDView):
         'id',
         'sistema',
         'departamento',
-        'tipo_documento',
         'prefijo'
     ]
 

@@ -66,6 +66,15 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
         class CreateView(create_view):
 
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "doc": self.model_id,
+                    }
+                )
+                return form_kwargs
+
             def get_context_data(self, **kwargs):
                 context = super().get_context_data(**kwargs)
                 return context
@@ -99,6 +108,15 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
         view = super().get_update_view()
 
         class OEditView(view):
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "doc": self.model_id,
+                    }
+                )
+                return form_kwargs
 
             def form_valid(self, form):
                 try:
@@ -694,6 +712,7 @@ def precioproducto(request):
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)
+
 def aceptar_documento_versat(kwargs):
     """
     Aceptar un documento

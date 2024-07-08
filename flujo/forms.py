@@ -584,38 +584,41 @@ class DocumentoDetalleForm(forms.ModelForm):
             ),
         )
 
+    @transaction.atomic
     def save(self, commit=True, doc=None, existencia=None):
-        with transaction.atomic():
-            instance = super().save(commit=False)
-
-            ueb = doc.ueb
-            producto = instance.producto
-            estado = instance.estado
-            departamento = doc.departamento
-            operacion = doc.operacion
-
-            existencia_actual = (float(instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
-                instance.cantidad) * operacion if not existencia else float(existencia)
-            instance.existencia = float(existencia_actual) + float(instance.cantidad)
-
-            # actualizar las existencias de los demás documentos
-            # tomo la existencia del producto
-            dicc = {'documento__estado': EstadosDocumentos.EDICION,
-                    'documento__departamento': departamento, 'producto': producto, 'estado': estado,
-                    'documento__ueb': ueb}
-
-            docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-            existencia_product = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
-
-
-            instance.existencia = existencia_product
-
-            # se van a actualizar las existencias de los doc posteriores que contienen el producto
-            actualiza_existencias(doc, docs_en_edicion, existencia_product)
-
-            instance.importe = instance.precio * instance.cantidad
-
+        if not doc:
             return self.instance
+        # with transaction.atomic():
+        instance = super().save(commit=False)
+
+        ueb = doc.ueb
+        producto = instance.producto
+        estado = instance.estado
+        departamento = doc.departamento
+        operacion = doc.operacion
+
+        existencia_actual = (float(instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
+            instance.cantidad) * operacion if not existencia else float(existencia)
+        instance.existencia = float(existencia_actual) + float(instance.cantidad)
+
+        # actualizar las existencias de los demás documentos
+        # tomo la existencia del producto
+        dicc = {'documento__estado': EstadosDocumentos.EDICION,
+                'documento__departamento': departamento, 'producto': producto, 'estado': estado,
+                'documento__ueb': ueb}
+
+        docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+        existencia_product = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
+
+
+        instance.existencia = existencia_product
+
+        # se van a actualizar las existencias de los doc posteriores que contienen el producto
+        actualiza_existencias(doc, docs_en_edicion, existencia_product)
+
+        instance.importe = instance.precio * instance.cantidad
+
+        return self.instance
 
 
 # ------------ ObtenerDocumentoVersat / Form ------------
