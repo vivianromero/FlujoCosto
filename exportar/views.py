@@ -129,7 +129,7 @@ def crear_export_file(request, json_data, opcion, modelo):
 
     if len(json_data) <= 2:
         message_success(request=request, title=_("Warning"), text=_("There aren't data to export"))
-        return redirect('app_index:index') if model==None else redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
+        return redirect('app_index:index') if modelo==None else redirect(crud_url_name(modelo, 'list', 'app_index:codificadores:'))
 
     encoder = json.encoder.JSONEncoder()
     json_verify = encoder.encode(dicc_verify)

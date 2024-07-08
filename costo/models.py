@@ -44,7 +44,7 @@ class FichaCostoProducto(ObjectsManagerAbstract):
             self.fecha,
             self.producto.codigo,
             self.producto.descripcion
-        )
+        ) if self.cantidad else ''
 
 
 class FichaCostoProductoFilas(ObjectsManagerAbstract):
