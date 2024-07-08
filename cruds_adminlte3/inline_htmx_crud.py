@@ -9,9 +9,10 @@ Created on 14/4/2017
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
-from django.urls import re_path
+from django.db import IntegrityError
+from django.urls import re_path, reverse_lazy
 from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
 
 from cruds_adminlte3 import utils
@@ -53,6 +54,12 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             # name = self.name
             # views_available = self.views_available[:]
             htmx = self.htmx
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
                 context = super(CreateView, self).get_context_data(**kwargs)
@@ -60,19 +67,59 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 # context['inline_model'] = self.model
                 # context['name'] = self.name
                 # context['views_available'] = self.views_available
+                context.update({
+                    'max_width': '950px',
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'object_model': self.model,
+                })
+                self.htmx['hx_target'] = '#id_%s_myList' % self.name
+                self.hx_target = '#id_%s_myList' % self.name
                 context.update(self.htmx)
                 return context
 
-            def form_valid(self, form):
-                self.object = form.save(commit=False)
-                setattr(self.object, self.inline_field, self.model_id)
-                self.object.save()
-                crud_inline_url(self.model_id, self.object, 'list', self.namespace)
+            def get_success_url(self):
+                return crud_inline_url(self.model_id, self.object, 'list', self.namespace)
 
+            def form_valid(self, form):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "Erro de Integridad"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
                 return HttpResponseLocation(
                     self.get_success_url(),
-                    target=self.htmx['hx_target'],
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
                 )
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = '#edit_modal_inner'
+                response['HX-Reswap'] = 'innerHTML'
+                return response
 
             def get(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
@@ -95,6 +142,12 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             # views_available = self.views_available[:]
             # name = self.name
             htmx = self.htmx
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
                 context = super(DetailView, self).get_context_data(**kwargs)
@@ -128,13 +181,34 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             # name = self.name
             # views_available = self.views_available[:]
             htmx = self.htmx
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
                 context = super(UpdateView, self).get_context_data(**kwargs)
-                # context['base_model'] = self.model_id
-                # context['inline_model'] = self.object
-                # context['name'] = self.name
-                # context['views_available'] = self.views_available
+                context.update({
+                    'max_width': '950px',
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                    'object_model': self.model,
+                })
+                self.htmx.update({
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
+                self.hx_target = '#id_%s_myList' % self.name
                 context.update(self.htmx)
                 return context
 
@@ -196,19 +270,44 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
         return ListView
 
     def get_filter_list_view(self):
-        filter_list_view = super(InlineAjaxCRUD, self).get_filter_list_view()
+        filter_list_view = super(InlineHtmxCRUD, self).get_filter_list_view()
 
         class FilterListView(filter_list_view):
-            inline_field = self.inline_field
-            base_model = self.base_model
-            name = self.name
-            views_available = self.views_available[:]
+            # inline_field = self.inline_field
+            # base_model = self.base_model
+            # name = self.name
+            # views_available = self.views_available[:]
+            htmx = self.htmx
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
-                context = super(FilterListView, self).get_context_data(**kwargs)
-                context['base_model'] = self.model_id
-                context['name'] = self.name
-                context['views_available'] = self.views_available
+                context = super().get_context_data(**kwargs)
+                table = self.get_table(**self.get_table_kwargs())
+                table.empty_text = 'No existen elementos aún'
+                context[self.get_context_table_name(table)] = table
+                context.update({
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                    'object_model': self.model,
+                })
+                self.htmx.update({
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
+                self.hx_target = '#id_%s_myList' % self.name
                 return context
 
             def get_queryset(self):
@@ -235,44 +334,61 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             # name = self.name
             # views_available = self.views_available[:]
             htmx = self.htmx
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+            hx_retarget = self.hx_retarget
+            hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
                 context = super(DeleteView, self).get_context_data(**kwargs)
-                # context['base_model'] = self.model_id
-                # context['inline_model'] = self.object
-                # context['name'] = self.name
-                # context['views_available'] = self.views_available
-                # if self.model_id:
-                #     url_father = self.base_model.get_absolute_url(self=self.model_id)
-                # else:
-                #     url_father = self.get_success_url()
-                # context['url_father'] = url_father
+                context.update({
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                    'object_model': self.model,
+                })
+                self.htmx.update({
+                    'hx_target': '#id_%s_myList' % self.name,
+                    'hx_swap': self.hx_swap,
+                    'hx_form_target': self.hx_form_target,
+                    'hx_form_swap': self.hx_form_swap,
+                    'hx_retarget': self.hx_retarget,
+                    'hx_reswap': self.hx_reswap,
+                })
+                self.hx_target = '#id_%s_myList' % self.name
                 context.update(self.htmx)
                 return context
 
-            def get(self, request, *args, **kwargs):
-                self.model_id = get_object_or_404(
-                    self.base_model, pk=kwargs['model_id']
-                )
-                return self.post(self, request, *args, **kwargs)
-
             def get_success_url(self):
-                url = super().get_success_url()
-                if self.model_id:
-                    url = self.base_model.get_absolute_url(self=self.model_id)
-                return url
+                return crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
 
-            def post(self, request, *args, **kwargs):
+            def get(self, request, *args, **kwargs):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
-                if self.model_id:
-                    url_father = self.base_model.get_absolute_url(self=self.model_id)
-                else:
-                    url_father = self.get_success_url()
-                response = delete_view.post(self, request, *args, **kwargs)
-                # return HttpResponse(" ")
-                return response
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
+                )
 
         return DeleteView
 

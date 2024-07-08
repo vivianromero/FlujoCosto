@@ -450,6 +450,9 @@ class CommonCRUDView(CRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
+                if self.inlines:
+                    for inline in self.inlines:
+                        inline.table_class.col_vis.append('actions')
                 ctx.update({
                     'max_width': '950px',
                     'hx_target': self.hx_target,
@@ -495,6 +498,10 @@ class BaseModalFormView(FormView):
     # Por defecto es None por lo que debe definirse en los descendientes.
     form_class = None
 
+    # Nombre del View padre de donde se genera la llamada y al cual se debe retornar,
+    # Por defecto es None por lo que debe definirse en los descendientes.
+    father_view = None
+
     # Es un diccionario, con el nombre del evento/acción como llave y con el nombre de la vista a la cual se retorna una vez se ejecute
     # la acción asociada a dicho evento. Debe definirse como parámetro en el botoón del formulario (mediante hx-vals).
     # ....en el template...
@@ -503,6 +510,16 @@ class BaseModalFormView(FormView):
     # viewname = {"submitted": nombre_del_view_que_ejecuta_la_acción}
     # Por defecto es {} por lo que debe definirse en los descendientes.
     viewname = {}
+
+    # Es un diccionario, con el nombre del evento/acción como llave y con el nombre de la función que va a ejecutar la lógica requerida
+    # asociada a dicho evento. Debe definirse como parámetro en el botoón del formulario (mediante hx-vals).
+    # ....en el template...
+    # hx-vals='{"event_action": "submitted"}'
+    # ....en el form.....
+    # funcname = {"submitted": nombre_de_la_función_que_ejecuta_la_acción}
+    # Por defecto es {} por lo que debe definirse en los descendientes. Las funciones asociadas a los eventos deben estar definidas
+    # antes que el descendiente de BaseModalFormView
+    funcname = {}
 
     # Si el formulario contine alguna tabla 'inline'. Utiliza un formato de lista de diccionarios con el formato siguiente:
     # [{
@@ -544,7 +561,7 @@ class BaseModalFormView(FormView):
     # Título del formulario modal
     modal_form_title = 'Formulario Modal'
 
-    # Ancho máximo de la ventana modal. debe ajustarse de acuerdo al contenido y campos del formulario.
+    # Ancho máximo de la ventana modal. Debe ajustarse de acuerdo al contenido y campos del formulario.
     max_width = '500px'
 
     def get_fields_kwargs(self, form):
@@ -562,23 +579,36 @@ class BaseModalFormView(FormView):
     def form_valid(self, form):
         kw = {}
         event_action = None
+        params = '?' + self.request.htmx.current_url_abs_path.split('?')[1] if self.request.htmx.current_url_abs_path.split('?').__len__() > 1 else ''
         if self.request.method == 'POST':
             event_action = self.request.POST.get('event_action', None)
         elif self.request.method == 'GET':
             event_action = self.request.GET.get('event_action', None)
         if form.is_valid():
             kw.update(self.get_fields_kwargs(form))
-            self.success_url = reverse_lazy(
-                self.viewname[event_action],
-                kwargs=kw
-            )
-
+            if self.viewname:
+                self.success_url = reverse_lazy(
+                    self.viewname[event_action],
+                    kwargs=kw
+                )
+            if self.funcname:
+                func_ret = self.execute(func=self.funcname[event_action], kwargs=kw)
+                if func_ret['success']:
+                    # self.success_url = reverse_lazy(self.father_view) + params
+                    if func_ret['success_title']:
+                        sweetify.toast(self.request, title=func_ret['success_title'], icon='success')
+                else:
+                    if func_ret['error_title']:
+                        sweetify.toast(self.request, title=func_ret['error_title'], icon='error')
+                    event_action = 'not_submitted'
+                self.success_url = reverse_lazy(self.father_view) + params
             return HttpResponseLocation(
                 self.get_success_url(),
                 target=self.hx_target,
                 headers={
                     'HX-Trigger': self.request.htmx.trigger,
                     'HX-Trigger-Name': self.request.htmx.trigger_name,
+                    'HX-Replace-Url': 'false',
                     'event_action': event_action,
                 },
                 values={
@@ -615,6 +645,23 @@ class BaseModalFormView(FormView):
             'btn_aceptar': 'Aceptar',
         })
         return ctx
+
+    @staticmethod
+    def execute(func, *args, **kwargs):
+        func_return = func(*args, **kwargs)
+        return func_return
+
+    def dispatch(self, request, *args, **kwargs):
+        # Try to dispatch to the right method; if a method doesn't exist,
+        # defer to the error handler. Also defer to the error handler if the
+        # request method isn't on the approved list.
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(
+                self, request.method.lower(), self.http_method_not_allowed
+            )
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
 
 
 class Noauthorized(TemplateView):

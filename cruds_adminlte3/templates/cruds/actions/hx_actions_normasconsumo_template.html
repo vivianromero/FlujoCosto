@@ -1,7 +1,7 @@
 {% load i18n l10n crud_tags %}
 {% crud_nurl object "detail" namespace as nurl %}
 {% if nurl and 'detail' in views_available and crud_perms.detail %}
-    <a hx-get="{% url nurl record.pk %}"
+    <a hx-get="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="click"
        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
@@ -15,7 +15,7 @@
 
 {% crud_nurl object "update" namespace as nurl %}
 {% if nurl and 'update' in views_available and crud_perms.update and not record.confirmada %}
-    <a hx-get="{% url nurl record.pk %}"
+    <a hx-get="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="click"
         {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}

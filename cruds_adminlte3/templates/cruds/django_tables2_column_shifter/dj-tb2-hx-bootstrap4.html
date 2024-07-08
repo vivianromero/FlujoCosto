@@ -9,17 +9,23 @@
     <tr>
     {% for column in table.columns %}
         <th {{ column.attrs.th.as_html }}
-                hx-get="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
-                hx-trigger="click"
-                hx-target="{{ table.hx_target }}"
-                hx-swap="{{ table.hx_swap }}"
-                hx-replace-url="{{ table.hx_replace_url }}"
-                role="button">
+{#                hx-get="{{ request.path_info }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"#}
+{#                hx-trigger="click"#}
+{#                hx-target="div.table-container"#}
+{#                hx-swap="outerHTML"#}
+{#                hx-replace-url="{{ table.hx_replace_url }}"#}
+{#                role="button">#}
             {% if column.orderable %}
-                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
-            {% else %}
-                {{ column.header }}
-            {% endif %}
+                hx-get="{{ request.path_info }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                hx-trigger="click"
+                hx-target='{{  table.hx_target }}'
+                hx-swap='{{  table.hx_swap }}'
+                style="cursor: pointer;"
+{#                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>#}
+{#            {% else %}#}
+{#                {{ column.header }}#}
+            {% endif %}>
+            {{ column.header }}
         </th>
     {% endfor %}
     </tr>

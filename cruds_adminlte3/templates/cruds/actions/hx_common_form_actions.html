@@ -7,5 +7,5 @@
 {% include 'cruds/actions/hx_confirm_document_button.html' %}
 {% include 'cruds/actions/hx_cancel_button.html' %}
 {% if not object.fila in "['1', '1.1', '1.2']" %}
-    {% include 'cruds/actions/delete_button.html' %}
+    {% include 'cruds/actions/hx_delete_button.html' %}
 {% endif %}

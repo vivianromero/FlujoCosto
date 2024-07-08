@@ -95,7 +95,7 @@ class CRUDMixin(object):
     def get_filters(self, context):
         filter_params = []
         active_filters = False
-        filter_params_hx = []
+        getparams_hx = ''
         active_filters_hx = False
         if self.view_type == 'list' and self.list_filter:
             filters = get_filters(self.model, self.list_filter, self.request)
@@ -116,37 +116,19 @@ class CRUDMixin(object):
 
         if active_filters or active_filters_hx:
             filters = []
-            filters_hx = []
             if self.view_type in ['list', 'detail', 'update', 'delete'] and self.request.htmx:
-                if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-                    filters_hx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+                there_is_htmx_params = self.request.htmx.current_url_abs_path.split('?').__len__() > 1
+                getparams_hx = '?' + self.request.htmx.current_url_abs_path.split('?')[1] if there_is_htmx_params else ''
             filters = self.request.GET.urlencode().split('&')
             getparams = self.getparams.split('&') or []
-            getparams_hx = self.getparams_hx.split('&') or []
             if filters:
                 filter_params = self.get_filter_params(filters=filters, getparams=getparams)
-            if filters_hx:
-                filter_params_hx = self.get_filter_params(filters=filters_hx, getparams=getparams_hx)
-                # if filters[0]:
-                #     for filter in filters:
-                #         if '%3F' in filter:
-                #             filter = filter.split('%3F')[0]
-                #         value = filter.split('=')
-                #         if value[1] and (
-                #                 value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
-                #         ):
-                #             param = filter
-                #             if param and param not in getparams:
-                #                 filter_params.append(param)
-
         if filter_params:
             if self.getparams:
                 self.getparams += "&"
             self.getparams += "&".join(filter_params)
-        if filter_params_hx:
-            if self.getparams_hx:
-                self.getparams_hx *= "&"
-            self.getparams_hx += "&".join(filter_params_hx)
+
+        self.getparams_hx = getparams_hx
 
     @staticmethod
     def get_filter_params(filters=None, getparams=None):
@@ -318,8 +300,8 @@ class CRUDMixin(object):
         context.update(self.context_rel)
         context['getparams'] = "?" + self.getparams
         context['getparams'] += "&" if self.getparams else ""
-        context['getparams_hx'] = "?" + self.getparams_hx
-        context['getparams_hx'] += "&" if self.getparams_hx else ""
+        context['getparams_hx'] = self.getparams_hx
+        # context['getparams_hx'] += "&" if self.getparams_hx else ""
         context.update({
             'hx_target': self.hx_target,
             'hx_swap': self.hx_swap,
@@ -338,12 +320,10 @@ class CRUDMixin(object):
         self.context_rel = {}
         getparams = []
         self.getparams = ''
-        getparams_hx = []
-        params_hx = []
         self.getparams_hx = ''
         params = self.request.GET.urlencode().split('&')
         if self.request.htmx and self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
-            params_hx = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
+            self.getparams_hx = '?' + self.request.htmx.current_url_abs_path.split('?')[1]
         for related in self.related_fields:
             pk = self.request.GET.get(related, '')
             if pk:
@@ -355,22 +335,8 @@ class CRUDMixin(object):
                     related, str(self.context_rel[related].pk)))
         if params and params[0] != '':
             getparams = self.get_filter_params(filters=params, getparams=getparams)
-        if params_hx and params_hx[0] != '':
-            getparams_hx = self.get_filter_params(filters=params_hx, getparams=getparams_hx)
-            # for param in params:
-            #     if '%3F' in param:
-            #         param = param.split('%3F')[0]
-            #     value = param.split('=')
-            #     if value[1] and (
-            #             value[0] != 'csrfmiddlewaretoken' and value[0] != 'vis' and value[0] != 'set_visibility_value'
-            #     ):
-            #         temp = param
-            #         if temp and temp not in getparams:
-            #             getparams.append(param)
         if getparams:
             self.getparams = "&".join(getparams)
-        if getparams_hx:
-            self.getparams_hx = "&".join(getparams_hx)
         if self.validate_user_object_perms(self, *args, **kwargs):
             return View.dispatch(self, request, *args, **kwargs)
         for perm in self.perms:
