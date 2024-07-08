@@ -66,6 +66,14 @@ class DocumentoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'existencia',
         )
 
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_documento_detalles_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
+
 
 # ------ Documentos Versat / Table ------
 class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
