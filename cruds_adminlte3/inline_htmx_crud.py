@@ -1,11 +1,5 @@
 # encoding: utf-8
 
-
-"""
-Created on 14/4/2017
-
-@author: luisza
-"""
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
