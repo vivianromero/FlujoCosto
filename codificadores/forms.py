@@ -1717,18 +1717,13 @@ class NormaConsumoDetailForm(NormaConsumoForm):
         self.helper.form_tag = False
         self.fields['activa'].disabled = True
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Norma de Consumo',
-                    Row(
-                        Column(UneditableField('fecha'), css_class='form-group col-md-2 mb-0'),
-                        Column(UneditableField('producto'), css_class='form-group col-md-4 mb-0'),
-                        Column(UneditableField('medida'), css_class='form-group col-md-2 mb-0'),
-                        Column(UneditableField('cantidad'), css_class='form-group col-md-2 mb-0'),
-                        Column('activa', css_class='form-group col align-self-end col-md-2 mb-0'),
-                        css_class='form-row'
-                    ),
-                ),
+            Row(
+                Column(UneditableField('fecha'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('producto'), css_class='form-group col-md-4 mb-0'),
+                Column(UneditableField('medida'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('cantidad'), css_class='form-group col-md-2 mb-0'),
+                Column('activa', css_class='form-group col align-self-end col-md-2 mb-0'),
+                css_class='form-row'
             ),
         )
 

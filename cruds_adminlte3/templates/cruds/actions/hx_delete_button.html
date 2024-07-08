@@ -1,0 +1,45 @@
+{% load i18n %}
+{% if url_delete %}
+    <a hx-headers='{"event_action": "confirmed"}'
+       hx-post="{{ url_delete }}{{ getparams }}"
+       hx-trigger="confirmed"
+       hx-vals='{"event_action": "confirmed"}'
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+       id="id_form_btn_delete"
+{#       href="{{ url_delete }}{{ getparams }}"#}
+       is="{{ object }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+       class="delete_href btn btn-danger"
+       title="{% trans 'Delete' %}"
+    >
+        <i class="fa fa-trash"></i> {% translate "Delete" %}
+    </a>
+{% endif %}
+<script>
+    document.querySelectorAll("a.delete_href").forEach((ref) => {
+        ref.addEventListener("click", function (e) {
+            e.preventDefault()
+            let record = '\n' + '{{ object }}'
+            console.log(e.target.attributes['is'])
+            console.log(record)
+            swal.fire({
+                title: '¿Está seguro que desea eliminar este elemento: ' + record + '?',
+                text: '¡Esta acción no podrá revertirse!',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirmar Eliminar',
+                cancelButtonText: 'Cancelar',
+                backdrop: true,
+                allowOutsideClick:()=>false,
+                allowEscapeKey:()=>false
+            }).then(function(result) {
+                  if(result.isConfirmed) {
+                      // e.detail.issueRequest(true) // use true to skip window.confirm
+                      htmx.trigger(e.target, 'confirmed')
+                  }
+            })
+        })
+    })
+</script>

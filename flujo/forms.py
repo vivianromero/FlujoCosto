@@ -452,7 +452,7 @@ class DocumentoFormFilter(forms.Form):
             'hx-trigger': 'change, changed from:#div_id_departamento, changed from:.btn-shift-column-visivility',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
-            'hx-include': '[name="departamento"]'
+            # 'hx-include': '[name="departamento"]'
         })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'

@@ -24,7 +24,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                 <h5 class="modal-title">{{  modal_form_title }}</h5>
-                <button hx-get="{{ url_list }}{{getparams}}" 
+                <button hx-get="{{ url_list }}{{getparams_hx}}" 
                         {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                         {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                         hx-trigger="click"
@@ -38,17 +38,17 @@
                 {% else %}
                     {{ form|crispy }}
                 {% endif %}
-                {% if inlines and action == 'update' %}
+                {% if inlines and action == 'update' or action == 'detail' %}
                     <div class="card-body row" style="padding: 0">
                         <div class="col-md-12">
                             <div class="panel panel-default">
                                 {% for inline in inlines%}
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">{{inline.title}} {{ inline.}}</h3>
+                                    <h3 class="panel-title">{{inline.title}}</h3>
                                 </div>
                                 <div class="card-body" style="padding: 0">
                                     <div id="{{inline.name}}_father">
-                                        {% if 'create' in inline.views_available %}
+                                        {% if 'create' in inline.views_available and action == 'update' %}
                                             <button class="btn btn-success"
                                                     hx-get="{% crud_inline_url form.instance inline.model 'create' namespace %}"
                                                     hx-target="#edit_modal_inner"
@@ -115,7 +115,7 @@
                     </button>
                     <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
                             hx-vals='{"event_action": "submitted"}'
-                            hx-post="{{ request.path }}"
+                            hx-post="{{ request.path }}{{ getparams }}"
                             hx-trigger="click"
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}

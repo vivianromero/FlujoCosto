@@ -1,10 +1,8 @@
-import datetime
-from datetime import datetime
-from ast import literal_eval
 import calendar
+import datetime
+from ast import literal_eval
+from datetime import datetime
 
-import sweetify
-from django.http import HttpResponse
 from django.db import IntegrityError
 from django.db.models import Max
 from django.http import HttpResponse
@@ -16,7 +14,7 @@ from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import FechaInicio
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
-from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
+from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
 from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
 from .forms import *
@@ -27,8 +25,9 @@ from .utils import ids_documentos_versat_procesados
 
 # Create your views here.
 
-# ------ DocumentoDetalle / AjaxCRUD ------
-class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
+
+# ------ DocumentoDetalle / HtmxCRUD ------
+class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
     model = DocumentoDetalle
     base_model = Documento
     namespace = 'app_index:flujo'
@@ -53,7 +52,9 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
         'detail',
     ]
 
-    title = ""
+    title = "Detalles de documentos"
+
+    # table_class = DocumentoDetalleTable
 
     def get_create_view(self):
         create_view = super().get_create_view()
@@ -85,7 +86,7 @@ class DocumentoDetalleAjaxCRUD(InlineAjaxCRUD):
                     mess_error = "El producto ya existe para el documento"
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
-                return HttpResponse(""" """)
+                return super().form_valid(form)
 
         return CreateView
 
@@ -199,7 +200,15 @@ class DocumentoCRUD(CommonCRUDView):
     paginate_by = 25
     table_class = DocumentoTable
 
-    inlines = [DocumentoDetalleAjaxCRUD]
+    inlines = [DocumentoDetalleHtmxCRUD]
+
+    # htmx
+    hx_target = '#table_content_documento_swap'
+    hx_swap = 'outerHTML'
+    hx_form_target = '#dialog'
+    hx_form_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML'
 
     def get_create_view(self):
         view = super().get_create_view()
@@ -407,6 +416,17 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
         return ODeleteView
+
+    def get_detail_view(self):
+        view = super().get_detail_view()
+
+        class ODetailView(view):
+            hx_target = self.hx_target
+            hx_swap = self.hx_swap
+            hx_form_target = self.hx_form_target
+            hx_form_swap = self.hx_form_swap
+
+        return ODetailView
 
 
 def confirmar_documento(request, pk):
@@ -632,12 +652,64 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
     return None if existencia_product < 0 else existencia_product
 
 
+def aceptar_documento_versat(kwargs):
+    """
+    Aceptar un documento
+    """
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'El documento fue aceptado',
+        'error_title': 'El documento no fue aceptado',
+    }
+
+    # Aquí va la lógica de la vista/función
+    # Simulamos que no hubo errores, simplemente devolvemos func_ret que tiene 'success': True por defecto
+
+    # Simulamos que hubo errores, simplemente cambiamos el valor de 'success': False y si queremos devolver
+    # detalles del error lo agregamos al diccionario 'errors' que va dentro de func_ret
+    func_ret.update({
+        'success': False
+    })
+
+    return func_ret
+
+
+def rechazar_documento_versat(kwargs):
+    """
+    Rechazar un documento
+    """
+
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'El documento fue rechazado',
+        'error_title': 'El documento no pudo ser rechazado. Por favor, revise',
+    }
+
+    # Aquí va la lógica de la vista/función
+    # Simulamos que no hubo errores, simplemente devolvemos func_ret que tiene 'success': True por defecto
+
+    # Simulamos que hubo errores, simplemente cambiamos el valor de 'success': False y si queremos devolver
+    # detalles del error lo agregamos al diccionario 'errors' que va dentro de func_ret
+    func_ret.update({
+        'success': False
+    })
+
+    return func_ret
+
+
 class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDocumentoVersatForm
-    viewname = {
-        'submitted': 'app_index:flujo:flujo_documento_versat_aceptar',
-        'refused': 'app_index:flujo:flujo_documento_versat_rechazar',
+    father_view = 'app_index:flujo:flujo_documento_list'
+    # viewname = {
+    #     'submitted': 'app_index:flujo:flujo_documento_versat_aceptar',
+    #     'refused': 'app_index:flujo:flujo_documento_versat_rechazar',
+    # }
+    funcname = {
+        'submitted': aceptar_documento_versat,
+        'refused': rechazar_documento_versat,
     }
     inline_tables = [{
         "table": DocumentosVersatDetalleTable([]),
@@ -691,52 +763,10 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
 
     def get_fields_kwargs(self, form):
         kw = {}
+        kw.update({
+            'request': self.request,
+        })
         for field in form.fields:
             if field == 'iddocumento':
                 kw.update({field: form.cleaned_data[field]})
         return kw
-
-
-def aceptar_documento_versat(request, iddocumento):
-    """
-    Aceptar un documento
-    """
-    # with transaction.atomic():  # Esto no sé si irá
-
-    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-    event_action = request.GET.get('event_action', None)
-
-    # Aquí va la lógica de la vista
-
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'event_action': event_action,
-        }
-    )
-
-
-def rechazar_documento_versat(request, iddocumento):
-    """
-    Rechazar un documento
-    """
-
-    # with transaction.atomic():  # Esto no sé si irá
-
-    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-    event_action = request.GET.get('event_action', None)
-
-    # Aquí va la lógica de la vista
-
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'event_action': event_action,
-        }
-    )

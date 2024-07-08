@@ -60,8 +60,8 @@ class NormaConsumoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions
             'medida'
         )
 
-    # hx_target = "#normaconsumodetalle_father"
-    # hx_swap = "innerHTML"
+    hx_target = "#id_normaconsumodetalle_myList"
+    hx_swap = "innerHTML"
     # hx_replace_url = "true"
 
     actions = tables.TemplateColumn(

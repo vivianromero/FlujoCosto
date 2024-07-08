@@ -1,26 +1,28 @@
 {% load i18n %}
 {% if modal %}
-    <button hx-get="{{ url_list }}{{getparams}}"
-            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
-            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-            hx-trigger="click"
-            type="button"
-            class="btn btn-secondary"
-            data-dismiss="modal"
+    <a href="{{ url_list }}{{getparams_hx}}"
+       hx-get="{{ url_list }}{{getparams_hx}}"
+       {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+       {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+       hx-trigger="click"
+       role="button"
+       class="btn btn-secondary"
+       data-dismiss="modal"
     >
         <i class="fa fa-remove"></i> Cancelar
-    </button>
+    </a>
 {% else %}
     {% if url_list %}
-        <a href="{{ url_list }}{{getparams}}"
+        <a href="{{ url_list }}{{getparams_hx}}"
            class="btn btn-secondary"
-           hx-get="{{ url_list }}{{getparams}}"
+           hx-get="{{ url_list }}{{getparams_hx}}"
            hx-trigger="click"
-           hx-target="#main_content_swap"
-           hx-swap="outerHTML"
+           {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
+           {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
            hx-replace-url="true"
         >
             <i class="fa fa-remove"></i> {% translate "Cancel" %}
         </a>
     {% endif %}
 {% endif %}
+{#{% if modal %}<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-remove"></i> Cancelar</button>{% endif %}#}
