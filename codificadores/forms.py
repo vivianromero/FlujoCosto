@@ -1428,7 +1428,8 @@ class DepartamentoForm(forms.ModelForm):
             'centrocosto',
             'unidadcontable',
             'relaciondepartamento',
-            'departamentoproducto'
+            'departamentoproductoentrada',
+            'departamentoproductosalida'
         ]
 
         widgets = {
@@ -1437,7 +1438,8 @@ class DepartamentoForm(forms.ModelForm):
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
             'relaciondepartamento': forms.CheckboxSelectMultiple(),
-            'departamentoproducto': forms.CheckboxSelectMultiple(),
+            'departamentoproductoentrada': forms.CheckboxSelectMultiple(),
+            'departamentoproductosalida': forms.CheckboxSelectMultiple(),
         }
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1475,7 +1477,14 @@ class DepartamentoForm(forms.ModelForm):
                         ),
                         Column(
                             Field(
-                                'departamentoproducto',
+                                'departamentoproductoentrada',
+                                template='widgets/layout/field.html'
+                            ),
+                            css_class='form-group col-md-3 mb-0'
+                        ),
+                        Column(
+                            Field(
+                                'departamentoproductosalida',
                                 template='widgets/layout/field.html'
                             ),
                             css_class='form-group col-md-3 mb-0'
@@ -1644,20 +1653,13 @@ class NormaConsumoForm(forms.ModelForm):
         if instance:
             self.fields['producto'].widget.enabled_choices = [instance.producto]
             self.fields['medida'].widget.enabled_choices = [instance.medida]
-        # self.fields["producto"].disabled = True if self.producto else False
-        # self.fields["medida"].disabled = True if self.producto else False
 
         elif data:
             self.fields['producto'].widget.enabled_choices = [data['producto']]
             self.fields['medida'].widget.enabled_choices = [data['medida']]
 
-        # self.fields["producto"].required = True if not self.producto else False
-        # self.fields["medida"].required = True if not self.producto else False
-
         elif self.producto:
-            # self.fields['producto'].initial = producto
             self.fields['producto'].widget.enabled_choices = [producto]
-            # self.fields['medida'].initial = kwargs['initial']['medida']
             self.fields['medida'].widget.enabled_choices = [kwargs['initial']['medida']]
 
         self.helper.layout = Layout(
@@ -1857,6 +1859,10 @@ class NormaConsumoDetalleForm(forms.ModelForm):
         if float(norma_empresarial) <= 0:
             raise forms.ValidationError('Debe introducir un valor>0')
         return norma_empresarial
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        return instance
 
 
 class NormaConsumoDetalleDetailForm(NormaConsumoDetalleForm):
@@ -2394,7 +2400,6 @@ class NumeracionDocumentosForm(forms.ModelForm):
         fields = [
             'sistema',
             'departamento',
-            'tipo_documento',
             'prefijo'
         ]
 
@@ -2424,7 +2429,6 @@ class NumeracionDocumentosForm(forms.ModelForm):
                     Row(
                         Column('sistema', css_class='form-group col-md-5 mb-0'),
                         Column('departamento', css_class='form-group col-md-5 mb-0'),
-                        Column('tipo_documento', css_class='form-group col-md-5 mb-0'),
                         Field('prefijo', type='hidden' if instance.pk == TipoNumeroDoc.NUMERO_CONSECUTIVO else ''),
                         css_class='form-row'
                     ),

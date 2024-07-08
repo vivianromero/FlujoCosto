@@ -25,6 +25,7 @@ class ChoiceClasesMatPrima:
     F4 = 7
     CAPACLASIFICADA = 5
     CAPASINCLASIFICAR = 6
+    PICADURA = 8
 
     CHOICE_CLASES = {
         CAPOTE: 'Capote',
@@ -34,6 +35,7 @@ class ChoiceClasesMatPrima:
         F4: 'F4',
         CAPACLASIFICADA: 'Capa Clasificada',
         CAPASINCLASIFICAR: 'Capa sin Clasificar',
+        PICADURA: 'Picadura',
     }
 
 class ChoiceCategoriasVit:

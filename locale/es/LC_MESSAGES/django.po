@@ -803,8 +803,8 @@ msgid "Destination Department"
 msgstr "Departamento Destino"
 
 #: codificadores/models.py:361
-msgid "Output Product"
-msgstr "Producto de Salida"
+msgid "Output Products"
+msgstr "Productos de Salida"
 
 #: codificadores/models.py:409 flujo/models.py:43 flujo/models.py:86
 msgid "Quantity"

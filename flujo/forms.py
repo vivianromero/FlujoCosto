@@ -3,7 +3,7 @@ from datetime import date
 
 from crispy_forms.bootstrap import TabHolder, Tab, FormActions, AppendedText, UneditableField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML, Field
+from crispy_forms.layout import Layout, Row, Column, HTML, Field, Div
 from django import forms
 from django.conf import settings
 from django.db import transaction
@@ -14,12 +14,13 @@ from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 
 from app_index.widgets import MyCustomDateRangeWidget
-from codificadores import ChoiceTiposDoc
-from codificadores.models import TipoNumeroDoc, OperacionDocumento
+from codificadores import ChoiceTiposDoc, ChoiceTiposProd, ChoiceClasesMatPrima
+from codificadores.models import TipoNumeroDoc, OperacionDocumento, TipoProducto, ClaseMateriaPrima
 from cruds_adminlte3.utils import crud_url_name
 from cruds_adminlte3.widgets import SelectWidget
 from flujo.models import *
-from utiles.utils import genera_numero_doc
+from .utils import dame_valor_anterior, actualiza_existencias, genera_numero_doc, actualiza_numeros, dame_productos, \
+    existencia_anterior, existencia_producto, actualiza_existencias_anteriores
 
 
 # ------------ Documento / Form ------------
@@ -30,6 +31,16 @@ class DocumentoForm(forms.ModelForm):
         required=False,
         widget=SelectWidget(attrs={
             'style': 'width: 100%; display: none;',
+        }
+        )
+    )
+
+    departamento_origen = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        label="Departamento Origen",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%;',
         }
         )
     )
@@ -87,11 +98,13 @@ class DocumentoForm(forms.ModelForm):
         self.departamento = kwargs.pop('departamento', None)
         self.tipo_doc = kwargs.pop('tipo_doc', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
+        self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ]
         super(DocumentoForm, self).__init__(*args, **kwargs)
-        destino_queryset = self.fields['departamento_destino'].queryset
-        self.fields['departamento_destino'].disabled = True
         self.fields['departamento_destino'].label = False
-        self.edicion = False if not instance else Documento.objects.filter(pk=instance.pk).exists()
+        self.fields['departamento_origen'].label = False
+        self.origen = False
+        self.edicion = False if not instance else True #Documento.objects.filter(pk=instance.pk).exists()
+        self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(pk=instance.pk).numeroconsecutivo #Documento.objects.filter(pk=instance.pk).exists()
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
             self.fields['ueb'].widget.enabled_choices = [self.user.ueb]
@@ -105,15 +118,29 @@ class DocumentoForm(forms.ModelForm):
                 self.fields["numerocontrol"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
             if instance.tipodocumento.pk in self.destino_tipo_documento:
-                destino_queryset = destino_queryset.filter(relaciondepartamento=instance.departamento)
+                destino_queryset = self.fields['departamento_destino'].queryset
+                destino_queryset = destino_queryset.filter(unidadcontable=self.user.ueb, relaciondepartamento=instance.departamento)
+                # destino_queryset = destino_queryset.filter(relaciondepartamento=instance.departamento)
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
                 self.fields['departamento_destino'].widget.enabled_choices = [destino.departamento]
-                self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
+                self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
                 self.fields['departamento_destino'].label = "Departamento Destino"
                 self.fields['departamento_destino'].disabled = False
-                self.fields['departamento_destino'].required = True
+                self.fields['departamento_destino'].required = False
+            elif instance.tipodocumento.pk in self.origen_tipo_documento:
+                self.origen = True
+                origen_queryset = self.fields['departamento_origen'].queryset
+                origen_queryset = origen_queryset.filter(relaciondepartamento=instance.departamento)
+                self.fields['departamento_origen'].queryset = origen_queryset
+                origen = DocumentoTransfDepartamentoRecibida.objects.get(documento=instance).documentoorigen
+                self.fields['departamento_origen'].initial = origen.departamento
+                self.fields['departamento_origen'].widget.enabled_choices = [origen.departamento]
+                self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['departamento_origen'].label = "Departamento Origen"
+                self.fields['departamento_origen'].disabled = False
+                self.fields['departamento_origen'].required = True
         elif data:
             self.fields['departamento'].widget.enabled_choices = [data.get('departamento', None)]
             self.fields['tipodocumento'].widget.enabled_choices = [data.get('tipodocumento', None)]
@@ -134,7 +161,6 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]
                 if settings.NUMERACION_DOCUMENTOS_CONFIG:
                     numeros = genera_numero_doc(self.departamento, self.user.ueb, self.tipo_doc)
-
                     # numero consecutivo y de control
                     numero_consec = str(numeros[0][0])
                     self.fields['numeroconsecutivo'].initial = numero_consec
@@ -145,9 +171,12 @@ class DocumentoForm(forms.ModelForm):
                     self.fields["numerocontrol"].widget.attrs['readonly'] = numeros[1][1]
 
                 if int(self.tipo_doc) in self.destino_tipo_documento:
-                    destino_queryset = destino_queryset.filter(relaciondepartamento=self.departamento)
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=self.departamento)
+                    dptos_no_inicializados = [x.pk for x in destino_queryset if
+                                              not x.fechainicio_departamento.all().exists()]
+                    destino_queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
                     self.fields['departamento_destino'].queryset = destino_queryset
-                    self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
+                    self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
                     self.fields['departamento_destino'].label = "Departamento Destino"
                     self.fields['departamento_destino'].disabled = False
                     self.fields['departamento_destino'].required = True
@@ -164,8 +193,7 @@ class DocumentoForm(forms.ModelForm):
                 ),
                 Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                 Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-
-                Column('departamento_destino', css_class='form-group col-md-3 mb-0'),
+                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if not self.origen else Column('departamento_origen', css_class='form-group col-md-3 mb-0'),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
                 Field('suma_importe', type="hidden"),
@@ -187,13 +215,15 @@ class DocumentoForm(forms.ModelForm):
     @transaction.atomic
     def save(self, commit=True):
         # si los numeros son controlados por el sistema
-        control_sistema = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
-        consec_sistema = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
+        conf = settings.NUMERACION_DOCUMENTOS_CONFIG
+        control_sistema = conf[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
+        control_departamento = conf[TipoNumeroDoc.NUMERO_CONTROL]['departamento']
+        consec_sistema = conf[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
+        consec_departamento = conf[TipoNumeroDoc.NUMERO_CONSECUTIVO]['departamento']
 
         # actualiza el campo donde se guarda el tipo de configuracion de los documentos para aplicar las constraints
-        self.instance.confconsec = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO][
-            'confignumero']
-        self.instance.confcontrol = settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['confignumero']
+        self.instance.confconsec = ConfigNumero.DEPARTAMENTO if  conf[TipoNumeroDoc.NUMERO_CONSECUTIVO]['departamento'] else ConfigNumero.UNICO
+        self.instance.confcontrol = ConfigNumero.DEPARTAMENTO if  conf[TipoNumeroDoc.NUMERO_CONTROL]['departamento'] else ConfigNumero.UNICO
 
         # actializa campo mes y anno que se utilizan en las constrains
         self.instance.mes = self.instance.fecha.month
@@ -201,11 +231,8 @@ class DocumentoForm(forms.ModelForm):
 
         # se bloquea el documento
         doc = Documento.objects.select_for_update().filter(pk=self.instance.pk)
-
-        # se bloquea el registro que lleva el control de los numeros de los documentos
-        numeros = NumerosDocumentos.objects.select_for_update().filter(tipodocumento=self.instance.tipodocumento,
-                                                                       departamento=self.instance.departamento,
-                                                                       ueb=self.instance.ueb)
+        numeroconsec_antes = self.instance.numeroconsecutivo if not doc.exists() else doc[0].numeroconsecutivo
+        NumeroDocumentos.objects.select_for_update().filter(ueb=self.user.ueb)
         numeros_consec = genera_numero_doc(self.instance.departamento, self.instance.ueb,
                                            self.instance.tipodocumento.pk)
         if not self.edicion:
@@ -224,41 +251,44 @@ class DocumentoForm(forms.ModelForm):
         control = int(nrs[len(nrs) - 1])
         consecutivo = self.instance.numeroconsecutivo
 
-        # numeros que estan en la tabla que controla la numeracion
-        nro = None if not numeros.exists() else numeros.first()
-        if not consec_sistema and nro and nro.consecutivo > consecutivo:
-            consecutivo = nro.consecutivo
-
-        if not control_sistema and nro:
+        if not control_sistema:
             partes_ctrl = nro.control.split('/')
             nro_control = int(partes_ctrl[len(partes_ctrl) - 1])
             if nro_control > control:
                 control = nro_control
 
-        actualiza_control_numeros = NumerosDocumentos.objects.update_or_create(
-            tipodocumento=self.instance.tipodocumento, departamento=self.instance.departamento, ueb=self.instance.ueb,
-            defaults={
-                'consecutivo': consecutivo,
-                'control': control
-            }
-        )
+        actualiza_numeros(ueb=self.instance.ueb,
+                          departamento=None if not consec_departamento else self.instance.departamento, control=control,
+                          consecutivo=consecutivo)
 
-        if commit:
-            actualiza_control_numeros[0].save()
-
+        instance = super().save(commit=True)
         if self.cleaned_data['tipodocumento'].pk in self.destino_tipo_documento:
             departamento_destino = self.cleaned_data.get('departamento_destino')
             if departamento_destino:
                 documento_transf_departamento = DocumentoTransfDepartamento.objects.update_or_create(
-                    documento=doc,
+                    documento=instance,
                     defaults={
                         'departamento': departamento_destino,
                     }
                 )
-                if commit:
-                    documento_transf_departamento.save()
+        if 'numeroconsecutivo' in self.changed_data and self.edicion:
+            detalles = instance.documentodetalle_documento.all()
+            departam = instance.departamento
+            ueb = instance.ueb
+            dicc = {'documento__estado': EstadosDocumentos.EDICION,
+                    'documento__departamento': departam, 'documento__ueb': ueb}
 
-        instance = super().save(commit=True)
+            docs = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+            dicc_prod = {}
+
+            for d in detalles:
+                dicc_prod = {'producto': d.producto, 'estado': d.estado}
+                docs_en_edicion = docs.filter(**dicc_prod)
+                d.existencia = existencia_producto(docs_en_edicion, instance, d.producto, d.estado, d.cantidad)
+                d.save()
+                existencia_anterior(instance, d.pk, False)
+                if instance.numeroconsecutivo>self.numeroconcecutivo_anterior:
+                    actualiza_existencias_anteriores(instance.numeroconsecutivo, self.numeroconcecutivo_anterior, docs_en_edicion, d)
         return instance
 
 
@@ -292,7 +322,6 @@ class DocumentoDetailForm(DocumentoForm):
         self.tipo_doc = kwargs.pop('tipo_doc', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
         super(DocumentoDetailForm, self).__init__(*args, **kwargs)
-        # destino_queryset = self.fields['departamento_destino'].queryset
         self.fields['departamento_destino'].disabled = True
         self.fields['departamento_destino'].label = ""
 
@@ -306,7 +335,7 @@ class DocumentoDetailForm(DocumentoForm):
                 self.fields["numerocontrol"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
             if instance.tipodocumento.pk in self.destino_tipo_documento:
-                destino_queryset = destino_queryset.filter(relaciondepartamento=instance.departamento)
+                destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=instance.departamento)
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
@@ -333,20 +362,9 @@ class DocumentoDetailForm(DocumentoForm):
             if self.tipo_doc:
                 self.fields['tipodocumento'].initial = self.tipo_doc
                 self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]
-                if settings.NUMERACION_DOCUMENTOS_CONFIG:
-                    numeros = genera_numero_doc(self.departamento, self.user.ueb, self.tipo_doc)
-
-                    # numero consecutivo y de control
-                    numero_consec = str(numeros[0][0])
-                    self.fields['numeroconsecutivo'].initial = numero_consec
-                    self.fields["numeroconsecutivo"].widget.attrs['readonly'] = numeros[0][1]
-
-                    numero_ctrl = str(numeros[1][0]) if not numeros[1][2] else numeros[1][2] + '/' + str(numeros[1][0])
-                    self.fields['numerocontrol'].initial = numero_ctrl
-                    self.fields["numerocontrol"].widget.attrs['readonly'] = numeros[1][1]
 
                 if int(self.tipo_doc) in self.destino_tipo_documento:
-                    destino_queryset = destino_queryset.filter(relaciondepartamento=self.departamento)
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=self.departamento)
                     self.fields['departamento_destino'].queryset = destino_queryset
                     self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
                     self.fields['departamento_destino'].label = "Departamento Destino"
@@ -440,7 +458,6 @@ class DocumentoFormFilter(forms.Form):
             'hx-trigger': "change, changed from:.btn-shift-column-visivility, changed from:#id_fecha_documento_formfilter",
             'hx-push-url': 'true',
             'hx-replace-url': 'true',
-            # 'hx-preserve': 'true',
             'hx-include': '[name="rango_fecha"]',
         })
         self.fields['rango_fecha'].label = False
@@ -489,7 +506,6 @@ class DocumentoFormFilter(forms.Form):
                         ),
                         Column('tipodocumento', css_class='form-group col-md-5 mb-0'),
                         Column('ueb', css_class='form-group col-md-5 mb-0'),
-                        # css_class='form-row'
                     ),
                 ),
 
@@ -519,7 +535,12 @@ class DocumentoDetalleForm(forms.ModelForm):
                 attrs={
                     'style': 'width: 100%',
                     'id': 'id_producto_documento_detalle',
-                    # "onChange": 'productoMedida()',
+                    # TODO HAY QUE HACER QUE AL CAMBIAR EL PRODUCTO
+                    # BUSQUE EL PRECIO DE SALIDA
+                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+                    # 'hx-target': '#div_id_precio',
+                    # 'hx-trigger': 'change',
+                    # 'hx-include': '[name="precio"]',
                 }
             ),
             'estado': SelectWidget(
@@ -535,9 +556,11 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         self.cantidad_anterior = 0
+        self.documentopadre = kwargs.pop('doc', None)
         if instance:
             self.cantidad_anterior = instance.cantidad
         super().__init__(*args, **kwargs)
+        self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_detalle_form'
         self.helper.form_method = 'post'
@@ -550,83 +573,52 @@ class DocumentoDetalleForm(forms.ModelForm):
                 Column('estado', css_class='form-group col-md-2 mb-0'),
                 Column('cantidad', css_class='form-group col-md-2 mb-0',
                        css_id='id_cantidad_documento_detalle'),
-                Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_cantidad_documento_detalle'),
+                Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_precio_documento_detalle'),
+                # Column(UneditableField('precio'),
+                #        css_class='form-group col-md-3 mb-0') if self.documentopadre and self.documentopadre.operacion == -1 else Column(
+                #     'precio', css_class='form-group col-md-2 mb-0'),
+                # Column(UneditableField('operacion'), css_class='form-group col-md-3 mb-0'),
+                # Column('operacion', css_class='form-group col-md-3 mb-0'),
+                # Field('operacion', type="hidden"),
                 css_class='form-row'
             ),
         )
 
+    @transaction.atomic
     def save(self, commit=True, doc=None, existencia=None):
-        with transaction.atomic():
-            instance = super().save(commit=False)
-
-            ueb = doc.ueb
-            producto = instance.producto
-            estado = instance.estado
-            departamento = doc.departamento
-            operacion = 1 if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
-
-            existencia_actual = (instance.existencia - self.cantidad_anterior * operacion) + instance.cantidad * operacion if not exisencia else existencia
-            instance.existencia = existencia_actual + instance.cantidad
-
-            # actualizar las existencias de los demás documentos
-            # tomo la existencia del producto
-            existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
-                                                                           producto=producto, ueb=ueb)
-            importe_exist = 0.00
-            cantidad_existencia = 0.00
-
-            if existencia:
-                exist = existencia.first()
-                importe_exist = exist.importe
-                cantidad_existencia = exist.cantidad_final
-
-            fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][departamento][
-                'fecha_procesamiento'] if settings.FECHAS_PROCESAMIENTO else None
-
-            dicc = {'documento__estado': EstadosDocumentos.EDICION,
-                    'documento__departamento': departamento, 'producto': producto, 'estado': estado, 'documento__ueb': ueb}
-
-            # detalles de los doc que están en edición de la ueb y el departamento y contienen el producto
-            docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-
-            # docum anteriores al actual que tienen el producto
-            docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=doc.numeroconsecutivo)
-
-            # se obtiene el total del producto se suman las entradas y se restan las salidas
-            total_anterior = docs_anteriors.annotate(
-                adjusted_quantity=Case(
-                    When(documento__tipodocumento__operacion=OperacionDocumento.ENTRADA, then=F('cantidad')),
-                    When(documento__tipodocumento__operacion=OperacionDocumento.SALIDA, then=-F('cantidad')),
-                    default=Value(0),
-                    output_field=DecimalField()
-                )
-            ).aggregate(
-                total_ant=Coalesce(Sum('adjusted_quantity'), Value(0), output_field=DecimalField())
-            )['total_ant']
-
-            # se actualiza la existencia del producto en el detalle actual
-            existencia_product = float(cantidad_existencia) + float(instance.cantidad) * operacion + float(total_anterior)
-
-            instance.existencia = existencia_product
-
-            # se van a actualizar las existencias de los doc posteriores que contienen el producto
-            docs_posteriores = docs_en_edicion.filter(documento__numeroconsecutivo__gt=doc.numeroconsecutivo)
-
-            documento_detalles = []
-            error = False
-            for p in docs_posteriores:
-                operacion = 1 if p.documento.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
-                existencia_product = float(p.cantidad) * operacion + float(existencia_product)
-                p.error = True if not error and existencia_product < 0 else False
-                p.existencia = existencia_product if not error else p.existencia
-                p.error = error
-                documento_detalles.append(p)
-
-            docs_posteriores.bulk_update(documento_detalles, ['existencia'])
-
-            instance.importe = instance.precio * instance.cantidad
-
+        if not doc:
             return self.instance
+        # with transaction.atomic():
+        instance = super().save(commit=False)
+
+        ueb = doc.ueb
+        producto = instance.producto
+        estado = instance.estado
+        departamento = doc.departamento
+        operacion = doc.operacion
+
+        existencia_actual = (float(instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
+            instance.cantidad) * operacion if not existencia else float(existencia)
+        instance.existencia = float(existencia_actual) + float(instance.cantidad)
+
+        # actualizar las existencias de los demás documentos
+        # tomo la existencia del producto
+        dicc = {'documento__estado': EstadosDocumentos.EDICION,
+                'documento__departamento': departamento, 'producto': producto, 'estado': estado,
+                'documento__ueb': ueb}
+
+        docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+        existencia_product = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
+
+
+        instance.existencia = existencia_product
+
+        # se van a actualizar las existencias de los doc posteriores que contienen el producto
+        actualiza_existencias(doc, docs_en_edicion, existencia_product)
+
+        instance.importe = instance.precio * instance.cantidad
+
+        return self.instance
 
 
 # ------------ ObtenerDocumentoVersat / Form ------------
@@ -661,13 +653,12 @@ class ObtenerDocumentoVersatForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Field('iddocumento', type="hidden"),
-                # Column('iddocumento', css_class='form-group col-md-1 mb-0'),
-                Column('iddocumento_numero', css_class='form-group col-md-1 mb-0'),
-                Column('iddocumento_numctrl', css_class='form-group col-md-2 mb-0'),
-                Column('iddocumento_fecha', css_class='form-group col-md-2 mb-0'),
-                Column('iddocumento_concepto', css_class='form-group col-md-3 mb-0'),
-                Column('iddocumento_almacen', css_class='form-group col-md-3 mb-0'),
-                Column('iddocumento_sumaimporte', css_class='form-group col-md-1 mb-0'),
+                Column(UneditableField('iddocumento_numero'), css_class='form-group col-md-1 mb-0'),
+                Column(UneditableField('iddocumento_numctrl'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('iddocumento_fecha'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('iddocumento_concepto'), css_class='form-group col-md-3 mb-0'),
+                Column(UneditableField('iddocumento_almacen'), css_class='form-group col-md-3 mb-0'),
+                Column(UneditableField('iddocumento_sumaimporte'), css_class='form-group col-md-1 mb-0'),
                 css_class='form-row'
             ),
         )

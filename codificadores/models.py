@@ -183,17 +183,6 @@ class EstadoProducto(models.IntegerChoices):
     RECHAZO = 3, 'Rechazo'
 
 
-# class EstadoProducto(models.Model):
-#     id = models.AutoField(primary_key=True, choices=ChoiceEstadosProd.CHOICE_ESTADOS, editable=False, )
-#     descripcion = models.CharField(unique=True, max_length=80)
-#
-#     class Meta:
-#         db_table = 'cla_estadoproducto'
-#
-#     def __str__(self):
-#         return self.descripcion
-
-
 class ClaseMateriaPrima(models.Model):
     id = models.AutoField(primary_key=True, choices=ChoiceClasesMatPrima.CHOICE_CLASES, editable=False, )
     descripcion = models.CharField(unique=True, max_length=80)
@@ -382,6 +371,24 @@ class LineaSalida(ObjectsManagerAbstract):
     def get_productoactivo(self):
         return self.producto.activo
 
+class TipoProductoDepartamento(models.IntegerChoices):
+    MATERIAPRIMA = 1, 'Materia Prima'  #la materia prima es capote, fortaleza y picadura
+    MANOJOS = 2, 'Manojos'
+    CAPASINCLASIFICAR = 3, 'Capa sin Clasificar'
+    CAPACLASIFICADA = 4, 'Capa Clasificada'
+    PESADA = 5, 'Pesadas'
+    LINEASINTERMINAR = 6, 'Linea sin Terminar'
+    LINEASALIDA = 7, 'Linea de Salida'
+    VITOLA = 8, 'Vitola'
+
+class ProductoDepartamento(models.Model):
+    id = models.IntegerField(choices=TipoProductoDepartamento.choices, primary_key=True)
+
+    class Meta:
+        db_table = 'cla_productodepartamento'
+
+    def __str__(self):
+        return TipoProductoDepartamento(self.pk).label
 
 class Departamento(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -391,15 +398,19 @@ class Departamento(ObjectsManagerAbstract):
                                     verbose_name=_("Cost Center"), unique=True)
     unidadcontable = models.ManyToManyField(UnidadContable, related_name='departamento_unidadcontable',
                                             verbose_name="UEB")
-
     relaciondepartamento = models.ManyToManyField('self',
                                                   blank=True, null=True,
                                                   related_name='departamentorelacion_destino',
                                                   verbose_name=_("Destination Department"))
-    departamentoproducto = models.ManyToManyField(TipoProducto,
+    departamentoproductoentrada = models.ManyToManyField(ProductoDepartamento,
+                                                         blank=True, null=True,
+                                                         related_name='departamentoproductoentrada_producto',
+                                                         verbose_name=_("Productos de Entrada"))
+    departamentoproductosalida = models.ManyToManyField(ProductoDepartamento,
                                                   blank=True, null=True,
                                                   related_name='departamentoproductosalida_producto',
-                                                  verbose_name=_("Output Product"))
+                                                  verbose_name=_("Output Products"))
+
 
     class Meta:
         db_table = 'cla_departamento'
@@ -516,7 +527,7 @@ class NormaConsumoGrouped(NormaConsumo):
         ordering = ['producto__tipoproducto', 'producto__descripcion', 'fecha']
 
     def __str__(self):
-        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion) if self.cantidad else ''
 
 
 class MotivoAjuste(ObjectsManagerAbstract):
@@ -560,10 +571,8 @@ class TipoNumeroDoc(models.IntegerChoices):
     NUMERO_CONTROL = 2, "Número de Control"
 
 class ConfigNumero(models.IntegerChoices):
-    DEPARTAMENTOTIPODOCUMENTO = 1, 'Por departamento y tipo de documento'
-    DEPARTAMENTO = 2, 'Por departamento'
-    TIPODOCUMENTO = 3, 'Por tipo de documento'
-    UNICO = 4, 'Unico en el sistema'
+    DEPARTAMENTO = 1, 'Por departamento'
+    UNICO = 2, 'Unico en el sistema'
 
 class NumeracionDocumentos(ObjectsManagerAbstract):
     id = models.AutoField(primary_key=True, choices=TipoNumeroDoc, verbose_name=_("Tipo de Número"))
@@ -571,8 +580,6 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
                                   verbose_name=_("Controlada por el sistema"))
     departamento = models.BooleanField(default=False, db_comment='Si el número es por departamento',
                                        verbose_name=_("Por Departmento"))
-    tipo_documento = models.BooleanField(default=False, db_comment='Si el número es por tipo de documento',
-                                         verbose_name=_("Por tipo de Documento"))
     prefijo = models.BooleanField(default=False,
                                   db_comment='Si el número de documento va a contener un prefijo',
                                   verbose_name=_("Usar Prefijo"))
@@ -581,31 +588,24 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
         db_table = 'cla_numeraciondocumentos'
 
     def to_dict(self):
-        confignumero = ConfigNumero.UNICO
+        # confignumero = ConfigNumero.UNICO
         mess = 'Ya el ' + (TipoNumeroDoc.NUMERO_CONSECUTIVO.label
                                   if self.id == TipoNumeroDoc.NUMERO_CONSECUTIVO
                                   else TipoNumeroDoc.NUMERO_CONTROL.label) + ' existe '
         peri = ' en el año' if self.id == TipoNumeroDoc.NUMERO_CONTROL else ' en el mes'
 
-        if self.departamento and self.tipo_documento:
-            mess = mess + 'para el Departamento y el Tipo de Documento'
-            confignumero = ConfigNumero.DEPARTAMENTOTIPODOCUMENTO
-        elif self.self.departamento:
+        if self.departamento:
             mess = mess + 'para el Departamento'
-            confignumero = ConfigNumero.DEPARTAMENTO
-        elif self.tipo_documento:
-            mess = mess + 'para el Tipo de Documento'
-            confignumero = ConfigNumero.TIPODOCUMENTO
+            # confignumero = ConfigNumero.DEPARTAMENTO
         mess = mess + peri
 
         return {
             "tiponumero": self.id,
             'sistema': self.sistema,
             'departamento': self.departamento,
-            'tipo_documento': self.tipo_documento,
             'prefijo': self.prefijo,
-            'mensaje_error': mess,
-            'confignumero': confignumero
+            'mensaje_error': mess
+            # 'confignumero': confignumero
         }
 
 

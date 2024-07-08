@@ -9,7 +9,6 @@ def init_data(apps, schema_editor):
     act_model_categoriavitola = apps.get_model(modulo, "CategoriaVitola")
     act_model_motivoajuste = apps.get_model(modulo, "MotivoAjuste")
     act_model_tipodocumento = apps.get_model(modulo, "TipoDocumento")
-    # act_model_numeraciondocumentos = apps.get_model(modulo, "NumeracionDocumentos")
     act_model_unidadcontable = apps.get_model(modulo, "UnidadContable")
     act_model_confcentroselementosotros = apps.get_model(modulo, "ConfCentrosElementosOtros")
     act_model_confcentroselementosotrosdetalle = apps.get_model(modulo, "ConfCentrosElementosOtrosDetalle")
@@ -48,13 +47,16 @@ def init_data(apps, schema_editor):
                           capote_fortaleza='F'),
         ClaseMateriaPrima(pk=ChoiceClasesMatPrima.CAPACLASIFICADA,
                           descripcion=ChoiceClasesMatPrima.CHOICE_CLASES[ChoiceClasesMatPrima.CAPACLASIFICADA],
-                          capote_fortaleza='P'),
+                          capote_fortaleza='D'),
         ClaseMateriaPrima(pk=ChoiceClasesMatPrima.CAPASINCLASIFICAR,
                           descripcion=ChoiceClasesMatPrima.CHOICE_CLASES[ChoiceClasesMatPrima.CAPASINCLASIFICAR],
-                          capote_fortaleza='P'),
+                          capote_fortaleza='S'),
         ClaseMateriaPrima(pk=ChoiceClasesMatPrima.F4,
                           descripcion=ChoiceClasesMatPrima.CHOICE_CLASES[ChoiceClasesMatPrima.F4],
                           capote_fortaleza='F'),
+        ClaseMateriaPrima(pk=ChoiceClasesMatPrima.PICADURA,
+                          descripcion=ChoiceClasesMatPrima.CHOICE_CLASES[ChoiceClasesMatPrima.PICADURA],
+                          capote_fortaleza='P'),
     ]
     act_model_clasemateriaprima.objects.bulk_create(clasemp)
 
@@ -150,9 +152,9 @@ def init_data(apps, schema_editor):
     act_model_tipodocumento.objects.bulk_create(tipodoc)
 
     NumeracionDocumentos.objects.create(pk=TipoNumeroDoc.NUMERO_CONSECUTIVO, sistema=False, departamento=True,
-                                        tipo_documento=True, prefijo=False)
+                                        prefijo=False)
     NumeracionDocumentos.objects.create(pk=TipoNumeroDoc.NUMERO_CONTROL, sistema=True, departamento=True,
-                                        tipo_documento=True, prefijo=False)
+                                        prefijo=False)
 
     ucontab = [
         UnidadContable(pk="000603fa-af2d-4713-b0e5-c2991a289f4b", codigo="01", nombre="UEB SANTA CLARA"),
@@ -245,3 +247,5 @@ def init_data(apps, schema_editor):
                                    desglosado=True)
     FichaCostoFilas.objects.create(fila='1.2', descripcion="Gastos Materia Prima Tabaco", parent=parent,
                                    desglosado=True)
+
+

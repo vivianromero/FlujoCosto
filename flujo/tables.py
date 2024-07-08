@@ -112,7 +112,6 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
     cantidad = tables.Column(verbose_name='Cantidad')
     precio = tables.Column(verbose_name='Precio')
     importe = tables.Column(verbose_name='Importe')
-    existencia = tables.Column(verbose_name='Existencia')
 
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_documentosversat_detalle_template.html',
@@ -148,6 +147,5 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
             'cantidad',
             'precio',
             'importe',
-            'existencia',
             'actions',
         )
