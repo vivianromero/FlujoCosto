@@ -729,7 +729,8 @@ class ProductoFlujoForm(forms.ModelForm):
                 css_class='form-row'),
             Row(
                 Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                Div(Column('clase', css_class='form-group col-md-2 mb-0'),
+                Div(
+                    Column('clase', css_class='form-group col-md-2 mb-0'),
                     Column('precio_lop', css_class='form-group col-md-2 mb-0'),
                     css_class='form-row', css_id='prec_id'
                     ),

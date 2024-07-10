@@ -1805,23 +1805,45 @@ def classmatprima(request):
     }
     data = {
         'tipoproducto': tipoproducto,
-        'clase': clases_mp,
+        'clase': clasemp,
+        'precio_lop': 0.0,
     }
     form = ProductoFlujoForm(data)
     form.fields['clase'].queryset = clases_mp
     esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
     if not esmatprim:
+        form.fields['clase'].disabled = True
         form.fields['clase'].widget.attrs.update({'style': 'display: none;'})
         form.fields['clase'].label = False
+        form.fields['clase'].required = False
+        form.fields['precio_lop'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['precio_lop'].label = False
+        form.fields['precio_lop'].required = False
     else:
-        form.fields['clase'].required = True
+        form.fields['clase'].disabled = False
+        # form.fields['clase'].required = True
+        form.fields['clase'].label = 'Clase'
         form.fields['clase'].widget.attrs.update({
-            'hx-get': 'app_index:codificadores:rendimientocapa',
+            'style': "width: 100%",
+            'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
             'hx-target': "#div_id_rendimientocapa",
             'hx-trigger': "load, change",
             'hx-include': '[name="rendimientocapa"]'
         })
-    response = HttpResponse(as_crispy_field(form['clase']))
+        form.fields['precio_lop'].required = True
+        form.fields['precio_lop'].label = 'Precio LOP'
+        form.fields['precio_lop'].widget.attrs.update({
+            'decimal_places': 4,
+            'max_digits': 10,
+            'min_value': 0.0000,
+            'step': "0.0001",
+            'min': "0.0000",
+            'style': 'display: block;'
+        })
+    clase_field = as_crispy_field(form['clase'])
+    precio_lop_field = as_crispy_field(form['precio_lop'])
+    two_fields = clase_field + precio_lop_field
+    response = HttpResponse(two_fields, content_type='text/html')
     return response
     # return render(request, 'app_index/partials/productclases.html', context)
 
@@ -1830,8 +1852,8 @@ def rendimientocapa(request):
     clasemp = request.GET.get('clase')
     codigo = request.GET.get('codigo')
     clasemp = '0' if not clasemp else clasemp
-    rendimientocapa = request.GET.get('rendimientocapa')
-    rendimientocapa = rendimientocapa if rendimientocapa else '0'
+    rendimientocapa = request.GET.get('rendimientocapa', 0)
+    # rendimientocapa = rendimientocapa if rendimientocapa else '0'
     catvitolas = CategoriaVitola.objects.all()
     seleccvitolas = []
     prod = ProductoFlujo.objects.filter(codigo=codigo)
@@ -1844,7 +1866,39 @@ def rendimientocapa(request):
         'seleccvitolas': seleccvitolas,
         'vitolas': catvitolas,
     }
-    return render(request, 'app_index/partials/rendimientocapa.html', context)
+    data = {
+        'vitolas': catvitolas,
+        'clase': clasemp,
+        'rendimientocapa': rendimientocapa,
+    }
+    form = ProductoFlujoForm(data)
+    show_rendimiento = True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False
+    if not show_rendimiento:
+        form.fields['rendimientocapa'].disabled = True
+        form.fields['rendimientocapa'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['rendimientocapa'].label = False
+        form.fields['rendimientocapa'].required = False
+        form.fields['vitolas'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['vitolas'].label = False
+        form.fields['vitolas'].required = False
+    else:
+        form.fields['rendimientocapa'].disabled = False
+        # form.fields['clase'].required = True
+        form.fields['rendimientocapa'].label = 'Rend. Capa'
+        form.fields['clase'].widget.attrs.update({
+            'style': "display: block;",
+        })
+        form.fields['vitolas'].required = True
+        form.fields['vitolas'].label = 'Vitolas'
+        form.fields['vitolas'].widget.attrs.update({
+            'style': 'display: block;'
+        })
+    rendimientocapa_field = as_crispy_field(form['rendimientocapa'])
+    vitolas_field = as_crispy_field(form['vitolas'])
+    two_fields = rendimientocapa_field + vitolas_field
+    response = HttpResponse(two_fields, content_type='text/html')
+    return response
+    # return render(request, 'app_index/partials/rendimientocapa.html', context)
 
 
 def cargonorma(request):
