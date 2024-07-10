@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 
 from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions
 from cruds_adminlte3.utils import attrs_center_center
-from flujo.models import Documento
+from flujo.models import *
 from app_versat.inventario import InvDocumento, InvDocumentogasto
 from codificadores.models import CentroCosto
 import django_tables2 as tables
@@ -50,6 +50,29 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     @staticmethod
     def value_estado(value):
         return value
+
+
+# ------ DocumentoDetalle / Table ------
+class DocumentoDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = DocumentoDetalle
+
+        fields = (
+            'producto',
+            'estado',
+            'cantidad',
+            'precio',
+            'importe',
+            'existencia',
+        )
+
+    actions = tables.TemplateColumn(
+        template_name='cruds/actions/hx_actions_documento_detalles_template.html',
+        verbose_name=_('Actions'),
+        exclude_from_export=True,
+        orderable=False,
+        attrs=attrs_center_center
+    )
 
 
 # ------ Documentos Versat / Table ------

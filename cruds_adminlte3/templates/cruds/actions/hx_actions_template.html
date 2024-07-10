@@ -29,6 +29,8 @@
 {% crud_nurl object "delete" namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete %}
     <a hx-post="{% url nurl record.pk %}{{ getparams }}"
+       hx-headers='{"event_action": "confirmed"}'
+       hx-vals='{"event_action": "confirmed"}'
        hx-trigger="confirmed"
        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}

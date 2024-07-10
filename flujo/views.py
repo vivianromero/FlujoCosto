@@ -19,7 +19,7 @@ from codificadores.models import *
 from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
-from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
+from flujo.tables import *
 from .forms import *
 from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, actualiza_numero_eliminado, \
@@ -39,6 +39,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
     inline_field = 'documento'
     add_form = DocumentoDetalleForm
     update_form = DocumentoDetalleForm
+    detail_form = DocumentoDetalleDetailForm
     list_fields = [
         'producto',
         'estado',
@@ -59,7 +60,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
     title = "Detalles de documentos"
 
-    # table_class = DocumentoDetalleTable
+    table_class = DocumentoDetalleTable
 
     def get_create_view(self):
         create_view = super().get_create_view()
@@ -77,6 +78,10 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
             def get_context_data(self, **kwargs):
                 context = super().get_context_data(**kwargs)
+                title = 'Formulario Htmx Modal'
+                context.update({
+                    'modal_form_title': title,
+                })
                 return context
 
             def form_valid(self, form):
@@ -104,10 +109,10 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
         return CreateView
 
-    def get_update_view(self):
-        view = super().get_update_view()
+    def get_detail_view(self):
+        detail_view = super().get_detail_view()
 
-        class OEditView(view):
+        class DetailView(detail_view):
 
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
@@ -118,19 +123,34 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 )
                 return form_kwargs
 
-            def form_valid(self, form):
-                try:
-                    self.object = form.save(commit=False, doc=self.model_id)
-                    setattr(self.object, self.inline_field, self.model_id)
-                    self.object.save()
-                except IntegrityError as e:
-                    # Maneja el error de integridad (duplicación de campos únicos)
-                    mess_error = "El producto ya existe para la norma"
-                    form.add_error(None, mess_error)
-                    return self.form_invalid(form)
-                return HttpResponse(""" """)
+            def get_context_data(self, **kwargs):
+                return super(DetailView, self).get_context_data()
 
-        return OEditView
+        return DetailView
+
+    def get_update_view(self):
+        view = super().get_update_view()
+
+        class UpdateView(view):
+
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "doc": self.model_id,
+                    }
+                )
+                return form_kwargs
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                title = 'Editar ' + self.name
+                ctx.update({
+                    'modal_form_title': title,
+                })
+                return ctx
+
+        return UpdateView
 
     def get_delete_view(self):
         delete_view = super().get_delete_view()
@@ -150,28 +170,17 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 context['url_father'] = url_father
                 return context
 
-            def get(self, request, *args, **kwargs):
-                self.model_id = get_object_or_404(
-                    self.base_model, pk=kwargs['model_id'])
-                return super().get(self, request, *args, **kwargs)
-
-            def get_success_url(self):
-                return "/"
+            # def get(self, request, *args, **kwargs):
+            #     return self.post(self, request, *args, **kwargs)
 
             def post(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
-                if self.model_id:
-                    url_father = self.base_model.get_absolute_url(self=self.model_id)
-                else:
-                    url_father = self.get_success_url()
                 doc = self.model_id
                 producto = self.kwargs['pk']
                 existencia_anterior(doc, producto, True)
-                response = delete_view.post(self, request, *args, **kwargs)
-
-                return HttpResponse(" ")
+                return super().post(request, *args, **kwargs)
 
         return DeleteView
 
@@ -323,6 +332,8 @@ class DocumentoCRUD(CommonCRUDView):
                     datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
                     tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
                         datostableversat)
+                    if 'actions' in tableversat.col_vis:
+                        tableversat.col_vis.remove('actions')
                     tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
                     DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
@@ -446,6 +457,10 @@ class DocumentoCRUD(CommonCRUDView):
             hx_swap = self.hx_swap
             hx_form_target = self.hx_form_target
             hx_form_swap = self.hx_form_swap
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data()
+                return ctx
 
         return ODetailView
 
@@ -712,6 +727,7 @@ def precioproducto(request):
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
     return render(request, 'app_index/partials/productclases.html', context)
+
 
 def aceptar_documento_versat(kwargs):
     """

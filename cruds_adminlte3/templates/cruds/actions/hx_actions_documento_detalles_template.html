@@ -27,7 +27,9 @@
 {% crud_inline_url base_model record 'delete' namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete %}
     <a id="#{{ name }}_{{ record.pk }}_delete"
-       hx-get="{{ nurl }}{{ getparams_hx }}"
+       hx-headers='{"event_action": "inline_confirmed"}'
+       hx-vals='{"event_action": "inline_confirmed"}'
+       hx-post="{{ nurl }}"
        hx-target="#edit_modal_inner"
        hx-trigger="inline_confirmed"
         href="{{ nurl }}"
