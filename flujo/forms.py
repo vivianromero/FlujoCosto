@@ -105,10 +105,13 @@ class DocumentoForm(forms.ModelForm):
         self.origen = False
         self.edicion = False if not instance else True #Documento.objects.filter(pk=instance.pk).exists()
         self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(pk=instance.pk).numeroconsecutivo #Documento.objects.filter(pk=instance.pk).exists()
+
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
             self.fields['ueb'].widget.enabled_choices = [self.user.ueb]
         if instance:
+            self.fields['fecha'].initial = self.fecha_procesamiento
+            self.fields['fecha'].widget.attrs['readonly'] = True
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
             self.fields['tipodocumento'].widget.enabled_choices = [instance.tipodocumento]
             if settings.NUMERACION_DOCUMENTOS_CONFIG:
@@ -156,8 +159,7 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento'].initial = self.departamento
                 self.fields['departamento'].widget.enabled_choices = [self.departamento]
                 self.fields['estado'].initial = EstadosDocumentos.EDICION
-                self.fields['fecha'].initial = self.fecha_procesamiento
-                self.fields['fecha'].widget.attrs['readonly'] = True
+
             if self.tipo_doc:
                 self.fields['tipodocumento'].initial = self.tipo_doc
                 self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]

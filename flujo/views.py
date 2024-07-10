@@ -460,9 +460,9 @@ def confirmar_documento(request, pk):
     #  - Si actualizan las existencias
     #  - Si es un documento de entrada se actualiza el precio
     #  - Si el documento lo requiere se genera el documento en el destino
-
+    there_is_htmx_params = request.htmx.current_url_abs_path.split('?').__len__() > 1
+    getparams_hx = '?' + request.htmx.current_url_abs_path.split('?')[1] if there_is_htmx_params else ''
     obj = Documento.objects.select_for_update().get(pk=pk)
-    # params = '?' + request.htmx.current_url_abs_path.split('?')[1]
     departamento = obj.departamento
     ueb = obj.ueb
     operacion = obj.tipodocumento.operacion
@@ -518,9 +518,9 @@ def confirmar_documento(request, pk):
             DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
 
             crea_detalles_generado(new_doc, detalles)
-            title = 'Confirmación terminada'
-            text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
-            sweetify.success(request, title, text=text, persistent=True)
+        title = 'Confirmación terminada'
+        text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
+        sweetify.success(request, title, text=text, persistent=True)
     else:
         title = 'No puede ser confrimado el documento '
         text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
@@ -529,7 +529,7 @@ def confirmar_documento(request, pk):
                        persistent=True)
 
     return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + getparams_hx,
         target='#table_content_documento_swap',
         headers={
             'HX-Trigger': request.htmx.trigger,
@@ -769,7 +769,6 @@ def aceptar_documento_versat(kwargs):
 
     return func_ret
 
-
 def rechazar_documento_versat(kwargs):
     """
     Rechazar un documento
@@ -782,14 +781,14 @@ def rechazar_documento_versat(kwargs):
         'error_title': 'El documento no pudo ser rechazado. Por favor, revise',
     }
 
-    # Aquí va la lógica de la vista/función
-    # Simulamos que no hubo errores, simplemente devolvemos func_ret que tiene 'success': True por defecto
+    iddocumento = kwargs['iddocumento']
+    request = kwargs['request']
+    fecha = kwargs['iddocumento_fecha']
+    partes = fecha.split('/')
+    partes.reverse()
+    fecha_doc = '-'.join(partes)
 
-    # Simulamos que hubo errores, simplemente cambiamos el valor de 'success': False y si queremos devolver
-    # detalles del error lo agregamos al diccionario 'errors' que va dentro de func_ret
-    func_ret.update({
-        'success': False
-    })
+    DocumentoVersatRechazado.objects.create(documentoversat = iddocumento, fecha_documentoversat=fecha_doc, ueb=request.user.ueb)
 
     return func_ret
 
@@ -871,3 +870,101 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         if self.request.POST['event_action'] == 'submitted':
             kw.update({'detalles': self.inline_tables[0]['table'].data.data})
         return kw
+
+@transaction.atomic
+def rechazar_documento(request, pk):
+    sweetify.warning(request, "ALERTA !!!!", text="En elaboración ", persistent=True)
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': 'confirmed',
+        }
+    )
+    # Para confirmar un documento se valida:
+    #  - que contenga detalles
+    #  - que no existan documentos en edición anteriores a él, que el umtimo consecutivo confirmado sea el anterior a su numero
+    # Procedimiento
+    #  - Despues de validar y todo ok se procede a la confirmación
+    #  - Si actualizan las existencias
+    #  - Si es un documento de entrada se actualiza el precio
+    #  - Si el documento lo requiere se genera el documento en el destino
+
+    obj = Documento.objects.select_for_update().get(pk=pk)
+    # params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    departamento = obj.departamento
+    ueb = obj.ueb
+    operacion = obj.tipodocumento.operacion
+    max_numero_editado = 0
+    detalles = obj.documentodetalle_documento.all()
+    detalles_count = detalles.count()
+    if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
+        exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
+        actualizar_existencia = []
+        for d in detalles:
+            producto = d.producto
+            estado = d.estado
+            exist = exist_dpto.filter(producto=producto, estado=estado).first()
+            inicial_exist = 0 if not exist else exist.cantidad_inicial
+            entradas_exist = 0 if not exist else exist.cantidad_entrada
+            salidas_exist = 0 if not exist else exist.cantidad_salida
+            cantidad_final_exist = 0 if not exist else exist.cantidad_final
+
+            precio = d.precio if not exist else exist.precio
+            cantidad = d.cantidad
+
+            if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
+                importe = d.cantidad * d.precio
+                importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
+                importe_t = importe + importe_exist
+                cantidad_t = cantidad + cantidad_final_exist
+                precio = importe_t / cantidad_t
+
+            cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
+            cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
+            cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
+
+            importe = cantidad_final * precio
+
+            actualizar_existencia.append(
+                ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
+                               cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
+                               cantidad_final=cantidad_final, importe=importe,
+                               precio=precio))
+        ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
+                                                     ['cantidad_entrada', 'cantidad_salida', 'precio',
+                                                      'cantidad_final', 'importe'],
+                                                     match_field=['ueb', 'departamento', 'producto', 'estado'])
+        obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
+        obj.save()
+
+        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
+            new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
+            departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
+            new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
+
+            departamento_origen = departamento
+            DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
+
+            crea_detalles_generado(new_doc, detalles)
+            title = 'Confirmación terminada'
+            text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
+            sweetify.success(request, title, text=text, persistent=True)
+    else:
+        title = 'No puede ser confrimado el documento '
+        text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
+        text = 'Este documento contiene errores' if obj.error else text
+        sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
+                       persistent=True)
+
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': 'confirmed',
+        }
+    )

@@ -1,3 +1,5 @@
+{% load departamento_tags %}
+{% if object.fila %} {% not_in object.fila "['1', '1.1', '1.2']" as is_not_in %}  {% else %} {% not_in object.tipodocumento.pk "[4]" as is_not_in %} {% endif %}
 {% include 'cruds/actions/acept_button.html' %}
 {% if inlines %}
     {% include 'cruds/actions/acept_and_add_inline_button.html' %}
@@ -5,7 +7,10 @@
     {% include 'cruds/actions/acept_and_add_another_button.html' %}
 {% endif %}
 {% include 'cruds/actions/hx_confirm_document_button.html' %}
-{% include 'cruds/actions/hx_cancel_button.html' %}
-{% if not object.fila in "['1', '1.1', '1.2']" %}
+{% if is_not_in %}
     {% include 'cruds/actions/hx_delete_button.html' %}
 {% endif %}
+{% if object.tipodocumento.generado %}
+    {% include 'cruds/actions/hx_refused_document_button.html' %}
+{% endif %}
+{% include 'cruds/actions/hx_cancel_button.html' %}
