@@ -621,6 +621,77 @@ class DocumentoDetalleForm(forms.ModelForm):
         return self.instance
 
 
+# ------------ DocumentoDetalle / Form ------------
+class DocumentoDetalleDetailForm(forms.ModelForm):
+    class Meta:
+        model = DocumentoDetalle
+        fields = [
+            'cantidad',
+            'precio',
+            'estado',
+            'producto',
+            'importe',
+            'existencia',
+        ]
+        widgets = {
+            'producto': SelectWidget(
+                attrs={
+                    'style': 'width: 100%',
+                    'id': 'id_producto_documento_detalle',
+                    # TODO HAY QUE HACER QUE AL CAMBIAR EL PRODUCTO
+                    # BUSQUE EL PRECIO DE SALIDA
+                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+                    # 'hx-target': '#div_id_precio',
+                    # 'hx-trigger': 'change',
+                    # 'hx-include': '[name="precio"]',
+                }
+            ),
+            'estado': SelectWidget(
+                attrs={
+                    'style': 'width: 100%; dislay: block',
+                    'id': 'id_estado_documento_detalle',
+                },
+            ),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        self.cantidad_anterior = 0
+        self.documentopadre = kwargs.pop('doc', None)
+        if instance:
+            self.cantidad_anterior = instance.cantidad
+        super().__init__(*args, **kwargs)
+        # self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_documento_detalle_detail_form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            Row(
+                Column(UneditableField('producto'), css_class='form-group col-md-4 mb-0',
+                       css_id='id_producto_documento_detail_detalle'),
+                Column(UneditableField('estado'), css_class='form-group col-md-2 mb-0'),
+                Column(UneditableField('cantidad'), css_class='form-group col-md-2 mb-0',
+                       css_id='id_cantidad_documento_detail_detalle'),
+                Column(UneditableField('precio'), css_class='form-group col-md-2 mb-0',
+                       css_id='id_precio_documento_detail_detalle'),
+                Column(UneditableField('importe'), css_class='form-group col-md-2 mb-0',
+                       css_id='id_precio_documento_detail_detalle'),
+                Column(UneditableField('existencia'), css_class='form-group col-md-2 mb-0',
+                       css_id='id_precio_documento_detail_detalle'),
+                # Column(UneditableField('precio'),
+                #        css_class='form-group col-md-3 mb-0') if self.documentopadre and self.documentopadre.operacion == -1 else Column(
+                #     'precio', css_class='form-group col-md-2 mb-0'),
+                # Column(UneditableField('operacion'), css_class='form-group col-md-3 mb-0'),
+                # Column('operacion', css_class='form-group col-md-3 mb-0'),
+                # Field('operacion', type="hidden"),
+                css_class='form-row'
+            ),
+        )
+
 # ------------ ObtenerDocumentoVersat / Form ------------
 class ObtenerDocumentoVersatForm(forms.Form):
     iddocumento = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))

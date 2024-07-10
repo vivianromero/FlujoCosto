@@ -78,11 +78,12 @@ class InlineAjaxCRUD(CRUDView):
 
         class DetailView(djDetailView):
             inline_field = self.inline_field
+            base_model = self.base_model
             views_available = self.views_available[:]
             name = self.name
 
             def get_context_data(self, **kwargs):
-                context = super(DetailView, self).get_context_data(**kwargs)
+                context = super().get_context_data(**kwargs)
                 context['base_model'] = self.model_id
                 context['inline_model'] = self.object
                 context['name'] = self.name
@@ -90,7 +91,9 @@ class InlineAjaxCRUD(CRUDView):
                 return context
 
             def get(self, request, *args, **kwargs):
-                self.model_id = kwargs['model_id']
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id']
+                )
                 return djDetailView.get(self, request, *args, **kwargs)
 
         return DetailView
@@ -229,10 +232,6 @@ class InlineAjaxCRUD(CRUDView):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
-                if self.model_id:
-                    url_father = self.base_model.get_absolute_url(self=self.model_id)
-                else:
-                    url_father = self.get_success_url()
                 response = djDeleteView.post(self, request, *args, **kwargs)
                 return HttpResponse(" ")
 

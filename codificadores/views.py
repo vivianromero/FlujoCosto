@@ -389,36 +389,7 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
                 return self.post(self, request, *args, **kwargs)
 
             def post(self, request, *args, **kwargs):
-                event_action = None
-                if self.request.method == 'POST':
-                    event_action = self.request.POST.get('event_action', None)
-                elif self.request.method == 'GET':
-                    event_action = self.request.GET.get('event_action', None)
-                target = '#id_%s_myList' % self.name
-                self.model_id = get_object_or_404(
-                    self.base_model, pk=kwargs['model_id']
-                )
-                if self.model_id:
-                    url_father = reverse_lazy(
-                        crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'),
-                        args=[self.model.normaconsumo_id]
-                    )
-                else:
-                    url_father = self.get_success_url()
-                response = delete_view.post(self, request, *args, **kwargs)
-                # return HttpResponse(" ")
-                return HttpResponseLocation(
-                    self.get_success_url(),
-                    target=target,
-                    headers={
-                        'HX-Trigger': self.request.htmx.trigger,
-                        'HX-Trigger-Name': self.request.htmx.trigger_name,
-                        'event_action': event_action,
-                    },
-                    values={
-                        'event_action': event_action,
-                    }
-                )
+                return super().post(request, *args, **kwargs)
 
         return DeleteView
 

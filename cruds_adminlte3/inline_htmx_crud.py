@@ -18,6 +18,15 @@ from .inline_crud import InlineAjaxCRUD
 from .utils import crud_url_name
 
 
+def get_retarget_form_response(obj, form, ctx):
+    ctx['form'] = form
+    tpl = "%s/%s" % (obj.partial_template_name_base, 'partial_create.html')
+    response = render(obj.request, tpl, ctx)
+    response['HX-Retarget'] = obj.hx_retarget
+    response['HX-Reswap'] = obj.hx_reswap
+    return response
+
+
 class InlineHtmxCRUD(InlineAjaxCRUD):
     base_model = None
     template_name_base = "cruds/htmx"
@@ -54,6 +63,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             hx_form_swap = self.hx_form_swap
             hx_retarget = self.hx_retarget
             hx_reswap = self.hx_reswap
+            integrity_error = ''
 
             def get_context_data(self, **kwargs):
                 context = super(CreateView, self).get_context_data(**kwargs)
@@ -88,7 +98,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
 
                 except IntegrityError as e:
                     # Maneja el error de integridad (duplicación de campos únicos)
-                    mess_error = "Erro de Integridad"
+                    mess_error = self.integrity_error
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
                 return HttpResponseLocation(
@@ -129,9 +139,9 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
         return CreateView
 
     def get_detail_view(self):
-        detai_view = super(InlineHtmxCRUD, self).get_detail_view()
+        detail_view = super().get_detail_view()
 
-        class DetailView(detai_view):
+        class DetailView(detail_view):
             # inline_field = self.inline_field
             # views_available = self.views_available[:]
             # name = self.name
@@ -144,7 +154,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
-                context = super(DetailView, self).get_context_data(**kwargs)
+                context = super().get_context_data(**kwargs)
                 # context['base_model'] = self.model_id
                 # context['inline_model'] = self.object
                 # context['name'] = self.name
@@ -157,12 +167,16 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                     context['form'] = self.form_class(instance=obj)
                 elif 'object' in kwargs:
                     context['form'] = self.form_class(instance=kwargs['object'])
+                elif 'pk' in self.kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    context['form'] = self.form_class(instance=obj)
+                elif 'object' in self.kwargs:
+                    context['form'] = self.form_class(instance=kwargs['object'])
                 context.update(self.htmx)
                 return context
 
-            def get(self, request, *args, **kwargs):
-                self.model_id = kwargs['model_id']
-                return detai_view.get(self, request, *args, **kwargs)
+            # def get(self, request, *args, **kwargs):
+            #     return super().get(self, request, *args, **kwargs)
 
         return DetailView
 
@@ -181,6 +195,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             hx_form_swap = self.hx_form_swap
             hx_retarget = self.hx_retarget
             hx_reswap = self.hx_reswap
+            integrity_error = ''
 
             def get_context_data(self, **kwargs):
                 context = super(UpdateView, self).get_context_data(**kwargs)
@@ -206,22 +221,53 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 context.update(self.htmx)
                 return context
 
+            def get_success_url(self):
+                return crud_inline_url(self.model_id, self.object, 'list', self.namespace)
+
             def get(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id'])
                 return update_uiew.get(self, request, *args, **kwargs)
 
             def form_valid(self, form):
-                self.object = form.save(commit=False)
-                setattr(self.object, self.inline_field, self.model_id)
-                self.object.save()
-                crud_inline_url(self.model_id,
-                                self.object, 'list', self.namespace)
-
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                target = '#id_%s_myList' % self.name
+                try:
+                    self.object = form.save(commit=False)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = self.integrity_error
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
                 return HttpResponseLocation(
                     self.get_success_url(),
-                    target=self.htmx['hx_target'],
+                    target=target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'event_action': event_action,
+                    },
+                    values={
+                        'event_action': event_action,
+                    }
                 )
+
+            def form_invalid(self, form, **kwargs):
+                """If the form is invalid, render the invalid form."""
+                ctx = self.get_context_data(**kwargs)
+                ctx['form'] = form
+                tpl = self.get_template_names()
+                crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = '#edit_modal_inner'
+                response['HX-Reswap'] = 'innerHTML'
+                return response
 
             def post(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
@@ -320,7 +366,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
         return FilterListView
 
     def get_delete_view(self):
-        delete_view = super(InlineHtmxCRUD, self).get_delete_view()
+        delete_view = super().get_delete_view()
 
         class DeleteView(delete_view):
             # inline_field = self.inline_field
@@ -336,7 +382,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             hx_reswap = self.hx_reswap
 
             def get_context_data(self, **kwargs):
-                context = super(DeleteView, self).get_context_data(**kwargs)
+                context = super().get_context_data(**kwargs)
                 context.update({
                     'hx_target': '#id_%s_myList' % self.name,
                     'hx_swap': self.hx_swap,
@@ -359,9 +405,17 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 return context
 
             def get_success_url(self):
-                return crud_inline_url(self.model_id, self.object, 'list', 'app_index:codificadores')
+                if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    params = '?' + self.request.htmx.current_url_abs_path.split('?')[1]
+                else:
+                    params = ''
+                return crud_inline_url(self.model_id, self.object, 'list', self.namespace) + params
 
             def get(self, request, *args, **kwargs):
+
+                return self.post(self, request, *args, **kwargs)
+
+            def post(self, request, *args, **kwargs):
                 event_action = None
                 if self.request.method == 'POST':
                     event_action = self.request.POST.get('event_action', None)
@@ -371,6 +425,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
+                delete_post = delete_view.post(self, request, *args, **kwargs)
                 return HttpResponseLocation(
                     self.get_success_url(),
                     target=target,
