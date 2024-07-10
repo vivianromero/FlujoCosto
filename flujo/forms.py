@@ -159,6 +159,8 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento'].initial = self.departamento
                 self.fields['departamento'].widget.enabled_choices = [self.departamento]
                 self.fields['estado'].initial = EstadosDocumentos.EDICION
+                self.fields['fecha'].initial = self.fecha_procesamiento
+                self.fields['fecha'].widget.attrs['readonly'] = True
 
             if self.tipo_doc:
                 self.fields['tipodocumento'].initial = self.tipo_doc
