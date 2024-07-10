@@ -87,7 +87,7 @@
     {% if request.user.is_adminempresa and url_exportar %}
         <div id="export_link_url_div" style="display: flex; align-items: center">
             <a id="export_link_url_div_a"
-               href={% if filtrar %} "{% export_url "sisgest" %}" {% else %} "{% url url_exportar %}" {% endif %}
+               href="{% if filtrar %} {% export_url 'sisgest' %} {% else %} {% url url_exportar %} {% endif %}"
                class="nav-link"
             {#               hx-get="{{ url }}{{ getparams }}"#}
             {#               hx-trigger="click"#}

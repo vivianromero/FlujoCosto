@@ -1,12 +1,12 @@
 {% load i18n %}
 {% if not url_update %}
     <button id="id_form_btn_add_another"
-            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
+            hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submited_and_add_another"}'
+            hx-vals='{"event_action": "submited_and_add_another"}'
             hx-post="{{ request.path }}"
             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
             hx-trigger="click"
-            hx-on::after-request="if(event.detail.successful) this.form.reset()"
             type="submit"
             name="another"
             class="btn btn-primary"

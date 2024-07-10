@@ -3,6 +3,7 @@ from .filters import *
 from .forms import *
 from .tables import *
 
+
 class ConexionBaseDatoCRUD(CommonCRUDView):
     model = ConexionBaseDato
 
@@ -50,4 +51,5 @@ class ConexionBaseDatoCRUD(CommonCRUDView):
                 if not user.is_superuser:
                     qset = qset.filter(unidadcontable=user.ueb)
                 return qset
+
         return OFilterListView
