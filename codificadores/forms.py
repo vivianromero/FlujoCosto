@@ -722,33 +722,28 @@ class ProductoFlujoForm(forms.ModelForm):
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Producto Flujo',
-                    Row(
-                        Column('codigo', css_class='form-group col-md-2 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
-                        Column('medida', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'),
-                    Row(
-                        Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                        Div(Column('clase', css_class='form-group col-md-2 mb-0'),
-                            Column('precio_lop', css_class='form-group col-md-2 mb-0'),
-                            css_class='form-row', css_id='prec_id'
-                            ),
-                        Div(
-                            Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
-                            Column('vitolas', css_class='form-group col-md-4 mb-0'),
-                            css_class='form-row', css_id='rd_id'
-                        ),
-                        css_class='form-row'),
-                    Row(
-                        Column('activo', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
+            Row(
+                Column('codigo', css_class='form-group col-md-2 mb-0'),
+                Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                Column('medida', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'),
+            Row(
+                Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
+                Div(Column('clase', css_class='form-group col-md-2 mb-0'),
+                    Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                    css_class='form-row', css_id='prec_id'
                     ),
+                Div(
+                    Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                    Column('vitolas', css_class='form-group col-md-4 mb-0'),
+                    css_class='form-row', css_id='rd_id'
                 ),
-
+                css_class='form-row'),
+            Row(
+                Column('activo', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'
             ),
+
         )
         self.helper.layout.append(
             FormActions(
@@ -877,29 +872,23 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Actualizar Producto Flujo',
-                    Row(
-                        Column('codigo', css_class='form-group col-md-2 mb-0'),
-                        Column('descripcion', css_class='form-group col-md-6 mb-0'),
-                        Column('medida', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'),
-                    Row(
-                        Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                        Column('clase', css_class='form-group col-md-2 mb-0'),
-                        Column('precio_lop', css_class='form-group col-md-2 mb-0'),
-                        Div(Column('rendimientocapa', css_class='form-group col-md-6 mb-0'),
-                            Column('vitolas', css_class='form-group col-md-4 mb-0'),
-                            css_class='form-row col-md-6', css_id='rd_id'
-                            ),
-                        css_class='form-row'),
-                    Row(
-                        Column('activo', css_class='form-group col-md-2 mb-0'),
-                        css_class='form-row'
+            Row(
+                Column('codigo', css_class='form-group col-md-2 mb-0'),
+                Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                Column('medida', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'),
+            Row(
+                Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
+                Column('clase', css_class='form-group col-md-2 mb-0'),
+                Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                Div(Column('rendimientocapa', css_class='form-group col-md-6 mb-0'),
+                    Column('vitolas', css_class='form-group col-md-4 mb-0'),
+                    css_class='form-row col-md-6', css_id='rd_id'
                     ),
-                ),
-
+                css_class='form-row'),
+            Row(
+                Column('activo', css_class='form-group col-md-2 mb-0'),
+                css_class='form-row'
             ),
         )
         self.helper.layout.append(
