@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
+from ast import literal_eval
+from django import template
 
 from codificadores.models import Departamento
-from django import template
 
 register = template.Library()
 
@@ -19,3 +20,8 @@ def get_departamento_name(departamento):
 @register.simple_tag
 def get_departamento_object(departamento):
     return Departamento.objects.get(id=departamento) if departamento else None
+
+@register.simple_tag
+def not_in(value, arg_list):
+    arg_list = literal_eval(arg_list)
+    return value not in arg_list
