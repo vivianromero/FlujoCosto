@@ -106,7 +106,7 @@ class DocumentoDetalle(models.Model):
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
     documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentodetalle_documento')
-    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"), default=EstadoProducto.BUENO)
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
                                  verbose_name=_("Product"))
 
@@ -299,7 +299,7 @@ class DocumentoOrigenVersat(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     documentoversat = models.IntegerField()
     fecha_documentoversat = models.DateTimeField(db_default=Now(), verbose_name=_("Fecha versat at"))
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentoorigenversat_documento')
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentoorigenversat_documento')
     origen_versat = models.CharField(max_length=40)
 
     class Meta:

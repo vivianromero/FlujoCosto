@@ -110,6 +110,41 @@ def json_response(message=None, success=True, **data):
     json_object.update(data)
     return json.dumps(json_object)
 
+def genera_numero_doc(departamento, ueb, tipodoc):
+    config = settings.NUMERACION_DOCUMENTOS_CONFIG
+    consecutivo_conf = config[TipoNumeroDoc.NUMERO_CONSECUTIVO]
+    control_conf = config[TipoNumeroDoc.NUMERO_CONTROL]
+
+    numeros_consec_control = [(), ()]
+
+    numeros = NumerosDocumentos.objects.filter(ueb=ueb)
+
+    numeros_consec_control[0] = dame_numero(numeros, consecutivo_conf, departamento, tipodoc, TipoNumeroDoc.NUMERO_CONSECUTIVO)
+    numeros_consec_control[1] = dame_numero(numeros, control_conf, departamento, tipodoc, TipoNumeroDoc.NUMERO_CONTROL)
+    return numeros_consec_control
+
+def dame_numero(numeros, conf, departamento, tipodoc, tiponumero):
+
+    if conf['tipo_documento'] and conf['departamento']:
+        numero = numeros.filter(tipodocumento=tipodoc, departamento=departamento)
+    elif conf['departamento']:
+        numero = numeros.filter(departamento=departamento)
+    elif conf['tipo_documento']:
+        numero = numeros.filter(tipodocumento=tipodoc)
+    else:
+        numero = numeros
+
+    if numero:
+        prefijo = numero[0].tipodocumento.prefijo if conf['prefijo'] else ''
+        return (numero[0].consecutivo + 1 if tiponumero == TipoNumeroDoc.NUMERO_CONSECUTIVO else numero[0].control + 1,
+                conf['sistema'], '' if not prefijo else prefijo)
+
+    pre = ''
+    if conf['prefijo']:
+        tipo = TipoDocumento.objects.get(pk=tipodoc)
+        pre = tipo.prefijo
+    prefijo = '' if not pre else pre
+    return (1, conf['sistema'], prefijo)
 
 def get_fechas_procesamiento_inicio():
     fechas = FechaPeriodo.objects.all()

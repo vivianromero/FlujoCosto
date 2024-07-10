@@ -588,7 +588,6 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
         db_table = 'cla_numeraciondocumentos'
 
     def to_dict(self):
-        # confignumero = ConfigNumero.UNICO
         mess = 'Ya el ' + (TipoNumeroDoc.NUMERO_CONSECUTIVO.label
                                   if self.id == TipoNumeroDoc.NUMERO_CONSECUTIVO
                                   else TipoNumeroDoc.NUMERO_CONTROL.label) + ' existe '
@@ -596,7 +595,6 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
 
         if self.departamento:
             mess = mess + 'para el Departamento'
-            # confignumero = ConfigNumero.DEPARTAMENTO
         mess = mess + peri
 
         return {
@@ -605,7 +603,6 @@ class NumeracionDocumentos(ObjectsManagerAbstract):
             'departamento': self.departamento,
             'prefijo': self.prefijo,
             'mensaje_error': mess
-            # 'confignumero': confignumero
         }
 
 

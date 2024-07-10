@@ -1,14 +1,15 @@
 {% load i18n l10n crud_tags %}
-    <a
-        hx-get="{% url 'app_index:flujo:obtener_documento_versat' %}"
-       hx-trigger="click"
-        hx-vals='{"iddocumento": "{{ record.iddocumento }}","iddocumento_numero": "{{ record.iddocumento_numero }}", "iddocumento_numctrl": "{{ record.iddocumento_numctrl }}", "iddocumento_fecha": "{{ record.iddocumento_fecha }}", "iddocumento_concepto": "{{ record.iddocumento_concepto }}", "iddocumento_almacen": "{{ record.iddocumento_almacen }}", "iddocumento_sumaimporte": "{{ record.iddocumento_sumaimporte }}", "detalle": "{{ record.iddocumento_detalle }}"}'
-       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
-       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-{#       hx-replace-url="true"#}
-       {% if object.id %}href="{% url 'app_index:flujo:obtener_documento_versat' %}" {% else %}href="#"{% endif %}
-       title="Traer Producto {{ record.producto_codigo }}">
-        <i class="fa fa-box-open"
-           style="margin-right: 5px;"></i>
-    </a>
+    {% if not record.existe_sistema %}
+        <a
+            hx-get="{% url 'app_index:flujo:traer_producto_versat' %}"
+           hx-trigger="click"
+            hx-vals='{"producto_codigo": "{{ record.producto_codigo }}", "producto_descripcion": "{{ record.producto_descripcion }}", "medida_clave": "{{ record.medida_clave }}", "cantidad": "{{ record.cantidad }}", "precio": "{{ record.precio }}"}'
+           {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+           {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+           {% if object.id %}href="{% url 'app_index:flujo:traer_producto_versat' %}" {% else %}href="#"{% endif %}
+           title="Pasar producto al sistema {{ record.iddocumento }}">
+            <i class="fa fa-box-open"
+               style="margin-right: 5px;"></i>
+        </a>
+    {% endif %}
 
