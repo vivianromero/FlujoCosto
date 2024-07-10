@@ -594,12 +594,11 @@ class BaseModalFormView(FormView):
             if self.funcname:
                 func_ret = self.execute(func=self.funcname[event_action], kwargs=kw)
                 if func_ret['success']:
-                    # self.success_url = reverse_lazy(self.father_view) + params
                     if func_ret['success_title']:
-                        sweetify.toast(self.request, title=func_ret['success_title'], icon='success')
+                        sweetify.success(self.request, title=func_ret['success_title'], icon='success')
                 else:
                     if func_ret['error_title']:
-                        sweetify.toast(self.request, title=func_ret['error_title'], icon='error')
+                        sweetify.error(self.request, title=func_ret['error_title'], icon='error')
                     event_action = 'not_submitted'
                 self.success_url = reverse_lazy(self.father_view) + params
             return HttpResponseLocation(

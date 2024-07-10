@@ -2,16 +2,18 @@
 {% load i18n %}
 {% if confirm and object.estado == 1 and crud_perms.update and not object.error %}
     {% crud_nurl object_model "confirm" namespace as nurl %}
-    <button
-        hx-headers='{"confirmed": "true"}'
-        hx-post="{% url nurl pk=object.pk %}{{ getparams }}"
+    <a
+        hx-headers='{"event_action": "confirmed"}'
+        hx-vals='{"event_action": "confirmed"}'
+        hx-post="{% url nurl pk=object.pk %}{{ getparams_hx }}"
         {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#table_content_documento_swap"{% endif %}
         {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-        hx-trigger="click"
+        hx-trigger="confirmed"
         id="id_form_btn_confirm"
         name="confirm"
-        class="btn btn-primary">
+        href="{% url nurl pk=object.pk %}{{ getparams_hx }}"
+        class="btn btn-primary confirm_href">
     <i class="fa fa-tasks"></i> Confirmar
-</button>
+</a>
 {% endif %}
 

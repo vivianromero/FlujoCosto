@@ -124,6 +124,7 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
 
 # ------ Documentos Versat / Table ------
 class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    existe_sistema = tables.Column(verbose_name='', orderable=False)
     idmovimiento = tables.Column(verbose_name='Id Movimiento', orderable=False, visible=False)
     iddocumento = tables.Column(verbose_name='Id Documento', orderable=False, visible=False)
     idproducto = tables.Column(verbose_name='Id Producto', orderable=False, visible=False)
@@ -136,15 +137,18 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
     precio = tables.Column(verbose_name='Precio')
     importe = tables.Column(verbose_name='Importe')
 
-    actions = tables.TemplateColumn(
-        template_name='cruds/actions/hx_actions_documentosversat_detalle_template.html',
-        verbose_name=_('Actions'),
-        exclude_from_export=True,
-        orderable=False,
-        attrs={"th": {'style': 'text-align: center;'},
-               "td": {'style': 'text-align: center;'},
-               }
-    )
+    actions = None
+
+    @staticmethod
+    def render_existe_sistema(value):
+        if value:
+            return render_to_string('app_index/table_icons/confirmado_icon.html')
+        else:
+            return render_to_string('app_index/table_icons/rechazado_icon.html')
+
+    @staticmethod
+    def value_existe_sistema(value):
+        return value
 
     class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
         attrs = {
@@ -159,6 +163,7 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
             }
         }
         sequence = (
+            'existe_sistema',
             'idmovimiento',
             'iddocumento',
             'idproducto',
@@ -170,5 +175,4 @@ class DocumentosVersatDetalleTable(CommonColumnShiftTableBootstrap4ResponsiveAct
             'cantidad',
             'precio',
             'importe',
-            'actions',
         )

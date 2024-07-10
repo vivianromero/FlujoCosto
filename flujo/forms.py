@@ -66,7 +66,6 @@ class DocumentoForm(forms.ModelForm):
         ]
         widgets = {
             'fecha': MyCustomDateRangeWidget(
-                format='%Y-%m-%d',
                 picker_options={
                     'format': 'DD/MM/YYYY',
                     'singleDatePicker': True,
@@ -97,6 +96,7 @@ class DocumentoForm(forms.ModelForm):
         self.post = kwargs.pop('post', None)
         self.departamento = kwargs.pop('departamento', None)
         self.tipo_doc = kwargs.pop('tipo_doc', None)
+        self.fecha_procesamiento = kwargs.pop('fecha_procesamiento', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
         self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ]
         super(DocumentoForm, self).__init__(*args, **kwargs)
@@ -117,10 +117,10 @@ class DocumentoForm(forms.ModelForm):
 
                 self.fields["numerocontrol"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
+
             if instance.tipodocumento.pk in self.destino_tipo_documento:
                 destino_queryset = self.fields['departamento_destino'].queryset
                 destino_queryset = destino_queryset.filter(unidadcontable=self.user.ueb, relaciondepartamento=instance.departamento)
-                # destino_queryset = destino_queryset.filter(relaciondepartamento=instance.departamento)
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
@@ -156,11 +156,14 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento'].initial = self.departamento
                 self.fields['departamento'].widget.enabled_choices = [self.departamento]
                 self.fields['estado'].initial = EstadosDocumentos.EDICION
+                self.fields['fecha'].initial = self.fecha_procesamiento
+                self.fields['fecha'].widget.attrs['readonly'] = True
             if self.tipo_doc:
                 self.fields['tipodocumento'].initial = self.tipo_doc
                 self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]
                 if settings.NUMERACION_DOCUMENTOS_CONFIG:
                     numeros = genera_numero_doc(self.departamento, self.user.ueb, self.tipo_doc)
+
                     # numero consecutivo y de control
                     numero_consec = str(numeros[0][0])
                     self.fields['numeroconsecutivo'].initial = numero_consec
@@ -258,8 +261,9 @@ class DocumentoForm(forms.ModelForm):
                 control = nro_control
 
         actualiza_numeros(ueb=self.instance.ueb,
-                          departamento=None if not consec_departamento else self.instance.departamento, control=control,
-                          consecutivo=consecutivo)
+                          departamento=None if not consec_departamento else self.instance.departamento,
+                          consecutivo=consecutivo, control=control, pk=self.instance.pk
+                          )
 
         instance = super().save(commit=True)
         if self.cleaned_data['tipodocumento'].pk in self.destino_tipo_documento:
@@ -574,12 +578,6 @@ class DocumentoDetalleForm(forms.ModelForm):
                 Column('cantidad', css_class='form-group col-md-2 mb-0',
                        css_id='id_cantidad_documento_detalle'),
                 Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_precio_documento_detalle'),
-                # Column(UneditableField('precio'),
-                #        css_class='form-group col-md-3 mb-0') if self.documentopadre and self.documentopadre.operacion == -1 else Column(
-                #     'precio', css_class='form-group col-md-2 mb-0'),
-                # Column(UneditableField('operacion'), css_class='form-group col-md-3 mb-0'),
-                # Column('operacion', css_class='form-group col-md-3 mb-0'),
-                # Field('operacion', type="hidden"),
                 css_class='form-row'
             ),
         )
@@ -588,7 +586,6 @@ class DocumentoDetalleForm(forms.ModelForm):
     def save(self, commit=True, doc=None, existencia=None):
         if not doc:
             return self.instance
-        # with transaction.atomic():
         instance = super().save(commit=False)
 
         ueb = doc.ueb
@@ -663,7 +660,6 @@ class DocumentoDetalleDetailForm(forms.ModelForm):
         if instance:
             self.cantidad_anterior = instance.cantidad
         super().__init__(*args, **kwargs)
-        # self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_detalle_detail_form'
         self.helper.form_method = 'post'
@@ -682,12 +678,59 @@ class DocumentoDetalleDetailForm(forms.ModelForm):
                        css_id='id_precio_documento_detail_detalle'),
                 Column(UneditableField('existencia'), css_class='form-group col-md-2 mb-0',
                        css_id='id_precio_documento_detail_detalle'),
-                # Column(UneditableField('precio'),
-                #        css_class='form-group col-md-3 mb-0') if self.documentopadre and self.documentopadre.operacion == -1 else Column(
-                #     'precio', css_class='form-group col-md-2 mb-0'),
-                # Column(UneditableField('operacion'), css_class='form-group col-md-3 mb-0'),
-                # Column('operacion', css_class='form-group col-md-3 mb-0'),
-                # Field('operacion', type="hidden"),
+                css_class='form-row'
+            ),
+        )
+
+# ------------ TraerProductoVersat / Form ------------
+class TraerProductoVersatForm(forms.Form):
+    producto_codigo = forms.CharField(label='Código', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    producto_descripcion = forms.CharField(label='Descripción', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    medida_clave = forms.CharField(label='U.M', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    cantidad = forms.DecimalField(label='Cantidad', required=False)
+    precio = forms.DecimalField(label='Precio', required=False)
+    tipoproducto = forms.ModelChoiceField(
+        queryset=TipoProducto.objects.filter(pk__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.HABILITACIONES]),
+        label='Tipo de Producto', required=True)
+    clase_mat_prima = forms.ModelChoiceField(
+        queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
+        label='Clase Materia Prima', required=False)
+
+    class Meta:
+        fields = [
+            'tipoproducto',
+            'clase_mat_prima',
+            'producto_codigo',
+            'producto_descripcion',
+            'medida_clave',
+            'cantidad',
+            'precio',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(TraerProductoVersatForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'GET'
+        self.helper.form_tag = False
+
+        self.fields["tipoproducto"].required = True
+        self.fields["clase_mat_prima"].required = False
+
+        self.helper.layout = Layout(
+            Row(
+                Column('producto_codigo', css_class='form-group col-md-4 mb-0'),
+                Column('producto_descripcion', css_class='form-group col-md-6 mb-0'),
+                Column('medida_clave', css_class='form-group col-md-2 mb-0'),
+                Field('cantidad', type="hidden"),
+                Field('precio', type="hidden"),
+                css_class='form-row'
+            ),
+            Row(
+                Column('tipoproducto', css_class='form-group col-md-6 mb-0'),
+                Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
         )
@@ -698,9 +741,11 @@ class ObtenerDocumentoVersatForm(forms.Form):
     iddocumento_numero = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_numctrl = forms.CharField(label='Nro Control', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_fecha = forms.DateField(label='Fecha', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_fecha_hidden = forms.CharField(label='Fecha x', required=False)
     iddocumento_concepto = forms.CharField(label='Concepto', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_almacen = forms.CharField(label='Almacén', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_sumaimporte = forms.CharField(label='Importe', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+
 
     class Meta:
         fields = [
@@ -721,9 +766,11 @@ class ObtenerDocumentoVersatForm(forms.Form):
         self.helper.form_method = 'GET'
         self.helper.form_tag = False
 
+        widget = forms.TextInput(attrs={'readonly': True})
         self.helper.layout = Layout(
             Row(
                 Field('iddocumento', type="hidden"),
+                Field('iddocumento_fecha_hidden', type="hidden"),
                 Column(UneditableField('iddocumento_numero'), css_class='form-group col-md-1 mb-0'),
                 Column(UneditableField('iddocumento_numctrl'), css_class='form-group col-md-2 mb-0'),
                 Column(UneditableField('iddocumento_fecha'), css_class='form-group col-md-2 mb-0'),

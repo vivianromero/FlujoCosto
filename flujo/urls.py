@@ -13,6 +13,4 @@ urlpatterns = [
     path("aceptar_doc_versat/<iddocumento>/<detalles>/<departamento>/", views.aceptar_documento_versat, name='flujo_documento_versat_aceptar'),
     path("rechazar_doc_versat/<iddocumento>/", views.rechazar_documento_versat, name='flujo_documento_versat_rechazar'),
     path('precioproducto/', views.precioproducto, name='precioproducto'),
-    # path("traer_producto_versat/", views.TraerProductoVersatModalFormView.as_view(), name='traer_producto_versat'),
-    # path("crear_producto_versat/<str:tipoproducto>/<str:clase_mat_prima>/<str:producto_codigo>/<str:producto_descripcion>/<str:medida_clave>/<str:cantidad>/<str:precio>/", views.crear_producto_versat, name='crear_producto_versat'),
 ]

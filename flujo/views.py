@@ -1,31 +1,27 @@
-import uuid
-import datetime
-from datetime import datetime
-from ast import literal_eval
 import calendar
+import datetime
+from ast import literal_eval
+from datetime import datetime
 
 from django.db import IntegrityError
-from django.db.models import Max
+from django.db.models import Max, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
-from django.views.generic.edit import FormView
 
 import settings
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import *
-from cruds_adminlte3.inline_crud import InlineAjaxCRUD
 from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
-from flujo.tables import *
+from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
+from utiles.utils import message_error
 from .forms import *
 from .models import *
-from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, actualiza_numero_eliminado, \
+from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
     existencia_anterior
-from rest_framework.views import APIView
-from utiles.utils import message_error
 
 
 # Create your views here.
@@ -39,7 +35,6 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
     inline_field = 'documento'
     add_form = DocumentoDetalleForm
     update_form = DocumentoDetalleForm
-    detail_form = DocumentoDetalleDetailForm
     list_fields = [
         'producto',
         'estado',
@@ -60,8 +55,6 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
     title = "Detalles de documentos"
 
-    table_class = DocumentoDetalleTable
-
     def get_create_view(self):
         create_view = super().get_create_view()
 
@@ -78,10 +71,6 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
             def get_context_data(self, **kwargs):
                 context = super().get_context_data(**kwargs)
-                title = 'Formulario Htmx Modal'
-                context.update({
-                    'modal_form_title': title,
-                })
                 return context
 
             def form_valid(self, form):
@@ -109,29 +98,10 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
         return CreateView
 
-    def get_detail_view(self):
-        detail_view = super().get_detail_view()
-
-        class DetailView(detail_view):
-
-            def get_form_kwargs(self):
-                form_kwargs = super().get_form_kwargs()
-                form_kwargs.update(
-                    {
-                        "doc": self.model_id,
-                    }
-                )
-                return form_kwargs
-
-            def get_context_data(self, **kwargs):
-                return super(DetailView, self).get_context_data()
-
-        return DetailView
-
     def get_update_view(self):
         view = super().get_update_view()
 
-        class UpdateView(view):
+        class OEditView(view):
 
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
@@ -142,15 +112,19 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 )
                 return form_kwargs
 
-            def get_context_data(self, **kwargs):
-                ctx = super().get_context_data(**kwargs)
-                title = 'Editar ' + self.name
-                ctx.update({
-                    'modal_form_title': title,
-                })
-                return ctx
+            def form_valid(self, form):
+                try:
+                    self.object = form.save(commit=False, doc=self.model_id)
+                    setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "El producto ya existe para la norma"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponse(""" """)
 
-        return UpdateView
+        return OEditView
 
     def get_delete_view(self):
         delete_view = super().get_delete_view()
@@ -170,17 +144,28 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 context['url_father'] = url_father
                 return context
 
-            # def get(self, request, *args, **kwargs):
-            #     return self.post(self, request, *args, **kwargs)
+            def get(self, request, *args, **kwargs):
+                self.model_id = get_object_or_404(
+                    self.base_model, pk=kwargs['model_id'])
+                return super().get(self, request, *args, **kwargs)
+
+            def get_success_url(self):
+                return "/"
 
             def post(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
+                if self.model_id:
+                    url_father = self.base_model.get_absolute_url(self=self.model_id)
+                else:
+                    url_father = self.get_success_url()
                 doc = self.model_id
                 producto = self.kwargs['pk']
                 existencia_anterior(doc, producto, True)
-                return super().post(request, *args, **kwargs)
+                response = delete_view.post(self, request, *args, **kwargs)
+
+                return HttpResponse(" ")
 
         return DeleteView
 
@@ -250,14 +235,17 @@ class DocumentoCRUD(CommonCRUDView):
                     deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                     departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
                 dpto = Departamento.objects.get(pk=departamento)
-                dpto.fechaperiodo_departamento.all()
+                fecha_procesamiento = date.today().replace(day=1)
+                fecha_periodo = dpto.fechaperiodo_departamento.all()
+                if fecha_periodo.exists():
+                    fecha_procesamiento = fecha_periodo[0].fecha
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 form_kwargs.update(
                     {
                         "user": self.request.user,
                         "departamento": departamento,
                         "tipo_doc": tipo_doc,
-                        # "fecha_procesam": ,
+                        "fecha_procesamiento": fecha_procesamiento,
                     }
                 )
                 return form_kwargs
@@ -332,8 +320,6 @@ class DocumentoCRUD(CommonCRUDView):
                     datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
                     tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
                         datostableversat)
-                    if 'actions' in tableversat.col_vis:
-                        tableversat.col_vis.remove('actions')
                     tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
                     DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
@@ -432,7 +418,7 @@ class DocumentoCRUD(CommonCRUDView):
                     for d in detalles:
                         existencia_anterior(doc, d.pk, True)
                     self.object.delete()
-                    actualiza_numero_eliminado(doc.ueb, doc.departamento, control, consecutivo)
+                    actualiza_numeros(doc.ueb, doc.departamento, None, control, None)
                 except ProtectedError as e:
                     protected_details = ", ".join([str(obj) for obj in e.protected_objects])
                     title = 'No se puede eliminar '
@@ -464,7 +450,7 @@ class DocumentoCRUD(CommonCRUDView):
 
         return ODetailView
 
-
+@transaction.atomic
 def confirmar_documento(request, pk):
     # Para confirmar un documento se valida:
     #  - que contenga detalles
@@ -476,7 +462,7 @@ def confirmar_documento(request, pk):
     #  - Si el documento lo requiere se genera el documento en el destino
 
     obj = Documento.objects.select_for_update().get(pk=pk)
-    params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+    # params = '?' + request.htmx.current_url_abs_path.split('?')[1]
     departamento = obj.departamento
     ueb = obj.ueb
     operacion = obj.tipodocumento.operacion
@@ -532,7 +518,9 @@ def confirmar_documento(request, pk):
             DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
 
             crea_detalles_generado(new_doc, detalles)
-
+            title = 'Confirmación terminada'
+            text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
+            sweetify.success(request, title, text=text, persistent=True)
     else:
         title = 'No puede ser confrimado el documento '
         text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
@@ -540,15 +528,15 @@ def confirmar_documento(request, pk):
         sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
                        persistent=True)
 
-        return HttpResponseLocation(
-            reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + params,
-            target='#table_content_documento_swap',
-            headers={
-                'HX-Trigger': request.htmx.trigger,
-                'HX-Trigger-Name': request.htmx.trigger_name,
-                'event_action': event_action,
-            }
-        )
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': 'confirmed',
+        }
+    )
 
 
 def crea_documento_generado(ueb, departamento, tipodoc, doc_origen):
@@ -678,7 +666,7 @@ def dame_documentos_versat(request, dpto):
 
         if response and response.status_code == 200:
             datos = response.json()['results']
-            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto, unidadcontable)
+            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto, unidadcontable) if datos else []
             datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
             return datos
     except Exception as e:
@@ -728,7 +716,7 @@ def precioproducto(request):
     }
     return render(request, 'app_index/partials/productclases.html', context)
 
-
+@transaction.atomic
 def aceptar_documento_versat(kwargs):
     """
     Aceptar un documento
@@ -737,17 +725,47 @@ def aceptar_documento_versat(kwargs):
         'success': True,
         'errors': {},
         'success_title': 'El documento fue aceptado',
-        'error_title': 'El documento no fue aceptado',
+        'error_title': 'El documento no fue aceptado. Existen productos que no están en el sistema, o no coinciden las unidades de medida',
     }
+    detalles = kwargs['detalles']
 
-    # Aquí va la lógica de la vista/función
-    # Simulamos que no hubo errores, simplemente devolvemos func_ret que tiene 'success': True por defecto
+    no_existen = [d for d in detalles if not d['existe_sistema']]
+    if len(no_existen) > 0:
+        func_ret.update({
+            'success': False
+        })
+    else:
+        iddocumento = kwargs['iddocumento']
+        request = kwargs['request']
+        departamento = ''
+        if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
+            departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
+        dicc_detalle = {}
+        detalles_generados = []
+        for p in detalles:
+            dicc_detalle[p['producto_codigo']] = {'cantidad': float(p['cantidad']), 'um': p['medida_clave'].strip(),
+                                                  'precio': float(p['precio'])}
 
-    # Simulamos que hubo errores, simplemente cambiamos el valor de 'success': False y si queremos devolver
-    # detalles del error lo agregamos al diccionario 'errors' que va dentro de func_ret
-    func_ret.update({
-        'success': False
-    })
+        prods = ProductoFlujo.objects.filter(codigo__in=list(dicc_detalle.keys()))
+
+        new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
+        departamento = Departamento.objects.get(pk=departamento)
+        new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo, None)
+
+        for p in prods:
+            detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
+                             precio=dicc_detalle[p.codigo]['precio'],
+                             importe=round(float(dicc_detalle[p.codigo]['cantidad'])*float(dicc_detalle[p.codigo]['precio']),2),
+                             documento=new_doc,
+                             estado=EstadoProducto.BUENO,
+                             producto=p
+                             ))
+        crea_detalles_generado(new_doc, detalles_generados)
+        fecha = kwargs['iddocumento_fecha']
+        partes = fecha.split('/')
+        partes.reverse()
+        fecha_doc='-'.join(partes)
+        DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc, fecha_documentoversat=fecha_doc)
 
     return func_ret
 
@@ -780,10 +798,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerDocumentoVersatForm
     father_view = 'app_index:flujo:flujo_documento_list'
-    # viewname = {
-    #     'submitted': 'app_index:flujo:flujo_documento_versat_aceptar',
-    #     'refused': 'app_index:flujo:flujo_documento_versat_rechazar',
-    # }
+
     funcname = {
         'submitted': aceptar_documento_versat,
         'refused': rechazar_documento_versat,
@@ -807,6 +822,12 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         detalle = self.request.GET.get('detalle', None)
         if detalle:
             detalle = literal_eval(detalle)
+            codigos_versat = [p['producto_codigo'] for p in detalle]
+            productos = ProductoFlujo.objects.values('codigo', 'medida__clave').filter(codigo__in=codigos_versat).all()
+            codigos_sistema = [(p['codigo'], p['medida__clave'].strip()) for p in productos]
+            for d in detalle:
+                d['existe_sistema'] = (d['producto_codigo'], d['medida_clave'].strip()) in codigos_sistema
+
         self.inline_tables[0].update({
             "table": DocumentosVersatDetalleTable(detalle),
         })
@@ -824,6 +845,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         iddocumento_numero = self.request.GET.get('iddocumento_numero')
         iddocumento_numctrl = self.request.GET.get('iddocumento_numctrl')
         iddocumento_fecha = self.request.GET.get('iddocumento_fecha')
+        iddocumento_fecha_hidden = self.request.GET.get('iddocumento_fecha')
         iddocumento_concepto = self.request.GET.get('iddocumento_concepto')
         iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
         iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
@@ -832,6 +854,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
             "iddocumento_numero": iddocumento_numero,
             "iddocumento_numctrl": iddocumento_numctrl,
             "iddocumento_fecha": iddocumento_fecha,
+            "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
             "iddocumento_concepto": iddocumento_concepto,
             "iddocumento_almacen": iddocumento_almacen,
             "iddocumento_sumaimporte": iddocumento_sumaimporte,
@@ -842,8 +865,9 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         kw = {}
         kw.update({
             'request': self.request,
+            'iddocumento': form.cleaned_data['iddocumento'],
+            'iddocumento_fecha': form.cleaned_data['iddocumento_fecha_hidden'],
         })
-        for field in form.fields:
-            if field == 'iddocumento':
-                kw.update({field: form.cleaned_data[field]})
+        if self.request.POST['event_action'] == 'submitted':
+            kw.update({'detalles': self.inline_tables[0]['table'].data.data})
         return kw
