@@ -467,6 +467,11 @@ class CommonCRUDView(CRUDView):
                 elif 'object' in kwargs:
                     ctx['form'] = self.form_class(instance=kwargs['object'])
                     ctx['modal_form_title'] = 'Ver Detalles de ' + kwargs['object'].__str__()
+                elif 'pk' in self.kwargs:
+                    obj = self.model.objects.get(id=self.kwargs['pk'])
+                    ctx['form'] = self.form_class(instance=obj)
+                elif 'object' in self.kwargs:
+                    ctx['form'] = self.form_class(instance=kwargs['object'])
                 return ctx
 
         return ODetailView

@@ -1,4 +1,5 @@
 import sweetify
+from crispy_forms.templatetags.crispy_forms_filters import as_crispy_field
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -1802,7 +1803,27 @@ def classmatprima(request):
         'tipoprod': tipoprod,
         'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
     }
-    return render(request, 'app_index/partials/productclases.html', context)
+    data = {
+        'tipoproducto': tipoproducto,
+        'clase': clases_mp,
+    }
+    form = ProductoFlujoForm(data)
+    form.fields['clase'].queryset = clases_mp
+    esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
+    if not esmatprim:
+        form.fields['clase'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['clase'].label = False
+    else:
+        form.fields['clase'].required = True
+        form.fields['clase'].widget.attrs.update({
+            'hx-get': 'app_index:codificadores:rendimientocapa',
+            'hx-target': "#div_id_rendimientocapa",
+            'hx-trigger': "load, change",
+            'hx-include': '[name="rendimientocapa"]'
+        })
+    response = HttpResponse(as_crispy_field(form['clase']))
+    return response
+    # return render(request, 'app_index/partials/productclases.html', context)
 
 
 def rendimientocapa(request):
