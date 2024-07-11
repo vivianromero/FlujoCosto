@@ -2,7 +2,7 @@
     <a
         hx-get="{% url 'app_index:flujo:obtener_documento_versat' %}"
        hx-trigger="click"
-        hx-vals='{"iddocumento": "{{ record.iddocumento }}","iddocumento_numero": "{{ record.iddocumento_numero }}", "iddocumento_numctrl": "{{ record.iddocumento_numctrl }}", "iddocumento_fecha": "{{ record.iddocumento_fecha }}", "iddocumento_concepto": "{{ record.iddocumento_concepto }}", "iddocumento_almacen": "{{ record.iddocumento_almacen }}", "iddocumento_sumaimporte": "{{ record.iddocumento_sumaimporte }}", "detalle": "{{ record.iddocumento_detalle }}"}'
+        hx-vals='{"iddocumento": "{{ record.iddocumento }}","iddocumento_numero": "{{ record.iddocumento_numero }}", "iddocumento_numctrl": "{{ record.iddocumento_numctrl }}", "iddocumento_fecha": "{{ record.iddocumento_fecha }}", "iddocumento_concepto": "{{ record.iddocumento_concepto }}", "iddocumento_almacen": "{{ record.iddocumento_almacen }}", "iddocumento_sumaimporte": "{{ record.iddocumento_sumaimporte }}", "detalle": "{{ record.iddocumento_detalle }}", "iddocumento_numero": "{{ record.iddocumento_numero }}", "json_data": "{{ record.json_data }}"}'
        {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
        {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
 {#       hx-replace-url="true"#}
