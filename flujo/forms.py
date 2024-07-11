@@ -639,12 +639,6 @@ class DocumentoDetalleDetailForm(forms.ModelForm):
                 attrs={
                     'style': 'width: 100%',
                     'id': 'id_producto_documento_detalle',
-                    # TODO HAY QUE HACER QUE AL CAMBIAR EL PRODUCTO
-                    # BUSQUE EL PRECIO DE SALIDA
-                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
-                    # 'hx-target': '#div_id_precio',
-                    # 'hx-trigger': 'change',
-                    # 'hx-include': '[name="precio"]',
                 }
             ),
             'estado': SelectWidget(

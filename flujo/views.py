@@ -6,7 +6,7 @@ from datetime import datetime
 from django.db import IntegrityError
 from django.db.models import Max, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
@@ -16,7 +16,7 @@ from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import *
 from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
-from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable
+from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable, DocumentoDetalleTable
 from utiles.utils import message_error
 from .forms import *
 from .models import *
@@ -35,6 +35,8 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
     inline_field = 'documento'
     add_form = DocumentoDetalleForm
     update_form = DocumentoDetalleForm
+    detail_form = DocumentoDetalleDetailForm
+    table_class = DocumentoDetalleTable
     list_fields = [
         'producto',
         'estado',
@@ -113,16 +115,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 return form_kwargs
 
             def form_valid(self, form):
-                try:
-                    self.object = form.save(commit=False, doc=self.model_id)
-                    setattr(self.object, self.inline_field, self.model_id)
-                    self.object.save()
-                except IntegrityError as e:
-                    # Maneja el error de integridad (duplicación de campos únicos)
-                    mess_error = "El producto ya existe para la norma"
-                    form.add_error(None, mess_error)
-                    return self.form_invalid(form)
-                return HttpResponse(""" """)
+                return super().form_valid(form)
 
         return OEditView
 
@@ -150,22 +143,18 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 return super().get(self, request, *args, **kwargs)
 
             def get_success_url(self):
-                return "/"
+                return super().get_success_url()
 
             def post(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id']
                 )
-                if self.model_id:
-                    url_father = self.base_model.get_absolute_url(self=self.model_id)
-                else:
-                    url_father = self.get_success_url()
                 doc = self.model_id
                 producto = self.kwargs['pk']
                 existencia_anterior(doc, producto, True)
-                response = delete_view.post(self, request, *args, **kwargs)
-
-                return HttpResponse(" ")
+                # response = delete_view.post(self, request, *args, **kwargs)
+                return super().post(request, *args, **kwargs)
+                # return HttpResponse(" ")
 
         return DeleteView
 
@@ -373,6 +362,10 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super(OEditView, self).get_context_data(**kwargs)
+                if self.inlines:
+                    for inline in self.inlines:
+                        if 'actions' in inline.table_class.col_vis:
+                            inline.table_class.col_vis.remove('actions')
                 title = 'Departamento: %s | Documento: %s' % (self.object.departamento, self.object.tipodocumento)
                 ctx.update({
                     'modal_form_title': title,
@@ -453,6 +446,7 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
         return ODetailView
+
 
 @transaction.atomic
 def confirmar_documento(request, pk):
@@ -720,6 +714,7 @@ def precioproducto(request):
     }
     return render(request, 'app_index/partials/productclases.html', context)
 
+
 @transaction.atomic
 def aceptar_documento_versat(kwargs):
     """
@@ -758,20 +753,21 @@ def aceptar_documento_versat(kwargs):
 
         for p in prods:
             detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
-                             precio=dicc_detalle[p.codigo]['precio'],
-                             importe=round(float(dicc_detalle[p.codigo]['cantidad'])*float(dicc_detalle[p.codigo]['precio']),2),
-                             documento=new_doc,
-                             estado=EstadoProducto.BUENO,
-                             producto=p
-                             ))
+                                                       precio=dicc_detalle[p.codigo]['precio'],
+                                                       importe=round(float(dicc_detalle[p.codigo]['cantidad']) * float(dicc_detalle[p.codigo]['precio']), 2),
+                                                       documento=new_doc,
+                                                       estado=EstadoProducto.BUENO,
+                                                       producto=p
+                                                       ))
         crea_detalles_generado(new_doc, detalles_generados)
         fecha = kwargs['iddocumento_fecha']
         partes = fecha.split('/')
         partes.reverse()
-        fecha_doc='-'.join(partes)
+        fecha_doc = '-'.join(partes)
         DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc, fecha_documentoversat=fecha_doc)
 
     return func_ret
+
 
 @transaction.atomic
 def rechazar_documento_versat(kwargs):
@@ -793,7 +789,7 @@ def rechazar_documento_versat(kwargs):
     partes.reverse()
     fecha_doc = '-'.join(partes)
 
-    DocumentoVersatRechazado.objects.create(documentoversat = iddocumento, fecha_documentoversat=fecha_doc, ueb=request.user.ueb)
+    DocumentoVersatRechazado.objects.create(documentoversat=iddocumento, fecha_documentoversat=fecha_doc, ueb=request.user.ueb)
 
     return func_ret
 
@@ -875,6 +871,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         if self.request.POST['event_action'] == 'submitted':
             kw.update({'detalles': self.inline_tables[0]['table'].data.data})
         return kw
+
 
 @transaction.atomic
 def rechazar_documento(request, pk):
