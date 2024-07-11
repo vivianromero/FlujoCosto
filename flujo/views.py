@@ -252,15 +252,19 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
+                params_hx = ''
                 dep = self.request.GET.get('departamento', None)
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 departamento = Departamento.objects.get(pk=dep) if dep else None
                 tipodocumento = TipoDocumento.objects.get(pk=tipo_doc) if tipo_doc else None
                 title = 'Departamento: %s | Documento: %s' % (departamento, tipodocumento)
+                if self.request.htmx.current_url_abs_path.split('?').__len__() > 1:
+                    params_hx = '?' + self.request.htmx.current_url_abs_path.split('?')[1]
                 ctx.update({
                     'modal_form_title': title,
                     "hx_target": '#table_content_documento_swap',
                     'max_width': '1250px',
+                    'getparams_hx': params_hx,
                 })
                 return ctx
 
