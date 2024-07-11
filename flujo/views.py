@@ -769,6 +769,7 @@ def aceptar_documento_versat(kwargs):
 
     return func_ret
 
+@transaction.atomic
 def rechazar_documento_versat(kwargs):
     """
     Rechazar un documento
