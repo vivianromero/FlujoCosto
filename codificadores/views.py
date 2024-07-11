@@ -416,6 +416,7 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
 
         return FilterListView
 
+
 # ------ NormaConsumoDetalle / HtmxCRUD ------
 
 
@@ -509,7 +510,6 @@ class NormaConsumoCRUD(CommonCRUDView):
                     }
                 )
                 return form_kwargs
-
 
         return OCreateView
 
@@ -1796,34 +1796,71 @@ def classmatprima(request):
     clasemp = request.GET.get('clase')
     clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
     tipoprod = TipoProducto.objects.all()
-    context = {
-        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
-        'clases_mp': clases_mp,
-        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
-        'tipoprod': tipoprod,
-        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
-    }
     data = {
         'tipoproducto': tipoproducto,
-        'clase': clases_mp,
+        'clase': clasemp,
+        'precio_lop': 0.0,
     }
     form = ProductoFlujoForm(data)
     form.fields['clase'].queryset = clases_mp
     esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
     if not esmatprim:
+        form.fields['clase'].disabled = True
         form.fields['clase'].widget.attrs.update({'style': 'display: none;'})
         form.fields['clase'].label = False
+        form.fields['clase'].required = False
     else:
+        form.fields['clase'].disabled = False
         form.fields['clase'].required = True
+        form.fields['clase'].label = 'Clase Mat. Prima'
         form.fields['clase'].widget.attrs.update({
-            'hx-get': 'app_index:codificadores:rendimientocapa',
+            'style': "width: 100%",
+            'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
             'hx-target': "#div_id_rendimientocapa",
-            'hx-trigger': "load, change",
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': "change",
             'hx-include': '[name="rendimientocapa"]'
         })
-    response = HttpResponse(as_crispy_field(form['clase']))
+    response = HttpResponse(
+        as_crispy_field(form['clase']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
     return response
-    # return render(request, 'app_index/partials/productclases.html', context)
+
+
+def precio_lop(request):
+    tipoproducto = request.GET.get('tipoproducto')
+    clase = request.GET.get('clase')
+    precio = request.GET.get('precio_lop')
+    data = {
+        'tipoproducto': tipoproducto,
+        'clase': clase,
+        'precio_lop': precio,
+    }
+    form = ProductoFlujoForm(data)
+    esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
+    if not esmatprim:
+        form.fields['precio_lop'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['precio_lop'].label = False
+        form.fields['precio_lop'].required = False
+    else:
+        form.fields['precio_lop'].required = True
+        form.fields['precio_lop'].label = 'Precio LOP'
+        form.fields['precio_lop'].widget.attrs.update({
+            'decimal_places': 4,
+            'max_digits': 10,
+            'min_value': 0.0000,
+            'step': "0.0001",
+            'min': "0.0000",
+            'style': 'display: block;',
+            'hx-get': reverse_lazy('app_index:codificadores:precio_lop'),
+            'hx-target': '#div_id_precio_lop',
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_tipoproducto',
+            'hx-include': '[name="clase"], [name="tipoproducto"]',
+        })
+    response = HttpResponse(as_crispy_field(form['precio_lop']), content_type='text/html')
+    return response
 
 
 def rendimientocapa(request):
@@ -1844,7 +1881,76 @@ def rendimientocapa(request):
         'seleccvitolas': seleccvitolas,
         'vitolas': catvitolas,
     }
-    return render(request, 'app_index/partials/rendimientocapa.html', context)
+    data = {
+        'vitolas': catvitolas,
+        'clase': clasemp,
+        'rendimientocapa': rendimientocapa,
+    }
+    form = ProductoFlujoForm(data)
+    show_rendimiento = True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False
+    if not show_rendimiento:
+        form.fields['rendimientocapa'].disabled = True
+        form.fields['rendimientocapa'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['rendimientocapa'].label = False
+        form.fields['rendimientocapa'].required = False
+    else:
+        form.fields['rendimientocapa'].disabled = False
+        # form.fields['rendimientocapa'].required = True
+        form.fields['rendimientocapa'].label = 'Rend. Capa'
+        form.fields['rendimientocapa'].widget.attrs.update({
+            'style': "display: block;",
+        })
+    response = HttpResponse(as_crispy_field(form['rendimientocapa']), content_type='text/html')
+    return response
+
+
+def vitolas(request):
+    tipoproducto = request.GET.get('tipoproducto')
+    clasemp = request.GET.get('clase')
+    codigo = request.GET.get('codigo', '0')
+    # get_rendimientocapa = request.GET.get('rendimientocapa', '0')
+    get_vitolas = request.GET.get('vitolas', None)
+    catvitolas = CategoriaVitola.objects.all()
+    seleccvitolas = []
+    prod = ProductoFlujo.objects.filter(codigo=codigo)
+    if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
+        vitolas = prod.first().vitolas.all()
+        seleccvitolas = [x.pk for x in vitolas]
+    context = {
+        'show_rendimiento': True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False,
+        'valorrendimientocapa': rendimientocapa,
+        'seleccvitolas': seleccvitolas,
+        'vitolas': catvitolas,
+    }
+    data = {
+        'codigo': codigo,
+        # 'vitolas': get_vitolas,
+        'clase': clasemp,
+        # 'rendimientocapa': get_rendimientocapa,
+    }
+    form = ProductoFlujoForm(data)
+    show_rendimiento = True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False
+    esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
+    if not show_rendimiento:
+        form.fields['vitolas'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['vitolas'].label = False
+        form.fields['vitolas'].required = False
+    else:
+        form.fields['vitolas'].widget.attrs.update({
+            'style': 'display: block;',
+            'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
+            'hx-target': '#div_id_vitolas',
+            'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_clase',
+            'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
+        })
+        form.fields['vitolas'].required = True
+        form.fields['vitolas'].label = 'Vitolas'
+        # print(as_crispy_field(form['vitolas']))
+    field = as_crispy_field(form['vitolas'])
+    field = field.replace('is-invalid', '')
+    response = HttpResponse(field, content_type='text/html')
+    return response
 
 
 def cargonorma(request):

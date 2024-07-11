@@ -654,6 +654,7 @@ class ProductoFlujoForm(forms.ModelForm):
                     'style': 'width: 100%',
                     'hx-get': reverse_lazy('app_index:codificadores:classmatprima'),
                     'hx-target': '#div_id_clase',
+                    # 'hx-swap': 'outerHTML',
                     'hx-trigger': 'load, change',
                     'hx-include': '[name="clase"]',  # Incluido para obtener el 'id' del clase seleccionado en el GET
                 }
@@ -690,7 +691,8 @@ class ProductoFlujoForm(forms.ModelForm):
         self.fields['tipoproducto'].widget.attrs = {
             'style': 'width: 100%',
             'hx-get': reverse_lazy('app_index:codificadores:classmatprima'),
-            'hx-target': '#prec_id',
+            'hx-target': '#div_id_clase',
+            # 'hx-swap': 'outerHTML',
             'hx-trigger': 'load, change',
             'hx-include': '[name="clase"]',  # Incluido para obtener el 'id' del clase seleccionado en el GET
         }
@@ -698,47 +700,53 @@ class ProductoFlujoForm(forms.ModelForm):
         self.fields["clase"].widget.attrs = {
             "style": 'display:none',
             'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
-            'hx-target': '#rd_id',
+            'hx-target': '#div_id_rendimientocapa',
+            # 'hx-swap': 'outerHTML',
             'hx-trigger': 'load, change',
             'hx-include': '[name="rendimientocapa"], [name="vitolas"]',
         }
-        self.fields[
-            "clase"].label = ""
+        self.fields["clase"].label = ""
         self.fields["clase"].required = False
 
-        self.fields["precio_lop"].widget.attrs = {"min": 0.0000, "step": 0.0001,
-                                                  "style": 'display:none'
-                                                  }
-        self.fields[
-            "precio_lop"].label = ""
+        self.fields["precio_lop"].widget.attrs = {
+            # "min": 0.0000, "step": 0.0001,
+            "style": 'display:none',
+            'hx-get': reverse_lazy('app_index:codificadores:precio_lop'),
+            'hx-target': '#div_id_precio_lop',
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_tipoproducto',
+            'hx-include': '[name="clase"], [name="tipoproducto"]',
+        }
+        self.fields["precio_lop"].label = ""
 
         self.fields["rendimientocapa"].widget.attrs = {"min": 0, "step": 1,
                                                        "style": 'display:none'
                                                        }
         self.fields["rendimientocapa"].label = ""
 
-        self.fields["vitolas"].widget.attrs = {"style": 'display:none'}
+        self.fields["vitolas"].widget.attrs = {
+            "style": 'display:none',
+            'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
+            'hx-target': '#div_id_vitolas',
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_clase',
+            'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
+        }
         self.fields["vitolas"].label = ""
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
             Row(
                 Column('codigo', css_class='form-group col-md-2 mb-0'),
-                Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                Column('descripcion', css_class='form-group col-md-8 mb-0'),
                 Column('medida', css_class='form-group col-md-2 mb-0'),
-                css_class='form-row'),
-            Row(
                 Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
-                Div(Column('clase', css_class='form-group col-md-2 mb-0'),
-                    Column('precio_lop', css_class='form-group col-md-2 mb-0'),
-                    css_class='form-row', css_id='prec_id'
-                    ),
-                Div(
-                    Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
-                    Column('vitolas', css_class='form-group col-md-4 mb-0'),
-                    css_class='form-row', css_id='rd_id'
-                ),
-                css_class='form-row'),
+                Column('clase', css_class='form-group col-md-2 mb-0'),
+                Column('precio_lop', css_class='form-group col-md-2 mb-0'),
+                Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                Column('vitolas', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
             Row(
                 Column('activo', css_class='form-group col-md-2 mb-0'),
                 css_class='form-row'
@@ -844,47 +852,51 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         self.fields["clase"].widget.attrs = {
             "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay',
             'hx-get': reverse_lazy('app_index:codificadores:rendimientocapa'),
-            'hx-target': '#rd_id',
+            'hx-target': '#div_id_rendimientocapa',
             'hx-trigger': 'load, change',
-            'hx-include': "[name='codigo'], [name='rendimientocapa'], [name='rendimientocapa']",
+            'hx-include': "[name='codigo'], [name='rendimientocapa']",
         }
 
-        self.fields[
-            "clase"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Clase Mat. Prima'
+        self.fields["clase"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Clase Mat. Prima'
         self.fields["clase"].required = instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
 
-        self.fields["precio_lop"].widget.attrs = {"min": 0.0000, "step": 0.0001,
-                                                  "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay'}
-        self.fields[
-            "precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
+        self.fields["precio_lop"].widget.attrs = {
+            "min": 0.0000, "step": 0.0001,
+            "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay',
+        }
+        self.fields["precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
+
+
 
         clamapprima = instance.get_clasemateriaprima
-        self.fields["rendimientocapa"].widget.attrs = {"min": 0, "step": 1,
-                                                       "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
-        self.fields[
-            "rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
+        self.fields["rendimientocapa"].widget.attrs = {
+            "min": 0, "step": 1,
+            "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'
+        }
+        self.fields["rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
         self.fields["rendimientocapa"].required = False
 
         self.fields["vitolas"].widget.attrs = {
-            "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'}
-        self.fields[
-            "vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
+            "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay',
+            'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
+            'hx-target': '#div_id_vitolas',
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_clase',
+            'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
+        }
+        self.fields["vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
             Row(
                 Column('codigo', css_class='form-group col-md-2 mb-0'),
-                Column('descripcion', css_class='form-group col-md-6 mb-0'),
+                Column('descripcion', css_class='form-group col-md-8 mb-0'),
                 Column('medida', css_class='form-group col-md-2 mb-0'),
-                css_class='form-row'),
-            Row(
                 Column('tipoproducto', css_class='form-group col-md-2 mb-0'),
                 Column('clase', css_class='form-group col-md-2 mb-0'),
                 Column('precio_lop', css_class='form-group col-md-2 mb-0'),
-                Div(Column('rendimientocapa', css_class='form-group col-md-6 mb-0'),
-                    Column('vitolas', css_class='form-group col-md-4 mb-0'),
-                    css_class='form-row col-md-6', css_id='rd_id'
-                    ),
+                Column('rendimientocapa', css_class='form-group col-md-2 mb-0'),
+                Column('vitolas', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'),
             Row(
                 Column('activo', css_class='form-group col-md-2 mb-0'),

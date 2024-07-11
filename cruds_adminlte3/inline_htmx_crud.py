@@ -412,7 +412,6 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
                 return crud_inline_url(self.model_id, self.object, 'list', self.namespace) + params
 
             def get(self, request, *args, **kwargs):
-
                 return self.post(self, request, *args, **kwargs)
 
             def post(self, request, *args, **kwargs):
