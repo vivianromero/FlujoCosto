@@ -1,3 +1,4 @@
+import json
 import calendar
 import datetime
 from ast import literal_eval
@@ -664,8 +665,10 @@ def dame_documentos_versat(request, dpto):
 
         if response and response.status_code == 200:
             datos = response.json()['results']
-            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto, unidadcontable) if datos else []
+            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto,
+                                                   unidadcontable) if datos else []
             datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
+            [datos[x].update({'json_data': literal_eval(json.dumps(datos[x]))}) for x in range(len(datos))]
             return datos
     except Exception as e:
         return None
@@ -736,6 +739,7 @@ def aceptar_documento_versat(kwargs):
     else:
         iddocumento = kwargs['iddocumento']
         request = kwargs['request']
+        json_data = literal_eval(kwargs['json_data'])
         departamento = ''
         if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
             departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
@@ -754,7 +758,8 @@ def aceptar_documento_versat(kwargs):
         for p in prods:
             detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
                                                        precio=dicc_detalle[p.codigo]['precio'],
-                                                       importe=round(float(dicc_detalle[p.codigo]['cantidad']) * float(dicc_detalle[p.codigo]['precio']), 2),
+                                                       importe=round(float(dicc_detalle[p.codigo]['cantidad']) * float(
+                                                           dicc_detalle[p.codigo]['precio']), 2),
                                                        documento=new_doc,
                                                        estado=EstadoProducto.BUENO,
                                                        producto=p
@@ -764,7 +769,8 @@ def aceptar_documento_versat(kwargs):
         partes = fecha.split('/')
         partes.reverse()
         fecha_doc = '-'.join(partes)
-        DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc, fecha_documentoversat=fecha_doc)
+        DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc,
+                                             fecha_documentoversat=fecha_doc, documento_origen=json_data)
 
     return func_ret
 
@@ -788,8 +794,9 @@ def rechazar_documento_versat(kwargs):
     partes = fecha.split('/')
     partes.reverse()
     fecha_doc = '-'.join(partes)
-
-    DocumentoVersatRechazado.objects.create(documentoversat=iddocumento, fecha_documentoversat=fecha_doc, ueb=request.user.ueb)
+    json_data = literal_eval(kwargs['json_data'])
+    DocumentoVersatRechazado.objects.create(documentoversat=iddocumento, fecha_documentoversat=fecha_doc,
+                                            documento_origen=json_data, ueb=request.user.ueb)
 
     return func_ret
 
@@ -820,8 +827,10 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
 
     def get_context_data(self, **kwargs):
         detalle = self.request.GET.get('detalle', None)
+        json_data = self.request.GET.get('json_data', None)
         if detalle:
             detalle = literal_eval(detalle)
+            json_data = literal_eval(json_data)
             codigos_versat = [p['producto_codigo'] for p in detalle]
             productos = ProductoFlujo.objects.values('codigo', 'medida__clave').filter(codigo__in=codigos_versat).all()
             codigos_sistema = [(p['codigo'], p['medida__clave'].strip()) for p in productos]
@@ -849,6 +858,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
         iddocumento_concepto = self.request.GET.get('iddocumento_concepto')
         iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
         iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
+        json_data = self.request.GET.get('json_data')
         kwargs['initial'].update({
             "iddocumento": iddocumento,
             "iddocumento_numero": iddocumento_numero,
@@ -858,6 +868,7 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
             "iddocumento_concepto": iddocumento_concepto,
             "iddocumento_almacen": iddocumento_almacen,
             "iddocumento_sumaimporte": iddocumento_sumaimporte,
+            "json_data": json_data,
         })
         return kwargs
 
@@ -869,7 +880,8 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
             'iddocumento_fecha': form.cleaned_data['iddocumento_fecha_hidden'],
         })
         if self.request.POST['event_action'] == 'submitted':
-            kw.update({'detalles': self.inline_tables[0]['table'].data.data})
+            kw.update(
+                {'detalles': self.inline_tables[0]['table'].data.data, 'json_data': form.cleaned_data['json_data']})
         return kw
 
 

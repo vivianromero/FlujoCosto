@@ -86,6 +86,7 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
     iddocumento_almacen = tables.Column(verbose_name='Almacén')
     iddocumento_sumaimporte = tables.Column(verbose_name='Importe')
     iddocumento_detalle = tables.JSONColumn(verbose_name='Detalles', visible=False)
+    json_data = tables.JSONColumn(verbose_name='Json Data', visible=False)
 
     actions = tables.TemplateColumn(
         template_name='cruds/actions/hx_actions_documentosversat_template.html',
@@ -119,6 +120,7 @@ class DocumentosVersatTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'iddocumento_sumaimporte',
             'iddocumento_detalle',
             'actions',
+            'json_data',
         )
 
 

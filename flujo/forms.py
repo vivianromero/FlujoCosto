@@ -743,6 +743,7 @@ class ObtenerDocumentoVersatForm(forms.Form):
     iddocumento_concepto = forms.CharField(label='Concepto', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_almacen = forms.CharField(label='Almacén', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_sumaimporte = forms.CharField(label='Importe', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    json_data = forms.JSONField(label='json', required=False, widget=forms.TextInput(attrs={'readonly': True}))
 
 
     class Meta:
@@ -768,6 +769,7 @@ class ObtenerDocumentoVersatForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Field('iddocumento', type="hidden"),
+                Field('json_data', type="hidden"),
                 Field('iddocumento_fecha_hidden', type="hidden"),
                 Column(UneditableField('iddocumento_numero'), css_class='form-group col-md-1 mb-0'),
                 Column(UneditableField('iddocumento_numctrl'), css_class='form-group col-md-2 mb-0'),

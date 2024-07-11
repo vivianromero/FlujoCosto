@@ -1,17 +1,17 @@
 import uuid
 
+# from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Now
-from django.db.models.signals import pre_save, post_save
 from django.utils.translation import gettext_lazy as _
 from django_choices_field import IntegerChoicesField
 
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
     ProductoFlujo, ConfigNumero, ObjectsManagerAbstract, OperacionDocumento, TipoNumeroDoc
 from cruds_adminlte3.utils import crud_url
-from django.dispatch import receiver
+
 
 class EstadosDocumentos(models.IntegerChoices):
     EDICION = 1, 'Edición'
@@ -300,7 +300,7 @@ class DocumentoOrigenVersat(models.Model):
     documentoversat = models.IntegerField()
     fecha_documentoversat = models.DateTimeField(db_default=Now(), verbose_name=_("Fecha versat at"))
     documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentoorigenversat_documento')
-    origen_versat = models.CharField(max_length=40)
+    documento_origen = models.JSONField(blank=True, null=True, default=dict)
 
     class Meta:
         db_table = 'fp_documentoorigenversat'
@@ -312,6 +312,7 @@ class DocumentoVersatRechazado(models.Model):
     documentoversat = models.IntegerField()
     fecha_documentoversat = models.DateField()
     fecha_rechazo = models.DateTimeField(db_default=Now())
+    documento_origen = models.JSONField(blank=True, null=True, default=dict)
     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documentoversatrechazado_ueb')
 
     class Meta:
