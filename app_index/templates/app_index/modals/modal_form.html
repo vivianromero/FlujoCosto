@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="card-body" style="padding: 0">
                                     <div id="{{inline.name}}_father">
-                                        {% if 'create' in inline.views_available and action == 'update' %}
+                                        {% if 'create' in inline.views_available and action == 'update' and not object.tipodocumento.generado %}
                                             <button class="btn btn-success"
                                                     hx-get="{% crud_inline_url form.instance inline.model 'create' namespace %}"
                                                     hx-target="#edit_modal_inner"
@@ -66,7 +66,7 @@
 {#                                                data-replace-inner="#{{inline.name}}_editList"#}
 {#                                                data-ajax="" data-success="function(){}"#}
                                                 style="margin-top: 0px; margin-bottom: 5px;">
-                                                Adicionar Productos
+                                                Adicionar Producto
                                             </button>
                                         {% endif %}
                                         {% if 'list' in inline.views_available %}

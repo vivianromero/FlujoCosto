@@ -1,43 +1,45 @@
 {% load i18n l10n crud_tags %}
-{%  crud_inline_url base_model record 'detail' namespace as nurl  %}
-{% if nurl and 'detail' in views_available %}
-    <a id="id_{{ name }}_{{ record.pk }}_show"
-       hx-get="{{ nurl }}"
-       hx-target="#edit_modal_inner"
-       hx-trigger="click"
-       href="{{ nurl }}"
-       title="{% trans 'Show' %}"
-    >
-        <i class="fa-sm fa fa-eye" style="margin-right: 5px;"></i>
-    </a>
-{% endif %}
+{% if not record.documento.tipodocumento.generado %}
+    {%  crud_inline_url base_model record 'detail' namespace as nurl  %}
+    {% if nurl and 'detail' in views_available %}
+        <a id="id_{{ name }}_{{ record.pk }}_show"
+           hx-get="{{ nurl }}"
+           hx-target="#edit_modal_inner"
+           hx-trigger="click"
+           href="{{ nurl }}"
+           title="{% trans 'Show' %}"
+        >
+            <i class="fa-sm fa fa-eye" style="margin-right: 5px;"></i>
+        </a>
+    {% endif %}
 
-{% crud_inline_url base_model record 'update' namespace as nurl %}
-{% if nurl and 'update' in views_available and crud_perms.update %}
-    <a id="id_{{ name }}_{{ record.pk }}_edit"
-       hx-get="{{ nurl }}"
-       hx-target="#edit_modal_inner"
-       hx-trigger="click"
-      href="{{ nurl }}"
-      title="{% trans 'Edit' %}"
-    >
-        <i class="fa-sm fa fa-edit"  style="margin-right: 5px;"></i>
-    </a>
-{% endif %}
-{% crud_inline_url base_model record 'delete' namespace as nurl %}
-{% if nurl and 'delete' in views_available and crud_perms.delete %}
-    <a id="#{{ name }}_{{ record.pk }}_delete"
-       hx-headers='{"event_action": "inline_confirmed"}'
-       hx-vals='{"event_action": "inline_confirmed"}'
-       hx-post="{{ nurl }}"
-       hx-target="#edit_modal_inner"
-       hx-trigger="inline_confirmed"
-        href="{{ nurl }}"
-        is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
-        class="delete_href"
-        title="{% trans 'Delete' %}"
-        role="button"
-    >
-            <i class="fa-sm fa fa-trash"></i>
-    </a>
+    {% crud_inline_url base_model record 'update' namespace as nurl %}
+    {% if nurl and 'update' in views_available and crud_perms.update %}
+        <a id="id_{{ name }}_{{ record.pk }}_edit"
+           hx-get="{{ nurl }}"
+           hx-target="#edit_modal_inner"
+           hx-trigger="click"
+          href="{{ nurl }}"
+          title="{% trans 'Edit' %}"
+        >
+            <i class="fa-sm fa fa-edit"  style="margin-right: 5px;"></i>
+        </a>
+    {% endif %}
+    {% crud_inline_url base_model record 'delete' namespace as nurl %}
+    {% if nurl and 'delete' in views_available and crud_perms.delete %}
+        <a id="#{{ name }}_{{ record.pk }}_delete"
+           hx-headers='{"event_action": "inline_confirmed"}'
+           hx-vals='{"event_action": "inline_confirmed"}'
+           hx-post="{{ nurl }}"
+           hx-target="#edit_modal_inner"
+           hx-trigger="inline_confirmed"
+            href="{{ nurl }}"
+            is="{{ record }}" {# para usar en sweetalert2 a través de 'e.target.parentElement.attributes['is'].nodeValue' #}
+            class="delete_href"
+            title="{% trans 'Delete' %}"
+            role="button"
+        >
+                <i class="fa-sm fa fa-trash"></i>
+        </a>
+    {% endif %}
 {% endif %}
