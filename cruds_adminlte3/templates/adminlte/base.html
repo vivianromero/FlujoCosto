@@ -136,8 +136,10 @@
             const events_to_save_and_add_inlines = ['inline_submitted'];
             const events_inline_to_hide = ['inline_submitted', 'inline_confirmed', 'inline_refused'];
             const trigger_to_hide = ['id_form_btn_acept', 'id_form_btn_confirm', 'id_form_btn_refuse', 'id_form_btn_delete']
+            const trigger_inline_to_hide = ['id_inline_form_btn_acept']
             const trigger_to_reset = ['id_form_btn_add_another']
             const swap_targets = ['main_content_swap', 'table_content_documento_swap']
+            const swap_inline_targets = ['id', 'myList']
             const dialog_targets = ['dialog', 'edit_modal_inner']
             if (e.detail.target.id === dialog_targets[0]) {
                 modal.show()
@@ -151,9 +153,15 @@
                     modal.hide()
                 }
             }
-            if (events_inline_to_hide.includes(e.detail.requestConfig.headers["event_action"])) {
-                edit_modal.hide()
+            if (swap_inline_targets.includes(e.detail.target.id.split('_')[0]) && swap_inline_targets.includes(e.detail.target.id.split('_')[2])) {
+                console.log(e.detail.requestConfig.headers["HX-Trigger"])
+                if (trigger_inline_to_hide.includes(e.detail.requestConfig.headers["HX-Trigger"]) && events_inline_to_hide.includes(e.detail.requestConfig
+                    .headers["event_action"])) {
+                    console.log(e.detail)
+                    edit_modal.hide()
             }
+            }
+
              if (events_to_reset.includes(e.detail.requestConfig.headers["event_action"]) && e.detail.successful) {
                  document.getElementById("id_form_modal").reset()
             }
