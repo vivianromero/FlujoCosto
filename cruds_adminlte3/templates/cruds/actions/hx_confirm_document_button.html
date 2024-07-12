@@ -10,10 +10,38 @@
         {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
         hx-trigger="confirmed"
         id="id_form_btn_confirm"
+        is="{{ object }}"
         name="confirm"
+        role="button"
         href="{% url nurl pk=object.pk %}{{ getparams_hx }}"
-        class="btn btn-primary confirm_href">
+        class="confirm_href btn btn-primary">
     <i class="fa fa-tasks"></i> Confirmar
 </a>
 {% endif %}
+<script>
+    document.querySelectorAll("a.confirm_href").forEach((ref) => {
+        ref.addEventListener("click", function (e) {
+            e.preventDefault()
+            let record = '\n' + '{{ object }}'
+            swal.fire({
+                title: "¿Está seguro que desea confirmar " + record + '?',
+                text: '¡Esta acción no podrá revertirse!',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: "Confirmar",
+                cancelButtonText: 'Cancelar',
+                backdrop: true,
+                allowOutsideClick:()=>false,
+                allowEscapeKey:()=>false
+            }).then(function(result) {
+                  if(result.isConfirmed) {
+                      // e.detail.issueRequest(true) // use true to skip window.confirm
+                      htmx.trigger(e.target, 'confirmed')
+                  }
+            })
+        })
+    })
+</script>
 

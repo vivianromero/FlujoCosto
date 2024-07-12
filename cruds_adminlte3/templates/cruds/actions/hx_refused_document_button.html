@@ -10,10 +10,37 @@
         {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
         hx-trigger="refused"
         id="id_form_btn_refused"
+        is="{{ object }}"
         name="refused"
+        role="button"
         href="{% url nurl pk=object.pk %}{{ getparams_hx }}"
-        class="btn btn-danger ">
+        class="refuse_href btn btn-danger ">
     <i class="fa fa-tasks"></i> Rechazar
 </a>
 {% endif %}
-
+<script>
+    document.querySelectorAll("a.refuse_href").forEach((ref) => {
+        ref.addEventListener("click", function (e) {
+            e.preventDefault()
+            let record = '\n' + '{{ object }}'
+            swal.fire({
+                title: "¿Está seguro que desea rechazar el documento: " + record + '?',
+                text: '¡Esta acción no podrá revertirse!',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: "Confirmar",
+                cancelButtonText: 'Cancelar',
+                backdrop: true,
+                allowOutsideClick:()=>false,
+                allowEscapeKey:()=>false
+            }).then(function(result) {
+                  if(result.isConfirmed) {
+                      // e.detail.issueRequest(true) // use true to skip window.confirm
+                      htmx.trigger(e.target, 'refused')
+                  }
+            })
+        })
+    })
+</script>
