@@ -292,6 +292,8 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
         'detail',
     ]
 
+    hx_retarget = '#edit_modal_inner'
+
     title = "Detalles de normas de consumo"
     table_class = NormaConsumoDetalleTable
     url_father = None
@@ -300,6 +302,7 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
         create_view = super().get_create_view()
 
         class CreateView(create_view):
+            integrity_error = "El producto ya existe para la norma!"
 
             def get_context_data(self, **kwargs):
                 context = super().get_context_data(**kwargs)
@@ -326,6 +329,7 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
         view = super().get_update_view()
 
         class UpdateView(view):
+            integrity_error = "El producto ya existe para la norma!"
 
             def get_context_data(self, **kwargs):
                 ctx = super(UpdateView, self).get_context_data(**kwargs)
@@ -356,21 +360,22 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
                     self.object.save()
                 except IntegrityError as e:
                     # Maneja el error de integridad (duplicación de campos únicos)
-                    mess_error = "El producto ya existe para la norma"
+                    mess_error = self.integrity_error
                     form.add_error(None, mess_error)
-                    return self.form_invalid(form)
-                return HttpResponseLocation(
-                    self.get_success_url(),
-                    target=target,
-                    headers={
-                        'HX-Trigger': self.request.htmx.trigger,
-                        'HX-Trigger-Name': self.request.htmx.trigger_name,
-                        'event_action': event_action,
-                    },
-                    values={
-                        'event_action': event_action,
-                    }
-                )
+                    # return super().form_valid(form)
+                # return HttpResponseLocation(
+                #     self.get_success_url(),
+                #     target=target,
+                #     headers={
+                #         'HX-Trigger': self.request.htmx.trigger,
+                #         'HX-Trigger-Name': self.request.htmx.trigger_name,
+                #         'event_action': event_action,
+                #     },
+                #     values={
+                #         'event_action': event_action,
+                #     }
+                # )
+                return super().form_valid(form)
 
         return UpdateView
 

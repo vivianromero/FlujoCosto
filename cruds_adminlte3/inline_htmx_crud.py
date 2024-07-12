@@ -7,7 +7,7 @@ from django.db import IntegrityError
 from django.urls import re_path, reverse_lazy
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect
+from django_htmx.http import HttpResponseLocation, HttpResponseClientRedirect, retarget
 
 from cruds_adminlte3 import utils
 from cruds_adminlte3.templatetags.crud_tags import crud_inline_url
@@ -84,6 +84,14 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             def get_success_url(self):
                 return crud_inline_url(self.model_id, self.object, 'list', self.namespace)
 
+            def get_retarget_response(self, form, ctx):
+                ctx['form'] = form
+                tpl = "%s/%s" % (self.template_name_base, 'create.html')
+                response = render(self.request, tpl, ctx)
+                response['HX-Retarget'] = ctx['hx_retarget']
+                response['HX-Reswap'] = ctx['hx_reswap']
+                return response
+
             def form_valid(self, form):
                 event_action = None
                 if self.request.method == 'POST':
@@ -117,13 +125,7 @@ class InlineHtmxCRUD(InlineAjaxCRUD):
             def form_invalid(self, form, **kwargs):
                 """If the form is invalid, render the invalid form."""
                 ctx = self.get_context_data(**kwargs)
-                ctx['form'] = form
-                tpl = self.get_template_names()
-                crud_inline_url(self.model_id, form.instance, 'create', self.namespace)
-                response = render(self.request, tpl, ctx)
-                response['HX-Retarget'] = '#edit_modal_inner'
-                response['HX-Reswap'] = 'innerHTML'
-                return response
+                return self.get_retarget_response(form=form, ctx=ctx)
 
             def get(self, request, *args, **kwargs):
                 self.model_id = get_object_or_404(

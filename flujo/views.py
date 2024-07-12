@@ -58,10 +58,17 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
 
     title = "Detalles de documentos"
 
+    hx_retarget = '#edit_modal_inner'
+    hx_reswap = 'innerHTML'
+    hx_swap = 'innerHTML'
+    hx_form_target = '#edit_modal_inner'
+    hx_form_swap = 'innerHTML'
+
     def get_create_view(self):
         create_view = super().get_create_view()
 
         class CreateView(create_view):
+            integrity_error = "El producto ya existe para el documento!"
 
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
@@ -87,16 +94,16 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
-                        return self.form_invalid(form)
+                        return super().form_valid(form)
 
                     self.object = form.save(commit=False, doc=doc, existencia=existencia)
                     setattr(self.object, self.inline_field, self.model_id)
                     self.object.save()
                 except IntegrityError as e:
                     # Maneja el error de integridad (duplicación de campos únicos)
-                    mess_error = "El producto ya existe para el documento"
-                    form.add_error(None, mess_error)
-                    return self.form_invalid(form)
+                    # mess_error = self.integrity_error
+                    # form.add_error(None, mess_error)
+                    return super().form_valid(form)
                 return super().form_valid(form)
 
         return CreateView
@@ -105,6 +112,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
         view = super().get_update_view()
 
         class OEditView(view):
+            integrity_error = "El producto ya existe para el documento!"
 
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
