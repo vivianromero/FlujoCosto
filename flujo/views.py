@@ -1,13 +1,14 @@
-import json
 import calendar
 import datetime
+import json
 from ast import literal_eval
 from datetime import datetime
 
+from crispy_forms.templatetags.crispy_forms_filters import as_crispy_field
 from django.db import IntegrityError
 from django.db.models import Max, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
@@ -94,8 +95,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
-                        return super().form_valid(form)
-
+                        return self.form_invalid(form)
                     self.object = form.save(commit=False, doc=doc, existencia=existencia)
                     setattr(self.object, self.inline_field, self.model_id)
                     self.object.save()
@@ -123,7 +123,24 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 )
                 return form_kwargs
 
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
             def form_valid(self, form):
+                doc = self.model_id
+                existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(
+                    doc, form.cleaned_data[
+                        'producto'], form.cleaned_data['estado'],
+                    form.cleaned_data[
+                        'cantidad'])
+                if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
+                    mess_error = "No se puede dar salida a esa cantidad"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                self.object = form.save(commit=False, doc=doc, existencia=existencia)
+                setattr(self.object, self.inline_field, self.model_id)
+                self.object.save()
                 return super().form_valid(form)
 
         return OEditView
@@ -517,7 +534,8 @@ def confirmar_documento(request, pk):
         obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
         obj.save()
 
-        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
+        # crear el documento de entrada en el destino
+        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
             new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
             departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
             new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
@@ -713,19 +731,27 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
 
 
 def precioproducto(request):
-    tipoproducto = request.GET.get('tipoproducto')
-    clasemp = request.GET.get('clase')
-    clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
-    tipoprod = TipoProducto.objects.all()
-    context = {
-        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
-        'clases_mp': clases_mp,
-        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
-        'tipoprod': tipoprod,
-        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
-    }
-    return render(request, 'app_index/partials/productclases.html', context)
+    producto = request.GET.get('producto')
+    pk_doc = request.GET.get('documento_hidden')
+    documento = Documento.objects.get(pk=pk_doc)
+    estado = request.GET.get('estado')
 
+    if not producto or not estado or documento.tipodocumento.operacion == OperacionDocumento.ENTRADA:
+        return
+
+    precio = dame_precio_salida(producto, estado, documento)
+    data = {
+        'producto': producto,
+        'precio': precio,
+        'doc': documento
+    }
+    form = DocumentoDetalleForm(data)
+
+    response = HttpResponse(
+        as_crispy_field(form['precio']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
 
 @transaction.atomic
 def aceptar_documento_versat(kwargs):
@@ -991,3 +1017,40 @@ def rechazar_documento(request, pk):
             'event_action': 'confirmed',
         }
     )
+
+@transaction.atomic
+def dame_precio_salida(producto, estado, doc):
+    #documentos anteriores que son entradas y no están confirmados
+    dicc = {'documento__estado': EstadosDocumentos.EDICION,
+            'documento__departamento': doc.departamento, 'documento__ueb': doc.ueb,
+            'documento__tipodocumento__operacion': OperacionDocumento.ENTRADA,
+            'documento__numeroconsecutivo__lt': doc.numeroconsecutivo,
+            'producto': producto,
+            'estado': estado}
+
+    anteriores = DocumentoDetalle.objects.select_for_update().filter(**dicc).\
+           aggregate(cantidad_ant=Coalesce(Sum('cantidad'), Value(0.0), output_field=DecimalField()),
+                     importe_ant=Coalesce(Sum(F('precio') * F('cantidad')), Value(0.0), output_field=DecimalField())
+           )
+    cantidad_anterior = float(anteriores['cantidad_ant'])
+    importe_anterior = float(anteriores['importe_ant'])
+
+    dicc = {'departamento': doc.departamento, 'ueb': doc.ueb,
+            'producto': producto,
+            'estado': estado}
+
+    existencias = ExistenciaDpto.objects.select_for_update().filter(**dicc)
+    cantidad_existencia = 0.00
+    importe_existencia = 0.00
+
+    if existencias.exists():
+        existe = existencias.first()
+        cantidad_existencia = float(existe.cantidad_final)
+        importe_existencia = float(existe.cantidad_final)*float(existe.precio)
+
+    cantidad_total = cantidad_existencia + cantidad_anterior
+    importe_total = importe_existencia + importe_anterior
+
+    precio = importe_total/cantidad_total if cantidad_total>0 else 0.00
+    return precio
+

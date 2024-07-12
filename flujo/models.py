@@ -106,7 +106,7 @@ class DocumentoDetalle(models.Model):
     existencia = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
                                      verbose_name=_("Existence"))
     documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentodetalle_documento')
-    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"), default=EstadoProducto.BUENO)
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
                                  verbose_name=_("Product"))
 

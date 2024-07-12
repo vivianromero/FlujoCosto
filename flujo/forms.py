@@ -530,6 +530,8 @@ class DocumentoFormFilter(forms.Form):
 
 # ------------ DocumentoDetalle / Form ------------
 class DocumentoDetalleForm(forms.ModelForm):
+    documento_hidden = forms.CharField(label='', required=False)
+
     class Meta:
         model = DocumentoDetalle
         fields = [
@@ -538,23 +540,26 @@ class DocumentoDetalleForm(forms.ModelForm):
             'estado',
             'producto',
         ]
+
         widgets = {
             'producto': SelectWidget(
                 attrs={
                     'style': 'width: 100%',
                     'id': 'id_producto_documento_detalle',
-                    # TODO HAY QUE HACER QUE AL CAMBIAR EL PRODUCTO
-                    # BUSQUE EL PRECIO DE SALIDA
                     # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
                     # 'hx-target': '#div_id_precio',
                     # 'hx-trigger': 'change',
-                    # 'hx-include': '[name="precio"]',
+                    # 'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
                 }
             ),
             'estado': SelectWidget(
                 attrs={
                     'style': 'width: 100%; dislay: block',
                     'id': 'id_estado_documento_detalle',
+                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+                    # 'hx-target': '#div_id_precio',
+                    # 'hx-trigger': 'change',
+                    # 'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
                 },
             ),
         }
@@ -565,14 +570,29 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.post = kwargs.pop('post', None)
         self.cantidad_anterior = 0
         self.documentopadre = kwargs.pop('doc', None)
+        if args:
+            self.documentopadre = args[0]['doc']
+
         if instance:
             self.cantidad_anterior = instance.cantidad
-        super().__init__(*args, **kwargs)
+
+        super(DocumentoDetalleForm, self).__init__(*args, **kwargs)
         self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_detalle_form'
         self.helper.form_method = 'post'
         self.helper.form_tag = False
+        self.fields['documento_hidden'].initial = '' if not self.documentopadre else self.documentopadre.pk
+
+        self.fields["precio"].widget.attrs = {
+            # "min": 0.0000, "step": 0.0001,
+            # "style": 'display:none',
+            'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+            'hx-target': '#div_id_precio',
+            # 'hx-swap': 'outerHTML',
+            'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+            'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
+        }
 
         self.helper.layout = Layout(
             Row(
@@ -582,6 +602,7 @@ class DocumentoDetalleForm(forms.ModelForm):
                 Column('cantidad', css_class='form-group col-md-2 mb-0',
                        css_id='id_cantidad_documento_detalle'),
                 Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_precio_documento_detalle'),
+                Field('documento_hidden', type="hidden"),
                 css_class='form-row'
             ),
         )
