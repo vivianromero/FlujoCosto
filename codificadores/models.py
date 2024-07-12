@@ -457,7 +457,7 @@ class NormaConsumo(ObjectsManagerAbstract):
             self.fecha,
             self.producto.codigo,
             self.producto.descripcion
-        )
+        ) if self.producto_id else ''
 
     def get_absolute_url(self):
         return crud_url(self, 'update', namespace='app_index:codificadores')

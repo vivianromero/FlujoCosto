@@ -475,14 +475,6 @@ class NormaConsumoCRUD(CommonCRUDView):
 
     inlines = [NormaConsumoDetalleHtmxCRUD]
 
-    # inline_tables = [
-    #     {
-    #         "table": NormaConsumoDetalleTable([]),
-    #         "name": "normaconsumodetalletable",
-    #         "visible": True,
-    #     }
-    # ]
-
     inline_actions = False
 
     def get_create_view(self):
@@ -491,20 +483,7 @@ class NormaConsumoCRUD(CommonCRUDView):
         class OCreateView(view):
 
             def form_valid(self, form):
-                if not self.related_fields:
-                    return super(OCreateView, self).form_valid(form)
-
-                self.object = form.save(commit=False)
-                for key, value in self.context_rel.items():
-                    setattr(self.object, key, value)
-                self.object.save()
-                edit_url = reverse_lazy(
-                    crud_url_name(NormaConsumo, 'update', 'app_index:codificadores:'), args=[self.object.pk]
-                )
-                return HttpResponseLocation(
-                    edit_url,
-                    target='#main_content_swap',
-                )
+                return super().form_valid(form)
 
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
