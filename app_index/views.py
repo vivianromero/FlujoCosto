@@ -391,6 +391,7 @@ class CommonCRUDView(CRUDView):
                         # rtn,
                         self.get_success_url(),
                         target=self.hx_target,
+                        swap=self.hx_swap,
                         headers={
                             'HX-Trigger': self.request.htmx.trigger,
                             'HX-Trigger-Name': self.request.htmx.trigger_name,

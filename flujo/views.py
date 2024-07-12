@@ -267,11 +267,12 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
             def get_success_url(self):
-                if "inline" in self.request.POST:
-                    url = self.model.get_absolute_url(self.object)
-                else:
-                    url = super().get_success_url()
-                return url
+                # if "inline" in self.request.POST:
+                #     url = self.model.get_absolute_url(self.object)
+                # else:
+                #     url = super().get_success_url()
+                # return url
+                return super().get_success_url()
 
             def form_valid(self, form):
                 try:
