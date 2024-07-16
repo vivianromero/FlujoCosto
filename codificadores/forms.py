@@ -2748,12 +2748,7 @@ class ClasificadorCargosForm(forms.ModelForm):
                        }
             ),
             'vinculo_produccion': SelectWidget(
-                attrs={'style': 'width: 100%',
-                       'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
-                       'hx-target': '#nr_id',
-                       'hx-trigger': 'load, change',
-                       'hx-include': '[name="nr_media"], [name="norma_tiempo"]'
-                       }
+                attrs={'style': 'width: 100%',}
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
         }
@@ -2769,12 +2764,29 @@ class ClasificadorCargosForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
+        # self.fields["nr_media"].widget.attrs = {
+        #     'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
+        #     'hx-target': '#div_id_nr_media',
+        #     'hx-trigger': 'change from:#div_id_vinculo_produccion',
+        #     'hx-include': '[name="vinculo_produccion"]',
+        # }
+
+        self.fields["norma_tiempo"].widget.attrs = {
+            'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'),
+            'hx-target': '#div_id_norma_tiempo',
+            'hx-trigger': 'change from:#div_id_vinculo_produccion, change from:#div_id_nr_media',
+            'hx-include': '[name="nr_media"], [name="vinculo_produccion"]',
+        }
+
+        self.fields['norma_tiempo'].widget.attrs['readonly'] = True
+
         self.fields["nr_media"].widget.attrs = {"min": 0, "step": 1,
-                                                'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'),
-                                                'hx-target': '#nr_id',
-                                                'hx-trigger': 'change',
-                                                'hx-include': '[name="norma_tiempo"]'
+                                                'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
+                                                'hx-target': '#div_id_nr_media',
+                                                'hx-trigger': 'change from:#div_id_vinculo_produccion',
+                                                'hx-include': '[name="vinculo_produccion"]'
                                                 }
+        self.fields["nr_media"].required = False
 
         self.helper.layout = Layout(
             TabHolder(
@@ -2788,11 +2800,9 @@ class ClasificadorCargosForm(forms.ModelForm):
                         css_class='form-row'
                     ),
                     Row(
-                        Column('vinculo_produccion', css_class='form-group col-md-2 mb-0'),
-                        Div(Column('nr_media', css_class='form-group col-md-4 mb-0'),
-                            Column('norma_tiempo', css_class='form-group col-md-6 mb-0'),
-                            css_class='form-row', css_id='nr_id'
-                            ),
+                        Column('vinculo_produccion', css_class='form-group col-md-4 mb-0'),
+                        Column('nr_media', css_class='form-group col-md-4 mb-0'),
+                        Column('norma_tiempo', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                     Row(

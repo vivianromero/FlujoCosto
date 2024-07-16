@@ -1,13 +1,14 @@
-import json
 import calendar
 import datetime
+import json
 from ast import literal_eval
 from datetime import datetime
 
+from crispy_forms.templatetags.crispy_forms_filters import as_crispy_field
 from django.db import IntegrityError
 from django.db.models import Max, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
@@ -23,7 +24,7 @@ from .forms import *
 from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
     existencia_anterior
-
+from utiles.decorators import *
 
 # Create your views here.
 
@@ -94,8 +95,7 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                     if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
                         mess_error = "No se puede dar salida a esa cantidad"
                         form.add_error(None, mess_error)
-                        return super().form_valid(form)
-
+                        return self.form_invalid(form)
                     self.object = form.save(commit=False, doc=doc, existencia=existencia)
                     setattr(self.object, self.inline_field, self.model_id)
                     self.object.save()
@@ -123,7 +123,24 @@ class DocumentoDetalleHtmxCRUD(InlineHtmxCRUD):
                 )
                 return form_kwargs
 
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                return context
+
             def form_valid(self, form):
+                doc = self.model_id
+                existencia = None if doc.tipodocumento.operacion == OperacionDocumento.ENTRADA else valida_existencia_producto(
+                    doc, form.cleaned_data[
+                        'producto'], form.cleaned_data['estado'],
+                    form.cleaned_data[
+                        'cantidad'])
+                if doc.tipodocumento.operacion == OperacionDocumento.SALIDA and existencia is None:
+                    mess_error = "No se puede dar salida a esa cantidad"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                self.object = form.save(commit=False, doc=doc, existencia=existencia)
+                setattr(self.object, self.inline_field, self.model_id)
+                self.object.save()
                 return super().form_valid(form)
 
         return OEditView
@@ -267,11 +284,6 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
             def get_success_url(self):
-                # if "inline" in self.request.POST:
-                #     url = self.model.get_absolute_url(self.object)
-                # else:
-                #     url = super().get_success_url()
-                # return url
                 return super().get_success_url()
 
             def form_valid(self, form):
@@ -517,7 +529,8 @@ def confirmar_documento(request, pk):
         obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
         obj.save()
 
-        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
+        # crear el documento de entrada en el destino
+        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
             new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
             departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
             new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
@@ -622,7 +635,7 @@ def inicializar_departamento(request, pk):
         if created:
             cant_dias = calendar.monthrange(int(date.today().year), int(date.today().month))[1]
             fecha_inicio, created = FechaPeriodo.objects.get_or_create(
-                fecha=date.today().replace(day=cant_dias),
+                fecha=date.today().replace(day=1),
                 departamento=departamento,
                 ueb=request.user.ueb,
             )
@@ -713,19 +726,27 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
 
 
 def precioproducto(request):
-    tipoproducto = request.GET.get('tipoproducto')
-    clasemp = request.GET.get('clase')
-    clases_mp = ClaseMateriaPrima.objects.all().exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA)
-    tipoprod = TipoProducto.objects.all()
-    context = {
-        'esmatprim': None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1,
-        'clases_mp': clases_mp,
-        'clase_seleccionada': None if not clasemp else clases_mp.get(pk=clasemp),
-        'tipoprod': tipoprod,
-        'tipo_selecc': None if not tipoproducto else tipoprod.get(pk=tipoproducto),
-    }
-    return render(request, 'app_index/partials/productclases.html', context)
+    producto = request.GET.get('producto')
+    pk_doc = request.GET.get('documento_hidden')
+    documento = Documento.objects.get(pk=pk_doc)
+    estado = request.GET.get('estado')
 
+    if not producto or not estado or documento.tipodocumento.operacion == OperacionDocumento.ENTRADA:
+        return
+
+    precio = dame_precio_salida(producto, estado, documento)
+    data = {
+        'producto': producto,
+        'precio': precio,
+        'doc': documento
+    }
+    form = DocumentoDetalleForm(data)
+
+    response = HttpResponse(
+        as_crispy_field(form['precio']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
 
 @transaction.atomic
 def aceptar_documento_versat(kwargs):
@@ -786,6 +807,31 @@ def aceptar_documento_versat(kwargs):
 
 @transaction.atomic
 def rechazar_documento_versat(kwargs):
+    """
+    Rechazar un documento
+    """
+
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'El documento fue rechazado',
+        'error_title': 'El documento no pudo ser rechazado. Por favor, revise',
+    }
+
+    iddocumento = kwargs['iddocumento']
+    request = kwargs['request']
+    fecha = kwargs['iddocumento_fecha']
+    partes = fecha.split('/')
+    partes.reverse()
+    fecha_doc = '-'.join(partes)
+    json_data = literal_eval(kwargs['json_data'])
+    DocumentoVersatRechazado.objects.create(documentoversat=iddocumento, fecha_documentoversat=fecha_doc,
+                                            documento_origen=json_data, ueb=request.user.ueb)
+
+    return func_ret
+
+@transaction.atomic
+def rechazar_documento(request, pk):
     """
     Rechazar un documento
     """
@@ -888,106 +934,143 @@ class ObtenerDocumentoVersatModalFormView(BaseModalFormView):
             'iddocumento': form.cleaned_data['iddocumento'],
             'iddocumento_fecha': form.cleaned_data['iddocumento_fecha_hidden'],
         })
-        if self.request.POST['event_action'] == 'submitted':
+        if self.request.POST['event_action'] in ['submitted','refused']:
             kw.update(
                 {'detalles': self.inline_tables[0]['table'].data.data, 'json_data': form.cleaned_data['json_data']})
         return kw
 
 
+# @transaction.atomic
+# def rechazar_documento(request, pk):
+#     sweetify.warning(request, "ALERTA !!!!", text="En elaboración ", persistent=True)
+#     return HttpResponseLocation(
+#         reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+#         target='#table_content_documento_swap',
+#         headers={
+#             'HX-Trigger': request.htmx.trigger,
+#             'HX-Trigger-Name': request.htmx.trigger_name,
+#             'event_action': 'confirmed',
+#         }
+#     )
+#     # Para confirmar un documento se valida:
+#     #  - que contenga detalles
+#     #  - que no existan documentos en edición anteriores a él, que el umtimo consecutivo confirmado sea el anterior a su numero
+#     # Procedimiento
+#     #  - Despues de validar y todo ok se procede a la confirmación
+#     #  - Si actualizan las existencias
+#     #  - Si es un documento de entrada se actualiza el precio
+#     #  - Si el documento lo requiere se genera el documento en el destino
+#
+#     obj = Documento.objects.select_for_update().get(pk=pk)
+#     # params = '?' + request.htmx.current_url_abs_path.split('?')[1]
+#     departamento = obj.departamento
+#     ueb = obj.ueb
+#     operacion = obj.tipodocumento.operacion
+#     max_numero_editado = 0
+#     detalles = obj.documentodetalle_documento.all()
+#     detalles_count = detalles.count()
+#     if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
+#         exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
+#         actualizar_existencia = []
+#         for d in detalles:
+#             producto = d.producto
+#             estado = d.estado
+#             exist = exist_dpto.filter(producto=producto, estado=estado).first()
+#             inicial_exist = 0 if not exist else exist.cantidad_inicial
+#             entradas_exist = 0 if not exist else exist.cantidad_entrada
+#             salidas_exist = 0 if not exist else exist.cantidad_salida
+#             cantidad_final_exist = 0 if not exist else exist.cantidad_final
+#
+#             precio = d.precio if not exist else exist.precio
+#             cantidad = d.cantidad
+#
+#             if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
+#                 importe = d.cantidad * d.precio
+#                 importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
+#                 importe_t = importe + importe_exist
+#                 cantidad_t = cantidad + cantidad_final_exist
+#                 precio = importe_t / cantidad_t
+#
+#             cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
+#             cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
+#             cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
+#
+#             importe = cantidad_final * precio
+#
+#             actualizar_existencia.append(
+#                 ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
+#                                cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
+#                                cantidad_final=cantidad_final, importe=importe,
+#                                precio=precio))
+#         ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
+#                                                      ['cantidad_entrada', 'cantidad_salida', 'precio',
+#                                                       'cantidad_final', 'importe'],
+#                                                      match_field=['ueb', 'departamento', 'producto', 'estado'])
+#         obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
+#         obj.save()
+#
+#         if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
+#             new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
+#             departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
+#             new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
+#
+#             departamento_origen = departamento
+#             DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
+#
+#             crea_detalles_generado(new_doc, detalles)
+#             title = 'Confirmación terminada'
+#             text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
+#             sweetify.success(request, title, text=text, persistent=True)
+#     else:
+#         title = 'No puede ser confrimado el documento '
+#         text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
+#         text = 'Este documento contiene errores' if obj.error else text
+#         sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
+#                        persistent=True)
+#
+#     return HttpResponseLocation(
+#         reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+#         target='#table_content_documento_swap',
+#         headers={
+#             'HX-Trigger': request.htmx.trigger,
+#             'HX-Trigger-Name': request.htmx.trigger_name,
+#             'event_action': 'confirmed',
+#         }
+#     )
+
 @transaction.atomic
-def rechazar_documento(request, pk):
-    sweetify.warning(request, "ALERTA !!!!", text="En elaboración ", persistent=True)
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'event_action': 'confirmed',
-        }
-    )
-    # Para confirmar un documento se valida:
-    #  - que contenga detalles
-    #  - que no existan documentos en edición anteriores a él, que el umtimo consecutivo confirmado sea el anterior a su numero
-    # Procedimiento
-    #  - Despues de validar y todo ok se procede a la confirmación
-    #  - Si actualizan las existencias
-    #  - Si es un documento de entrada se actualiza el precio
-    #  - Si el documento lo requiere se genera el documento en el destino
+def dame_precio_salida(producto, estado, doc):
+    #documentos anteriores que son entradas y no están confirmados
+    dicc = {'documento__estado': EstadosDocumentos.EDICION,
+            'documento__departamento': doc.departamento, 'documento__ueb': doc.ueb,
+            'documento__tipodocumento__operacion': OperacionDocumento.ENTRADA,
+            'documento__numeroconsecutivo__lt': doc.numeroconsecutivo,
+            'producto': producto,
+            'estado': estado}
 
-    obj = Documento.objects.select_for_update().get(pk=pk)
-    # params = '?' + request.htmx.current_url_abs_path.split('?')[1]
-    departamento = obj.departamento
-    ueb = obj.ueb
-    operacion = obj.tipodocumento.operacion
-    max_numero_editado = 0
-    detalles = obj.documentodetalle_documento.all()
-    detalles_count = detalles.count()
-    if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
-        exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
-        actualizar_existencia = []
-        for d in detalles:
-            producto = d.producto
-            estado = d.estado
-            exist = exist_dpto.filter(producto=producto, estado=estado).first()
-            inicial_exist = 0 if not exist else exist.cantidad_inicial
-            entradas_exist = 0 if not exist else exist.cantidad_entrada
-            salidas_exist = 0 if not exist else exist.cantidad_salida
-            cantidad_final_exist = 0 if not exist else exist.cantidad_final
+    anteriores = DocumentoDetalle.objects.select_for_update().filter(**dicc).\
+           aggregate(cantidad_ant=Coalesce(Sum('cantidad'), Value(0.0), output_field=DecimalField()),
+                     importe_ant=Coalesce(Sum(F('precio') * F('cantidad')), Value(0.0), output_field=DecimalField())
+           )
+    cantidad_anterior = float(anteriores['cantidad_ant'])
+    importe_anterior = float(anteriores['importe_ant'])
 
-            precio = d.precio if not exist else exist.precio
-            cantidad = d.cantidad
+    dicc = {'departamento': doc.departamento, 'ueb': doc.ueb,
+            'producto': producto,
+            'estado': estado}
 
-            if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
-                importe = d.cantidad * d.precio
-                importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
-                importe_t = importe + importe_exist
-                cantidad_t = cantidad + cantidad_final_exist
-                precio = importe_t / cantidad_t
+    existencias = ExistenciaDpto.objects.select_for_update().filter(**dicc)
+    cantidad_existencia = 0.00
+    importe_existencia = 0.00
 
-            cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
-            cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
-            cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
+    if existencias.exists():
+        existe = existencias.first()
+        cantidad_existencia = float(existe.cantidad_final)
+        importe_existencia = float(existe.cantidad_final)*float(existe.precio)
 
-            importe = cantidad_final * precio
+    cantidad_total = cantidad_existencia + cantidad_anterior
+    importe_total = importe_existencia + importe_anterior
 
-            actualizar_existencia.append(
-                ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
-                               cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
-                               cantidad_final=cantidad_final, importe=importe,
-                               precio=precio))
-        ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
-                                                     ['cantidad_entrada', 'cantidad_salida', 'precio',
-                                                      'cantidad_final', 'importe'],
-                                                     match_field=['ueb', 'departamento', 'producto', 'estado'])
-        obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
-        obj.save()
+    precio = importe_total/cantidad_total if cantidad_total>0 else 0.00
+    return precio
 
-        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:  # crear el documento de entrada en el destino
-            new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
-            departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
-            new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
-
-            departamento_origen = departamento
-            DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
-
-            crea_detalles_generado(new_doc, detalles)
-            title = 'Confirmación terminada'
-            text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
-            sweetify.success(request, title, text=text, persistent=True)
-    else:
-        title = 'No puede ser confrimado el documento '
-        text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
-        text = 'Este documento contiene errores' if obj.error else text
-        sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
-                       persistent=True)
-
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'event_action': 'confirmed',
-        }
-    )

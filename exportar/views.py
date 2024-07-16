@@ -79,7 +79,7 @@ def all_conf_exportar(request):
     if valida_datos_exportar(request):
         ruta_archivo = os.path.join('codificadores', 'fixtures', 'ConfigTodas.json')
         output = open(ruta_archivo, "w+")
-        call_command('dumpdata', 'codificadores', indent=2, stdout=output)
+        call_command('dumpdata', 'codificadores', exclude=['codificadores.FechaInicio'], indent=2, stdout=output)
         output.close()
         json_file = open(ruta_archivo, 'r')
         datos_json = json.dumps(json.load(json_file),ensure_ascii=False)

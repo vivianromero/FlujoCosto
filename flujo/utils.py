@@ -103,9 +103,9 @@ def genera_numero_doc(departamento, ueb, tipodoc):
                                                 prefijo)
 
     if tipo.generado: # si el doc es generado se actualiza los numeros para evitar sea tomado por otro proceso
-        actualiza_nros = [NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[0][1], tiponumero=TipoNumeroDoc.NUMERO_CONSECUTIVO,
+        actualiza_nros = [NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[0][0], tiponumero=TipoNumeroDoc.NUMERO_CONSECUTIVO,
                                            departamento=departamento),
-                          NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[1][1], tiponumero=TipoNumeroDoc.NUMERO_CONTROL,
+                          NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[1][0], tiponumero=TipoNumeroDoc.NUMERO_CONTROL,
                                            departamento=departamento)
                           ]
         NumeroDocumentos.objects.bulk_update_or_create(actualiza_nros,

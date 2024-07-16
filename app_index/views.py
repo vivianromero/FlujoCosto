@@ -300,7 +300,7 @@ class CommonCRUDView(CRUDView):
             def get_context_data(self, **kwargs):
                 ctx = super(OEditView, self).get_context_data(**kwargs)
                 ctx.update({
-                    'modal_form_title': 'Formaulario Modal',
+                    'modal_form_title': 'Formulario Modal',
                     'max_width': '950px',
                     'hx_target': self.hx_target,
                     'hx-swap': self.hx_swap,
@@ -362,7 +362,7 @@ class CommonCRUDView(CRUDView):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 ctx.update({
-                    'modal_form_title': 'Formaulario Modal',
+                    'modal_form_title': 'Formulario Modal',
                     'max_width': '950px',
                     'hx_target': self.hx_target,
                     'hx-swap': self.hx_swap,

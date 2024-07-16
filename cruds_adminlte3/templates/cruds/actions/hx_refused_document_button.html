@@ -1,10 +1,10 @@
 {% load crud_tags %}
 {% load i18n %}
-{% if confirm and object.estado == 1 and crud_perms.update and not object.error %}
-    {% crud_nurl object_model "confirm" namespace as nurl %}
+{% if object.estado == 1 and crud_perms.update %}
+    {% crud_nurl object_model "refused" namespace as nurl %}
     <a
-        hx-headers='{"event_action": "refused"}'
-        hx-vals='{"event_action": "refused"}'
+       hx-headers='{"event_action": "refused"}'
+        hx-vals='{"event_action": "refused", "object": "{{ object }}" }'
         hx-post="{% url nurl pk=object.pk %}{{ getparams_hx }}"
         {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#table_content_documento_swap"{% endif %}
         {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
@@ -14,7 +14,7 @@
         name="refused"
         role="button"
         href="{% url nurl pk=object.pk %}{{ getparams_hx }}"
-        class="refuse_href btn btn-danger ">
+        class="refused_href btn btn-danger">
     <i class="fa fa-tasks"></i> Rechazar
 </a>
 {% endif %}

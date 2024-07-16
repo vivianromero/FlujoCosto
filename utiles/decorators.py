@@ -13,8 +13,7 @@ from django.conf import settings
 def adminempresa_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
                              login_url='app_index:noauthorized'):
     """
-    Decorator for views that checks that the user is logged in and is a super admin or member of Seller Group
-    , redirecting to the login page if necessary.
+    Decorador para verificar que el usuario sea admin de la empresa
     """
     actual_decorator = user_passes_test(
         lambda u: not isinstance(u, AnonymousUser) and (u.is_superuser or u.is_adminempresa),
@@ -28,8 +27,7 @@ def adminempresa_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAM
 def admin_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
                              login_url='app_index:noauthorized'):
     """
-    Decorator for views that checks that the user is logged in and is a super admin or member of Seller Group
-    , redirecting to the login page if necessary.
+     Decorador para verificar que el usuario sea admin
     """
     actual_decorator = user_passes_test(
         lambda u: not isinstance(u, AnonymousUser) and (u.is_admin),
@@ -43,8 +41,7 @@ def admin_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
 def opercosto_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
                              login_url='app_index:noauthorized'):
     """
-    Decorator for views that checks that the user is logged in and is a super admin or member of Seller Group
-    , redirecting to the login page if necessary.
+     Decorador para verificar que el usuario sea operador del Costo
     """
     actual_decorator = user_passes_test(
         lambda u: not isinstance(u, AnonymousUser) and (u.is_opercosto),
@@ -58,8 +55,7 @@ def opercosto_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
 def operflujo_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
                              login_url='app_index:noauthorized'):
     """
-    Decorator for views that checks that the user is logged in and is a super admin or member of Seller Group
-    , redirecting to the login page if necessary.
+    Decorador para verificar que el usuario sea operador del Flujo
     """
     actual_decorator = user_passes_test(
         lambda u: not isinstance(u, AnonymousUser) and (u.is_operflujo),
