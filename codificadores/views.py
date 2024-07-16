@@ -1897,6 +1897,8 @@ def vitolas(request):
     catvitolas = []
     seleccvitolas = []
     prod = None if not codigo else ProductoFlujo.objects.filter(codigo=codigo)
+    if clasemp == '':
+        clasemp = '0'
     if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
         vitolas = prod.first().vitolas.all()
         seleccvitolas = [x.pk for x in vitolas]
@@ -1916,7 +1918,7 @@ def vitolas(request):
     form = ProductoFlujoForm(data)
     show_rendimiento = True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False
     esmatprim = None if tipoproducto != str(ChoiceTiposProd.MATERIAPRIMA) else 1
-    if not show_rendimiento:
+    if not show_rendimiento or not esmatprim:
         form.fields['vitolas'].widget.attrs.update({'style': 'display: none;'})
         form.fields['vitolas'].label = False
         form.fields['vitolas'].required = False
@@ -1926,7 +1928,7 @@ def vitolas(request):
             'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
             'hx-target': '#div_id_vitolas',
             'hx-swap': 'outerHTML',
-            'hx-trigger': 'change from:#div_id_clase',
+            'hx-trigger': 'change from:#div_id_clase, change from:#div_id_tipoproducto',
             'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
         })
         form.fields['vitolas'].required = True
