@@ -867,8 +867,6 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         }
         self.fields["precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
 
-
-
         clamapprima = instance.get_clasemateriaprima
         self.fields["rendimientocapa"].widget.attrs = {
             "min": 0, "step": 1,
@@ -2749,9 +2747,12 @@ class ClasificadorCargosForm(forms.ModelForm):
                        }
             ),
             'vinculo_produccion': SelectWidget(
-                attrs={'style': 'width: 100%',}
+                attrs={'style': 'width: 100%', }
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
+            'nr_media': forms.TextInput(
+                attrs={'pattern': '[0-9]', }
+            )
         }
 
     def __init__(self, *args, **kwargs) -> None:
@@ -2772,14 +2773,9 @@ class ClasificadorCargosForm(forms.ModelForm):
         #     'hx-include': '[name="vinculo_produccion"]',
         # }
 
-        self.fields["norma_tiempo"].widget.attrs = {
-            'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'),
-            'hx-target': '#div_id_norma_tiempo',
-            'hx-trigger': 'change from:#div_id_vinculo_produccion, change from:#div_id_nr_media',
-            'hx-include': '[name="nr_media"], [name="vinculo_produccion"]',
-        }
-
-        self.fields['norma_tiempo'].widget.attrs['readonly'] = True
+        self.fields["norma_tiempo"].widget.attrs = {'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'), 'hx-target': '#div_id_norma_tiempo',
+                                                    'hx-trigger': 'change from:#div_id_vinculo_produccion, change from:#div_id_nr_media',
+                                                    'hx-include': '[name="nr_media"], [name="vinculo_produccion"]', 'readonly': True}
 
         self.fields["nr_media"].widget.attrs = {"min": 0, "step": 1,
                                                 'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
@@ -2802,7 +2798,7 @@ class ClasificadorCargosForm(forms.ModelForm):
                     ),
                     Row(
                         Column('vinculo_produccion', css_class='form-group col-md-4 mb-0'),
-                        Column('nr_media', css_class='form-group col-md-4 mb-0'),
+                        Column(Field('nr_media', data_inputmask="'alias': 'integer'"), css_class='form-group col-md-4 mb-0'),
                         Column('norma_tiempo', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),

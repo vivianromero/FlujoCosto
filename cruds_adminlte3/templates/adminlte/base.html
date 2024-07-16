@@ -150,9 +150,11 @@
             const dialog_targets = ['dialog', 'edit_modal_inner']
             if (e.detail.target.id === dialog_targets[0]) {
                 modal.show()
+                Inputmask().mask(document.querySelectorAll("input"));
             }
             if (e.detail.target.id === dialog_targets[1]) {
                 edit_modal.show()
+                Inputmask().mask(document.querySelectorAll("input"));
             }
             if (swap_targets.includes(e.detail.target.id)) {
                 console.log(e.detail.requestConfig.headers["HX-Trigger"])
