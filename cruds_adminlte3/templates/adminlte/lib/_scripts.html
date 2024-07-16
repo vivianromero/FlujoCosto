@@ -44,7 +44,8 @@
 <!-- Select2 -->
 <script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
 <!-- InputMask -->
-<script src="{% static 'plugins/inputmask/jquery.inputmask.min.js' %}"></script>
+<script src="{% static 'plugins/inputmask/inputmask.min.js' %}"></script>
+<script src="{% static 'plugins/inputmask/bindings/inputmask.binding.js' %}"></script>
 <!-- Bootstrap4 Duallistbox -->
 <script src="{% static 'plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.js' %}"></script>
 <!-- Bootstrap Switch -->
@@ -96,6 +97,9 @@ $(function () {
     $('.select2bs4').select2({
       theme: 'bootstrap4'
     })
+})
+; (function () {
+    Inputmask().mask(document.querySelectorAll("input"));
 })
 
 </script>
