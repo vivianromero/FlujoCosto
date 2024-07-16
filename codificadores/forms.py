@@ -729,7 +729,7 @@ class ProductoFlujoForm(forms.ModelForm):
             'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
             'hx-target': '#div_id_vitolas',
             # 'hx-swap': 'outerHTML',
-            'hx-trigger': 'change from:#div_id_clase',
+            'hx-trigger': 'change from:#div_id_clase, change from:#div_id_tipoproducto',
             'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
         }
         self.fields["vitolas"].label = ""
@@ -846,8 +846,9 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        self.fields["tipoproducto"].disabled = True
-        self.fields["tipoproducto"].required = False
+        # self.fields["tipoproducto"].disabled = True
+        self.fields["tipoproducto"].widget.enabled_choices = [instance.tipoproducto]
+        # self.fields["tipoproducto"].required = False
 
         self.fields["clase"].widget.attrs = {
             "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay',
@@ -881,7 +882,7 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'hx-get': reverse_lazy('app_index:codificadores:vitolas'),
             'hx-target': '#div_id_vitolas',
             # 'hx-swap': 'outerHTML',
-            'hx-trigger': 'change from:#div_id_clase',
+            'hx-trigger': 'change from:#div_id_clase, change from:#div_id_tipoproducto',
             'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
         }
         self.fields["vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
