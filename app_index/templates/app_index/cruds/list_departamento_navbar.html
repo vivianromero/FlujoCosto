@@ -27,10 +27,10 @@
 
 
 {% partialdef  inicializar_departamento_partial %}
-    {% is_initialized form.departamento.value request.user.ueb as inicializado %}
     {% get_departamento_name form.departamento.value as departamento_name %}
     {% get_departamento_object form.departamento.value as departamento_object %}
-    {% if not inicializado and form.departamento.value %}
+    {% is_initialized departamento_object request.user.ueb as inicializado %}
+    {% if not inicializado and departamento_object %}
         {% crud_nurl departamento_object "inicializar" namespace as nurl %}
         <div id="inicializar_departamento_link_url_div" style="display: flex; align-items: center">
             <a id="inicializar_departamento_link_url_div_a"

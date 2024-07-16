@@ -8,7 +8,7 @@ app_name = 'flujo'
 urlpatterns = [
     path('', include(documento_crud.get_urls())),
     path('<uuid:pk>/confirm_doc/', views.confirmar_documento, name='flujo_documento_confirm'),
-    path('<uuid:pk>/rechazar_doc/', views.rechazar_documento, name='flujo_documento_rechazar'),
+    path('<uuid:pk>/refused_doc/', views.rechazar_documento, name='flujo_documento_refused'),
     path(r"^(?P<pk>\d+)/inicializar_dep/$", views.inicializar_departamento, name='codificadores_departamento_inicializar'),
     path("obtener_documento_versat/", views.ObtenerDocumentoVersatModalFormView.as_view(), name='obtener_documento_versat'),
     path('precioproducto/', views.precioproducto, name='precioproducto'),

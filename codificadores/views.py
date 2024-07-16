@@ -1890,16 +1890,17 @@ def rendimientocapa(request):
 
 def vitolas(request):
     tipoproducto = request.GET.get('tipoproducto')
-    clasemp = request.GET.get('clase')
+    clasemp = request.GET.get('clase', '0')
     codigo = request.GET.get('codigo', '0')
     # get_rendimientocapa = request.GET.get('rendimientocapa', '0')
     get_vitolas = request.GET.get('vitolas', None)
-    catvitolas = CategoriaVitola.objects.all()
+    catvitolas = []
     seleccvitolas = []
-    prod = ProductoFlujo.objects.filter(codigo=codigo)
+    prod = None if not codigo else ProductoFlujo.objects.filter(codigo=codigo)
     if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR and codigo and prod.exists():
         vitolas = prod.first().vitolas.all()
         seleccvitolas = [x.pk for x in vitolas]
+        catvitolas = CategoriaVitola.objects.all()
     context = {
         'show_rendimiento': True if int(clasemp) == ChoiceClasesMatPrima.CAPASINCLASIFICAR else False,
         'valorrendimientocapa': rendimientocapa,
@@ -1938,30 +1939,52 @@ def vitolas(request):
 
 
 def cargonorma(request):
-    produccion = request.GET.get('vinculo_produccion')
+    produccion = request.GET.get('vinculo_produccion', '0')
     nr = request.GET.get('nr_media')
-    norma = request.GET.get('norma_tiempo')
+    # norma = request.GET.get('norma_tiempo')
 
-    context = {
-        'show_norma_tiempo': True,
-        'show_nr_media': produccion == str(VinculoCargoProduccion.DIRECTO),
-        'valornr_media': nr if nr else 0,
-        'valornorma_tiempo': norma if norma else 0.0000,
+    data = {
+        'nr_media': nr,
     }
-    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
+    form = ClasificadorCargosForm(data)
+
+    if int(produccion) != VinculoCargoProduccion.DIRECTO:
+        form.fields['nr_media'].disabled = True
+        form.fields['nr_media'].widget.attrs.update({'style': 'display: none;'})
+        form.fields['nr_media'].label = False
+        form.fields['nr_media'].required = False
+
+    response = HttpResponse(
+        as_crispy_field(form['nr_media']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
 
 
 def calcula_nt(request):
-    nr = request.GET.get('nr_media')
-    norma = 8 / int(nr) if nr and int(nr) > 0 else 0.0000
+    nr = request.GET.get('nr_media', '0')
+    vinculo_produccion = request.GET.get('vinculo_produccion', '0')
+
+    norma = 0 if int(vinculo_produccion) != VinculoCargoProduccion.DIRECTO else 8 / int(nr) if nr and int(nr) > 0 else 0.0000
     nt = round(norma, 4)
-    context = {
-        'show_norma_tiempo': True,
-        'show_nr_media': True,
-        'valornorma_tiempo': '%.4f' % nt,
-        'valornr_media': nr if nr else 0,
+
+    data = {
+        'norma_tiempo': nt,
     }
-    return render(request, 'app_index/partials/clasifcargosnormas.html', context)
+    form = ClasificadorCargosForm(data)
+
+    if int(vinculo_produccion) == VinculoCargoProduccion.DIRECTO:
+        form.fields['norma_tiempo'].widget.attrs.update({
+            'readonly': "True",
+        })
+    elif 'readonly' in form.fields['norma_tiempo'].widget.attrs:
+        form.fields['norma_tiempo'].widget.attrs.pop('readonly')
+
+    response = HttpResponse(
+        as_crispy_field(form['norma_tiempo']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
 
 
 # ------ TipoDocumento / CRUD ------

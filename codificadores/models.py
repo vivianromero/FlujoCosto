@@ -432,7 +432,8 @@ class Departamento(ObjectsManagerAbstract):
         return self.descripcion
 
     def inicializado(self, ueb):
-        return False if not FechaInicio.objects.filter(departamento=self, ueb=ueb).first() else True
+        return False if not self else False if not self.fechainicio_departamento.all() else True
+        # return False if not FechaInicio.objects.filter(departamento=self, ueb=ueb).first() else True
 
 
 class NormaConsumo(ObjectsManagerAbstract):

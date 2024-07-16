@@ -531,6 +531,7 @@ class DocumentoFormFilter(forms.Form):
 # ------------ DocumentoDetalle / Form ------------
 class DocumentoDetalleForm(forms.ModelForm):
     documento_hidden = forms.CharField(label='', required=False)
+    operacion_hidden = forms.CharField(label='', required=False)
 
     class Meta:
         model = DocumentoDetalle
@@ -546,20 +547,12 @@ class DocumentoDetalleForm(forms.ModelForm):
                 attrs={
                     'style': 'width: 100%',
                     'id': 'id_producto_documento_detalle',
-                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
-                    # 'hx-target': '#div_id_precio',
-                    # 'hx-trigger': 'change',
-                    # 'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
                 }
             ),
             'estado': SelectWidget(
                 attrs={
                     'style': 'width: 100%; dislay: block',
                     'id': 'id_estado_documento_detalle',
-                    # 'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
-                    # 'hx-target': '#div_id_precio',
-                    # 'hx-trigger': 'change',
-                    # 'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
                 },
             ),
         }
@@ -583,16 +576,16 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
         self.fields['documento_hidden'].initial = '' if not self.documentopadre else self.documentopadre.pk
+        self.fields['operacion_hidden'].initial = '' if not self.documentopadre else self.documentopadre.tipodocumento.operacion
 
-        self.fields["precio"].widget.attrs = {
-            # "min": 0.0000, "step": 0.0001,
-            # "style": 'display:none',
-            'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
-            'hx-target': '#div_id_precio',
-            # 'hx-swap': 'outerHTML',
-            'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
-            'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
-        }
+        if self.fields['operacion_hidden'].initial == OperacionDocumento.SALIDA:
+            self.fields["precio"].widget.attrs = {
+                'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+                'hx-target': '#div_id_precio',
+                'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+                'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
+            }
+            self.fields['precio'].widget.attrs['readonly'] = True
 
         self.helper.layout = Layout(
             Row(
@@ -603,6 +596,7 @@ class DocumentoDetalleForm(forms.ModelForm):
                        css_id='id_cantidad_documento_detalle'),
                 Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_precio_documento_detalle'),
                 Field('documento_hidden', type="hidden"),
+                Field('operacion_hidden', type="hidden"),
                 css_class='form-row'
             ),
         )
