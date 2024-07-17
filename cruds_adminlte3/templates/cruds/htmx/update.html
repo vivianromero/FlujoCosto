@@ -2,18 +2,4 @@
 {% load crud_tags %}
 
 
-<!-- Modal -->
-<div class="modal-header">
-    <h4 class="modal-title" id="myModalLabel">{% trans "Edit" %} {{ model_verbose_name }}</h4>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div class="modal-body">
-    {% include "cruds/htmx/_form.html" with action='update' %}
-</div>
-
-<div class="modal-footer">
-</div>
-
+{% include "cruds/htmx/_form.html" with action='update' %}

@@ -555,6 +555,8 @@ class DocumentoDetalleForm(forms.ModelForm):
                     'id': 'id_estado_documento_detalle',
                 },
             ),
+            'cantidad': forms.TextInput(),
+            'precio': forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs) -> None:
@@ -579,22 +581,19 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.fields['operacion_hidden'].initial = '' if not self.documentopadre else self.documentopadre.tipodocumento.operacion
 
         if self.fields['operacion_hidden'].initial == OperacionDocumento.SALIDA:
-            self.fields["precio"].widget.attrs = {
-                'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
-                'hx-target': '#div_id_precio',
-                'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
-                'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
-            }
-            self.fields['precio'].widget.attrs['readonly'] = True
+            self.fields["precio"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:precioproducto'), 'hx-target': '#div_id_precio',
+                                                  'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+                                                  'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]', 'readonly': True}
 
         self.helper.layout = Layout(
             Row(
                 Column('producto', css_class='form-group col-md-6 mb-0',
                        css_id='id_producto_documento_detalle'),
                 Column('estado', css_class='form-group col-md-2 mb-0'),
-                Column('cantidad', css_class='form-group col-md-2 mb-0',
+                Column(Field('cantidad', data_inputmask="'alias': 'decimal', 'digits': 4"), css_class='form-group col-md-2 mb-0',
                        css_id='id_cantidad_documento_detalle'),
-                Column('precio', css_class='form-group col-md-2 mb-0', css_id='id_precio_documento_detalle'),
+                Column(Field('precio', data_inputmask="'alias': 'decimal', 'digits': 7"), css_class='form-group col-md-2 mb-0',
+                       css_id='id_precio_documento_detalle'),
                 Field('documento_hidden', type="hidden"),
                 Field('operacion_hidden', type="hidden"),
                 css_class='form-row'
