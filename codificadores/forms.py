@@ -2750,9 +2750,7 @@ class ClasificadorCargosForm(forms.ModelForm):
                 attrs={'style': 'width: 100%', }
             ),
             'unidadcontable': forms.CheckboxSelectMultiple(),
-            'nr_media': forms.TextInput(
-                attrs={'pattern': '[0-9]', }
-            )
+            'nr_media': forms.TextInput()
         }
 
     def __init__(self, *args, **kwargs) -> None:

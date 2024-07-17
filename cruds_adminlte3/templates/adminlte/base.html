@@ -124,9 +124,9 @@
       </div>
     </div>
     <div class="modal in" id="edit_modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" style="max-width: 800px" role="document">
-        <div class="modal-content" id="edit_modal_inner">
-        </div>
+      <div id="edit_modal_inner" class="modal-dialog" style="max-width: 800px" role="document">
+{#        <div class="modal-content" id="edit_modal_inner">#}
+{#        </div>#}
       </div>
     </div>
 {% endblock modal_dialogs_forms %}
@@ -137,7 +137,7 @@
         const edit_modal = new bootstrap.Modal(document.getElementById("edit_modal"))
 
         htmx.on("htmx:afterSwap", (e) => {
-        // Response targeting #dialog => show the modal
+            // Response targeting #dialog => show the modal
             const events_to_hide = ['submitted', 'inline_submitted', 'confirmed', 'refused'];
             const events_to_reset = ['submited_and_add_another'];
             const events_to_save_and_add_inlines = ['inline_submitted'];

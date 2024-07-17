@@ -57,14 +57,6 @@
         $('#edit_modal').modal('hide');
     }
 
-    function on_submit() {
-        console.log($('.addedit').find('.is-invalid'))
-        console.log($('#edit_modal').find('.is-invalid'))
-        let invalid = document.querySelectorAll(".is-invalid");
-        console.log(invalid.length)
-        return true
-    }
-
     function productoMedida(){
         var idproducto = document.getElementById("id_productodetalle").value;
         var url = "/productmedidadetalle/";

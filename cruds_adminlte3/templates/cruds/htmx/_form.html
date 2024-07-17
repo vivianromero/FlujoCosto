@@ -7,54 +7,95 @@
 {% endif %}
 
 <form
-    id="{{name}}_{{object.pk}}_addedit"
+    id="id_form_addedit"
     class="addedit"
      style="max-width: {{ max_width }}"
     action="{% crud_inline_url base_model inline_model action namespace %}"
     method="POST" enctype="multipart/form-data"
 >
-    {% csrf_token %}
-    <div class="card-body row">
-        <div class="col-md-12">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">{% trans "Edit" %} {{ model_verbose_name }}></h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" style="padding-bottom: 0">
             {% if form.helper %}
                 {% crispy form %}
             {% else %}
                 {{ form|crispy }}
             {% endif %}
         </div>
-    </div>
-
-
-    <div class="card-footer">
-        <div class="form-group">
-            <div class="controls">
-                {% if action != 'detail' %}
-                	<button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "inline_submitted"}'
-                        hx-vals='{"event_action": "inline_submitted"}'
-                        hx-post="{{ request.path }}"
-                        hx-trigger="click"
-                        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#id_{{ inline.name }}_myList"{% endif %}
-                        {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="innerHTML"{% endif %}
-                        id="id_inline_form_btn_acept"
-                        type="submit"
-                        name="inline_form_btn_acept"
-                        class="btn btn-primary">
-                            <i class="fa fa-check"></i>
-                        Aceptar
+        <div class="card-footer">
+            <div class="form-group">
+                <div class="controls">
+                    {% if action != 'detail' %}
+                        <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "inline_submitted"}'
+                            hx-vals='{"event_action": "inline_submitted"}'
+                            hx-post="{{ request.path }}"
+                            hx-trigger="click"
+                            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#id_{{ inline.name }}_myList"{% endif %}
+                            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="innerHTML"{% endif %}
+                            id="id_inline_form_btn_acept"
+                            type="submit"
+                            name="inline_form_btn_acept"
+                            class="btn btn-primary">
+                                <i class="fa fa-check"></i>
+                            Aceptar
+                        </button>
+                    {% endif %}
+                    <button id="id_ajax_form_btn_cancel" name="inline_form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fa fa-close"></i>
+                        Cancelar
                     </button>
-                {% endif %}
-                <button id="id_ajax_form_btn_cancel" name="inline_form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fa fa-close"></i>
-                    Cancelar
-                </button>
-
+                </div>
             </div>
         </div>
     </div>
+
 </form>
+<style>
+    .custom-control-input {
+        z-index: 1;
+    }
+</style>
 
 
 <script>
+    function getContainer2(){
+        return document.querySelector('#id_form_addedit');
+    }
+
+    //let container = document.querySelector('#id_form_modal'); // <----- Fill in your div container here and its done
+
+    function getFocusable2(context = 'document') {
+      return Array.from(context.querySelectorAll('button, [href], input:not([type="hidden"]), textarea, select, [tabindex]:not([tabindex="-1"])')).filter(function (el) { return !el.closest('[hidden]'); });
+    }
+    function getFocusableItems2() {
+        return getFocusable2(getContainer2());
+    }
+    const id_form_addedit = document.getElementById('id_form_addedit')
+    id_form_addedit.addEventListener("keydown", function (e) {
+      if ( window.getComputedStyle(getContainer2()).display === "none") {
+        return;
+      }
+      if (e.key === 'Tab') { // Tab & Shift+Tab
+        const focusedItem = e.target;
+        const focusedItemIndex = getFocusableItems2().indexOf(focusedItem);
+        if (e.shiftKey) {
+          if (!getContainer2().contains(e.target) || focusedItemIndex === 0) {
+            getFocusableItems2()[getFocusableItems2().length - 1].focus();
+            e.preventDefault();
+          }
+        } else {
+          if (!getContainer2().contains(e.target) || focusedItemIndex === getFocusableItems2().length - 1) {
+            getFocusableItems2()[0].focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
     function productoMedida(){
         var idproducto = document.getElementById("id_productodetalle").value;
         var url = "/productmedidadetalle/";
@@ -69,7 +110,4 @@
             }
           });
     }
-
-    {#$('.modal #submit-id-submit').parent().parent().remove(); // FIXME: Remove the crispy buttons#}
-    {#$('#edit_modal').modal('show');#}
 </script>
