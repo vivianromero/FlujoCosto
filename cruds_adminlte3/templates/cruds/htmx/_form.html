@@ -75,8 +75,7 @@
     function getFocusableItems2() {
         return getFocusable2(getContainer2());
     }
-    const id_form_addedit = document.getElementById('id_form_addedit')
-    id_form_addedit.addEventListener("keydown", function (e) {
+    document.getElementById('id_form_addedit').addEventListener("keydown", function (e) {
       if ( window.getComputedStyle(getContainer2()).display === "none") {
         return;
       }

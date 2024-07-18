@@ -210,12 +210,10 @@
     function getFocusableItems() {
         return getFocusable(getContainer());
     }
-    const id_form_modal = document.getElementById('id_form_modal')
-    id_form_modal.addEventListener("keydown", function (e) {
+    document.getElementById('id_form_modal').addEventListener("keydown", function (e) {
       if ( window.getComputedStyle(getContainer()).display === "none") {
         return;
       }
-      console.log(id_form_modal)
       if (e.key === 'Tab') { // Tab & Shift+Tab
         const focusedItem = e.target;
         const focusedItemIndex = getFocusableItems().indexOf(focusedItem);
