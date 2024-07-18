@@ -649,13 +649,6 @@ class DocumentoDetalleForm(forms.ModelForm):
         doc.error = doc_error
         doc.estado = EstadosDocumentos.EDICION if not doc_error else EstadosDocumentos.ERRORES
         doc.save()
-        print('********************************')
-        print(doc_error)
-        print(doc.numeroconsecutivo)
-        print(doc.error)
-        print(doc.estado)
-        print('********************************')
-
         return self.instance
 
 
