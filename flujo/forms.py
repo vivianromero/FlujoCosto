@@ -42,6 +42,26 @@ class DocumentoForm(forms.ModelForm):
         )
     )
 
+    ueb_destino = forms.ModelChoiceField(
+        queryset=UnidadContable.objects.filter(activo=True),
+        label="Destino",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        }
+        )
+    )
+
+    ueb_origen = forms.ModelChoiceField(
+        queryset=UnidadContable.objects.all(),
+        label="Origen",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        }
+        )
+    )
+
     class Meta:
         model = Documento
         fields = [
@@ -58,6 +78,8 @@ class DocumentoForm(forms.ModelForm):
             'tipodocumento',
             'ueb',
             'departamento_destino',
+            'ueb_destino',
+            'ueb_origen',
             'mes',
             'anno'
         ]
@@ -96,11 +118,15 @@ class DocumentoForm(forms.ModelForm):
         self.fecha_procesamiento = kwargs.pop('fecha_procesamiento', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
         self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ChoiceTiposDoc.DEVOLUCION_RECIBIDA,]
+        self.destino_ueb_tipo_documento = [ChoiceTiposDoc.TRANSFERENCIA_EXTERNA,]
+        self.origen_ueb_tipo_documento = [ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA,]
         super(DocumentoForm, self).__init__(*args, **kwargs)
         self.fields['departamento_destino'].label = False
         self.fields['departamento_origen'].label = False
         self.origen_dpto = False
         self.destino_dpto = False
+        self.destino_ueb = False
+        self.origen_ueb = False
         self.edicion = False if not instance else True
         self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
             pk=instance.pk).numeroconsecutivo
@@ -128,11 +154,20 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
-                self.fields['departamento_destino'].widget.enabled_choices = [destino.departamento]
                 self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
                 self.fields['departamento_destino'].label = "Departamento Destino"
                 self.fields['departamento_destino'].disabled = False
                 self.fields['departamento_destino'].required = False
+            elif instance.tipodocumento.pk in self.destino_ueb_tipo_documento:
+                self.destino_ueb = True
+                destino_queryset = self.fields['ueb_destino'].queryset.exclude(pk=self.user.ueb.pk)
+                self.fields['ueb_destino'].queryset = destino_queryset
+                destino = DocumentoTransfExterna.objects.get(documento=instance).unidadcontable
+                self.fields['ueb_destino'].initial = destino
+                self.fields['ueb_destino'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['ueb_destino'].label = "Destino"
+                self.fields['ueb_destino'].disabled = False
+                self.fields['ueb_destino'].required = False
             elif instance.tipodocumento.pk in self.origen_tipo_documento:
                 self.origen_dpto = True
                 origen_queryset = self.fields['departamento_origen'].queryset
@@ -196,6 +231,14 @@ class DocumentoForm(forms.ModelForm):
                     self.fields['departamento_destino'].label = "Departamento Destino"
                     self.fields['departamento_destino'].disabled = False
                     self.fields['departamento_destino'].required = True
+                elif int(self.tipo_doc) in self.destino_ueb_tipo_documento:
+                    self.destino_ueb = True
+                    destino_queryset = self.fields['ueb_destino'].queryset.exclude(pk=self.user.ueb.pk)
+                    self.fields['ueb_destino'].queryset = destino_queryset
+                    self.fields['ueb_destino'].widget.attrs = {'style': 'width: 100%;', }
+                    self.fields['ueb_destino'].label = "Destino"
+                    self.fields['ueb_destino'].disabled = False
+                    self.fields['ueb_destino'].required = True
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_form'
         self.helper.form_method = 'post'
@@ -210,6 +253,7 @@ class DocumentoForm(forms.ModelForm):
                 Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                 Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
                 Column('departamento_destino', css_class='form-group col-md-3 mb-0') if self.destino_dpto else Field('departamento_destino', type="hidden"),
+                Column('ueb_destino', css_class='form-group col-md-3 mb-0') if self.destino_ueb else Field('ueb_destino', type="hidden"),
                 Column('departamento_origen', css_class='form-group col-md-3 mb-0') if self.origen_dpto else Field('departamento_origen', type="hidden"),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
@@ -282,15 +326,27 @@ class DocumentoForm(forms.ModelForm):
                           )
 
         instance = super().save(commit=True)
-        if self.cleaned_data['tipodocumento'].pk in self.destino_tipo_documento:
-            departamento_destino = self.cleaned_data.get('departamento_destino')
-            if departamento_destino:
-                documento_transf_departamento = DocumentoTransfDepartamento.objects.update_or_create(
-                    documento=instance,
-                    defaults={
-                        'departamento': departamento_destino,
-                    }
-                )
+
+        match self.cleaned_data['tipodocumento'].pk:
+            case ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                departamento_destino = self.cleaned_data.get('departamento_destino')
+                if departamento_destino:
+                    documento_transf_departamento = DocumentoTransfDepartamento.objects.update_or_create(
+                        documento=instance,
+                        defaults={
+                            'departamento': departamento_destino,
+                        }
+                    )
+            case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                ueb_destino = self.cleaned_data.get('ueb_destino')
+                if ueb_destino:
+                    documento_transf_ext = DocumentoTransfExterna.objects.update_or_create(
+                        documento=instance,
+                        defaults={
+                            'unidadcontable': ueb_destino,
+                        }
+                    )
+
         if 'numeroconsecutivo' in self.changed_data and self.edicion and abs(
                 self.numeroconcecutivo_anterior - instance.numeroconsecutivo) > 1:
             detalles = instance.documentodetalle_documento.all()
@@ -429,7 +485,6 @@ class DocumentoDetailForm(forms.ModelForm):
                 ),
                 Column(UneditableField('numeroconsecutivo'), css_class='form-group col-md-3 mb-0'),
                 Column(UneditableField('numerocontrol'), css_class='form-group col-md-3 mb-0'),
-
                 Column(UneditableField('departamento_destino'), css_class='form-group col-md-3 mb-0'),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
