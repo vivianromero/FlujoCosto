@@ -95,11 +95,12 @@ class DocumentoForm(forms.ModelForm):
         self.tipo_doc = kwargs.pop('tipo_doc', None)
         self.fecha_procesamiento = kwargs.pop('fecha_procesamiento', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
-        self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ]
+        self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ChoiceTiposDoc.DEVOLUCION_RECIBIDA,]
         super(DocumentoForm, self).__init__(*args, **kwargs)
         self.fields['departamento_destino'].label = False
         self.fields['departamento_origen'].label = False
-        self.origen = False
+        self.origen_dpto = False
+        self.destino_dpto = False
         self.edicion = False if not instance else True
         self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
             pk=instance.pk).numeroconsecutivo
@@ -120,6 +121,7 @@ class DocumentoForm(forms.ModelForm):
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
 
             if instance.tipodocumento.pk in self.destino_tipo_documento:
+                self.destino_dpto = True
                 destino_queryset = self.fields['departamento_destino'].queryset
                 destino_queryset = destino_queryset.filter(unidadcontable=self.user.ueb,
                                                            relaciondepartamento=instance.departamento)
@@ -132,11 +134,17 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['departamento_destino'].disabled = False
                 self.fields['departamento_destino'].required = False
             elif instance.tipodocumento.pk in self.origen_tipo_documento:
-                self.origen = True
+                self.origen_dpto = True
                 origen_queryset = self.fields['departamento_origen'].queryset
-                origen_queryset = origen_queryset.filter(relaciondepartamento=instance.departamento)
+                tipod = instance.tipodocumento.pk
+                if tipod == ChoiceTiposDoc.TRANSF_DESDE_DPTO:
+                    origen_queryset = origen_queryset.filter(relaciondepartamento=instance.departamento)
+                    origen = DocumentoTransfDepartamentoRecibida.objects.get(documento=instance).documentoorigen
+                elif tipod == ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
+                    origen = DocumentoDevolucionRecibida.objects.get(documento=instance).documentoorigen
+                    origen_queryset = origen_queryset.filter(pk=origen.departamento.pk)
+
                 self.fields['departamento_origen'].queryset = origen_queryset
-                origen = DocumentoTransfDepartamentoRecibida.objects.get(documento=instance).documentoorigen
                 self.fields['departamento_origen'].initial = origen.departamento
                 self.fields['departamento_origen'].widget.enabled_choices = [origen.departamento]
                 self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
@@ -177,6 +185,7 @@ class DocumentoForm(forms.ModelForm):
                     self.fields["numerocontrol"].widget.attrs['readonly'] = numeros[1][1]
 
                 if int(self.tipo_doc) in self.destino_tipo_documento:
+                    self.destino_dpto = True
                     destino_queryset = self.fields['departamento_destino'].queryset.filter(
                         relaciondepartamento=self.departamento)
                     dptos_no_inicializados = [x.pk for x in destino_queryset if
@@ -200,8 +209,8 @@ class DocumentoForm(forms.ModelForm):
                 ),
                 Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                 Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if not self.origen else Column(
-                    'departamento_origen', css_class='form-group col-md-3 mb-0'),
+                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if self.destino_dpto else Field('departamento_destino', type="hidden"),
+                Column('departamento_origen', css_class='form-group col-md-3 mb-0') if self.origen_dpto else Field('departamento_origen', type="hidden"),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
                 Field('suma_importe', type="hidden"),
