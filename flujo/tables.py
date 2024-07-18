@@ -1,15 +1,10 @@
-from crispy_forms.layout import HTML
-from django.template.loader import get_template, render_to_string
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+import django_tables2 as tables
+from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 
 from cruds_adminlte3.tables import CommonColumnShiftTableBootstrap4ResponsiveActions
 from cruds_adminlte3.utils import attrs_center_center
 from flujo.models import *
-from app_versat.inventario import InvDocumento, InvDocumentogasto
-from codificadores.models import CentroCosto
-import django_tables2 as tables
-from django.utils.translation import gettext as _
 
 
 # ------ Documento / Table ------
@@ -24,8 +19,6 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'estado',
             'fecha',
             'tipodocumento__operacion',
-            # 'departamento',
-            # 'ueb',
         )
 
     actions = tables.TemplateColumn(
@@ -44,7 +37,7 @@ class DocumentoTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             return render_to_string('app_index/table_icons/confirmado_icon.html')
         elif value == 'Rechazado':
             return render_to_string('app_index/table_icons/rechazado_icon.html')
-        elif value == 'Cancelado':
+        elif value in ['Cancelado', 'Con Errores']:
             return render_to_string('app_index/table_icons/cancelado_icon.html')
 
     @staticmethod

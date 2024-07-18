@@ -1,6 +1,5 @@
 import uuid
 
-# from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
@@ -18,6 +17,8 @@ class EstadosDocumentos(models.IntegerChoices):
     CONFIRMADO = 2, 'Confirmado'
     RECHAZADO = 3, 'Rechazado'
     CANCELADO = 4, 'Cancelado'
+    ERRORES = 5, 'Con Errores'
+
 
 class Documento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -38,11 +39,11 @@ class Documento(models.Model):
     anno = models.IntegerField(default=0)
     mes = models.IntegerField(default=0)
     confconsec = IntegerChoicesField(choices_enum=ConfigNumero,
-                                 db_comment="Para guardar el tipo de conf para el consecutivo y poder establecer la constarint",
-                                 default=ConfigNumero.DEPARTAMENTO)
+                                     db_comment="Para guardar el tipo de conf para el consecutivo y poder establecer la constarint",
+                                     default=ConfigNumero.DEPARTAMENTO)
     confcontrol = IntegerChoicesField(choices_enum=ConfigNumero,
-                                 db_comment="Para guardar el tipo de conf para el numero de control y poder establecer la constarint",
-                                 default=ConfigNumero.DEPARTAMENTO)
+                                      db_comment="Para guardar el tipo de conf para el numero de control y poder establecer la constarint",
+                                      default=ConfigNumero.DEPARTAMENTO)
     error = models.BooleanField(default=False, verbose_name=_("Error"))
     ueb = models.ForeignKey(UnidadContable, on_delete=models.PROTECT, related_name='documento_ueb')
 
@@ -80,14 +81,15 @@ class Documento(models.Model):
 
     def get_numerocontrol(self):
         nros = self.numerocontrol.split('/')
-        return int(nros[len(nros)-1])
+        return int(nros[len(nros) - 1])
 
     def get_numerocontrol_prefijo(self):
         return '' if not '/' in self.numerocontrol else self.numerocontrol.split('/')[0]
 
     @property
     def operacion(self):
-        return 1 if self.tipodocumento.operacion==OperacionDocumento.ENTRADA else -1
+        return 1 if self.tipodocumento.operacion == OperacionDocumento.ENTRADA else -1
+
 
 class DocumentoDetalle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -109,6 +111,7 @@ class DocumentoDetalle(models.Model):
     estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='documentodetalle_producto',
                                  verbose_name=_("Product"))
+    error = models.BooleanField(default=False, verbose_name=_("Error"))
 
     class Meta:
         db_table = 'fp_documentodetalle'
@@ -342,8 +345,8 @@ class FechaPeriodo(models.Model):
         return {
             "ueb": self.ueb,
             self.departamento: {
-            "fecha_procesamiento": self.fecha,
-            "fecha_mes_procesamiento": self.fecha_mes_procesamiento
+                "fecha_procesamiento": self.fecha,
+                "fecha_mes_procesamiento": self.fecha_mes_procesamiento
             }
         }
 
@@ -368,19 +371,20 @@ class FechaCierreMes(models.Model):
             ),
         ]
 
+
 class ExistenciaDpto(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT, related_name='existencias_producto',
                                  verbose_name=_("Product"))
     estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"))
-    cantidad_inicial =models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Cantidad Inicial"))
+    cantidad_inicial = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
+                                           verbose_name=_("Cantidad Inicial"))
     cantidad_entrada = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Entradas"))
+                                           verbose_name=_("Entradas"))
     cantidad_salida = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Salidas"))
+                                          verbose_name=_("Salidas"))
     cantidad_final = models.DecimalField(max_digits=18, decimal_places=4, default=0.00,
-                                   verbose_name=_("Cantidad Final"))
+                                         verbose_name=_("Cantidad Final"))
     precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
                                  verbose_name=_("Price"))
     importe = models.DecimalField(max_digits=18, decimal_places=2, default=0.00,
@@ -405,6 +409,7 @@ class ExistenciaDpto(ObjectsManagerAbstract):
                     'ueb']
             )
         ]
+
 
 class NumeroDocumentos(ObjectsManagerAbstract):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

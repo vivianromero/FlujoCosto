@@ -1,6 +1,8 @@
 {% load crud_tags %}
 {% load i18n %}
-{% if object.estado == 1 and crud_perms.update %}
+{% load documento_tags %}
+{% is_in object "[1, 5]" as is_in_edition %}
+{% if is_in_edition and crud_perms.update %}
     {% crud_nurl object_model "refused" namespace as nurl %}
     <a
        hx-headers='{"event_action": "refused"}'
@@ -19,7 +21,7 @@
 </a>
 {% endif %}
 <script>
-    document.querySelectorAll("a.refuse_href").forEach((ref) => {
+    document.querySelectorAll("a.refused_href").forEach((ref) => {
         ref.addEventListener("click", function (e) {
             e.preventDefault()
             let record = '\n' + '{{ object }}'

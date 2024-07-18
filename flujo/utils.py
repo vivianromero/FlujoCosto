@@ -1,12 +1,11 @@
-from django.db.models import F, Case, Value, When, DecimalField, Sum, Max
-from django.db import transaction
-from django.db.models.functions import Coalesce
 from django.conf import settings
+from django.db import transaction
+from django.db.models import F, Case, Value, When, DecimalField, Sum, Max, Count, IntegerField
+from django.db.models.functions import Coalesce
 
-from .models import *
-
-from codificadores.models import OperacionDocumento, TipoProductoDepartamento, ClaseMateriaPrima
 from codificadores import ChoiceClasesMatPrima, ChoiceTiposProd
+from codificadores.models import OperacionDocumento, TipoProductoDepartamento, ClaseMateriaPrima
+from .models import *
 
 
 def ids_documentos_versat_procesados(fecha_inicio, fecha_fin, departamento, ueb):
@@ -15,8 +14,8 @@ def ids_documentos_versat_procesados(fecha_inicio, fecha_fin, departamento, ueb)
     query_doc_acept = DocumentoOrigenVersat.objects.filter(fecha_documentoversat__gte=fecha_inicio,
                                                            fecha_documentoversat__lte=fecha_fin,
                                                            documento__departamento=departamento,
-                                                           documento__ueb=ueb).values(iddocversat=F('documentoversat')).\
-                                                      all()
+                                                           documento__ueb=ueb).values(iddocversat=F('documentoversat')). \
+        all()
 
     # id de los documentos que se han rechazado en el mes que se está procesando, ya que en el cierre
     # mensual no se permite dejar doc del versat sin procesar
@@ -31,11 +30,15 @@ def ids_documentos_versat_procesados(fecha_inicio, fecha_fin, departamento, ueb)
 
 
 @transaction.atomic
-def dame_valor_anterior(doc, docs_en_edicion):
+def dame_valor_anterior(numeroconsecutivo, docs_en_edicion):
     # docum anteriores al actual que tienen el producto
     # docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=doc.numeroconsecutivo)
-    docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=doc.numeroconsecutivo).order_by(
+    docs_anteriors = docs_en_edicion.filter(documento__numeroconsecutivo__lt=numeroconsecutivo).order_by(
         'documento__numeroconsecutivo')
+
+    hay_error = False
+    if docs_anteriors.filter(error=True).exists():
+        hay_error = True
 
     # se obtiene el total del producto se suman las entradas y se restan las salidas
     total_anterior = docs_anteriors.annotate(
@@ -48,7 +51,7 @@ def dame_valor_anterior(doc, docs_en_edicion):
     ).aggregate(
         total_ant=Coalesce(Sum('adjusted_quantity'), Value(0), output_field=DecimalField())
     )['total_ant']
-    return total_anterior
+    return total_anterior, hay_error
 
 
 @transaction.atomic
@@ -57,23 +60,29 @@ def actualiza_existencias(doc, docs_en_edicion, existencia_product):
         'documento__numeroconsecutivo')
 
     documento_detalles = []
-    documento_error = []
+    documentos = []
     error = False
 
-    docs = Documento.objects.select_for_update().filter(pk__in=[x.documento.pk for x in docs_posteriores])
+    docs = Documento.objects.select_for_update().filter(pk__in=[x.documento.pk for x in docs_posteriores]).order_by(
+        'numeroconsecutivo')
 
     for p in docs_posteriores:
         operacion = p.documento.operacion
         existencia_product = float(p.cantidad) * operacion + float(existencia_product)
-        error = True if existencia_product < 0 else False
-        p.existencia = existencia_product if not error else p.existencia
+        error = False if not error else error
         doc = p.documento
+        doc.estado = EstadosDocumentos.EDICION
+        if existencia_product < 0 or error:
+            error = True  # if existencia_product < 0 else False
+            doc.estado = EstadosDocumentos.ERRORES
+            p.error = True
+        p.existencia = existencia_product
         doc.error = error
         documento_detalles.append(p)
-        documento_error.append(doc)
+        documentos.append(doc)
 
-    docs_posteriores.bulk_update(documento_detalles, ['existencia'])
-    docs.bulk_update(documento_error, ['error'])
+    docs_posteriores.bulk_update(documento_detalles, ['existencia', 'error'])
+    docs.bulk_update(documentos, ['error', 'estado'])
 
 
 @transaction.atomic
@@ -88,7 +97,6 @@ def genera_numero_doc(departamento, ueb, tipodoc):
     prefijo = ''
     tipo = TipoDocumento.objects.get(pk=tipodoc)
     if control_conf['prefijo']:
-        # tipo = TipoDocumento.objects.get(pk=tipodoc)
         prefijo = tipo.prefijo
 
     numeros_consec_control[0] = (1, consecutivo_conf['sistema'], '', consecutivo_conf)
@@ -102,12 +110,13 @@ def genera_numero_doc(departamento, ueb, tipodoc):
         numeros_consec_control[1] = dame_numero(numeros, control_conf, departamento, TipoNumeroDoc.NUMERO_CONTROL,
                                                 prefijo)
 
-    if tipo.generado: # si el doc es generado se actualiza los numeros para evitar sea tomado por otro proceso
-        actualiza_nros = [NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[0][0], tiponumero=TipoNumeroDoc.NUMERO_CONSECUTIVO,
-                                           departamento=departamento),
-                          NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[1][0], tiponumero=TipoNumeroDoc.NUMERO_CONTROL,
-                                           departamento=departamento)
-                          ]
+    if tipo.generado:  # si el doc es generado se actualiza los numeros para evitar sea tomado por otro proceso
+        actualiza_nros = [
+            NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[0][0], tiponumero=TipoNumeroDoc.NUMERO_CONSECUTIVO,
+                             departamento=departamento),
+            NumeroDocumentos(ueb=ueb, numero=numeros_consec_control[1][0], tiponumero=TipoNumeroDoc.NUMERO_CONTROL,
+                             departamento=departamento)
+        ]
         NumeroDocumentos.objects.bulk_update_or_create(actualiza_nros,
                                                        ['ueb', 'numero', 'tiponumero',
                                                         'departamento'],
@@ -128,8 +137,8 @@ def dame_numero(numeros, conf, departamento, tiponumero, prefijo):
 
 @transaction.atomic
 def actualiza_numeros(ueb, departamento, consecutivo, control, pk):
-    dicc_filter_consec = {'tiponumero':TipoNumeroDoc.NUMERO_CONSECUTIVO}
-    dicc_filter_control = {'tiponumero':TipoNumeroDoc.NUMERO_CONTROL}
+    dicc_filter_consec = {'tiponumero': TipoNumeroDoc.NUMERO_CONSECUTIVO}
+    dicc_filter_control = {'tiponumero': TipoNumeroDoc.NUMERO_CONTROL}
 
     config = settings.NUMERACION_DOCUMENTOS_CONFIG
     config_fechas = settings.FECHAS_PROCESAMIENTO
@@ -154,7 +163,7 @@ def actualiza_numeros(ueb, departamento, consecutivo, control, pk):
 
     docs_consec = Documento.objects.select_for_update().filter(**dicc_filter).exclude(pk=pk)
 
-    if not docs_consec and pk==None: #cuando es eliminar
+    if not docs_consec and pk == None:  # cuando es eliminar
         NumeroDocumentos.objects.select_for_update().filter(**dicc_filter_consec).delete()
         NumeroDocumentos.objects.select_for_update().filter(**dicc_filter_control).delete()
         return
@@ -167,7 +176,7 @@ def actualiza_numeros(ueb, departamento, consecutivo, control, pk):
 
     max_consec = docs_consec.aggregate(numeromax=Max('numeroconsecutivo', default=0))['numeromax']
 
-    if consecutivo and consecutivo>max_consec:
+    if consecutivo and consecutivo > max_consec:
         max_consec = consecutivo
 
     max_control = 0 if not pk else control
@@ -216,8 +225,8 @@ def dame_productos(documentopadre, queryproductos):
 
 
 @transaction.atomic
-def existencia_anterior(doc, producto, elimina):
-    producto = DocumentoDetalle.objects.select_for_update().get(pk=producto)
+def existencia_anterior(doc, detalle, elimina):
+    producto = DocumentoDetalle.objects.select_for_update().get(pk=detalle.pk)
     existencia = producto.existencia
     cantidad = producto.cantidad
     operacion = doc.operacion
@@ -247,46 +256,71 @@ def existencia_producto(docs_en_edicion, doc, producto, estado, cantidad):
         importe_exist = exist.importe
         cantidad_existencia = exist.cantidad_final
 
-    total_anterior = dame_valor_anterior(doc, docs_en_edicion)
+    total_anterior, hay_error = dame_valor_anterior(doc.numeroconsecutivo, docs_en_edicion)
 
     # se actualiza la existencia del producto en el detalle actual
     existencia_product = float(cantidad_existencia) + float(cantidad) * operacion + float(
         total_anterior)
 
-    return existencia_product
+    return existencia_product, hay_error
 
 
 @transaction.atomic
-def actualiza_existencias_anteriores(numeroconsecutivo, numeroconcecutivo_anterior, docs_en_edicion,
-                                     producto):
+def actualiza_existencias_productos_todos(docs, detalles, departamento, ueb, consecutivo=None):
+    detalles_act = []
+    product_error = {}
+    for d in docs:
+        existencia_inicial = 0.00
+        operacion = d.documento.operacion
+        existencia_anteriores = existencia_productos_todos(docs, d.producto, d.estado, departamento, ueb,
+                                                           d.documento.numeroconsecutivo)
+        existencia = float(d.cantidad) * operacion + existencia_anteriores
+        d.existencia = existencia
+        if existencia < 0:
+            product_error[d.producto.pk] = True
+        d.error = d.producto.pk in product_error.keys()
+        detalles_act.append(d)
 
-    existencia_product = producto.existencia
-    cantidad = producto.cantidad
-    operacion = producto.documento.operacion
-    existencia_anterior = float(existencia_product) - (operacion * float(cantidad))
-    docs_anteriores = docs_en_edicion.filter(documento__numeroconsecutivo__lt=numeroconsecutivo,
-                                             documento__numeroconsecutivo__gt=numeroconcecutivo_anterior).\
-                                      order_by('-documento__numeroconsecutivo')
+    DocumentoDetalle.objects.bulk_update(detalles_act, ['error', 'existencia'])
 
-    documento_detalles = []
-    documento_error = []
-    error = False
+    # los que no tienen errores
+    Documento.objects.filter(estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES]).annotate(
+        detalles_count=Count('documentodetalle_documento'),
+        errores_count=Count(Case(
+            When(documentodetalle_documento__error=False, then=1),
+            output_field=IntegerField()
+        ))
+    ).filter(errores_count=Count('documentodetalle_documento')).update(error=False, estado=EstadosDocumentos.EDICION)
 
-    docs = Documento.objects.select_for_update().filter(pk__in=[x.documento.pk for x in docs_anteriores])
+    # tienen al menos un error en el detalle
+    Documento.objects.filter(documentodetalle_documento__error=True,
+                             estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES]).distinct().update(
+        error=True,
+        estado=EstadosDocumentos.ERRORES)
 
-    for p in docs_anteriores:
-        error = True if existencia_anterior < 0 else False
-        p.existencia = existencia_anterior if not error else p.existencia
 
-        operacion = p.documento.operacion
-        existencia_product = p.existencia
-        cantidad = p.cantidad
-        existencia_anterior = float(existencia_anterior) - (operacion * float(p.cantidad)) if not error else existencia_product
+def existencia_productos_todos(docs, producto, estado, departamento, ueb, consecutivo=None):
+    dicc = {'producto': producto, 'estado': estado, 'documento__departamento': departamento, 'documento__ueb': ueb}
 
-        doc = p.documento
-        doc.error = error
-        documento_detalles.append(p)
-        documento_error.append(doc)
+    if consecutivo:
+        dicc.update({'documento__numeroconsecutivo__lt': consecutivo})
 
-    docs_anteriores.bulk_update(documento_detalles, ['existencia'])
-    docs.bulk_update(documento_error, ['error'])
+    existencia = ExistenciaDpto.objects.select_for_update().filter(ueb=ueb, departamento=departamento,
+                                                                   producto=producto,
+                                                                   estado=estado).first()
+
+    if existencia:
+        existencia_inicial = float(existencia.cantidad_final)
+
+    existencia_anterior = DocumentoDetalle.objects.select_for_update().filter(**dicc).annotate(
+        adjusted_quantity=Case(
+            When(documento__tipodocumento__operacion=OperacionDocumento.ENTRADA, then=F('cantidad')),
+            When(documento__tipodocumento__operacion=OperacionDocumento.SALIDA, then=-F('cantidad')),
+            default=Value(0),
+            output_field=DecimalField()
+        )
+    ).aggregate(
+        total_ant=Coalesce(Sum('adjusted_quantity'), Value(0), output_field=DecimalField())
+    )['total_ant']
+
+    return float(existencia_anterior) + float(existencia_inicial)
