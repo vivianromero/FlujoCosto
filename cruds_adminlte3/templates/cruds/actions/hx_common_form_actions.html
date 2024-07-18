@@ -7,10 +7,10 @@
     {% include 'cruds/actions/acept_and_add_another_button.html' %}
 {% endif %}
 {% include 'cruds/actions/hx_confirm_document_button.html' %}
-{% if is_not_in %}
-    {% include 'cruds/actions/hx_delete_button.html' %}
-{% endif %}
 {% if object.tipodocumento.generado %}
     {% include 'cruds/actions/hx_refused_document_button.html' %}
+{% endif %}
+{% if is_not_in %}
+    {% include 'cruds/actions/hx_delete_button.html' %}
 {% endif %}
 {% include 'cruds/actions/hx_cancel_button.html' %}

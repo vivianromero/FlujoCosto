@@ -1,26 +1,23 @@
-import sweetify
 from datetime import date
 
 from crispy_forms.bootstrap import TabHolder, Tab, FormActions, AppendedText, UneditableField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, HTML, Field, Div
+from crispy_forms.layout import Layout, Row, Column, HTML, Field
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Sum, Case, When, F, DecimalField, Value
-from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 
 from app_index.widgets import MyCustomDateRangeWidget
 from codificadores import ChoiceTiposDoc, ChoiceTiposProd, ChoiceClasesMatPrima
-from codificadores.models import TipoNumeroDoc, OperacionDocumento, TipoProducto, ClaseMateriaPrima
+from codificadores.models import TipoProducto, ClaseMateriaPrima
 from cruds_adminlte3.utils import crud_url_name
 from cruds_adminlte3.widgets import SelectWidget
 from flujo.models import *
-from .utils import dame_valor_anterior, actualiza_existencias, genera_numero_doc, actualiza_numeros, dame_productos, \
-    existencia_anterior, existencia_producto, actualiza_existencias_anteriores
+from .utils import actualiza_existencias, genera_numero_doc, actualiza_numeros, dame_productos, \
+    existencia_producto, actualiza_existencias_productos_todos
 
 
 # ------------ Documento / Form ------------
@@ -103,8 +100,9 @@ class DocumentoForm(forms.ModelForm):
         self.fields['departamento_destino'].label = False
         self.fields['departamento_origen'].label = False
         self.origen = False
-        self.edicion = False if not instance else True #Documento.objects.filter(pk=instance.pk).exists()
-        self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(pk=instance.pk).numeroconsecutivo #Documento.objects.filter(pk=instance.pk).exists()
+        self.edicion = False if not instance else True
+        self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
+            pk=instance.pk).numeroconsecutivo
 
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
@@ -123,7 +121,8 @@ class DocumentoForm(forms.ModelForm):
 
             if instance.tipodocumento.pk in self.destino_tipo_documento:
                 destino_queryset = self.fields['departamento_destino'].queryset
-                destino_queryset = destino_queryset.filter(unidadcontable=self.user.ueb, relaciondepartamento=instance.departamento)
+                destino_queryset = destino_queryset.filter(unidadcontable=self.user.ueb,
+                                                           relaciondepartamento=instance.departamento)
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
@@ -178,7 +177,8 @@ class DocumentoForm(forms.ModelForm):
                     self.fields["numerocontrol"].widget.attrs['readonly'] = numeros[1][1]
 
                 if int(self.tipo_doc) in self.destino_tipo_documento:
-                    destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=self.departamento)
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(
+                        relaciondepartamento=self.departamento)
                     dptos_no_inicializados = [x.pk for x in destino_queryset if
                                               not x.fechainicio_departamento.all().exists()]
                     destino_queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
@@ -200,7 +200,8 @@ class DocumentoForm(forms.ModelForm):
                 ),
                 Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                 Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if not self.origen else Column('departamento_origen', css_class='form-group col-md-3 mb-0'),
+                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if not self.origen else Column(
+                    'departamento_origen', css_class='form-group col-md-3 mb-0'),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
                 Field('suma_importe', type="hidden"),
@@ -229,8 +230,10 @@ class DocumentoForm(forms.ModelForm):
         consec_departamento = conf[TipoNumeroDoc.NUMERO_CONSECUTIVO]['departamento']
 
         # actualiza el campo donde se guarda el tipo de configuracion de los documentos para aplicar las constraints
-        self.instance.confconsec = ConfigNumero.DEPARTAMENTO if  conf[TipoNumeroDoc.NUMERO_CONSECUTIVO]['departamento'] else ConfigNumero.UNICO
-        self.instance.confcontrol = ConfigNumero.DEPARTAMENTO if  conf[TipoNumeroDoc.NUMERO_CONTROL]['departamento'] else ConfigNumero.UNICO
+        self.instance.confconsec = ConfigNumero.DEPARTAMENTO if conf[TipoNumeroDoc.NUMERO_CONSECUTIVO][
+            'departamento'] else ConfigNumero.UNICO
+        self.instance.confcontrol = ConfigNumero.DEPARTAMENTO if conf[TipoNumeroDoc.NUMERO_CONTROL][
+            'departamento'] else ConfigNumero.UNICO
 
         # actializa campo mes y anno que se utilizan en las constrains
         self.instance.mes = self.instance.fecha.month
@@ -279,24 +282,21 @@ class DocumentoForm(forms.ModelForm):
                         'departamento': departamento_destino,
                     }
                 )
-        if 'numeroconsecutivo' in self.changed_data and self.edicion:
+        if 'numeroconsecutivo' in self.changed_data and self.edicion and abs(
+                self.numeroconcecutivo_anterior - instance.numeroconsecutivo) > 1:
             detalles = instance.documentodetalle_documento.all()
             departam = instance.departamento
             ueb = instance.ueb
-            dicc = {'documento__estado': EstadosDocumentos.EDICION,
+            operacion = instance.operacion
+
+            dicc = {'documento__estado__in': [EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES],
                     'documento__departamento': departam, 'documento__ueb': ueb}
 
-            docs = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+            docs = DocumentoDetalle.objects.select_for_update().filter(**dicc).order_by('documento__numeroconsecutivo')
             dicc_prod = {}
-
-            for d in detalles:
-                dicc_prod = {'producto': d.producto, 'estado': d.estado}
-                docs_en_edicion = docs.filter(**dicc_prod)
-                d.existencia = existencia_producto(docs_en_edicion, instance, d.producto, d.estado, d.cantidad)
-                d.save()
-                existencia_anterior(instance, d.pk, False)
-                if instance.numeroconsecutivo>self.numeroconcecutivo_anterior:
-                    actualiza_existencias_anteriores(instance.numeroconsecutivo, self.numeroconcecutivo_anterior, docs_en_edicion, d)
+            desde = self.numeroconcecutivo_anterior + 1 if instance.numeroconsecutivo > self.numeroconcecutivo_anterior else instance.numeroconsecutivo
+            docs = docs.filter(documento__numeroconsecutivo__gte=desde)
+            actualiza_existencias_productos_todos(docs, detalles, departam, ueb, consecutivo=desde)
         return instance
 
 
@@ -343,7 +343,8 @@ class DocumentoDetailForm(DocumentoForm):
                 self.fields["numerocontrol"].widget.attrs['readonly'] = \
                     settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
             if instance.tipodocumento.pk in self.destino_tipo_documento:
-                destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=instance.departamento)
+                destino_queryset = self.fields['departamento_destino'].queryset.filter(
+                    relaciondepartamento=instance.departamento)
                 self.fields['departamento_destino'].queryset = destino_queryset
                 destino = DocumentoTransfDepartamento.objects.get(documento=instance)
                 self.fields['departamento_destino'].initial = destino.departamento
@@ -372,7 +373,8 @@ class DocumentoDetailForm(DocumentoForm):
                 self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]
 
                 if int(self.tipo_doc) in self.destino_tipo_documento:
-                    destino_queryset = self.fields['departamento_destino'].queryset.filter(relaciondepartamento=self.departamento)
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(
+                        relaciondepartamento=self.departamento)
                     self.fields['departamento_destino'].queryset = destino_queryset
                     self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%; display: block;', }
                     self.fields['departamento_destino'].label = "Departamento Destino"
@@ -477,7 +479,6 @@ class DocumentoFormFilter(forms.Form):
             'hx-trigger': 'change, changed from:#div_id_departamento, changed from:.btn-shift-column-visivility',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
-            # 'hx-include': '[name="departamento"]'
         })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
@@ -578,21 +579,26 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
         self.fields['documento_hidden'].initial = '' if not self.documentopadre else self.documentopadre.pk
-        self.fields['operacion_hidden'].initial = '' if not self.documentopadre else self.documentopadre.tipodocumento.operacion
+        self.fields[
+            'operacion_hidden'].initial = '' if not self.documentopadre else self.documentopadre.tipodocumento.operacion
 
         if self.fields['operacion_hidden'].initial == OperacionDocumento.SALIDA:
-            self.fields["precio"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:precioproducto'), 'hx-target': '#div_id_precio',
+            self.fields["precio"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:precioproducto'),
+                                                  'hx-target': '#div_id_precio',
                                                   'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
-                                                  'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]', 'readonly': True}
+                                                  'hx-include': '[name="producto"], [name="documento_hidden"], [name="estado"]',
+                                                  'readonly': True}
 
         self.helper.layout = Layout(
             Row(
                 Column('producto', css_class='form-group col-md-6 mb-0',
                        css_id='id_producto_documento_detalle'),
                 Column('estado', css_class='form-group col-md-2 mb-0'),
-                Column(Field('cantidad', data_inputmask="'alias': 'decimal', 'digits': 4"), css_class='form-group col-md-2 mb-0',
+                Column(Field('cantidad', data_inputmask="'alias': 'decimal', 'digits': 4"),
+                       css_class='form-group col-md-2 mb-0',
                        css_id='id_cantidad_documento_detalle'),
-                Column(Field('precio', data_inputmask="'alias': 'decimal', 'digits': 7"), css_class='form-group col-md-2 mb-0',
+                Column(Field('precio', data_inputmask="'alias': 'decimal', 'digits': 7"),
+                       css_class='form-group col-md-2 mb-0',
                        css_id='id_precio_documento_detalle'),
                 Field('documento_hidden', type="hidden"),
                 Field('operacion_hidden', type="hidden"),
@@ -618,20 +624,37 @@ class DocumentoDetalleForm(forms.ModelForm):
 
         # actualizar las existencias de los demás documentos
         # tomo la existencia del producto
-        dicc = {'documento__estado': EstadosDocumentos.EDICION,
+        dicc = {'documento__estado__in': [EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES],
                 'documento__departamento': departamento, 'producto': producto, 'estado': estado,
                 'documento__ueb': ueb}
 
         docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-        existencia_product = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
-
+        # se excluyen los documentos que tengan errores para calcular la existencia del producto
+        # existencia_product = existencia_producto(docs_en_edicion.filter(documento__error=False), doc, producto, estado, instance.cantidad)
+        existencia_product, hay_error = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
 
         instance.existencia = existencia_product
+        instance.error = hay_error
 
         # se van a actualizar las existencias de los doc posteriores que contienen el producto
+        # y se dejan los documentos con error para actualizar su existencia
         actualiza_existencias(doc, docs_en_edicion, existencia_product)
 
         instance.importe = instance.precio * instance.cantidad
+
+        doc_error = False
+        if doc.documentodetalle_documento.filter(error=True).exclude(documento=doc).exists() or hay_error:
+            doc_error = True
+
+        doc.error = doc_error
+        doc.estado = EstadosDocumentos.EDICION if not doc_error else EstadosDocumentos.ERRORES
+        doc.save()
+        print('********************************')
+        print(doc_error)
+        print(doc.numeroconsecutivo)
+        print(doc.error)
+        print(doc.estado)
+        print('********************************')
 
         return self.instance
 
@@ -694,10 +717,12 @@ class DocumentoDetalleDetailForm(forms.ModelForm):
             ),
         )
 
+
 # ------------ TraerProductoVersat / Form ------------
 class TraerProductoVersatForm(forms.Form):
     producto_codigo = forms.CharField(label='Código', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    producto_descripcion = forms.CharField(label='Descripción', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    producto_descripcion = forms.CharField(label='Descripción', required=False,
+                                           widget=forms.TextInput(attrs={'readonly': True}))
     medida_clave = forms.CharField(label='U.M', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     cantidad = forms.DecimalField(label='Cantidad', required=False)
     precio = forms.DecimalField(label='Precio', required=False)
@@ -747,18 +772,23 @@ class TraerProductoVersatForm(forms.Form):
             ),
         )
 
+
 # ------------ ObtenerDocumentoVersat / Form ------------
 class ObtenerDocumentoVersatForm(forms.Form):
     iddocumento = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    iddocumento_numero = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    iddocumento_numctrl = forms.CharField(label='Nro Control', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_numero = forms.CharField(label='No Doc', required=False,
+                                         widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_numctrl = forms.CharField(label='Nro Control', required=False,
+                                          widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_fecha = forms.DateField(label='Fecha', required=False, widget=forms.TextInput(attrs={'readonly': True}))
     iddocumento_fecha_hidden = forms.CharField(label='Fecha x', required=False)
-    iddocumento_concepto = forms.CharField(label='Concepto', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    iddocumento_almacen = forms.CharField(label='Almacén', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    iddocumento_sumaimporte = forms.CharField(label='Importe', required=False, widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_concepto = forms.CharField(label='Concepto', required=False,
+                                           widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_almacen = forms.CharField(label='Almacén', required=False,
+                                          widget=forms.TextInput(attrs={'readonly': True}))
+    iddocumento_sumaimporte = forms.CharField(label='Importe', required=False,
+                                              widget=forms.TextInput(attrs={'readonly': True}))
     json_data = forms.JSONField(label='json', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-
 
     class Meta:
         fields = [
