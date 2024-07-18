@@ -14,7 +14,9 @@ from functools import wraps
 import time
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.layout import HTML
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 # from rolepermissions.roles import registered_roles
 
 ACTION_CREATE = 'create'
@@ -260,7 +262,7 @@ def common_form_actions():
             #             <i class="fa fa-plus"></i> {% translate 'Accept and add another' %}
             #         </button>
             #     {% endif %}"""
-            ),
+        ),
         HTML(
             get_template('cruds/actions/cancel_button.html').template.source
             # """{% load i18n %}
@@ -288,18 +290,18 @@ def ok_cancel_form_actions():
     form_actions = FormActions(
         HTML(
             get_template('cruds/actions/ok_cancel_form_actions.html').template.source
-        #     """{% load i18n %}
-        #         <button type="submit" class="btn btn-primary">
-        #             <i class="fa fa-check"></i> {% translate 'Accept' %}
-        #         </button>"""
-        # ),
-        # HTML(
-        #     """{% load i18n %}
-        #         {% if url_list %}
-        #             <a href="{{ url_list }}" class="btn btn-secondary">
-        #                 <i class="fa fa-remove"></i> {% translate "Cancel" %}
-        #             </a>
-        #         {% endif %}"""
+            #     """{% load i18n %}
+            #         <button type="submit" class="btn btn-primary">
+            #             <i class="fa fa-check"></i> {% translate 'Accept' %}
+            #         </button>"""
+            # ),
+            # HTML(
+            #     """{% load i18n %}
+            #         {% if url_list %}
+            #             <a href="{{ url_list }}" class="btn btn-secondary">
+            #                 <i class="fa fa-remove"></i> {% translate "Cancel" %}
+            #             </a>
+            #         {% endif %}"""
         ),
     )
     return form_actions
@@ -310,16 +312,16 @@ def common_filter_form_actions():
     form_actions = FormActions(
         HTML(
             get_template('cruds/actions/common_filter_form_actions.html').template.source
-        #     """{% load i18n crispy_forms_tags %}
-        #         <button type="submit" class="btn btn-primary">
-        #             <i class="fa fa-filter"></i> {% translate 'Filter' %}
-        #         </button>"""
-        # ),
-        # HTML(
-        #     """{% load i18n %}
-        #             <a href="{{ url_list }}" class="btn btn-secondary">
-        #                 <i class="fa fa-remove"></i> {% translate "Clean filter" %}
-        #             </a>"""
+            #     """{% load i18n crispy_forms_tags %}
+            #         <button type="submit" class="btn btn-primary">
+            #             <i class="fa fa-filter"></i> {% translate 'Filter' %}
+            #         </button>"""
+            # ),
+            # HTML(
+            #     """{% load i18n %}
+            #             <a href="{{ url_list }}" class="btn btn-secondary">
+            #                 <i class="fa fa-remove"></i> {% translate "Clean filter" %}
+            #             </a>"""
         ),
     )
     return form_actions
@@ -431,3 +433,21 @@ def get_current_record_htmx(model, current_url_abs_path):
 #         tpl = tuple(lst)
 #         final_choices.append(tpl)
 #     return final_choices
+
+def get_data(data):
+    text = "<ul>"
+    for k, v in data.items():
+        for el in k:
+            # element = el['name']
+            text += f'<li>{el}</li>'
+        if isinstance(v, dict):
+            text += get_data(v)  # recursively calling to get the lists
+        else:  # this else block can be removed if you don't need it
+            text += f'<li>{v}</li>'
+    text += "</ul>"
+    return text
+
+
+def render_dict(data):
+    text = get_data(data)
+    return mark_safe(text)
