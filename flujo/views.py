@@ -341,6 +341,8 @@ class DocumentoCRUD(CommonCRUDView):
                     datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
                     tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
                         datostableversat)
+                    if 'actions' in tableversat.col_vis:
+                        tableversat.col_vis.remove('actions')
                     tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
                     DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
