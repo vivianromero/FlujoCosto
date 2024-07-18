@@ -468,6 +468,7 @@ class DocumentoCRUD(CommonCRUDView):
             hx_swap = self.hx_swap
             hx_form_target = self.hx_form_target
             hx_form_swap = self.hx_form_swap
+            modal = self.modal
 
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data()

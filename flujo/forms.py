@@ -309,7 +309,27 @@ class DocumentoForm(forms.ModelForm):
         return instance
 
 
-class DocumentoDetailForm(DocumentoForm):
+class DocumentoDetailForm(forms.ModelForm):
+    departamento_destino = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        label="Departamento Destino",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        }
+        )
+    )
+
+    departamento_origen = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        label="Departamento Origen",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%;',
+        }
+        )
+    )
+
     class Meta:
         model = Documento
         fields = [
@@ -339,8 +359,14 @@ class DocumentoDetailForm(DocumentoForm):
         self.tipo_doc = kwargs.pop('tipo_doc', None)
         self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ]
         super(DocumentoDetailForm, self).__init__(*args, **kwargs)
-        self.fields['departamento_destino'].disabled = True
+        self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ]
+        super(DocumentoDetailForm, self).__init__(*args, **kwargs)
         self.fields['departamento_destino'].label = ""
+        self.fields['departamento_origen'].label = ""
+        self.origen = False
+        self.edicion = False if not instance else True  # Documento.objects.filter(pk=instance.pk).exists()
+        self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
+            pk=instance.pk).numeroconsecutivo  # Documento.objects.filter(pk=instance.pk).exists()
 
         if instance:
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
@@ -390,6 +416,11 @@ class DocumentoDetailForm(DocumentoForm):
                     self.fields['departamento_destino'].disabled = False
                     self.fields['departamento_destino'].required = True
 
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_documento_detalle__form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
         self.helper.layout = Layout(
             Row(
                 Column(
@@ -409,6 +440,13 @@ class DocumentoDetailForm(DocumentoForm):
                 Field('anno', type="hidden"),
                 css_class='form-row'
             ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
         )
 
 

@@ -435,6 +435,15 @@ class CommonCRUDView(CRUDView):
 
         class ODetailView(view):
 
+            def get_form_kwargs(self):
+                form_kwargs = super().get_form_kwargs()
+                form_kwargs.update(
+                    {
+                        "user": self.request.user,
+                    }
+                )
+                return form_kwargs
+
             def get_template_names(self):
                 template = 'detail.html'
                 template_partial = 'detail_partial.html'
@@ -460,6 +469,7 @@ class CommonCRUDView(CRUDView):
                     'hx-swap': self.hx_swap,
                     'hx_retarget': self.hx_retarget,
                     'hx_reswap': self.hx_reswap,
+                    'modal': self.modal,
                 })
                 if 'pk' in kwargs:
                     obj = self.model.objects.get(id=self.kwargs['pk'])
