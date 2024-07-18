@@ -7,7 +7,9 @@ from datetime import datetime
 import sweetify
 from crispy_forms.templatetags.crispy_forms_filters import as_crispy_field
 from django.db import IntegrityError
-from django.db.models import Max, ProtectedError
+from django.db.models import F, Value, DecimalField, Sum, Max
+from django.db.models import ProtectedError
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
@@ -548,7 +550,7 @@ def confirmar_documento(request, pk):
         sweetify.success(request, title, text=text, persistent=True)
     else:
         title = 'No puede ser confrimado el documento '
-        text = 'No tiene detalles asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
+        text = 'No tiene productos asociados' if detalles_count <= 0 else 'Existen documentos anteriores a él sin Confirmar'
         text = 'Este documento contiene errores' if obj.error else text
         sweetify.error(request, title + obj.__str__() + ' (' + str(obj.numeroconsecutivo) + ') ' + '!', text=text,
                        persistent=True)
@@ -723,7 +725,7 @@ def valida_existencia_producto(doc, producto, estado, cantidad):
             'documento__departamento': departamento, 'producto': producto, 'estado': estado, 'documento__ueb': ueb}
 
     docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-    total_anterior = dame_valor_anterior(doc.numeroconsecutivo, docs_en_edicion)
+    total_anterior, hay_error = dame_valor_anterior(doc.numeroconsecutivo, docs_en_edicion)
 
     # se actualiza la existencia del producto en el detalle actual
     existencia_product = float(cantidad_existencia) + float(cantidad) * operacion + float(total_anterior)
@@ -857,16 +859,19 @@ def rechazar_documento(request, pk):
 
     # Si al rechazar un documento este genera otro documento
     # Para los tipos de documentos
-    # -Transferencia desde departamento (si se rechaza genera Devolución Recibida en el dpto que realizó la transf)
+    # -Transferencia desde departamento, Devolución Recibida (si se rechaza genera Devolución Recibida en el dpto que realizó la transf o dev)
     match doc.tipodocumento.pk:
         case ChoiceTiposDoc.TRANSF_DESDE_DPTO:
-            new_tipo = ChoiceTiposDoc.DEVOLUCION_RECIBIDA
             departamento_destino = doc.documentotransfdepartamentorecibida_documento.get().documentoorigen.departamento
-            new_doc = crea_documento_generado(doc.ueb, departamento_destino, new_tipo, doc)
-            crea_detalles_generado(new_doc, detalles)
-            DocumentoDevolucion.objects.create(documento=new_doc)
+        case ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
+            departamento_destino = doc.documentodevolucionrecibida_documento.get().documentoorigen.departamento
 
-    title = 'Documento rechazo'
+    new_tipo = ChoiceTiposDoc.DEVOLUCION_RECIBIDA
+    new_doc = crea_documento_generado(doc.ueb, departamento_destino, new_tipo, doc)
+    crea_detalles_generado(new_doc, detalles)
+    DocumentoDevolucionRecibida.objects.create(documento=new_doc, documentoorigen=doc)
+
+    title = 'Documento rechazado'
     text = 'El Documento %s - %s se rechazó satisfactoriamente !' % (doc.numeroconsecutivo, doc.tipodocumento)
     sweetify.success(request, title, text=text, persistent=True)
 

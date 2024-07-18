@@ -1,5 +1,5 @@
 {% load departamento_tags %}
-{% if object.fila %} {% not_in object.fila "['1', '1.1', '1.2']" as is_not_in %}  {% else %} {% not_in object.tipodocumento.pk "[4]" as is_not_in %} {% endif %}
+{% if object.fila %} {% not_in object.fila "['1', '1.1', '1.2']" as is_not_in %}  {% else %} {% not_in object.tipodocumento.pk "[4, 13]" as is_not_in %} {% endif %}
 {% include 'cruds/actions/acept_button.html' %}
 {% if inlines %}
     {% include 'cruds/actions/acept_and_add_inline_button.html' %}
