@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from codificadores.models import UnidadContable, Medida, MedidaConversion, MarcaSalida, CentroCosto, Cuenta, \
     Departamento, CambioProducto, NumeracionDocumentos, MotivoAjuste, ConfCentrosElementosOtros, \
-    ConfCentrosElementosOtrosDetalle, NormaConsumo, ClasificadorCargos, FichaCostoFilas
+    ConfCentrosElementosOtrosDetalle, NormaConsumo, ClasificadorCargos, FichaCostoFilas, ConfiguracionesGen
 from cruds_adminlte3.utils import crud_url_name
 from utiles.decorators import adminempresa_required
 from utiles.utils import message_success, message_error, message_warning
@@ -89,6 +89,10 @@ def all_conf_exportar(request):
 @adminempresa_required
 def filafichacosto_exportar(request):
     return crear_export_datos(request, 'FILAS_FICHA', FichaCostoFilas)
+
+@adminempresa_required
+def configuracionesgen_exportar(request):
+    return crear_export_datos(request, 'CONFIG_GEN', ConfiguracionesGen)
 
 def valida_datos_exportar(request):
 

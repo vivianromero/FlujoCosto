@@ -24,6 +24,7 @@ producto_capas_pesadas_crud = views.ProductsCapasClaPesadasCRUD()
 tipodocumento_crud = views.TipoDocumentoCRUD()
 clasificadorcargos_crud = views.ClasificadorCargosCRUD()
 filasfichacosto_crud = views.FichaCostoFilasCRUD()
+configuraciones_gen_crud = views.ConfiguracionesGenCRUD()
 
 app_name = 'codificadores'
 
@@ -70,4 +71,5 @@ urlpatterns = [
     path('fila_encabezado/', views.fila_encabezado, name='fila_encabezado'),
     path('fila_calculado/', views.fila_calculado, name='fila_calculado'),
     path('fila_desglosado/', views.fila_desglosado, name='fila_desglosado'),
+    path("", include(configuraciones_gen_crud.get_urls())),
 ]

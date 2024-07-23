@@ -15,7 +15,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
-import settings
+from django.conf import settings
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import *
@@ -256,10 +256,12 @@ class DocumentoCRUD(CommonCRUDView):
                     deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
                     departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
                 dpto = Departamento.objects.get(pk=departamento)
-                fecha_procesamiento = date.today().replace(day=1)
-                fecha_periodo = dpto.fechaperiodo_departamento.all()
-                if fecha_periodo.exists():
-                    fecha_procesamiento = fecha_periodo[0].fecha
+                if settings.FECHAS_PROCESAMIENTO and self.request.user.ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                        settings.FECHAS_PROCESAMIENTO[self.request.user.ueb].keys():
+                    fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[self.request.user.ueb][dpto][
+                        'fecha_procesamiento']
+                else:
+                    fecha_procesamiento = date.today().replace(day=1)
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 form_kwargs.update(
                     {
@@ -373,6 +375,7 @@ class DocumentoCRUD(CommonCRUDView):
                 formating = '%d/%m/%Y'
                 self.dep = self.request.GET.get('departamento', None)
                 rango_fecha = self.request.GET.get('rango_fecha', None)
+                queryset = queryset.filter(ueb=self.request.user.ueb)
                 if self.dep is not None and self.dep != '':
                     qdict['departamento'] = self.dep
                 if self.dep == '' or self.dep is None:
@@ -539,15 +542,29 @@ def confirmar_documento(request, pk):
         obj.save()
 
         # crear el documento de entrada en el destino
-        if obj.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
-            new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
-            departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
-            new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo, obj)
+        match obj.tipodocumento.pk:
+            case ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
+                departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
+                new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo)
 
-            departamento_origen = departamento
-            DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
+                departamento_origen = departamento
+                DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
+                crea_detalles_generado(new_doc, detalles)
+            case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+                        settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
+                    new_tipo = ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA
+                    ueb = obj.documentotransfext_documento.get().unidadcontable
+                    destino = obj.documentotransfextdptodest_documento.get()
+                    destino = destino.departamento_destino if destino else destino
+                    new_doc = crea_documento_generado(ueb, destino, new_tipo)
 
-            crea_detalles_generado(new_doc, detalles)
+                    DocumentoTransfExternaRecibidaDocOrigen.objects.create(documento=new_doc, documentoorigen=obj)
+
+                DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
+                crea_detalles_generado(new_doc, detalles)
+
         title = 'Confirmación terminada'
         text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
         sweetify.success(request, title, text=text, persistent=True)
@@ -569,7 +586,7 @@ def confirmar_documento(request, pk):
     )
 
 
-def crea_documento_generado(ueb, departamento, tipodoc, doc_origen):
+def crea_documento_generado(ueb, departamento, tipodoc):
     numeros = genera_numero_doc(departamento, ueb, tipodoc)
     numerocontrol = str(numeros[1][0]) if not numeros[1][2] else str(numeros[1][0]) + '/' + str(numeros[1][2])
     numeroconsecutivo = numeros[0][0]
@@ -685,7 +702,7 @@ def dame_documentos_versat(request, dpto):
         if not dpto.inicializado(unidadcontable):
             return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
-        fecha_periodo = dpto.fechaperiodo_departamento.all()[0].fecha
+        fecha_periodo = settings.FECHAS_PROCESAMIENTO[unidadcontable][dpto]['fecha_procesamiento']
         fecha_mes_procesamiento = str(fecha_periodo.year) + '-' + str(fecha_periodo.month) + '-01'
 
         param = {'fecha_desde': fecha_mes_procesamiento,
@@ -794,7 +811,7 @@ def aceptar_documento_versat(kwargs):
 
         new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
         departamento = Departamento.objects.get(pk=departamento)
-        new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo, None)
+        new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo)
 
         for p in prods:
             detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
@@ -863,14 +880,21 @@ def rechazar_documento(request, pk):
     # Si al rechazar un documento este genera otro documento
     # Para los tipos de documentos
     # -Transferencia desde departamento, Devolución Recibida (si se rechaza genera Devolución Recibida en el dpto que realizó la transf o dev)
+    ueb = doc.ueb
     match doc.tipodocumento.pk:
         case ChoiceTiposDoc.TRANSF_DESDE_DPTO:
             departamento_destino = doc.documentotransfdepartamentorecibida_documento.get().documentoorigen.departamento
         case ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
-            departamento_destino = doc.documentodevolucionrecibida_documento.get().documentoorigen.departamento
+            origen = doc.documentodevolucionrecibida_documento.get()
+            departamento_destino = origen.documentoorigen.departamento
+            ueb = origen.documentoorigen.ueb
+        case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
+            ueb = doc.documentotransfextrecibida_documento.get().unidadcontable
+            destino = doc.documentotransfextrecibidadocorigen_documento.get()
+            departamento_destino = destino.documentoorigen.departamento if destino else destino
 
     new_tipo = ChoiceTiposDoc.DEVOLUCION_RECIBIDA
-    new_doc = crea_documento_generado(doc.ueb, departamento_destino, new_tipo, doc)
+    new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo)
     crea_detalles_generado(new_doc, detalles)
     DocumentoDevolucionRecibida.objects.create(documento=new_doc, documentoorigen=doc)
 
@@ -1008,3 +1032,37 @@ def dame_precio_salida(producto, estado, doc):
 
     precio = importe_total / cantidad_total if cantidad_total > 0 else 0.00
     return round(precio, 7)
+
+
+def departamentosueb(request):
+    print('entre')
+    ueb = request.GET.get('ueb_destino')
+
+    unidad = UnidadContable.objects.get(pk=ueb)
+    departamento = Departamento.objects.filter(unidadcontable=unidad)
+    dptos_no_inicializados = [x.pk for x in departamento if
+                              not x.fechainicio_departamento.filter(
+                                  ueb=ueb).all().exists()]
+
+    departamento = departamento.exclude(pk__in=dptos_no_inicializados)
+    data = {
+        'departamento_destino': departamento,
+    }
+    form = DocumentoForm(data)
+    form.fields['departamento_destino'].widget.attrs.update({
+        'style': 'display: block;',
+    })
+    form.fields['departamento_destino'].label = 'Departamento Destino'
+    form.fields['departamento_destino'].required = True
+    form.fields['departamento_destino'].queryset = departamento
+    form.fields["departamento_destino"].widget.attrs = {
+        'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+        'hx-target': '#div_id_departamento_destino',
+        'hx-trigger': 'change from:#div_id_ueb_destino',
+        'hx-include': '[name="ueb_destino"]',
+        'readonly': True}
+    response = HttpResponse(
+        as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response

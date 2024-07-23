@@ -22,5 +22,6 @@ urlpatterns = [
     path('nc_importar/', views.nc_importar, name='nc_importar'),
     path('clacargos_importar/', views.clacargos_importar, name='clacargos_importar'),
     path('filafichacosto_importar/', views.filafichacosto_importar, name='filafichacosto_importar'),
+    path('configuracionesgen_importar/', views.configuracionesgen_importar, name='configuracionesgen_importar'),
 ]
 

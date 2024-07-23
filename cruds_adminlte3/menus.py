@@ -203,6 +203,13 @@ MENUS = {
                     ]
                 },
                 {
+                    "id": 'id_nav_link_config_gen',
+                    "name": "Otras Configuraciones",
+                    "icon_class": 'fa fa-university',
+                    "url": crud_url_name(ConfiguracionesGen, 'list','app_index:codificadores:'),
+                    "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
+                },
+                {
                     "id": 'id_nav_link_export_all_config',
                     "name": "Exportar todas las Configuraciones",
                     "icon_class": 'fa fa-university',

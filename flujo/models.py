@@ -192,7 +192,8 @@ class DocumentoTransfDepartamentoRecibida(models.Model):
 
 class DocumentoTransfExterna(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, related_name='documentotransfext_documento')
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='documentotransfext_documento')
+    # departamento_destino = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='documentotransfext_departamento_destino', default=None)
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                        related_name='documentotransfext_unidadcontable')
 
@@ -204,8 +205,8 @@ class DocumentoTransfExternaDptoDestino(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     documentotransfext = models.ForeignKey(Documento, on_delete=models.CASCADE,
                                            related_name='documentotransfextdptodest_documento')
-    dptodestino = models.ForeignKey(Departamento, on_delete=models.PROTECT,
-                                    related_name='documentotransfextdptodest_dptodest')
+    departamento_destino = models.ForeignKey(Departamento, on_delete=models.PROTECT,
+                                    related_name='documentotransfext_departamento_destino')
 
     class Meta:
         db_table = 'fp_documentotransfexternadptodestino'
@@ -214,7 +215,7 @@ class DocumentoTransfExternaDptoDestino(models.Model):
 # transf hacia recibida desde otra unidad contable
 class DocumentoTransfExternaRecibida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    documento = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE,
                                   related_name='documentotransfextrecibida_documento')
     unidadcontable = models.ForeignKey(UnidadContable, on_delete=models.PROTECT,
                                        related_name='documentotransfextrecibida_unidadcontable')
@@ -227,9 +228,9 @@ class DocumentoTransfExternaRecibida(models.Model):
 # SI LA BD NO ES UNICA EL DATO DEL ID DOCUMENTO NO EXISTE Y NO SE PUEDE DEFINIR LA UNIDAD CONTABLE ORIGEN.
 class DocumentoTransfExternaRecibidaDocOrigen(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    documentoorigen = models.ForeignKey(DocumentoTransfExternaRecibida, on_delete=models.CASCADE,
+    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, default=None,
                                         related_name='documentotransfextrecibidadocorigen_documento')
-    documentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT,
+    documentoorigen = models.ForeignKey(Documento, on_delete=models.PROTECT, default=None,
                                         related_name='documentotransfextrecibida_documentoorigen')
 
     class Meta:
