@@ -1035,10 +1035,8 @@ def dame_precio_salida(producto, estado, doc):
 
 
 def departamentosueb(request):
-    print('entre')
     ueb = request.GET.get('ueb_destino')
-
-    unidad = UnidadContable.objects.get(pk=ueb)
+    unidad = None if not ueb else UnidadContable.objects.get(pk=ueb)
     departamento = Departamento.objects.filter(unidadcontable=unidad)
     dptos_no_inicializados = [x.pk for x in departamento if
                               not x.fechainicio_departamento.filter(
