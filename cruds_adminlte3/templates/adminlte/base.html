@@ -29,7 +29,11 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="hold-transition skin-blue sidebar-mini sidebar-collapse layout-footer-fixed layout-navbar-fixed {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}" hx-ext="head-support">
+<body
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        class="hold-transition skin-blue sidebar-collapse layout-footer-fixed layout-navbar-fixed layout-top-nav
+        {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}"
+        hx-ext="head-support">
 {% block body %}
 <section>
 <div class="wrapper" hx-history-elt>
@@ -38,7 +42,7 @@
   {% endblock nav_header %}
 
   {% block nav_sidebar %}
-  {% include 'adminlte/lib/_main_sidebar.html' %}
+{#  {% include 'adminlte/lib/_main_sidebar.html' %}#}
   {% endblock nav_sidebar %}
 
   {% block content_wrapper %}
@@ -176,45 +180,47 @@
             }
         })
 
-      htmx.on("htmx:beforeSwap", (e) => {
-        // Empty response targeting #dialog => hide the modal
-        if (e.detail.target.id === "dialog" && !e.detail.xhr.response) {
-          modal.hide()
-          e.detail.shouldSwap = false
-        }
-      })
+        htmx.on("htmx:beforeSwap", (e) => {
+            // Empty response targeting #dialog => hide the modal
+            if (e.detail.target.id === "dialog" && !e.detail.xhr.response) {
+                modal.hide()
+                e.detail.shouldSwap = false
+            }
+        })
 
-      // Remove dialog content after hiding
-      htmx.on("hidden.bs.modal", () => {
-        document.getElementById("dialog").innerHTML = ""
-      })
+        // Remove dialog content after hiding
+        htmx.on("hidden.bs.modal", () => {
+            document.getElementById("dialog").innerHTML = ""
+        })
+
+
     })()
-    function update_sidebar(params) {
-        console.log(params)
-        params = params.toLowerCase();
-
-        if (params !== "/") {
-            $(".nav-sidebar li a").each(function (i) {
-                let obj = this;
-                let url = $(this).attr("href");
-                if (url === "" || url === "#") {
-                    return true;
-                }
-                url = url.toLowerCase();
-                if (url.indexOf(params) > -1) {
-                    $(this).parent().addClass("active open menu-open");
-                    $(this).parent().parent().addClass("active open menu-open");
-                    $(this).parent().parent().parent().addClass("active open menu-open");
-                    $(this).parent().parent().parent().parent().addClass("active open menu-open");
-                    $(this).parent().parent().parent().parent().parent().addClass("active open menu-open");
-                    return false;
-                }
-            });
-        }
-    }
-    $(function () {
-        update_sidebar(window.location.pathname)
-    });
+    {#function update_sidebar(params) {#}
+    {#    console.log(params)#}
+    {#    params = params.toLowerCase();#}
+    {##}
+    {#    if (params !== "/") {#}
+    {#        $(".nav-sidebar li a").each(function (i) {#}
+    {#            let obj = this;#}
+    {#            let url = $(this).attr("href");#}
+    {#            if (url === "" || url === "#") {#}
+    {#                return true;#}
+    {#            }#}
+    {#            url = url.toLowerCase();#}
+    {#            if (url.indexOf(params) > -1) {#}
+    {#                $(this).parent().addClass("active open menu-open");#}
+    {#                $(this).parent().parent().addClass("active open menu-open");#}
+    {#                $(this).parent().parent().parent().addClass("active open menu-open");#}
+    {#                $(this).parent().parent().parent().parent().addClass("active open menu-open");#}
+    {#                $(this).parent().parent().parent().parent().parent().addClass("active open menu-open");#}
+    {#                return false;#}
+    {#            }#}
+    {#        });#}
+    {#    }#}
+    {#}#}
+    {#$(function () {#}
+    {#    update_sidebar(window.location.pathname)#}
+    {#});#}
 </script>
 
 </body>

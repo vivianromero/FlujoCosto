@@ -436,14 +436,13 @@ def get_current_record_htmx(model, current_url_abs_path):
 
 def get_data(data):
     text = "<ul>"
-    for k, v in data.items():
-        for el in k:
-            # element = el['name']
-            text += f'<li>{el}</li>'
-        if isinstance(v, dict):
-            text += get_data(v)  # recursively calling to get the lists
-        else:  # this else block can be removed if you don't need it
-            text += f'<li>{v}</li>'
+    for el in data:
+        element = el['name']
+        text += f'<li>{element}</li>'
+        if 'submenu' in el:
+            text += get_data(el['submenu'])  # recursively calling to get the lists
+        # else:  # this else block can be removed if you don't need it
+        #     text += f'<li>{v}</li>'
     text += "</ul>"
     return text
 
