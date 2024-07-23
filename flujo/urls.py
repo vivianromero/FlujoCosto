@@ -12,4 +12,5 @@ urlpatterns = [
     path(r"^(?P<pk>\d+)/inicializar_dep/$", views.inicializar_departamento, name='codificadores_departamento_inicializar'),
     path("obtener_documento_versat/", views.ObtenerDocumentoVersatModalFormView.as_view(), name='obtener_documento_versat'),
     path('precioproducto/', views.precioproducto, name='precioproducto'),
+    path('departamentosueb/', views.departamentosueb, name='departamentosueb'),
 ]

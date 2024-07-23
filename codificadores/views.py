@@ -362,19 +362,7 @@ class NormaConsumoDetalleHtmxCRUD(InlineHtmxCRUD):
                     # Maneja el error de integridad (duplicación de campos únicos)
                     mess_error = self.integrity_error
                     form.add_error(None, mess_error)
-                    # return super().form_valid(form)
-                # return HttpResponseLocation(
-                #     self.get_success_url(),
-                #     target=target,
-                #     headers={
-                #         'HX-Trigger': self.request.htmx.trigger,
-                #         'HX-Trigger-Name': self.request.htmx.trigger_name,
-                #         'event_action': event_action,
-                #     },
-                #     values={
-                #         'event_action': event_action,
-                #     }
-                # )
+
                 return super().form_valid(form)
 
         return UpdateView
@@ -566,14 +554,6 @@ class NormaConsumoCRUD(CommonCRUDView):
                     self.inline_tables[0].update({
                         "table": NormaConsumoDetalleTable(data),
                     })
-                    # for inline in self.inline_tables:
-                    #     mdl = inline.model
-                    #     base_mdl = inline.base_model
-                    #     inline_field = inline.inline_field
-                    #     filter_id = inline.inline_field + '__id'
-                    #     filter_dict = {filter_id: self.kwargs['pk']}
-                    #     inline.object_list = inline.model.objects.filter(**filter_dict)
-                    #     inline.table = inline.table_class(inline.object_list)
                 else:
                     inline_object_list = None
                     table = None
@@ -2300,3 +2280,55 @@ def fila_calculado(request):
         'filasumarselecc': filasumarselecc,
     }
     return render(request, 'app_index/partials/filasfichacostocalculado.html', context)
+
+class ConfiguracionesGenCRUD(CommonCRUDView):
+    model = ConfiguracionesGen
+
+    namespace = 'app_index:codificadores'
+
+    fields = [
+        'clave',
+        'activo',
+    ]
+
+    search_fields = [
+    ]
+
+    add_form = ConfiguracionesGenForm
+    update_form = ConfiguracionesGenForm
+
+    list_fields = fields
+
+    # Table settings
+    table_class = ConfiguracionesGenTable
+
+    def get_filter_list_view(self):
+        view = super().get_filter_list_view()
+
+        class OFilterListView(view):
+            def get_context_data(self, *, object_list=None, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context.update({
+                    'filter': False,
+                    'url_importar': 'app_index:importar:configuracionesgen_importar',
+                    'url_exportar': 'app_index:exportar:configuracionesgen_exportar',
+                })
+                return context
+        return OFilterListView
+
+
+    def get_delete_view(self):
+        delete_view = super().get_delete_view()
+
+        class DeleteView(delete_view):
+
+            def post(self, request, *args, **kwargs):
+                obj = get_object_or_404(ConfiguracionesGen, pk=kwargs['pk'])
+                if obj.clave == 'Sistema Centralizado':
+                    tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
+                    tipo.generado = False
+                    tipo.save()
+                response = delete_view.post(self, request, *args, **kwargs)
+                return HttpResponseRedirect(self.get_success_url())
+
+        return DeleteView

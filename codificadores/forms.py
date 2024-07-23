@@ -6,7 +6,7 @@ from crispy_forms.bootstrap import (
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, HTML, Div
 from django import forms
-from django.db.models import Q
+from django.conf import settings
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
@@ -17,8 +17,8 @@ from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
 from cruds_adminlte3.widgets import SelectWidget
+from utiles.utils import obtener_numero_fila, get_otras_configuraciones
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-from utiles.utils import obtener_numero_fila
 
 
 class UpperField(forms.CharField):
@@ -858,21 +858,24 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'hx-include': "[name='codigo'], [name='rendimientocapa']",
         }
 
-        self.fields["clase"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Clase Mat. Prima'
+        self.fields[
+            "clase"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Clase Mat. Prima'
         self.fields["clase"].required = instance.tipoproducto.pk == ChoiceTiposProd.MATERIAPRIMA
 
         self.fields["precio_lop"].widget.attrs = {
             "min": 0.0000, "step": 0.0001,
             "style": 'display:none' if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'dispay',
         }
-        self.fields["precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
+        self.fields[
+            "precio_lop"].label = "" if instance.tipoproducto.pk != ChoiceTiposProd.MATERIAPRIMA else 'Precio LOP'
 
         clamapprima = instance.get_clasemateriaprima
         self.fields["rendimientocapa"].widget.attrs = {
             "min": 0, "step": 1,
             "style": 'display:none' if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'dispay'
         }
-        self.fields["rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
+        self.fields[
+            "rendimientocapa"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Rendimiento x Millar'
         self.fields["rendimientocapa"].required = False
 
         self.fields["vitolas"].widget.attrs = {
@@ -883,7 +886,8 @@ class ProductoFlujoUpdateForm(forms.ModelForm):
             'hx-trigger': 'change from:#div_id_clase, change from:#div_id_tipoproducto',
             'hx-include': '[name="clase"], [name="codigo"], [name="tipoproducto"]',
         }
-        self.fields["vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
+        self.fields[
+            "vitolas"].label = "" if not clamapprima or clamapprima.pk != ChoiceClasesMatPrima.CAPASINCLASIFICAR else 'Vitolas'
         self.fields["vitolas"].required = False
 
         self.helper.layout = Layout(
@@ -2764,16 +2768,11 @@ class ClasificadorCargosForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_tag = False
 
-        # self.fields["nr_media"].widget.attrs = {
-        #     'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
-        #     'hx-target': '#div_id_nr_media',
-        #     'hx-trigger': 'change from:#div_id_vinculo_produccion',
-        #     'hx-include': '[name="vinculo_produccion"]',
-        # }
-
-        self.fields["norma_tiempo"].widget.attrs = {'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'), 'hx-target': '#div_id_norma_tiempo',
+        self.fields["norma_tiempo"].widget.attrs = {'hx-get': reverse_lazy('app_index:codificadores:calcula_nt'),
+                                                    'hx-target': '#div_id_norma_tiempo',
                                                     'hx-trigger': 'change from:#div_id_vinculo_produccion, change from:#div_id_nr_media',
-                                                    'hx-include': '[name="nr_media"], [name="vinculo_produccion"]', 'readonly': True}
+                                                    'hx-include': '[name="nr_media"], [name="vinculo_produccion"]',
+                                                    'readonly': True}
 
         self.fields["nr_media"].widget.attrs = {"min": 0, "step": 1,
                                                 'hx-get': reverse_lazy('app_index:codificadores:cargonorma'),
@@ -2796,7 +2795,8 @@ class ClasificadorCargosForm(forms.ModelForm):
                     ),
                     Row(
                         Column('vinculo_produccion', css_class='form-group col-md-4 mb-0'),
-                        Column(Field('nr_media', data_inputmask="'alias': 'integer'"), css_class='form-group col-md-4 mb-0'),
+                        Column(Field('nr_media', data_inputmask="'alias': 'integer'"),
+                               css_class='form-group col-md-4 mb-0'),
                         Column('norma_tiempo', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
@@ -3125,3 +3125,59 @@ class FichaCostoFilasFormFilter(forms.Form):
         context['width_right_sidebar'] = '760px'
         context['height_right_sidebar'] = '505px'
         return context
+
+
+# ------------ Configuraciones Generales / Form ------------
+class ConfiguracionesGenForm(forms.ModelForm):
+    class Meta:
+        model = ConfiguracionesGen
+        fields = [
+            'clave',
+            'activo',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ConfiguracionesGenForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_id = 'id_configuracionesgen_Form'
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    'Configuración General',
+                    Row(
+                        Column('clave', css_class='form-group col-md-8 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('activo', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+                ),
+
+            ),
+        )
+        self.helper.layout.append(
+            FormActions(
+                HTML(
+                    get_template('cruds/actions/hx_common_form_actions.html').template.source
+                )
+            )
+        )
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            instance = super().save(commit=True)
+            clave = self.cleaned_data.get('clave')
+            valor = self.cleaned_data.get('activo')
+            if clave == 'Sistema Centralizado':
+                tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
+                tipo.generado = valor
+                tipo.save()
+                settings.OTRAS_CONFIGURACIONES = get_otras_configuraciones()
+        return instance

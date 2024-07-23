@@ -378,3 +378,12 @@ class FichaCostoFilasTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
             'calculado',
             'filasasumar',
         )
+
+class ConfiguracionesGenTable(CommonColumnShiftTableBootstrap4ResponsiveActions):
+    class Meta(CommonColumnShiftTableBootstrap4ResponsiveActions.Meta):
+        model = ConfiguracionesGen
+
+        fields = (
+            'clave',
+            'activo',
+        )

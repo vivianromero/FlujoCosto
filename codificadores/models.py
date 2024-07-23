@@ -432,7 +432,7 @@ class Departamento(ObjectsManagerAbstract):
         return self.descripcion
 
     def inicializado(self, ueb):
-        return False if not self else False if not self.fechainicio_departamento.all() else True
+        return False if not self else False if not self.fechainicio_departamento.filter(ueb=ueb) else True
         # return False if not FechaInicio.objects.filter(departamento=self, ueb=ueb).first() else True
 
 
@@ -946,3 +946,29 @@ class FechaInicio(models.Model):
                 ]
             ),
         ]
+
+class ConfiguracionesGen(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    clave = models.CharField(unique=True, max_length=100, verbose_name=_("Clave"))
+    activo = models.BooleanField(default=True, verbose_name=_("Activo"))
+
+    class Meta:
+        db_table = 'cla_configuracionesgen'
+        indexes = [
+            models.Index(
+                fields=[
+                    'clave',
+                ]
+            ),
+        ]
+
+    def __str__(self):
+        return self.clave
+
+    def to_dict(self):
+        return {
+            "clave": self.clave,
+            'activo': self.activo,
+        }
+
+
