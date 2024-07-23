@@ -132,10 +132,15 @@ class DocumentoForm(forms.ModelForm):
         self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
             pk=instance.pk).numeroconsecutivo
 
+        self.es_centralizado = True if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+                                       settings.OTRAS_CONFIGURACIONES[
+                                           'Sistema Centralizado']['activo'] == True else False
+
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
             self.fields['ueb'].widget.enabled_choices = [self.user.ueb]
         if instance:
+            self.tipo_doc = instance.tipodocumento.pk
             self.fields['fecha'].initial = self.fecha_procesamiento
             self.fields['fecha'].widget.attrs['readonly'] = True
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
@@ -252,16 +257,12 @@ class DocumentoForm(forms.ModelForm):
                     self.destino_dpto = True
                     dptos_no_inicializados = []
                     dicc = {'unidadcontable': None}
-                    self.es_centralizado = False
                     es_requerido = True
                     if int(self.tipo_doc) == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
                         dicc['unidadcontable'] = self.user.ueb
                         dicc['relaciondepartamento'] = self.departamento
                     elif int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
                         dicc['unidadcontable'] = None
-                        self.es_centralizado = True if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                                                       settings.OTRAS_CONFIGURACIONES[
-                                                           'Sistema Centralizado']['activo'] == True else False
                         es_requerido = self.es_centralizado
                         self.destino_dpto = es_requerido
                     destino_queryset = self.fields['departamento_destino'].queryset.filter(**dicc)
@@ -296,13 +297,13 @@ class DocumentoForm(forms.ModelForm):
                     self.fields['ueb_origen'].disabled = False
                     self.fields['ueb_origen'].required = True
 
-            if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
-                self.fields["departamento_destino"].widget.attrs = {
-                    'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
-                    'hx-target': '#div_id_departamento_destino',
-                    'hx-trigger': 'change from:#div_id_ueb_destino',
-                    'hx-include': '[name="ueb_destino"]',
-                    'readonly': True}
+        if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
+            self.fields["departamento_destino"].widget.attrs = {
+                'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                'hx-target': '#div_id_departamento_destino',
+                'hx-trigger': 'change from:#div_id_ueb_destino',
+                'hx-include': '[name="ueb_destino"]',
+                'readonly': True}
 
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_form'
