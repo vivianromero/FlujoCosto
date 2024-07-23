@@ -1046,6 +1046,7 @@ def departamentosueb(request):
     data = {
         'departamento_destino': departamento,
     }
+
     form = DocumentoForm(data)
     form.fields['departamento_destino'].widget.attrs.update({
         'style': 'display: block;',
