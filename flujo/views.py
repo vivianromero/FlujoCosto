@@ -1056,7 +1056,10 @@ def departamentosueb(request):
                                   ueb=ueb).all().exists()]
 
     dep = request.GET.get('departamento_destino', None)
-    dep_initial = Departamento.objects.filter(pk=dep) if dep else None
+    if dep in dptos_no_inicializados:
+        dep_initial = Departamento.objects.filter(pk=dep) if dep else None
+    else:
+        dep_initial = dptos_no_inicializados[0]
 
     departamento = departamento.exclude(pk__in=dptos_no_inicializados)
     if dep_initial:
@@ -1074,7 +1077,7 @@ def departamentosueb(request):
     form.fields['departamento_destino'].label = 'Departamento Destino'
     form.fields['departamento_destino'].required = True
     form.fields['departamento_destino'].queryset = departamento
-    form.fields['departamento_destino'].initial = dep_initial
+    # form.fields['departamento_destino'].initial = dep_initial
     form.fields["departamento_destino"].widget.attrs = {
         'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
         'hx-target': '#div_id_departamento_destino',

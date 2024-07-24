@@ -162,7 +162,12 @@ class DocumentoForm(forms.ModelForm):
                     dicc['relaciondepartamento'] = instance.departamento
                     destino = DocumentoTransfDepartamento.objects.get(documento=instance).departamento
                 elif instance.tipodocumento.pk == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
-                    dicc['unidadcontable'] = instance.documentotransfext_documento.get().unidadcontable
+                    if data:
+                        dicc['unidadcontable'] = data.get('ueb_destino')
+                    else:
+                        dicc['unidadcontable'] = instance.documentotransfext_documento.get().unidadcontable
+
+
                     destino = instance.documentotransfextdptodest_documento.get()
                     destino = destino.departamento_destino if destino else destino
 
@@ -170,7 +175,7 @@ class DocumentoForm(forms.ModelForm):
                 dptos_no_inicializados = [
                     x.pk for x in destino_queryset if not x.fechainicio_departamento.filter(ueb=dicc['unidadcontable']).all().exists()
                 ]
-
+                self.fields['ueb_destino'].required = True
                 self.fields['departamento_destino'].queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
                 self.fields['departamento_destino'].initial = destino
                 self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
@@ -206,7 +211,7 @@ class DocumentoForm(forms.ModelForm):
 
                 self.fields['ueb_origen'].initial = origen
                 if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                        settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
+                        settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] is True:
                     self.fields['ueb_origen'].widget.enabled_choices = [origen]
                 self.fields['ueb_origen'].widget.attrs = {'style': 'width: 100%;', }
                 self.fields['ueb_origen'].label = "U.E.B Origen"
@@ -222,7 +227,7 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['ueb_destino'].widget.attrs = {'style': 'width: 100%;', }
                 self.fields['ueb_destino'].label = "U.E.B Destino"
                 self.fields['ueb_destino'].disabled = False
-                self.fields['ueb_destino'].required = False
+                self.fields['ueb_destino'].required = True
 
             if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
                 self.fields["departamento_destino"].widget.attrs = {
@@ -231,6 +236,9 @@ class DocumentoForm(forms.ModelForm):
                     'hx-trigger': 'change from:#div_id_ueb_destino',
                     'hx-include': '[name="ueb_destino"]',
                     'readonly': True}
+                self.fields['departamento_destino'].disabled = False
+                self.fields['departamento_destino'].required = True
+
         elif data:
             self.fields['departamento'].widget.enabled_choices = [data.get('departamento', None)]
             self.fields['tipodocumento'].widget.enabled_choices = [data.get('tipodocumento', None)]
@@ -849,10 +857,10 @@ class DocumentoDetalleForm(forms.ModelForm):
             self.fields['estado_destino'].required = True
 
             self.fields["producto_destino"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
-                                                  'hx-target': '#div_id_producto_destino',
-                                                  'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
-                                                  'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
-                                                  'readonly': True}
+                                                            'hx-target': '#div_id_producto_destino',
+                                                            'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+                                                            'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
+                                                            'readonly': True}
 
             self.fields["estado_destino"].widget.attrs = {
                 'hx-get': reverse_lazy('app_index:flujo:estadodestino'),
