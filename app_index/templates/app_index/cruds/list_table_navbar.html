@@ -233,21 +233,21 @@
               theme: 'bootstrap4'
             })
             //htmx.on("htmx:afterSettle", (e) => {
-                $( '.dropdown-menu a.dropdown-toggle' ).on( 'click', function ( e ) {
+                $( '.dropdown-menu-documento a.dropdown-toggle' ).on( 'click', function ( e ) {
                     var $el = $( this );
                     console.log($el)
                     $el.toggleClass('active-dropdown');
                     var $parent = $( this ).offsetParent( ".dropdown-menu" );
                     if ( !$( this ).next().hasClass( 'show' ) ) {
-                        $( this ).parents( '.dropdown-menu' ).first().find( '.show' ).removeClass( "show" );
+                        $( this ).parents( '.dropdown-menu-documento' ).first().find( '.show' ).removeClass( "show" );
                     }
-                    var $subMenu = $( this ).next( ".dropdown-menu" );
+                    var $subMenu = $( this ).next( ".dropdown-menu-documento" );
                     $subMenu.toggleClass( 'show' );
             
                     $( this ).parent( "li" ).toggleClass( 'show' );
             
                     $( this ).parents( 'li.nav-item.dropdown.show' ).on( 'hidden.bs.dropdown', function ( e ) {
-                        $( '.dropdown-menu .show' ).removeClass( "show" );
+                        $( '.dropdown-menu-documento .show' ).removeClass( "show" );
                         $el.removeClass('active-dropdown');
                     } );
             
