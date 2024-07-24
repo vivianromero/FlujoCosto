@@ -434,7 +434,6 @@ class DocumentoCRUD(CommonCRUDView):
                             'numeroconsecutivo') > 0 else TipoNumeroDoc.NUMERO_CONTROL]['mensaje_error']
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
-
         return OEditView
 
     def get_delete_view(self):
@@ -1055,21 +1054,10 @@ def departamentosueb(request):
                               not x.fechainicio_departamento.filter(
                                   ueb=ueb).all().exists()]
 
-    dep = request.GET.get('departamento_destino', None)
-    if dep in dptos_no_inicializados:
-        dep_initial = Departamento.objects.filter(pk=dep) if dep else None
-    else:
-        dep_initial = dptos_no_inicializados[0]
-
     departamento = departamento.exclude(pk__in=dptos_no_inicializados)
-    if dep_initial:
-        data = {
-            'departamento_destino': dep_initial,
-        }
-    else:
-        data = {
-            'departamento_destino': departamento,
-        }
+    data = {
+                'departamento_destino': departamento,
+            }
     form = DocumentoForm(data)
     form.fields['departamento_destino'].widget.attrs.update({
         'style': 'display: block;',
@@ -1077,7 +1065,6 @@ def departamentosueb(request):
     form.fields['departamento_destino'].label = 'Departamento Destino'
     form.fields['departamento_destino'].required = True
     form.fields['departamento_destino'].queryset = departamento
-    # form.fields['departamento_destino'].initial = dep_initial
     form.fields["departamento_destino"].widget.attrs = {
         'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
         'hx-target': '#div_id_departamento_destino',
