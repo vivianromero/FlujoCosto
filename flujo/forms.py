@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 from app_index.widgets import MyCustomDateRangeWidget
 from codificadores import ChoiceTiposDoc, ChoiceTiposProd, ChoiceClasesMatPrima
-from codificadores.models import TipoProducto, ClaseMateriaPrima
+from codificadores.models import TipoProducto, ClaseMateriaPrima, CambioProducto, EstadoProducto
 from cruds_adminlte3.utils import crud_url_name
 from cruds_adminlte3.widgets import SelectWidget
 from flujo.models import *
@@ -772,6 +772,24 @@ class DocumentoDetalleForm(forms.ModelForm):
     documento_hidden = forms.CharField(label='', required=False)
     operacion_hidden = forms.CharField(label='', required=False)
 
+    producto_destino = forms.ModelChoiceField(
+        queryset=ProductoFlujo.objects.all(),
+        label="Producto Destino",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        }
+        )
+    )
+
+    estado_destino = forms.ChoiceField(
+        label="Estado",
+        choices=EstadoProducto.choices,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        })
+    )
+
     class Meta:
         model = DocumentoDetalle
         fields = [
@@ -779,6 +797,8 @@ class DocumentoDetalleForm(forms.ModelForm):
             'precio',
             'estado',
             'producto',
+            'producto_destino',
+            'estado_destino',
         ]
 
         widgets = {
@@ -812,6 +832,35 @@ class DocumentoDetalleForm(forms.ModelForm):
 
         super(DocumentoDetalleForm, self).__init__(*args, **kwargs)
         self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
+        self.fields['producto_destino'].label = False
+        self.fields['estado_destino'].label = False
+        if self.documentopadre.tipodocumento.pk == ChoiceTiposDoc.CAMBIO_PRODUCTO:
+            query_origen_producto = self.fields['producto'].queryset
+            ids_origen = [x.productoo.pk for x in CambioProducto.objects.all()]
+            query_origen_producto = query_origen_producto.filter(pk__in=ids_origen)
+            self.fields['producto'].queryset = query_origen_producto
+
+            self.fields['producto_destino'].label = "Producto destino"
+            self.fields['producto_destino'].disabled = False
+            self.fields['producto_destino'].required = True
+
+            self.fields['estado_destino'].label = "Estado"
+            self.fields['estado_destino'].disabled = False
+            self.fields['estado_destino'].required = True
+
+            self.fields["producto_destino"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
+                                                  'hx-target': '#div_id_producto_destino',
+                                                  'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+                                                  'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
+                                                  'readonly': True}
+
+            self.fields["estado_destino"].widget.attrs = {
+                'hx-get': reverse_lazy('app_index:flujo:estadodestino'),
+                'hx-target': '#div_id_estado_destino',
+                'hx-trigger': 'change from:#div_id_estado',
+                'hx-include': '[name="estado"], [name="documento_hidden"]',
+                'readonly': True}
+
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_detalle_form'
         self.helper.form_method = 'post'
@@ -838,6 +887,9 @@ class DocumentoDetalleForm(forms.ModelForm):
                 Column(Field('precio', data_inputmask="'alias': 'decimal', 'digits': 7"),
                        css_class='form-group col-md-2 mb-0',
                        css_id='id_precio_documento_detalle'),
+                Column('producto_destino', css_class='form-group col-md-6 mb-0'),
+                Column('estado_destino', css_class='form-group col-md-2 mb-0',
+                       css_id='id_estado_destino_documento_detalle'),
                 Field('documento_hidden', type="hidden"),
                 Field('operacion_hidden', type="hidden"),
                 css_class='form-row'
@@ -848,17 +900,18 @@ class DocumentoDetalleForm(forms.ModelForm):
     def save(self, commit=True, doc=None, existencia=None):
         if not doc:
             return self.instance
-        instance = super().save(commit=False)
+        # instance = super().save(commit=False)
 
         ueb = doc.ueb
-        producto = instance.producto
-        estado = instance.estado
+        producto = self.instance.producto
+        estado = self.instance.estado
         departamento = doc.departamento
         operacion = doc.operacion
+        self.instance.documento = doc
 
         existencia_actual = (float(instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
-            instance.cantidad) * operacion if not existencia else float(existencia)
-        instance.existencia = float(existencia_actual) + float(instance.cantidad)
+            self.instance.cantidad) * operacion if not existencia else float(existencia)
+        self.instance.existencia = float(existencia_actual) + float(self.instance.cantidad)
 
         # actualizar las existencias de los demás documentos
         # tomo la existencia del producto
@@ -869,16 +922,16 @@ class DocumentoDetalleForm(forms.ModelForm):
         docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
         # se excluyen los documentos que tengan errores para calcular la existencia del producto
         # existencia_product = existencia_producto(docs_en_edicion.filter(documento__error=False), doc, producto, estado, instance.cantidad)
-        existencia_product, hay_error = existencia_producto(docs_en_edicion, doc, producto, estado, instance.cantidad)
+        existencia_product, hay_error = existencia_producto(docs_en_edicion, doc, producto, estado, self.instance.cantidad)
 
-        instance.existencia = existencia_product
-        instance.error = hay_error
+        self.instance.existencia = existencia_product
+        self.instance.error = hay_error
 
         # se van a actualizar las existencias de los doc posteriores que contienen el producto
         # y se dejan los documentos con error para actualizar su existencia
         actualiza_existencias(doc, docs_en_edicion, existencia_product)
 
-        instance.importe = instance.precio * instance.cantidad
+        self.instance.importe = self.instance.precio * self.instance.cantidad
 
         doc_error = False
         if doc.documentodetalle_documento.filter(error=True).exclude(documento=doc).exists() or hay_error:
@@ -887,6 +940,26 @@ class DocumentoDetalleForm(forms.ModelForm):
         doc.error = doc_error
         doc.estado = EstadosDocumentos.EDICION if not doc_error else EstadosDocumentos.ERRORES
         doc.save()
+
+        instance = super().save(commit=True)
+
+        if doc.tipodocumento.pk == ChoiceTiposDoc.CAMBIO_PRODUCTO:
+            product_destino = self.cleaned_data.get('producto_destino')
+            est_destino = self.cleaned_data.get('estado_destino')
+            dicc = {'documento__estado__in': [EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES],
+                    'documento__departamento': departamento, 'producto': product_destino, 'estado': est_destino,
+                    'documento__ueb': ueb}
+            docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
+            existencia, hay_error = existencia_producto(docs_en_edicion, doc, product_destino, est_destino, instance.cantidad, es_cambio=True)
+            if product_destino and est_destino:
+                detalles_producto_destino_update, detalles_producto_destino_create = DocumentoDetalleProducto.objects.update_or_create(
+                    documentodetalle=instance,
+                    defaults={
+                        'producto': product_destino,
+                        'estado': est_destino,
+                        'existencia': existencia,
+                    }
+                )
         return self.instance
 
 

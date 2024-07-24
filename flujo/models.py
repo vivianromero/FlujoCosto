@@ -269,9 +269,12 @@ class DocumentoDetalleProducto(models.Model):
     producto = models.ForeignKey(ProductoFlujo, on_delete=models.PROTECT,
                                  related_name='documentodetalleproducto_producto',
                                  verbose_name=_("Product"))
-    documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.PROTECT,
+    estado = IntegerChoicesField(choices_enum=EstadoProducto, verbose_name=_("Status"), default=EstadoProducto.BUENO)
+    documentodetalle = models.ForeignKey(DocumentoDetalle, on_delete=models.CASCADE,
                                          related_name='documentodetalleproducto_detalle')
-
+    # precio = models.DecimalField(max_digits=18, decimal_places=7, default=0.00,
+    #                              verbose_name=_("Price")
+    #                              )
     class Meta:
         db_table = 'fp_documentodetalleproducto'
 

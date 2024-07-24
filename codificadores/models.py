@@ -721,7 +721,7 @@ class CambioProducto(models.Model):
         verbose_name = "Cambio de Producto"
 
     def __str__(self):
-        return "%s | %s" % (self.productoo, self.productod)
+        return '' if not self.productoo_id else "%s | %s" % (self.productoo, self.productod)
 
 
 # Configurar centros de costos, elementos de gastos

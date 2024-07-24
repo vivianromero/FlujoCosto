@@ -7,7 +7,7 @@ from datetime import datetime
 import sweetify
 from crispy_forms.templatetags.crispy_forms_filters import as_crispy_field
 from django.db import IntegrityError
-from django.db.models import F, Value, DecimalField, Sum, Max
+from django.db.models import DecimalField, Sum, Max
 from django.db.models import ProtectedError
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse, HttpResponseRedirect
@@ -15,7 +15,6 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
-from django.conf import settings
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import *
@@ -773,10 +772,9 @@ def precioproducto(request):
     documento = Documento.objects.get(pk=pk_doc)
     estado = request.GET.get('estado')
 
-    if not producto or not estado or documento.tipodocumento.operacion == OperacionDocumento.ENTRADA:
-        return
+    precio = 0.00 if not producto or not estado or documento.tipodocumento.operacion == OperacionDocumento.ENTRADA else \
+        dame_precio_salida(producto, estado, documento)
 
-    precio = dame_precio_salida(producto, estado, documento)
     data = {
         'producto': producto,
         'precio': precio,
@@ -1090,6 +1088,78 @@ def departamentosueb(request):
     response = HttpResponse(
         field,
         # as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
+
+
+def productosdestino(request):
+    producto_origen = request.GET.get('producto')
+    estado_origen = request.GET.get('estado')
+    pk_doc = request.GET.get('documento_hidden')
+    documento = Documento.objects.get(pk=pk_doc)
+
+    prod_d = CambioProducto.objects.filter(productoo=producto_origen).values('productod') if producto_origen and estado_origen else []
+    producto_destino = ProductoFlujo.objects.filter(pk__in=prod_d)
+
+    data = {
+        'producto_destino': producto_destino,
+        'doc': documento
+    }
+
+    form = DocumentoDetalleForm(data)
+    form.fields['producto_destino'].widget.attrs.update({
+        'style': 'display: block;',
+    })
+
+    form.fields['producto_destino'].label = 'Departamento Destino'
+    form.fields['producto_destino'].required = True
+    form.fields['producto_destino'].queryset = producto_destino
+
+    form.fields["producto_destino"].widget.attrs = {
+        'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
+        'hx-target': '#div_id_producto_destino',
+        'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+        'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
+        'readonly': True}
+
+    response = HttpResponse(
+        as_crispy_field(form['producto_destino']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    return response
+
+
+def estadodestino(request):
+    estado_origen = request.GET.get('estado')
+    pk_doc = request.GET.get('documento_hidden')
+    documento = Documento.objects.get(pk=pk_doc)
+
+    estado_destino = int(estado_origen) if estado_origen else EstadoProducto.BUENO
+
+    data = {
+        'estado_destino': estado_destino,
+        'doc': documento
+    }
+
+    form = DocumentoDetalleForm(data)
+    form.fields['estado_destino'].widget.attrs.update({
+        'style': 'display: block;',
+    })
+
+    form.fields['estado_destino'].label = 'Estado'
+    form.fields['estado_destino'].required = True
+    form.fields['estado_destino'].queryset = estado_destino
+
+    form.fields["estado_destino"].widget.attrs = {
+        'hx-get': reverse_lazy('app_index:flujo:estadodestino'),
+        'hx-target': '#div_id_estado_destino',
+        'hx-trigger': 'change from:#div_id_estado',
+        'hx-include': '[name="estado"], [name="documento_hidden"]',
+        'readonly': True}
+
+    response = HttpResponse(
+        as_crispy_field(form['estado_destino']).replace('is-invalid', ''),
         content_type='text/html'
     )
     return response
