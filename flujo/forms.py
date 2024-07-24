@@ -856,6 +856,11 @@ class DocumentoDetalleForm(forms.ModelForm):
             self.fields['estado_destino'].disabled = False
             self.fields['estado_destino'].required = True
 
+            if instance:
+                detalleproducto = instance.documentodetalleproducto_detalle.get()
+                self.fields['estado_destino'].initial = detalleproducto.estado
+                self.fields['producto_destino'].initial = detalleproducto.producto
+
             self.fields["producto_destino"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
                                                             'hx-target': '#div_id_producto_destino',
                                                             'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
@@ -917,7 +922,7 @@ class DocumentoDetalleForm(forms.ModelForm):
         operacion = doc.operacion
         self.instance.documento = doc
 
-        existencia_actual = (float(instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
+        existencia_actual = (float(self.instance.existencia) - float(self.cantidad_anterior) * operacion) + float(
             self.instance.cantidad) * operacion if not existencia else float(existencia)
         self.instance.existencia = float(existencia_actual) + float(self.instance.cantidad)
 
