@@ -167,8 +167,11 @@ class DocumentoForm(forms.ModelForm):
                     destino = destino.departamento_destino if destino else destino
 
                 destino_queryset = destino_queryset.filter(**dicc)
+                dptos_no_inicializados = [
+                    x.pk for x in destino_queryset if not x.fechainicio_departamento.filter(ueb=dicc['unidadcontable']).all().exists()
+                ]
 
-                self.fields['departamento_destino'].queryset = destino_queryset
+                self.fields['departamento_destino'].queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
                 self.fields['departamento_destino'].initial = destino
                 self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
                 self.fields['departamento_destino'].label = "Departamento Destino"
@@ -220,16 +223,62 @@ class DocumentoForm(forms.ModelForm):
                 self.fields['ueb_destino'].label = "U.E.B Destino"
                 self.fields['ueb_destino'].disabled = False
                 self.fields['ueb_destino'].required = False
+
+            if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
+                self.fields["departamento_destino"].widget.attrs = {
+                    'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                    'hx-target': '#div_id_departamento_destino',
+                    'hx-trigger': 'change from:#div_id_ueb_destino',
+                    'hx-include': '[name="ueb_destino"]',
+                    'readonly': True}
         elif data:
             self.fields['departamento'].widget.enabled_choices = [data.get('departamento', None)]
             self.fields['tipodocumento'].widget.enabled_choices = [data.get('tipodocumento', None)]
             estado = data.get('estado')
+            tipodocumento = data.get('tipodocumento')
             self.fields['estado'].initial = estado if estado != '' else EstadosDocumentos.EDICION
             if int(data.get('tipodocumento')) in self.destino_tipo_documento:
                 destino = data.get('departamento_destino')
+                self.fields['ueb_destino'].required = True
                 self.fields['departamento_destino'].initial = destino
                 self.fields['departamento_destino'].disabled = False
                 self.fields['departamento_destino'].required = True
+            if int(data.get('tipodocumento')) in self.destino_ueb_tipo_documento:
+                ueb_destino = data.get('ueb_destino')
+                self.destino_ueb = True
+                self.destino_dpto = True
+                if ueb_destino:
+                    dicc = {'unidadcontable': None}
+                    es_requerido = True
+                    if int(tipodocumento) == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                        dicc['unidadcontable'] = self.user.ueb
+                        dicc['relaciondepartamento'] = self.departamento
+                    elif int(tipodocumento) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                        dicc['unidadcontable'] = ueb_destino
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(**dicc)
+
+                    dptos_no_inicializados = [x.pk for x in destino_queryset if
+                                              not x.fechainicio_departamento.filter(
+                                                  ueb=dicc['unidadcontable']).all().exists()]
+
+                    destino_queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
+
+                    self.fields['departamento_destino'].queryset = destino_queryset
+                    self.fields['departamento_destino'].label = 'Departamento Destino'
+                    self.fields['departamento_destino'].disabled = False
+                    self.fields['departamento_destino'].required = es_requerido
+                    self.fields["departamento_destino"].widget.attrs.update({
+                        'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                        'hx-target': '#div_id_departamento_destino',
+                        'hx-trigger': 'change from:#div_id_ueb_destino',
+                        'hx-include': '[name="ueb_destino"]',
+                    })
+                    if settings.NUMERACION_DOCUMENTOS_CONFIG:
+                        self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
+                            settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
+
+                        self.fields["numerocontrol"].widget.attrs['readonly'] = \
+                            settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
         else:
             if self.departamento:
                 self.fields['departamento'].initial = self.departamento

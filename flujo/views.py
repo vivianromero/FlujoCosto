@@ -276,8 +276,12 @@ class DocumentoCRUD(CommonCRUDView):
             def get_context_data(self, **kwargs):
                 ctx = super().get_context_data(**kwargs)
                 params_hx = ''
-                dep = self.request.GET.get('departamento', None)
-                tipo_doc = self.request.GET.get('tipo_doc', None)
+                if self.request.method == 'GET':
+                    dep = self.request.GET.get('departamento', None)
+                    tipo_doc = self.request.GET.get('tipo_doc', None)
+                elif self.request.method == 'POST':
+                    dep = self.request.POST.get('departamento', None)
+                    tipo_doc = self.request.POST.get('tipodocumento', None)
                 departamento = Departamento.objects.get(pk=dep) if dep else None
                 tipodocumento = TipoDocumento.objects.get(pk=tipo_doc) if tipo_doc else None
                 title = 'Departamento: %s | Documento: %s' % (departamento, tipodocumento)
@@ -307,6 +311,17 @@ class DocumentoCRUD(CommonCRUDView):
                 except Exception as e:
                     form.add_error(None, 'Existe un error al salvar los datos')
                     return self.form_invalid(form)
+
+            def form_invalid(self, form, **kwargs):
+
+                tipodocumento = form.cleaned_data['tipodocumento']
+                if tipodocumento.descripcion == 'Transferencia Externa':
+                    form.fields['ueb_destino'].widget.attrs.update({
+                        'style': 'width: 100%; display: block;'
+                    })
+                    form.fields['departamento_destino'].widget.attrs['style'] = 'width: 100%; display: block;'
+
+                return super().form_invalid(form, **kwargs)
 
         return OCreateView
 
@@ -1042,11 +1057,18 @@ def departamentosueb(request):
                               not x.fechainicio_departamento.filter(
                                   ueb=ueb).all().exists()]
 
-    departamento = departamento.exclude(pk__in=dptos_no_inicializados)
-    data = {
-        'departamento_destino': departamento,
-    }
+    dep = request.GET.get('departamento_destino', None)
+    dep_initial = Departamento.objects.filter(pk=dep) if dep else None
 
+    departamento = departamento.exclude(pk__in=dptos_no_inicializados)
+    if dep_initial:
+        data = {
+            'departamento_destino': dep_initial,
+        }
+    else:
+        data = {
+            'departamento_destino': departamento,
+        }
     form = DocumentoForm(data)
     form.fields['departamento_destino'].widget.attrs.update({
         'style': 'display: block;',
@@ -1054,14 +1076,20 @@ def departamentosueb(request):
     form.fields['departamento_destino'].label = 'Departamento Destino'
     form.fields['departamento_destino'].required = True
     form.fields['departamento_destino'].queryset = departamento
+    form.fields['departamento_destino'].initial = dep_initial
     form.fields["departamento_destino"].widget.attrs = {
         'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
         'hx-target': '#div_id_departamento_destino',
         'hx-trigger': 'change from:#div_id_ueb_destino',
         'hx-include': '[name="ueb_destino"]',
-        'readonly': True}
+    }
+    field = as_crispy_field(form['departamento_destino']).replace('is-invalid', '')
+    idx_begin = field.find('<span')
+    idx_end = field.find('</span>') + 7
+    field = field.replace(field[idx_begin:idx_end], '')
     response = HttpResponse(
-        as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
+        field,
+        # as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
         content_type='text/html'
     )
     return response

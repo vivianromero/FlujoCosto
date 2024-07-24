@@ -14,9 +14,9 @@
                     <i class="fa fa-file-circle-plus" title="Adicionar documento"></i>
                 </a>
                 {% if inicializado %}
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <ul class="dropdown-menu dropdown-menu-documento" aria-labelledby="navbarDropdownMenuLink">
                         <li><a class="dropdown-item dropdown-toggle" href="#">Entrada </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu dropdown-menu-documento">
                                 {% for tipo_doc in tipo_doc_entrada %}
                                     <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
                                            class="dropdown-item"
@@ -32,7 +32,7 @@
                             </ul>
                         </li>
                         <li><a class="dropdown-item dropdown-toggle" href="#">Salida </a>
-                            <ul class="dropdown-menu" style="margin-top: 35px;">
+                            <ul class="dropdown-menu dropdown-menu-documento" style="margin-top: 35px;">
                                 {% for tipo_doc in tipo_doc_salida %}
                                     <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
                                            class="dropdown-item"
@@ -49,7 +49,7 @@
                         </li>
                     </ul>
                 {% else %}
-                       <ul class="dropdown-menu">
+                       <ul class="dropdown-menu dropdown-menu-documento">
                             {% for tipo_doc in tipo_doc_entrada %}
                                 <li><a id="id-create-{{ tipo_doc.descripcion|slugify }}"
                                        class="dropdown-item"
