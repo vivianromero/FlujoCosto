@@ -13,4 +13,6 @@ urlpatterns = [
     path("obtener_documento_versat/", views.ObtenerDocumentoVersatModalFormView.as_view(), name='obtener_documento_versat'),
     path('precioproducto/', views.precioproducto, name='precioproducto'),
     path('departamentosueb/', views.departamentosueb, name='departamentosueb'),
+    path('productosdestino/', views.productosdestino, name='productosdestino'),
+    path('estadodestino/', views.estadodestino, name='estadodestino'),
 ]

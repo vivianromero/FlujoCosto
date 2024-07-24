@@ -242,10 +242,10 @@ def existencia_anterior(doc, detalle, elimina):
 
 
 @transaction.atomic
-def existencia_producto(docs_en_edicion, doc, producto, estado, cantidad):
+def existencia_producto(docs_en_edicion, doc, producto, estado, cantidad, es_cambio=False):
     departamento = doc.departamento
     ueb = doc.ueb
-    operacion = doc.operacion
+    operacion = doc.operacion if not es_cambio else 1
     existencia = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, estado=estado,
                                                                    producto=producto, ueb=ueb)
     importe_exist = 0.00
