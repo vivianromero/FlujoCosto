@@ -250,10 +250,9 @@ class DocumentoCRUD(CommonCRUDView):
             def get_form_kwargs(self):
                 form_kwargs = super().get_form_kwargs()
                 departamento = self.request.GET.get('departamento', None)
+                if not departamento and 'departamento' in self.request.POST.keys():
+                    departamento = self.request.POST.get('departamento')
 
-                if departamento is None and self.request.htmx.current_url_abs_path and 'departamento' in self.request.htmx.current_url_abs_path:
-                    deps = [i for i in self.request.htmx.current_url_abs_path.split('?')[1].split('&') if i != '']
-                    departamento = next((x for x in deps if 'departamento' in x), [None]).split('=')[1]
                 dpto = Departamento.objects.get(pk=departamento)
                 if settings.FECHAS_PROCESAMIENTO and self.request.user.ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
                         settings.FECHAS_PROCESAMIENTO[self.request.user.ueb].keys():
@@ -262,6 +261,8 @@ class DocumentoCRUD(CommonCRUDView):
                 else:
                     fecha_procesamiento = date.today().replace(day=1)
                 tipo_doc = self.request.GET.get('tipo_doc', None)
+                if not tipo_doc and 'tipodocumento' in self.request.POST.keys():
+                    tipo_doc = self.request.POST.get('tipodocumento')
                 form_kwargs.update(
                     {
                         "user": self.request.user,
@@ -312,9 +313,8 @@ class DocumentoCRUD(CommonCRUDView):
                     return self.form_invalid(form)
 
             def form_invalid(self, form, **kwargs):
-
                 tipodocumento = form.cleaned_data['tipodocumento']
-                if tipodocumento.descripcion == 'Transferencia Externa':
+                if tipodocumento.id == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
                     form.fields['ueb_destino'].widget.attrs.update({
                         'style': 'width: 100%; display: block;'
                     })
@@ -434,6 +434,7 @@ class DocumentoCRUD(CommonCRUDView):
                             'numeroconsecutivo') > 0 else TipoNumeroDoc.NUMERO_CONTROL]['mensaje_error']
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
+
         return OEditView
 
     def get_delete_view(self):
@@ -515,52 +516,22 @@ def confirmar_documento(request, pk):
     detalles = obj.documentodetalle_documento.all()
     detalles_count = detalles.count()
     if detalles_count > 0 and not existen_documentos_sin_confirmar(obj) and not obj.error:
-        exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
-        actualizar_existencia = []
-        for d in detalles:
-            producto = d.producto
-            estado = d.estado
-            exist = exist_dpto.filter(producto=producto, estado=estado).first()
-            inicial_exist = 0 if not exist else exist.cantidad_inicial
-            entradas_exist = 0 if not exist else exist.cantidad_entrada
-            salidas_exist = 0 if not exist else exist.cantidad_salida
-            cantidad_final_exist = 0 if not exist else exist.cantidad_final
 
-            precio = d.precio if not exist else exist.precio
-            cantidad = d.cantidad
-
-            if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
-                importe = d.cantidad * d.precio
-                importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
-                importe_t = importe + importe_exist
-                cantidad_t = cantidad + cantidad_final_exist
-                precio = importe_t / cantidad_t
-
-            cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
-            cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
-            cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
-
-            importe = cantidad_final * precio
-
-            actualizar_existencia.append(
-                ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
-                               cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
-                               cantidad_final=cantidad_final, importe=importe,
-                               precio=precio))
-        ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
-                                                     ['cantidad_entrada', 'cantidad_salida', 'precio',
-                                                      'cantidad_final', 'importe'],
-                                                     match_field=['ueb', 'departamento', 'producto', 'estado'])
         obj.estado = EstadosDocumentos.CONFIRMADO  # Confirmado
         obj.save()
 
+        otros_detalles = []
+
         # crear el documento de entrada en el destino
         match obj.tipodocumento.pk:
+            case ChoiceTiposDoc.CAMBIO_PRODUCTO:
+                otros_detalles = DocumentoDetalleProducto.objects.filter(documentodetalle__documento=obj)
+            case ChoiceTiposDoc.CAMBIO_ESTADO:
+                otros_detalles = DocumentoDetalleEstado.objects.filter(documentodetalle__documento=obj)
             case ChoiceTiposDoc.TRANSF_HACIA_DPTO:
                 new_tipo = ChoiceTiposDoc.TRANSF_DESDE_DPTO
                 departamento_destino = obj.documentotransfdepartamento_documento.get().departamento
                 new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo)
-
                 departamento_origen = departamento
                 DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
                 crea_detalles_generado(new_doc, detalles)
@@ -577,6 +548,11 @@ def confirmar_documento(request, pk):
 
                 DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
                 crea_detalles_generado(new_doc, detalles)
+
+        actualizar_existencias(ueb, departamento, detalles, operacion)
+
+        if otros_detalles:
+            actualizar_existencias(ueb, departamento, otros_detalles, OperacionDocumento.ENTRADA)
 
         title = 'Confirmación terminada'
         text = 'El Documento %s - %s se confirmó satisfactoriamente !' % (obj.numeroconsecutivo, obj.tipodocumento)
@@ -597,6 +573,48 @@ def confirmar_documento(request, pk):
             'event_action': 'confirmed',
         }
     )
+
+
+@transaction.atomic
+def actualizar_existencias(ueb, departamento, productos, operacion):
+    exist_dpto = ExistenciaDpto.objects.select_for_update().filter(departamento=departamento, ueb=ueb)
+    actualizar_existencia = []
+    for d in productos:
+        producto = d.producto
+        estado = d.estado
+        exist = exist_dpto.filter(producto=producto, estado=estado).first()
+        inicial_exist = 0 if not exist else exist.cantidad_inicial
+        entradas_exist = 0 if not exist else exist.cantidad_entrada
+        salidas_exist = 0 if not exist else exist.cantidad_salida
+        cantidad_final_exist = 0 if not exist else exist.cantidad_final
+
+        precio = d.precio if not exist else exist.precio
+        cantidad = d.cantidad
+
+        if operacion == OperacionDocumento.ENTRADA and exist:  # calcular el precio promedio
+            importe = d.cantidad * d.precio
+            importe_exist = 0 if not exist else (exist.cantidad_final * exist.precio)
+            importe_t = importe + importe_exist
+            cantidad_t = cantidad + cantidad_final_exist
+            precio = importe_t / cantidad_t
+
+        cantidad_entrada = cantidad + entradas_exist if operacion == OperacionDocumento.ENTRADA else entradas_exist
+        cantidad_salida = cantidad + salidas_exist if operacion == OperacionDocumento.SALIDA else salidas_exist
+        cantidad_final = inicial_exist + cantidad_entrada - cantidad_salida
+
+        importe = cantidad_final * precio
+
+        actualizar_existencia.append(
+            ExistenciaDpto(ueb=ueb, departamento=departamento, producto=producto, estado=estado,
+                           cantidad_entrada=cantidad_entrada, cantidad_salida=cantidad_salida,
+                           cantidad_final=cantidad_final, importe=importe,
+                           precio=precio))
+
+    ExistenciaDpto.objects.bulk_update_or_create(actualizar_existencia,
+                                                 ['cantidad_entrada', 'cantidad_salida', 'precio',
+                                                  'cantidad_final', 'importe'],
+                                                 match_field=['ueb', 'departamento', 'producto', 'estado'])
+    return
 
 
 def crea_documento_generado(ueb, departamento, tipodoc):
@@ -889,26 +907,27 @@ def rechazar_documento(request, pk):
     for d in detalles:
         existencia_anterior(doc, d, True)
 
-    # Si al rechazar un documento este genera otro documento
-    # Para los tipos de documentos
-    # -Transferencia desde departamento, Devolución Recibida (si se rechaza genera Devolución Recibida en el dpto que realizó la transf o dev)
-    ueb = doc.ueb
-    match doc.tipodocumento.pk:
-        case ChoiceTiposDoc.TRANSF_DESDE_DPTO:
-            departamento_destino = doc.documentotransfdepartamentorecibida_documento.get().documentoorigen.departamento
-        case ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
-            origen = doc.documentodevolucionrecibida_documento.get()
-            departamento_destino = origen.documentoorigen.departamento
-            ueb = origen.documentoorigen.ueb
-        case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
-            ueb = doc.documentotransfextrecibida_documento.get().unidadcontable
-            destino = doc.documentotransfextrecibidadocorigen_documento.get()
-            departamento_destino = destino.documentoorigen.departamento if destino else destino
+    if doc.tipodocumento.pk != ChoiceTiposDoc.ENTRADA_DESDE_VERSAT:
+        # Si al rechazar un documento este genera otro documento
+        # Para los tipos de documentos
+        # -Transferencia desde departamento, Devolución Recibida (si se rechaza genera Devolución Recibida en el dpto que realizó la transf o dev)
+        ueb = doc.ueb
+        match doc.tipodocumento.pk:
+            case ChoiceTiposDoc.TRANSF_DESDE_DPTO:
+                departamento_destino = doc.documentotransfdepartamentorecibida_documento.get().documentoorigen.departamento
+            case ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
+                origen = doc.documentodevolucionrecibida_documento.get()
+                departamento_destino = origen.documentoorigen.departamento
+                ueb = origen.documentoorigen.ueb
+            case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
+                ueb = doc.documentotransfextrecibida_documento.get().unidadcontable
+                destino = doc.documentotransfextrecibidadocorigen_documento.get()
+                departamento_destino = destino.documentoorigen.departamento if destino else destino
 
-    new_tipo = ChoiceTiposDoc.DEVOLUCION_RECIBIDA
-    new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo)
-    crea_detalles_generado(new_doc, detalles)
-    DocumentoDevolucionRecibida.objects.create(documento=new_doc, documentoorigen=doc)
+        new_tipo = ChoiceTiposDoc.DEVOLUCION_RECIBIDA
+        new_doc = crea_documento_generado(ueb, departamento_destino, new_tipo)
+        crea_detalles_generado(new_doc, detalles)
+        DocumentoDevolucionRecibida.objects.create(documento=new_doc, documentoorigen=doc)
 
     title = 'Documento rechazado'
     text = 'El Documento %s - %s se rechazó satisfactoriamente !' % (doc.numeroconsecutivo, doc.tipodocumento)
@@ -1056,8 +1075,8 @@ def departamentosueb(request):
 
     departamento = departamento.exclude(pk__in=dptos_no_inicializados)
     data = {
-                'departamento_destino': departamento,
-            }
+        'departamento_destino': departamento,
+    }
     form = DocumentoForm(data)
     form.fields['departamento_destino'].widget.attrs.update({
         'style': 'display: block;',
@@ -1071,13 +1090,9 @@ def departamentosueb(request):
         'hx-trigger': 'change from:#div_id_ueb_destino',
         'hx-include': '[name="ueb_destino"]',
     }
-    field = as_crispy_field(form['departamento_destino']).replace('is-invalid', '')
-    idx_begin = field.find('<span')
-    idx_end = field.find('</span>') + 7
-    field = field.replace(field[idx_begin:idx_end], '')
+
     response = HttpResponse(
-        field,
-        # as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
+        as_crispy_field(form['departamento_destino']).replace('is-invalid', ''),
         content_type='text/html'
     )
     return response
@@ -1089,7 +1104,8 @@ def productosdestino(request):
     pk_doc = request.GET.get('documento_hidden')
     documento = Documento.objects.get(pk=pk_doc)
 
-    prod_d = CambioProducto.objects.filter(productoo=producto_origen).values('productod') if producto_origen and estado_origen else []
+    prod_d = CambioProducto.objects.filter(productoo=producto_origen).values(
+        'productod') if producto_origen and estado_origen else []
     producto_destino = ProductoFlujo.objects.filter(pk__in=prod_d)
 
     data = {
