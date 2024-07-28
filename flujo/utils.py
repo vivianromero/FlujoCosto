@@ -4,7 +4,7 @@ from django.db.models import F, Case, Value, When, DecimalField, Sum, Max, Count
 from django.db.models.functions import Coalesce
 
 from codificadores import ChoiceClasesMatPrima, ChoiceTiposProd
-from codificadores.models import OperacionDocumento, TipoProductoDepartamento, ClaseMateriaPrima
+from codificadores.models import TipoProductoDepartamento, ClaseMateriaPrima
 from .models import *
 
 
@@ -301,7 +301,7 @@ def actualiza_existencias_productos_todos(docs, detalles, departamento, ueb, con
 
 def existencia_productos_todos(docs, producto, estado, departamento, ueb, consecutivo=None):
     dicc = {'producto': producto, 'estado': estado, 'documento__departamento': departamento, 'documento__ueb': ueb}
-
+    existencia_inicial = 0.00
     if consecutivo:
         dicc.update({'documento__numeroconsecutivo__lt': consecutivo})
 

@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 from app_index.widgets import MyCustomDateRangeWidget
 from codificadores import ChoiceTiposDoc, ChoiceTiposProd, ChoiceClasesMatPrima
-from codificadores.models import TipoProducto, ClaseMateriaPrima, CambioProducto
+from codificadores.models import TipoProducto, ClaseMateriaPrima, CambioProducto, EstadoProducto
 from cruds_adminlte3.utils import crud_url_name
 from cruds_adminlte3.widgets import SelectWidget
 from flujo.models import *
@@ -22,44 +22,6 @@ from .utils import actualiza_existencias, genera_numero_doc, actualiza_numeros, 
 
 # ------------ Documento / Form ------------
 class DocumentoForm(forms.ModelForm):
-    departamento = forms.ModelChoiceField(
-        queryset=Departamento.objects.all(),
-        label="Departamento",
-        required=False,
-        widget=SelectWidget(attrs={
-            'style': 'width: 100%; display: none;',
-        }
-        )
-    )
-
-    ueb = forms.ModelChoiceField(
-        queryset=UnidadContable.objects.all(),
-        label="UEB",
-        required=False,
-        widget=SelectWidget(attrs={
-            'style': 'width: 100%; display: none;',
-        }
-        )
-    )
-
-    tipodocumento = forms.ModelChoiceField(
-        queryset=TipoDocumento.objects.all(),
-        label="Tipo Documento",
-        required=False,
-        widget=SelectWidget(attrs={
-            'style': 'width: 100%; display: none;',
-        }
-        )
-    )
-
-    # departamento = forms.CharField(label='', required=False)
-    # tipodocumento = forms.CharField(label='', required=False)
-    # suma_importe = forms.CharField(label='', required=False)
-    estado = forms.CharField(label='', required=False)
-    # ueb = forms.CharField(label='', required=False)
-    mes = forms.CharField(label='', required=False)
-    anno = forms.CharField(label='', required=False)
-
     departamento_destino = forms.ModelChoiceField(
         queryset=Departamento.objects.all(),
         label="Departamento Destino",
@@ -75,7 +37,7 @@ class DocumentoForm(forms.ModelForm):
         label="Departamento Origen",
         required=False,
         widget=SelectWidget(attrs={
-            'style': 'width: 100%; display: none;',
+            'style': 'width: 100%;',
         }
         )
     )
@@ -115,6 +77,11 @@ class DocumentoForm(forms.ModelForm):
             'departamento',
             'tipodocumento',
             'ueb',
+            'departamento_destino',
+            'ueb_destino',
+            'ueb_origen',
+            'mes',
+            'anno'
         ]
         widgets = {
             'fecha': MyCustomDateRangeWidget(
@@ -122,6 +89,21 @@ class DocumentoForm(forms.ModelForm):
                     'format': 'DD/MM/YYYY',
                     'singleDatePicker': True,
                     'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
+                }
+            ),
+            'departamento': SelectWidget(
+                attrs={
+                    'style': 'width: 100%;',
+                }
+            ),
+            'tipodocumento': SelectWidget(
+                attrs={
+                    'style': 'width: 100%;',
+                }
+            ),
+            'ueb': SelectWidget(
+                attrs={
+                    'style': 'width: 100%;',
                 }
             ),
         }
@@ -132,15 +114,16 @@ class DocumentoForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
         self.departamento = kwargs.pop('departamento', None)
-        self.tipo_doc = kwargs.pop('tipo_doc', 0)
+        self.tipo_doc = kwargs.pop('tipo_doc', None)
         self.fecha_procesamiento = kwargs.pop('fecha_procesamiento', None)
-
+        self.destino_tipo_documento = [ChoiceTiposDoc.TRANSF_HACIA_DPTO, ChoiceTiposDoc.TRANSFERENCIA_EXTERNA]
+        self.origen_tipo_documento = [ChoiceTiposDoc.TRANSF_DESDE_DPTO, ChoiceTiposDoc.DEVOLUCION_RECIBIDA, ]
+        self.destino_ueb_tipo_documento = [ChoiceTiposDoc.TRANSFERENCIA_EXTERNA, ]
+        self.origen_ueb_tipo_documento = [ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA, ]
         super(DocumentoForm, self).__init__(*args, **kwargs)
         self.fields['departamento_destino'].label = False
         self.fields['departamento_origen'].label = False
-        self.fields['departamento'].label = False
         self.fields['ueb_origen'].label = False
-        self.fields['ueb_destino'].label = False
         self.origen_dpto = False
         self.destino_dpto = False
         self.destino_ueb = False
@@ -149,167 +132,235 @@ class DocumentoForm(forms.ModelForm):
         self.numeroconcecutivo_anterior = None if not instance else Documento.objects.get(
             pk=instance.pk).numeroconsecutivo
 
-        self.es_centralizado = False if not settings.OTRAS_CONFIGURACIONES or not 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() or \
+        self.es_centralizado = True if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
                                        settings.OTRAS_CONFIGURACIONES[
-                                           'Sistema Centralizado']['activo'] == False else True
-        dicc = {}
-        self.fields['estado'].initial = EstadosDocumentos.EDICION
+                                           'Sistema Centralizado']['activo'] == True else False
+
         if self.user:
             self.fields['ueb'].initial = self.user.ueb
-            dicc['unidadcontable'] = self.user.ueb
-
-        if self.tipo_doc:
-            self.fields['tipodocumento'].initial = self.tipo_doc
-
-        if self.departamento:
-            self.fields['departamento'].initial = self.departamento
-
-        if settings.NUMERACION_DOCUMENTOS_CONFIG and 'numeroconsecutivo' in self.fields.keys():
-            self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
-                settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
-
-            self.fields["numerocontrol"].widget.attrs['readonly'] = \
-                settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
-
+            self.fields['ueb'].widget.enabled_choices = [self.user.ueb]
         if instance:
             self.tipo_doc = instance.tipodocumento.pk
-            self.fields['tipodocumento'].initial = instance.tipodocumento
-            self.fields['tipodocumento'].widget.enabled_choices = [instance.tipodocumento]
+            self.fields['fecha'].initial = self.fecha_procesamiento
+            self.fields['fecha'].widget.attrs['readonly'] = True
             self.fields['departamento'].widget.enabled_choices = [instance.departamento]
-            self.fields['departamento'].initial = instance.departamento
-            self.fields['estado'].initial = instance.estado
-            self.fields['numeroconsecutivo'].initial = instance.numeroconsecutivo
-            self.fields['numerocontrol'].initial = instance.numerocontrol
+            self.fields['tipodocumento'].widget.enabled_choices = [instance.tipodocumento]
+            if settings.NUMERACION_DOCUMENTOS_CONFIG:
+                self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
+                    settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
 
-        if self.fecha_procesamiento or self.edicion:
-            self.fields['fecha'].initial = self.fecha_procesamiento
-            self.fields['fecha'].widget.attrs['readonly'] = True
+                self.fields["numerocontrol"].widget.attrs['readonly'] = \
+                    settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
 
-            self.fields['fecha'].initial = self.fecha_procesamiento
-            self.fields['fecha'].widget.attrs['readonly'] = True
-
-            numeros = genera_numero_doc(self.departamento, self.user.ueb, self.tipo_doc)
-
-            numero_consec = str(numeros[0][0])
-            self.fields['numeroconsecutivo'].initial = numero_consec
-
-            numero_ctrl = str(numeros[1][0]) if not numeros[1][2] else numeros[1][2] + '/' + str(numeros[1][0])
-            self.fields['numerocontrol'].initial = numero_ctrl
-
-            match int(self.tipo_doc):
-                case ChoiceTiposDoc.TRANSF_HACIA_DPTO:
-                    self.destino_dpto = True
-                    destino_queryset = self.fields['departamento_destino'].queryset
-                    dicc['relaciondepartamento'] = instance.departamento if instance else self.departamento
-                    destino = None if not instance else DocumentoTransfDepartamento.objects.get(documento=instance).departamento
-
-                    destino_queryset = destino_queryset.filter(**dicc)
-                    dptos_no_inicializados = [
-                        x.pk for x in destino_queryset if
-                        not x.fechainicio_departamento.filter(ueb=dicc['unidadcontable']).all().exists()
-                    ]
-                    self.fields['departamento_destino'].queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
-                    self.fields['departamento_destino'].initial = destino
-                    self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
-                    self.fields['departamento_destino'].label = "Departamento Destino"
-                    self.fields['departamento_destino'].disabled = False
-                    self.fields['departamento_destino'].required = True
-                case ChoiceTiposDoc.TRANSF_DESDE_DPTO | ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
-                    self.origen_dpto = True
-                    origen_queryset = self.fields['departamento_origen'].queryset
-                    if self.tipo_doc == ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
-                        doc_origen = DocumentoDevolucionRecibida.objects.get(documento=instance)
-                        origen = doc_origen.documentoorigen
-                        origen_queryset = origen_queryset.filter(pk=origen.departamento.pk)
-                        if origen.ueb != dicc['unidadcontable']:
-                            self.origen_ueb = True
-                            origen_ueb_queryset = self.fields['ueb_origen'].queryset.exclude(pk=dicc['unidadcontable'].pk)
-                            self.fields['ueb_origen'].queryset = origen_ueb_queryset
-                            self.fields['ueb_origen'].initial = origen.ueb
-                            self.fields['ueb_origen'].widget.enabled_choices = [origen.ueb]
-                            self.fields['ueb_origen'].widget.attrs = {'style': 'width: 100%;', }
-                            self.fields['ueb_origen'].label = "U.E.B Origen"
-                            self.fields['ueb_origen'].disabled = False
-                            self.fields['ueb_origen'].required = True
-                    else:
-                        origen_queryset = origen_queryset.filter(relaciondepartamento=instance.departamento)
-                        origen = DocumentoTransfDepartamentoRecibida.objects.get(documento=instance).documentoorigen
-
-                    self.fields['departamento_origen'].queryset = origen_queryset
-                    self.fields['departamento_origen'].initial = origen.departamento
-                    self.fields['departamento_origen'].widget.enabled_choices = [origen.departamento]
-                    self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
-                    self.fields['departamento_origen'].label = "Departamento Origen"
-                    self.fields['departamento_origen'].disabled = False
-                    self.fields['departamento_origen'].required = True
-                case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
-                    self.destino_ueb = True
-                    destino_queryset = self.fields['ueb_destino'].queryset.exclude(pk=dicc['unidadcontable'].pk)
-                    self.fields['ueb_destino'].queryset = destino_queryset
-                    destino = DocumentoTransfExterna.objects.get(documento=instance).unidadcontable if instance else None
+            if instance.tipodocumento.pk in self.destino_tipo_documento:
+                self.destino_dpto = True
+                destino_queryset = self.fields['departamento_destino'].queryset
+                destino = None
+                dicc = {}
+                if instance.tipodocumento.pk == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                    dicc['unidadcontable'] = self.user.ueb
+                    dicc['relaciondepartamento'] = instance.departamento
+                    destino = DocumentoTransfDepartamento.objects.get(documento=instance).departamento
+                elif instance.tipodocumento.pk == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
                     if data:
-                        destino = data.get('ueb_destino')
+                        dicc['unidadcontable'] = data.get('ueb_destino')
+                    else:
+                        dicc['unidadcontable'] = instance.documentotransfext_documento.get().unidadcontable
 
-                    self.fields['ueb_destino'].initial = destino
+
+                    destino = instance.documentotransfextdptodest_documento.get()
+                    destino = destino.departamento_destino if destino else destino
+
+                destino_queryset = destino_queryset.filter(**dicc)
+                dptos_no_inicializados = [
+                    x.pk for x in destino_queryset if not x.fechainicio_departamento.filter(ueb=dicc['unidadcontable']).all().exists()
+                ]
+                self.fields['ueb_destino'].required = True
+                self.fields['departamento_destino'].queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
+                self.fields['departamento_destino'].initial = destino
+                self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['departamento_destino'].label = "Departamento Destino"
+                self.fields['departamento_destino'].disabled = False
+                self.fields['departamento_destino'].required = False
+            elif instance.tipodocumento.pk in self.origen_tipo_documento:
+                self.origen_dpto = True
+                origen_queryset = self.fields['departamento_origen'].queryset
+                tipod = instance.tipodocumento.pk
+                if tipod == ChoiceTiposDoc.TRANSF_DESDE_DPTO:
+                    origen_queryset = origen_queryset.filter(relaciondepartamento=instance.departamento)
+                    origen = DocumentoTransfDepartamentoRecibida.objects.get(documento=instance).documentoorigen
+                elif tipod == ChoiceTiposDoc.DEVOLUCION_RECIBIDA:
+                    origen = DocumentoDevolucionRecibida.objects.get(documento=instance).documentoorigen
+                    origen_queryset = origen_queryset.filter(pk=origen.departamento.pk)
+
+                self.fields['departamento_origen'].queryset = origen_queryset
+                self.fields['departamento_origen'].initial = origen.departamento
+                self.fields['departamento_origen'].widget.enabled_choices = [origen.departamento]
+                self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['departamento_origen'].label = "Departamento Origen"
+                self.fields['departamento_origen'].disabled = False
+                self.fields['departamento_origen'].required = True
+
+            if instance.tipodocumento.pk in self.origen_ueb_tipo_documento:
+                self.origen_ueb = True
+                origen_queryset = self.fields['ueb_origen'].queryset
+                origen_queryset = origen_queryset.exclude(pk=self.user.ueb.pk)
+                self.fields['ueb_origen'].queryset = origen_queryset
+
+                origen = DocumentoTransfExternaRecibida.objects.get(documento=instance).unidadcontable
+
+                self.fields['ueb_origen'].initial = origen
+                if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+                        settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] is True:
+                    self.fields['ueb_origen'].widget.enabled_choices = [origen]
+                self.fields['ueb_origen'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['ueb_origen'].label = "U.E.B Origen"
+                self.fields['ueb_origen'].disabled = False
+                self.fields['ueb_origen'].required = True
+
+            if instance.tipodocumento.pk in self.destino_ueb_tipo_documento:
+                self.destino_ueb = True
+                destino_queryset = self.fields['ueb_destino'].queryset.exclude(pk=self.user.ueb.pk)
+                self.fields['ueb_destino'].queryset = destino_queryset
+                destino = DocumentoTransfExterna.objects.get(documento=instance).unidadcontable
+                self.fields['ueb_destino'].initial = destino
+                self.fields['ueb_destino'].widget.attrs = {'style': 'width: 100%;', }
+                self.fields['ueb_destino'].label = "U.E.B Destino"
+                self.fields['ueb_destino'].disabled = False
+                self.fields['ueb_destino'].required = True
+
+            if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
+                self.fields["departamento_destino"].widget.attrs = {
+                    'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                    'hx-target': '#div_id_departamento_destino',
+                    'hx-trigger': 'change from:#div_id_ueb_destino',
+                    'hx-include': '[name="ueb_destino"]',
+                    'readonly': True}
+                self.fields['departamento_destino'].disabled = False
+                self.fields['departamento_destino'].required = True
+
+        elif data:
+            self.fields['departamento'].widget.enabled_choices = [data.get('departamento', None)]
+            self.fields['tipodocumento'].widget.enabled_choices = [data.get('tipodocumento', None)]
+            estado = data.get('estado')
+            tipodocumento = data.get('tipodocumento')
+            self.fields['estado'].initial = estado if estado != '' else EstadosDocumentos.EDICION
+            if int(data.get('tipodocumento')) in self.destino_tipo_documento:
+                destino = data.get('departamento_destino')
+                self.fields['ueb_destino'].required = True
+                self.fields['departamento_destino'].initial = destino
+                self.fields['departamento_destino'].disabled = False
+                self.fields['departamento_destino'].required = True
+            if int(data.get('tipodocumento')) in self.destino_ueb_tipo_documento:
+                ueb_destino = data.get('ueb_destino')
+                self.destino_ueb = True
+                self.destino_dpto = True
+                if ueb_destino:
+                    dicc = {'unidadcontable': None}
+                    es_requerido = True
+                    if int(tipodocumento) == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                        dicc['unidadcontable'] = self.user.ueb
+                        dicc['relaciondepartamento'] = self.departamento
+                    elif int(tipodocumento) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                        dicc['unidadcontable'] = ueb_destino
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(**dicc)
+
+                    dptos_no_inicializados = [x.pk for x in destino_queryset if
+                                              not x.fechainicio_departamento.filter(
+                                                  ueb=dicc['unidadcontable']).all().exists()]
+
+                    destino_queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
+
+                    self.fields['departamento_destino'].queryset = destino_queryset
+                    self.fields['departamento_destino'].label = 'Departamento Destino'
+                    self.fields['departamento_destino'].disabled = False
+                    self.fields['departamento_destino'].required = es_requerido
+                    self.fields["departamento_destino"].widget.attrs.update({
+                        'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                        'hx-target': '#div_id_departamento_destino',
+                        'hx-trigger': 'change from:#div_id_ueb_destino',
+                        'hx-include': '[name="ueb_destino"]',
+                    })
+                    if settings.NUMERACION_DOCUMENTOS_CONFIG:
+                        self.fields["numeroconsecutivo"].widget.attrs['readonly'] = \
+                            settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONSECUTIVO]['sistema']
+
+                        self.fields["numerocontrol"].widget.attrs['readonly'] = \
+                            settings.NUMERACION_DOCUMENTOS_CONFIG[TipoNumeroDoc.NUMERO_CONTROL]['sistema']
+        else:
+            if self.departamento:
+                self.fields['departamento'].initial = self.departamento
+                self.fields['departamento'].widget.enabled_choices = [self.departamento]
+                self.fields['estado'].initial = EstadosDocumentos.EDICION
+                self.fields['fecha'].initial = self.fecha_procesamiento
+                self.fields['fecha'].widget.attrs['readonly'] = True
+
+            if self.tipo_doc:
+                self.fields['tipodocumento'].initial = self.tipo_doc
+                self.fields['tipodocumento'].widget.enabled_choices = [self.tipo_doc]
+                if settings.NUMERACION_DOCUMENTOS_CONFIG:
+                    numeros = genera_numero_doc(self.departamento, self.user.ueb, self.tipo_doc)
+
+                    # numero consecutivo y de control
+                    numero_consec = str(numeros[0][0])
+                    self.fields['numeroconsecutivo'].initial = numero_consec
+                    self.fields["numeroconsecutivo"].widget.attrs['readonly'] = numeros[0][1]
+
+                    numero_ctrl = str(numeros[1][0]) if not numeros[1][2] else numeros[1][2] + '/' + str(numeros[1][0])
+                    self.fields['numerocontrol'].initial = numero_ctrl
+                    self.fields["numerocontrol"].widget.attrs['readonly'] = numeros[1][1]
+
+                if int(self.tipo_doc) in self.destino_tipo_documento:
+                    self.destino_dpto = True
+                    dptos_no_inicializados = []
+                    dicc = {'unidadcontable': None}
+                    es_requerido = True
+                    if int(self.tipo_doc) == ChoiceTiposDoc.TRANSF_HACIA_DPTO:
+                        dicc['unidadcontable'] = self.user.ueb
+                        dicc['relaciondepartamento'] = self.departamento
+                    elif int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                        dicc['unidadcontable'] = None
+                        es_requerido = self.es_centralizado
+                        self.destino_dpto = es_requerido
+                    destino_queryset = self.fields['departamento_destino'].queryset.filter(**dicc)
+
+                    dptos_no_inicializados = [x.pk for x in destino_queryset if
+                                              not x.fechainicio_departamento.filter(
+                                                  ueb=dicc['unidadcontable']).all().exists()]
+
+                    destino_queryset = destino_queryset.exclude(pk__in=dptos_no_inicializados)
+
+                    self.fields['departamento_destino'].queryset = destino_queryset
+                    self.fields['departamento_destino'].widget.attrs = {'style': 'width: 100%;', }
+
+                    self.fields['departamento_destino'].label = 'Departamento Destino'
+                    self.fields['departamento_destino'].disabled = False
+                    self.fields['departamento_destino'].required = es_requerido
+                if int(self.tipo_doc) in self.destino_ueb_tipo_documento:
+                    self.destino_ueb = True
+                    destino_queryset = self.fields['ueb_destino'].queryset.exclude(pk=self.user.ueb.pk)
+                    self.fields['ueb_destino'].queryset = destino_queryset
                     self.fields['ueb_destino'].widget.attrs = {'style': 'width: 100%;', }
                     self.fields['ueb_destino'].label = "U.E.B Destino"
                     self.fields['ueb_destino'].disabled = False
                     self.fields['ueb_destino'].required = True
-                    if self.es_centralizado:
-                        self.destino_dpto = True
-                        destino_queryset_dpto = self.fields['departamento_destino'].queryset.filter(unidadcontable=destino)
 
-                        dptos_no_inicializados = [
-                            x.pk for x in destino_queryset_dpto if
-                            not x.fechainicio_departamento.filter(ueb=destino).all().exists()
-                        ]
-                        destino_queryset_dpto = destino_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
-                        self.fields['departamento_destino'].queryset = destino_queryset_dpto
-
-                        dpto_destino = DocumentoTransfExternaDptoDestino.objects.get(documentotransfext=instance).departamento_destino if instance else None
-                        self.fields['departamento_destino'].initial = dpto_destino
-                        self.fields["departamento_destino"].widget.attrs = {
-                            'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
-                            'hx-target': '#div_id_departamento_destino',
-                            'hx-trigger': 'change from:#div_id_ueb_destino',
-                            'hx-include': '[name="ueb_destino"]',
-                            'readonly': True}
-                        self.fields['departamento_destino'].disabled = False
-                        self.fields['departamento_destino'].required = True
-                        self.fields["departamento_destino"].label = "Departamento Destino"
-
-                case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
+                if int(self.tipo_doc) in self.origen_ueb_tipo_documento:
                     self.origen_ueb = True
-                    origen_queryset = self.fields['ueb_origen'].queryset
-                    origen_queryset = origen_queryset.exclude(pk=self.user.ueb.pk)
-                    self.fields['ueb_origen'].queryset = origen_queryset
-
-                    origen = DocumentoTransfExternaRecibida.objects.get(documento=instance).unidadcontable
-
-                    self.fields['ueb_origen'].initial = origen
-                    if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                            settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] is True:
-                        self.fields['ueb_origen'].widget.enabled_choices = [origen]
-                        self.origen_dpto = True
-                        origen_queryset_dpto = self.fields['departamento_origen'].queryset
-                        dptos_no_inicializados = [
-                            x.pk for x in origen_queryset_dpto if
-                            not x.fechainicio_departamento.filter(ueb=origen).all().exists()
-                        ]
-                        origen_queryset_dpto = origen_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
-                        dpto_origen = DocumentoTransfExternaRecibidaDocOrigen.objects.get(documento=instance).documentoorigen.departamento
-                        self.fields['departamento_origen'].queryset = origen_queryset_dpto
-                        self.fields['departamento_origen'].initial = dpto_origen
-                        self.fields['departamento_origen'].widget.enabled_choices = [dpto_origen]
-                        self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
-                        self.fields['departamento_origen'].label = "Departamento Origen"
-                        self.fields['departamento_origen'].disabled = False
-                        self.fields['departamento_origen'].required = True
-
+                    destino_queryset = self.fields['ueb_origen'].queryset.exclude(pk=self.user.ueb.pk)
+                    self.fields['ueb_origen'].queryset = destino_queryset
                     self.fields['ueb_origen'].widget.attrs = {'style': 'width: 100%;', }
                     self.fields['ueb_origen'].label = "U.E.B Origen"
                     self.fields['ueb_origen'].disabled = False
                     self.fields['ueb_origen'].required = True
+
+        if self.tipo_doc and int(self.tipo_doc) == ChoiceTiposDoc.TRANSFERENCIA_EXTERNA and self.es_centralizado:
+            self.fields["departamento_destino"].widget.attrs = {
+                'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                'hx-target': '#div_id_departamento_destino',
+                'hx-trigger': 'change from:#div_id_ueb_destino',
+                'hx-include': '[name="ueb_destino"]',
+                'readonly': True}
 
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_form'
@@ -324,10 +375,14 @@ class DocumentoForm(forms.ModelForm):
                 ),
                 Column('numeroconsecutivo', css_class='form-group col-md-3 mb-0'),
                 Column('numerocontrol', css_class='form-group col-md-3 mb-0'),
-                Field('ueb_destino', type="hidden") if not self.destino_ueb else Column('ueb_destino', css_class='form-group col-md-3 mb-0'),
-                Field('ueb_origen', type="hidden") if not self.origen_ueb else Column('ueb_origen', css_class='form-group col-md-3 mb-0'),
-                Field('departamento_destino', type="hidden") if not self.destino_dpto else Column('departamento_destino', css_class='form-group col-md-3 mb-0'),
-                Field('departamento_origen', type="hidden") if not self.origen_dpto else Column('departamento_origen', css_class='form-group col-md-3 mb-0'),
+                Column('ueb_destino', css_class='form-group col-md-3 mb-0') if self.destino_ueb else Field(
+                    'ueb_destino', type="hidden"),
+                Column('ueb_origen', css_class='form-group col-md-3 mb-0') if self.origen_ueb else Field(
+                    'ueb_origen', type="hidden"),
+                Column('departamento_destino', css_class='form-group col-md-3 mb-0') if self.destino_dpto else Field(
+                    'departamento_destino', type="hidden"),
+                Column('departamento_origen', css_class='form-group col-md-3 mb-0') if self.origen_dpto else Field(
+                    'departamento_origen', type="hidden"),
                 Field('departamento', type="hidden"),
                 Field('tipodocumento', type="hidden"),
                 Field('suma_importe', type="hidden"),
@@ -736,7 +791,7 @@ class DocumentoDetalleForm(forms.ModelForm):
     )
 
     estado_destino = forms.ChoiceField(
-        label="Estado Destino",
+        label="Estado",
         choices=EstadoProducto.choices,
         widget=SelectWidget(attrs={
             'style': 'width: 100%; display: none;',
@@ -779,7 +834,7 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.documentopadre = kwargs.pop('doc', None)
         if args:
             self.documentopadre = args[0]['doc']
-        self.prod_destino = False
+
         if instance:
             self.cantidad_anterior = instance.cantidad
 
@@ -787,53 +842,37 @@ class DocumentoDetalleForm(forms.ModelForm):
         self.fields['producto'].queryset = dame_productos(self.documentopadre, self.fields['producto'].queryset)
         self.fields['producto_destino'].label = False
         self.fields['estado_destino'].label = False
+        if self.documentopadre.tipodocumento.pk == ChoiceTiposDoc.CAMBIO_PRODUCTO:
+            query_origen_producto = self.fields['producto'].queryset
+            ids_origen = [x.productoo.pk for x in CambioProducto.objects.all()]
+            query_origen_producto = query_origen_producto.filter(pk__in=ids_origen)
+            self.fields['producto'].queryset = query_origen_producto
 
-        match self.documentopadre.tipodocumento.pk:
-            case ChoiceTiposDoc.CAMBIO_PRODUCTO:
-                self.prod_destino = True
-                query_origen_producto = self.fields['producto'].queryset
-                ids_origen = [x.productoo.pk for x in CambioProducto.objects.all()]
-                query_origen_producto = query_origen_producto.filter(pk__in=ids_origen)
-                self.fields['producto'].queryset = query_origen_producto
+            self.fields['producto_destino'].label = "Producto destino"
+            self.fields['producto_destino'].disabled = False
+            self.fields['producto_destino'].required = True
 
-                self.fields['producto_destino'].label = "Producto destino"
-                self.fields['producto_destino'].disabled = False
-                self.fields['producto_destino'].required = True
+            self.fields['estado_destino'].label = "Estado"
+            self.fields['estado_destino'].disabled = False
+            self.fields['estado_destino'].required = True
 
-                self.fields['estado_destino'].label = "Estado"
-                self.fields['estado_destino'].disabled = False
-                self.fields['estado_destino'].required = True
+            if instance:
+                detalleproducto = instance.documentodetalleproducto_detalle.get()
+                self.fields['estado_destino'].initial = detalleproducto.estado
+                self.fields['producto_destino'].initial = detalleproducto.producto
 
-                if instance:
-                    detalleproducto = instance.documentodetalleproducto_detalle.get()
-                    self.fields['estado_destino'].initial = detalleproducto.estado
-                    self.fields['producto_destino'].initial = detalleproducto.producto
+            self.fields["producto_destino"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
+                                                            'hx-target': '#div_id_producto_destino',
+                                                            'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
+                                                            'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
+                                                            'readonly': True}
 
-                self.fields["producto_destino"].widget.attrs = {'hx-get': reverse_lazy('app_index:flujo:productosdestino'),
-                                                                'hx-target': '#div_id_producto_destino',
-                                                                'hx-trigger': 'change from:#div_id_producto, change from:#div_id_estado',
-                                                                'hx-include': '[name="producto"], [name="estado"], [name="documento_hidden"]',
-                                                                'readonly': True}
-
-                self.fields["estado_destino"].widget.attrs = {
-                    'hx-get': reverse_lazy('app_index:flujo:estadodestino'),
-                    'hx-target': '#div_id_estado_destino',
-                    'hx-trigger': 'change from:#div_id_estado',
-                    'hx-include': '[name="estado"], [name="documento_hidden"]',
-                    'readonly': True}
-            case ChoiceTiposDoc.CAMBIO_ESTADO:
-
-                self.fields['estado_destino'].label = "Estado Destino"
-                self.fields['estado_destino'].disabled = False
-                self.fields['estado_destino'].required = True
-
-                if instance:
-                    detalleproducto = instance.documentodetalleestado_detalle.get()
-                    self.fields['estado_destino'].initial = detalleproducto.estado
-
-                self.fields["estado_destino"].widget.attrs = {'readonly': True}
-            case ChoiceTiposDoc.REPORTE_SUBPRODUCTOS:
-                self.fields['producto'].queryset = ProductoFlujo.objects.filter(tipoproducto=ChoiceTiposProd.SUBPRODUCTO)
+            self.fields["estado_destino"].widget.attrs = {
+                'hx-get': reverse_lazy('app_index:flujo:estadodestino'),
+                'hx-target': '#div_id_estado_destino',
+                'hx-trigger': 'change from:#div_id_estado',
+                'hx-include': '[name="estado"], [name="documento_hidden"]',
+                'readonly': True}
 
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_documento_detalle_form'
@@ -861,7 +900,7 @@ class DocumentoDetalleForm(forms.ModelForm):
                 Column(Field('precio', data_inputmask="'alias': 'decimal', 'digits': 7"),
                        css_class='form-group col-md-2 mb-0',
                        css_id='id_precio_documento_detalle'),
-                Column('producto_destino', css_class='form-group col-md-6 mb-0') if self.prod_destino else Field('producto_destino', type="hidden"),
+                Column('producto_destino', css_class='form-group col-md-6 mb-0'),
                 Column('estado_destino', css_class='form-group col-md-2 mb-0',
                        css_id='id_estado_destino_documento_detalle'),
                 Field('documento_hidden', type="hidden"),
@@ -874,6 +913,7 @@ class DocumentoDetalleForm(forms.ModelForm):
     def save(self, commit=True, doc=None, existencia=None):
         if not doc:
             return self.instance
+        # instance = super().save(commit=False)
 
         ueb = doc.ueb
         producto = self.instance.producto
@@ -894,6 +934,7 @@ class DocumentoDetalleForm(forms.ModelForm):
 
         docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
         # se excluyen los documentos que tengan errores para calcular la existencia del producto
+        # existencia_product = existencia_producto(docs_en_edicion.filter(documento__error=False), doc, producto, estado, instance.cantidad)
         existencia_product, hay_error = existencia_producto(docs_en_edicion, doc, producto, estado, self.instance.cantidad)
 
         self.instance.existencia = existencia_product
@@ -930,30 +971,8 @@ class DocumentoDetalleForm(forms.ModelForm):
                         'producto': product_destino,
                         'estado': est_destino,
                         'existencia': existencia,
-                        'cantidad': self.instance.cantidad,
-                        'precio': self.instance.precio,
                     }
                 )
-        elif doc.tipodocumento.pk == ChoiceTiposDoc.CAMBIO_ESTADO:
-            est_destino = self.cleaned_data.get('estado_destino')
-            dicc = {'documento__estado__in': [EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES],
-                    'documento__departamento': departamento, 'producto': producto, 'estado': est_destino,
-                    'documento__ueb': ueb}
-            docs_en_edicion = DocumentoDetalle.objects.select_for_update().filter(**dicc)
-            existencia, hay_error = existencia_producto(docs_en_edicion, doc, producto, est_destino,
-                                                        instance.cantidad, es_cambio=True)
-            if producto and est_destino:
-                detalles_producto_destino_update, detalles_producto_destino_create = DocumentoDetalleEstado.objects.update_or_create(
-                    documentodetalle=instance,
-                    defaults={
-                        'producto': producto,
-                        'estado': est_destino,
-                        'existencia': existencia,
-                        'cantidad': self.instance.cantidad,
-                        'precio': self.instance.precio,
-                    }
-                )
-
         return self.instance
 
 
