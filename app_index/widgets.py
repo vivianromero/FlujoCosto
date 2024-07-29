@@ -89,5 +89,7 @@ class MyCustomDateRangeWidget(drp_widgets.DateRangeWidget):
                     (start_date.replace(day=31, month=12, year=past_year)).strftime(formating)
                 ),
             }
+        if 'custom_ranges' in self.picker_options and self.picker_options['custom_ranges']:
+            self.picker_options['ranges'].update(self.picker_options['custom_ranges'])
 
         return super().get_context(name, value, attrs)

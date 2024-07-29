@@ -37,6 +37,7 @@ class DocumentoFilter(MyGenericFilter):
             format='%d/%m/%Y',
             picker_options={
                 'use_ranges': True,
+                'custom_ranges': None,
             }
         ),
     )
