@@ -338,6 +338,14 @@ class DocumentoCRUD(CommonCRUDView):
                 tipo_doc_entrada = tiposdoc.filter(operacion=OperacionDocumento.ENTRADA)
                 tipo_doc_salida = tiposdoc.filter(operacion=OperacionDocumento.SALIDA)
                 dpto = dep_queryset.get(pk=self.dep) if self.dep else None
+                fecha_procesamiento = None
+                if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                        settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                    fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                if fecha_procesamiento:
+                    context['form'].fields['rango_fecha'].widget.picker_options['custom_ranges'] = {
+                        'Fecha procesamiento': (fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y')),
+                    }
                 inicializado = False if not self.dep else dpto.inicializado(ueb)
                 if not inicializado:
                     tipo_doc_entrada = tipo_doc_entrada.filter(pk=ChoiceTiposDoc.CARGA_INICIAL)
@@ -387,18 +395,32 @@ class DocumentoCRUD(CommonCRUDView):
                 qdict = {}
                 queryset = super(OFilterListView, self).get_queryset()
                 formating = '%d/%m/%Y'
+                ueb = self.request.user.ueb
                 self.dep = self.request.GET.get('departamento', None)
+                dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
                 rango_fecha = self.request.GET.get('rango_fecha', None)
-                queryset = queryset.filter(ueb=self.request.user.ueb)
-                if self.dep is not None and self.dep != '':
-                    qdict['departamento'] = self.dep
-                if self.dep == '' or self.dep is None:
-                    return self.model.objects.none()
-                if rango_fecha is not None and rango_fecha != '':
-                    fechas = rango_fecha.strip().split('-')
-                    qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
-                    qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
+                queryset = queryset.filter(ueb=ueb)
+                fecha_procesamiento = None
+                if self.request.htmx.trigger_name == 'departamento':
+                    if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                            settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                        fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                        if fecha_procesamiento is not None and fecha_procesamiento != '':
+                            qdict['fecha__gte'] = fecha_procesamiento
+                            qdict['fecha__lte'] = fecha_procesamiento
+                            queryset = queryset.filter(**qdict)
+                # if self.dep is not None and self.dep != '':
+                #     qdict['departamento'] = self.dep
+                # if self.dep == '' or self.dep is None:
+                #     return self.model.objects.none()
+                # if rango_fecha is not None and rango_fecha != '':
+                #     fechas = rango_fecha.strip().split('-')
+                #     qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
+                #     qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
                 return queryset
+
+            def get(self, request, *args, **kwargs):
+                return super().get(request, *args, **kwargs)
 
         return OFilterListView
 
