@@ -580,6 +580,11 @@ class BaseModalFormView(FormView):
     # Ancho máximo de la ventana modal. Debe ajustarse de acuerdo al contenido y campos del formulario.
     max_width = '500px'
 
+    # Si se desea que el formulario no cierre luego de un error en la función de retorno (func_ret),
+    # se debe poner el siguiente parámetro en True. Por defecto es False, por lo que por defecto,
+    # tras un error, no se cerrará el formuario
+    close_on_error = False
+
     def get_fields_kwargs(self, form):
         """
         Retorna el valor de cada 'field' en el diccionario 'kw'.
@@ -615,7 +620,8 @@ class BaseModalFormView(FormView):
                 else:
                     if func_ret['error_title']:
                         sweetify.error(self.request, title=func_ret['error_title'], icon='error')
-                    event_action = 'not_submitted'
+                        if not self.close_on_error:
+                            event_action = 'not_submitted'
                 self.success_url = reverse_lazy(self.father_view) + params
             return HttpResponseLocation(
                 self.get_success_url(),
