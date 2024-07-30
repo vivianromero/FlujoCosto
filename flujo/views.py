@@ -1211,10 +1211,8 @@ def estadodestino(request):
 
 
 @transaction.atomic
-def cierremes(kwargs):
-    """
-    Aceptar un documento
-    """
+# def cierremes(kwargs):
+def cierremes(request):
 
     func_ret = {
         'success': True,
@@ -1222,6 +1220,29 @@ def cierremes(kwargs):
         'success_title': 'El cierre fue realizado',
         'error_title': '',
     }
+
+    # el mes viene por parámetro que al enviarlo para tomarlo:
+    # - Se buscó el último cierre de mes y si no existe, se busca la fecha maxima de periodo
+    #   si no hay fecha maxima de periodo no hay mes y no se debe entrar a la opción
+    mes = 1
+
+    # la fecha es la que seleccionó en el form que es el ultimo día de período y todos los dptos
+    # deben tener su fecha de período superior a esa fecha, porque deben haber cambiado de periodo
+
+    fecha = "2024-01-31"
+
+    # la ueb debe venir por parametro
+    codigo_ueb = '05'
+
+    fechas = FechaPeriodo.objects.filter(fecha__lg=fecha, ueb.codigo = codigo_ueb).all()
+
+    if not fechas:
+        error_title =
+        func_ret.update({
+            'success': False,
+            'error_title': 'Existen Departamentos que aún no están en el último dia del mes'
+        })
+
     detalles = kwargs['detalles']
 
     no_existen = [d for d in detalles if not d['existe_sistema']]
