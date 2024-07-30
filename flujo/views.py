@@ -329,6 +329,10 @@ class DocumentoCRUD(CommonCRUDView):
         view = super().get_filter_list_view()
 
         class OFilterListView(view):
+            dep = None
+            fecha_procesamiento = None
+            fecha_procesamiento_range = None
+
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
                 dep_queryset = context['form'].fields['departamento'].queryset
@@ -402,18 +406,18 @@ class DocumentoCRUD(CommonCRUDView):
                 rango_fecha = self.request.GET.get('rango_fecha', None)
                 queryset = queryset.filter(ueb=ueb)
                 fecha_procesamiento = None
-                if self.request.htmx.trigger_name == 'departamento':
-                    if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                            settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                        fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
-                        if fecha_procesamiento is not None and fecha_procesamiento != '':
-                            qdict['fecha__gte'] = fecha_procesamiento
-                            qdict['fecha__lte'] = fecha_procesamiento
-                            queryset = queryset.filter(**qdict)
+                # if self.request.htmx.trigger_name == 'departamento':
+                #     if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                #             settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                #         fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                if self.fecha_procesamiento is not None and self.fecha_procesamiento != '':
+                    qdict['fecha__gte'] = self.fecha_procesamiento
+                    qdict['fecha__lte'] = self.fecha_procesamiento
+                    queryset = queryset.filter(**qdict)
                 # if self.dep is not None and self.dep != '':
                 #     qdict['departamento'] = self.dep
-                # if self.dep == '' or self.dep is None:
-                #     return self.model.objects.none()
+                if self.dep == '' or self.dep is None:
+                    return self.model.objects.none()
                 # if rango_fecha is not None and rango_fecha != '':
                 #     fechas = rango_fecha.strip().split('-')
                 #     qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
@@ -421,6 +425,18 @@ class DocumentoCRUD(CommonCRUDView):
                 return queryset
 
             def get(self, request, *args, **kwargs):
+                if self.request.htmx.trigger_name == 'departamento':
+                    ueb = self.request.user.ueb
+                    self.dep = self.request.GET.get('departamento', None)
+                    dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
+                    if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                            settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                        self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                        self.fecha_procesamiento_range = mark_safe(self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
+                            '%d/%m/%Y'))
+                    request.GET = request.GET.copy()
+                    request.GET['rango_fecha'] = self.fecha_procesamiento_range
+                    getparams_hx = self.getparams_hx.split('rango_fecha=')
                 return super().get(request, *args, **kwargs)
 
         return OFilterListView
@@ -1193,6 +1209,7 @@ def estadodestino(request):
     )
     return response
 
+
 @transaction.atomic
 def cierremes(kwargs):
     """
@@ -1251,16 +1268,17 @@ def cierremes(kwargs):
 
     return func_ret
 
+
 class DameFechaModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerFechaForm
     # father_view = 'app_index:index'
-    father_view = 'app_index:flujo:flujo_documento_list'
+    father_view = 'app_index:index'
     hx_target = '#main_content_swap'
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'
     hx_reswap = 'outerHTML',
-    modal_form_title = 'Obtener Datos'
+    modal_form_title = 'Obtener Fecha de Cierre'
     max_width = '500px'
     funcname = {
         'submitted': cierremes,
@@ -1302,14 +1320,14 @@ class DameFechaModalFormView(BaseModalFormView):
         # json_data = self.request.GET.get('json_data')
         # kwargs['initial'].update({
         #     "fecha": fecha,
-            # "iddocumento_numero": iddocumento_numero,
-            # "iddocumento_numctrl": iddocumento_numctrl,
-            # "iddocumento_fecha": iddocumento_fecha,
-            # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
-            # "iddocumento_concepto": iddocumento_concepto,
-            # "iddocumento_almacen": iddocumento_almacen,
-            # "iddocumento_sumaimporte": iddocumento_sumaimporte,
-            # "json_data": json_data,
+        # "iddocumento_numero": iddocumento_numero,
+        # "iddocumento_numctrl": iddocumento_numctrl,
+        # "iddocumento_fecha": iddocumento_fecha,
+        # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
+        # "iddocumento_concepto": iddocumento_concepto,
+        # "iddocumento_almacen": iddocumento_almacen,
+        # "iddocumento_sumaimporte": iddocumento_sumaimporte,
+        # "json_data": json_data,
         # })
         return kwargs
 

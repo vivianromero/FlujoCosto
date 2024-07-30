@@ -228,6 +228,9 @@ MENUS = {
                     "name": "Cierre de Mes",
                     "icon_class": 'fa fa-university',
                     "url": reverse_lazy('app_index:flujo:obtener_fecha'),
+                    "hx_get": reverse_lazy('app_index:flujo:obtener_fecha'),
+                    "hx_target": '#dialog',
+                    "hx_swap": 'outerHTML',
                     "validators": ["app_auth.usuarios.validators.is_operflujo"],
                 },
 
