@@ -1126,8 +1126,12 @@ class ObtenerDocumentoVersatForm(forms.Form):
 
 # ------------ ObtenerFecha / Form ------------
 class ObtenerFechaForm(forms.Form):
-    fecha = forms.CharField(label='No Doc', required=True, widget=forms.TextInput(attrs={'readonly': True}))
-
+    fecha = forms.DateField(
+        label="Fecha del último período del mes",
+        required=True,
+        widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+        input_formats=["%Y-%m-%d"]
+    )
     class Meta:
         fields = [
             'fecha',
@@ -1142,10 +1146,19 @@ class ObtenerFechaForm(forms.Form):
         self.helper.form_method = 'GET'
         self.helper.form_tag = False
 
-        widget = forms.TextInput(attrs={'readonly': True})
+        # widgets = {
+        #     'fecha': MyCustomDateRangeWidget(
+        #         picker_options={
+        #             'format': 'DD/MM/YYYY',
+        #             'singleDatePicker': True,
+        #             'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
+        #         }
+        #     ),
+        # }
+
         self.helper.layout = Layout(
             Row(
-                Column(UneditableField('fecha'), css_class='form-group col-md-1 mb-0'),
+                Column('fecha', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             ),
         )

@@ -1212,9 +1212,6 @@ def estadodestino(request):
 
 @transaction.atomic
 def cierremes(kwargs):
-    """
-    Aceptar un documento
-    """
 
     func_ret = {
         'success': True,
@@ -1222,54 +1219,77 @@ def cierremes(kwargs):
         'success_title': 'El cierre fue realizado',
         'error_title': '',
     }
-    detalles = kwargs['detalles']
 
-    no_existen = [d for d in detalles if not d['existe_sistema']]
-    if len(no_existen) > 0:
+    # el mes viene por parámetro que al enviarlo para tomarlo:
+    # - Se buscó el último cierre de mes y si no existe, se busca la fecha maxima de periodo
+    #   si no hay fecha maxima de periodo no hay mes y no se debe entrar a la opción
+    mes = 1
+
+    # la fecha es la que seleccionó en el form que es el ultimo día de período y todos los dptos
+    # deben tener su fecha de período superior a esa fecha, porque deben haber cambiado de periodo
+
+    # la ueb debe venir por parametro
+    codigo_ueb = '05'
+
+    fecha = kwargs['fecha']
+    fechas = FechaPeriodo.objects.filter(fecha__lt=fecha, ueb__codigo=codigo_ueb).all()
+    if fechas:
+
+        error_title = '111111'
         func_ret.update({
-            'success': False
+            'success': False,
+            'error_title': 'Existen Departamentos que aún no están en el último dia del mes'
         })
-    else:
-        iddocumento = kwargs['iddocumento']
-        request = kwargs['request']
-        json_data = literal_eval(kwargs['json_data'])
-        departamento = ''
-        if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
-            departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
-        dicc_detalle = {}
-        detalles_generados = []
-        for p in detalles:
-            dicc_detalle[p['producto_codigo']] = {'cantidad': float(p['cantidad']), 'um': p['medida_clave'].strip(),
-                                                  'precio': float(p['precio'])}
 
-        prods = ProductoFlujo.objects.filter(codigo__in=list(dicc_detalle.keys()))
 
-        new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
-        departamento = Departamento.objects.get(pk=departamento)
-        new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo)
 
-        for p in prods:
-            detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
-                                                       precio=dicc_detalle[p.codigo]['precio'],
-                                                       importe=round(
-                                                           float(dicc_detalle[p.codigo]['cantidad']) * float(
-                                                               dicc_detalle[p.codigo]['precio']), 2),
-                                                       documento=new_doc,
-                                                       estado=EstadoProducto.BUENO,
-                                                       producto=p
-                                                       ))
-        crea_detalles_generado(new_doc, detalles_generados)
-        fecha = kwargs['iddocumento_fecha']
-        partes = fecha.split('/')
-        partes.reverse()
-        fecha_doc = '-'.join(partes)
-        DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc,
-                                             fecha_documentoversat=fecha_doc, documento_origen=json_data)
+    # no_existen = [d for d in detalles if not d['existe_sistema']]
+    # if len(no_existen) > 0:
+    #     func_ret.update({
+    #         'success': False
+    #     })
+    # else:
+    #     iddocumento = kwargs['iddocumento']
+    #     request = kwargs['request']
+    #     json_data = literal_eval(kwargs['json_data'])
+    #     departamento = ''
+    #     if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
+    #         departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
+    #     dicc_detalle = {}
+    #     detalles_generados = []
+    #     for p in detalles:
+    #         dicc_detalle[p['producto_codigo']] = {'cantidad': float(p['cantidad']), 'um': p['medida_clave'].strip(),
+    #                                               'precio': float(p['precio'])}
+    #
+    #     prods = ProductoFlujo.objects.filter(codigo__in=list(dicc_detalle.keys()))
+    #
+    #     new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
+    #     departamento = Departamento.objects.get(pk=departamento)
+    #     new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo)
+    #
+    #     for p in prods:
+    #         detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
+    #                                                    precio=dicc_detalle[p.codigo]['precio'],
+    #                                                    importe=round(
+    #                                                        float(dicc_detalle[p.codigo]['cantidad']) * float(
+    #                                                            dicc_detalle[p.codigo]['precio']), 2),
+    #                                                    documento=new_doc,
+    #                                                    estado=EstadoProducto.BUENO,
+    #                                                    producto=p
+    #                                                    ))
+    #     crea_detalles_generado(new_doc, detalles_generados)
+    #     fecha = kwargs['iddocumento_fecha']
+    #     partes = fecha.split('/')
+    #     partes.reverse()
+    #     fecha_doc = '-'.join(partes)
+    #     DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc,
+    #                                          fecha_documentoversat=fecha_doc, documento_origen=json_data)
 
     return func_ret
 
 
 class DameFechaModalFormView(BaseModalFormView):
+    # FechaPeriodo.objects.filter(fecha__lg=fecha, ueb__codigo == codigo_ueb).all()
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerFechaForm
     # father_view = 'app_index:index'
