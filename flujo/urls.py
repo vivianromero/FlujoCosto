@@ -15,4 +15,5 @@ urlpatterns = [
     path('departamentosueb/', views.departamentosueb, name='departamentosueb'),
     path('productosdestino/', views.productosdestino, name='productosdestino'),
     path('estadodestino/', views.estadodestino, name='estadodestino'),
+    path('obtener_fecha/', views.DameFechaModalFormView.as_view(), name='obtener_fecha'),
 ]
