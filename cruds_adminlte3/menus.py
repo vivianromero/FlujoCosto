@@ -223,6 +223,13 @@ MENUS = {
                     "url": reverse_lazy('app_index:importar:all_conf_importar'),
                     "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                 },
+                {
+                    "id": 'id_nav_link_cierre_mes',
+                    "name": "Cierre de Mes",
+                    "icon_class": 'fa fa-university',
+                    "url": reverse_lazy('app_index:flujo:obtener_fecha'),
+                    "validators": ["app_auth.usuarios.validators.is_operflujo"],
+                },
 
             ]
         },

@@ -27,6 +27,7 @@ from .forms import *
 from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
     existencia_anterior
+from codificadores.forms import ObtenerDatosModalForm
 
 
 # Create your views here.
@@ -1191,3 +1192,135 @@ def estadodestino(request):
         content_type='text/html'
     )
     return response
+
+@transaction.atomic
+def cierremes(kwargs):
+    """
+    Aceptar un documento
+    """
+
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'El cierre fue realizado',
+        'error_title': '',
+    }
+    detalles = kwargs['detalles']
+
+    no_existen = [d for d in detalles if not d['existe_sistema']]
+    if len(no_existen) > 0:
+        func_ret.update({
+            'success': False
+        })
+    else:
+        iddocumento = kwargs['iddocumento']
+        request = kwargs['request']
+        json_data = literal_eval(kwargs['json_data'])
+        departamento = ''
+        if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
+            departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
+        dicc_detalle = {}
+        detalles_generados = []
+        for p in detalles:
+            dicc_detalle[p['producto_codigo']] = {'cantidad': float(p['cantidad']), 'um': p['medida_clave'].strip(),
+                                                  'precio': float(p['precio'])}
+
+        prods = ProductoFlujo.objects.filter(codigo__in=list(dicc_detalle.keys()))
+
+        new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
+        departamento = Departamento.objects.get(pk=departamento)
+        new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo)
+
+        for p in prods:
+            detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
+                                                       precio=dicc_detalle[p.codigo]['precio'],
+                                                       importe=round(
+                                                           float(dicc_detalle[p.codigo]['cantidad']) * float(
+                                                               dicc_detalle[p.codigo]['precio']), 2),
+                                                       documento=new_doc,
+                                                       estado=EstadoProducto.BUENO,
+                                                       producto=p
+                                                       ))
+        crea_detalles_generado(new_doc, detalles_generados)
+        fecha = kwargs['iddocumento_fecha']
+        partes = fecha.split('/')
+        partes.reverse()
+        fecha_doc = '-'.join(partes)
+        DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc,
+                                             fecha_documentoversat=fecha_doc, documento_origen=json_data)
+
+    return func_ret
+
+class DameFechaModalFormView(BaseModalFormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = ObtenerFechaForm
+    # father_view = 'app_index:index'
+    father_view = 'app_index:flujo:flujo_documento_list'
+    hx_target = '#main_content_swap'
+    hx_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML',
+    modal_form_title = 'Obtener Datos'
+    max_width = '500px'
+    funcname = {
+        'submitted': cierremes,
+    }
+
+    def get_context_data(self, **kwargs):
+        fecha = self.request.GET.get('fecha', None)
+        # json_data = self.request.GET.get('json_data', None)
+        # if detalle:
+        #     detalle = literal_eval(detalle)
+        #     json_data = literal_eval(json_data)
+        #     codigos_versat = [p['producto_codigo'] for p in detalle]
+        #     productos = ProductoFlujo.objects.values('codigo', 'medida__clave').filter(codigo__in=codigos_versat).all()
+        #     codigos_sistema = [(p['codigo'], p['medida__clave'].strip()) for p in productos]
+        #     for d in detalle:
+        #         d['existe_sistema'] = (d['producto_codigo'], d['medida_clave'].strip()) in codigos_sistema
+        #
+        # self.inline_tables[0].update({
+        #     "table": DocumentosVersatDetalleTable(detalle),
+        # })
+        ctx = super().get_context_data(**kwargs)
+        # ctx.update({
+        #     'btn_rechazar': 'Rechazar Documento',
+        #     'btn_aceptar': 'Aceptar Documento',
+        #     'inline_tables': self.inline_tables,
+        # })
+        return ctx
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        fecha = self.request.GET.get('fecha')
+        # iddocumento_numero = self.request.GET.get('iddocumento_numero')
+        # iddocumento_numctrl = self.request.GET.get('iddocumento_numctrl')
+        # iddocumento_fecha = self.request.GET.get('iddocumento_fecha')
+        # iddocumento_fecha_hidden = self.request.GET.get('iddocumento_fecha')
+        # iddocumento_concepto = self.request.GET.get('iddocumento_concepto')
+        # iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
+        # iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
+        # json_data = self.request.GET.get('json_data')
+        # kwargs['initial'].update({
+        #     "fecha": fecha,
+            # "iddocumento_numero": iddocumento_numero,
+            # "iddocumento_numctrl": iddocumento_numctrl,
+            # "iddocumento_fecha": iddocumento_fecha,
+            # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
+            # "iddocumento_concepto": iddocumento_concepto,
+            # "iddocumento_almacen": iddocumento_almacen,
+            # "iddocumento_sumaimporte": iddocumento_sumaimporte,
+            # "json_data": json_data,
+        # })
+        return kwargs
+
+    def get_fields_kwargs(self, form):
+        kw = {}
+        kw.update({
+            'request': self.request,
+            'fecha': form.cleaned_data['fecha'],
+            # 'iddocumento_fecha': form.cleaned_data['iddocumento_fecha_hidden'],
+        })
+        if self.request.POST['event_action'] in ['submitted']:
+            kw.update(
+                {'fecha': form.cleaned_data['fecha']})
+        return kw

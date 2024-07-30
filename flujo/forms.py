@@ -1122,3 +1122,29 @@ class ObtenerDocumentoVersatForm(forms.Form):
                 css_class='form-row'
             ),
         )
+
+# ------------ ObtenerFecha / Form ------------
+class ObtenerFechaForm(forms.Form):
+    fecha = forms.CharField(label='No Doc', required=True, widget=forms.TextInput(attrs={'readonly': True}))
+
+    class Meta:
+        fields = [
+            'fecha',
+        ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        instance = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.post = kwargs.pop('post', None)
+        super(ObtenerFechaForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'GET'
+        self.helper.form_tag = False
+
+        widget = forms.TextInput(attrs={'readonly': True})
+        self.helper.layout = Layout(
+            Row(
+                Column(UneditableField('fecha'), css_class='form-group col-md-1 mb-0'),
+                css_class='form-row'
+            ),
+        )
