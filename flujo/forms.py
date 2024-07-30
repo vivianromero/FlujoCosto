@@ -150,8 +150,8 @@ class DocumentoForm(forms.ModelForm):
             pk=instance.pk).numeroconsecutivo
 
         self.es_centralizado = False if not settings.OTRAS_CONFIGURACIONES or not 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() or \
-                                       settings.OTRAS_CONFIGURACIONES[
-                                           'Sistema Centralizado']['activo'] == False else True
+                                        settings.OTRAS_CONFIGURACIONES[
+                                            'Sistema Centralizado']['activo'] == False else True
         dicc = {}
         self.fields['estado'].initial = EstadosDocumentos.EDICION
         if self.user:
@@ -1122,6 +1122,7 @@ class ObtenerDocumentoVersatForm(forms.Form):
                 css_class='form-row'
             ),
         )
+
 
 # ------------ ObtenerFecha / Form ------------
 class ObtenerFechaForm(forms.Form):

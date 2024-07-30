@@ -1209,6 +1209,7 @@ def estadodestino(request):
     )
     return response
 
+
 @transaction.atomic
 def cierremes(kwargs):
     """
@@ -1267,16 +1268,17 @@ def cierremes(kwargs):
 
     return func_ret
 
+
 class DameFechaModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerFechaForm
     # father_view = 'app_index:index'
-    father_view = 'app_index:flujo:flujo_documento_list'
+    father_view = 'app_index:index'
     hx_target = '#main_content_swap'
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'
     hx_reswap = 'outerHTML',
-    modal_form_title = 'Obtener Datos'
+    modal_form_title = 'Obtener Fecha de Cierre'
     max_width = '500px'
     funcname = {
         'submitted': cierremes,
@@ -1318,14 +1320,14 @@ class DameFechaModalFormView(BaseModalFormView):
         # json_data = self.request.GET.get('json_data')
         # kwargs['initial'].update({
         #     "fecha": fecha,
-            # "iddocumento_numero": iddocumento_numero,
-            # "iddocumento_numctrl": iddocumento_numctrl,
-            # "iddocumento_fecha": iddocumento_fecha,
-            # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
-            # "iddocumento_concepto": iddocumento_concepto,
-            # "iddocumento_almacen": iddocumento_almacen,
-            # "iddocumento_sumaimporte": iddocumento_sumaimporte,
-            # "json_data": json_data,
+        # "iddocumento_numero": iddocumento_numero,
+        # "iddocumento_numctrl": iddocumento_numctrl,
+        # "iddocumento_fecha": iddocumento_fecha,
+        # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
+        # "iddocumento_concepto": iddocumento_concepto,
+        # "iddocumento_almacen": iddocumento_almacen,
+        # "iddocumento_sumaimporte": iddocumento_sumaimporte,
+        # "json_data": json_data,
         # })
         return kwargs
 

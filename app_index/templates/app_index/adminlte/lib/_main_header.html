@@ -42,34 +42,59 @@
                 {% for item in left_sidebar_menu  %}
                     {% if item.submenu %}
                     	<li class="dropdown-submenu">
-                            <a class="dropdown-item dropdown-toggle" href="{{ item.url }}">
+                            <a class="dropdown-item dropdown-toggle" href="{{ item.url }}"
+                               {% if item.hx_get %}hx-get="{{ item.hx_get }}"{% endif %}
+                               {% if item.hx_swap %}hx-swap="{{ item.hx_swap }}"{% endif %}
+                               {% if item.hx_form_target %}hx-target="{{ item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                               {% if item.hx_form_swap %}hx-swap="{{ item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                            >
                                 <i class="{{ item.icon_class }}"></i> {{ item.name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-multiple">
                                 {% for sub_item in item.submenu %}
                                     {% if sub_item.submenu %}
                                         <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_item.url }}">
+                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_item.url }}"
+                                               {% if sub_item.hx_get %}hx-get="{{ sub_item.hx_get }}"{% endif %}
+                                               {% if sub_item.hx_swap %}hx-swap="{{ sub_item.hx_swap }}"{% endif %}
+                                               {% if sub_item.hx_form_target %}hx-target="{{ sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                               {% if sub_item.hx_form_swap %}hx-swap="{{ sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                            >
                                                 <i class="{{ sub_item.icon_class }}"></i> {{ sub_item.name }}
                                             </a>
                                             <ul class="dropdown-menu dropdown-menu-multiple">
                                                 {% for sub_sub_item in sub_item.submenu %}
                                                     {% if sub_sub_item.submenu %}
                                                         <li class="dropdown-submenu">
-                                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_sub_item.url }}">
+                                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_sub_item.url }}"
+                                                               {% if sub_sub_item.hx_get %}hx-get="{{ sub_sub_item.hx_get }}"{% endif %}
+                                                               {% if sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_item.hx_swap }}"{% endif %}
+                                                               {% if sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                                               {% if sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                            >
                                                                 <i class="{{ sub_sub_item.icon_class }}"></i> {{ sub_sub_item.name }}
                                                             </a>
                                                             <ul class="dropdown-menu dropdown-menu-multiple">
                                                                 {% for sub_sub_sub_item in sub_sub_item.submenu %}
                                                                     {% if sub_sub_sub_item.submenu %}
                                                                         <li class="dropdown-submenu">
-                                                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_sub_sub_item.url }}">
+                                                                            <a class="dropdown-item dropdown-toggle" href="{{ sub_sub_sub_item.url }}"
+                                                                               {% if sub_sub_sub_item.hx_get %}hx-get="{{ sub_sub_sub_item.hx_get }}"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_sub_item.hx_swap }}"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                                            >
                                                                                 <i class="{{ sub_sub_sub_item.icon_class }}"></i> {{ sub_sub_sub_item.name }}
                                                                             </a>
                                                                         </li>
                                                                     {% else %}
                                                                         <li>
-                                                                            <a class="dropdown-item" href="{{ sub_sub_sub_item.url }}">
+                                                                            <a class="dropdown-item" href="{{ sub_sub_sub_item.url }}"
+                                                                               {% if sub_sub_sub_item.hx_get %}hx-get="{{ sub_sub_sub_item.hx_get }}"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_sub_item.hx_swap }}"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                                                               {% if sub_sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                                            >
                                                                                 <i class="{{ sub_sub_sub_item.icon_class }}"></i> {{ sub_sub_sub_item.name }}
                                                                             </a>
                                                                         </li> 
@@ -79,7 +104,12 @@
                                                         </li>
                                                      {% else %}
                                                         <li>
-                                                            <a class="dropdown-item" href="{{ sub_sub_item.url }}">
+                                                            <a class="dropdown-item" href="{{ sub_sub_item.url }}"
+                                                               {% if sub_sub_item.hx_get %}hx-get="{{ sub_sub_item.hx_get }}"{% endif %}
+                                                               {% if sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_item.hx_swap }}"{% endif %}
+                                                               {% if sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                                               {% if sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                            >
                                                                 <i class="{{ sub_sub_item.icon_class }}"></i> {{ sub_sub_item.name }}
                                                             </a>
                                                         </li>   
@@ -92,7 +122,12 @@
                                         
                                     {% else %}
                                         <li>
-                                            <a class="dropdown-item" href="{{ sub_item.url }}">
+                                            <a class="dropdown-item" href="{{ sub_item.url }}"
+                                               {% if sub_item.hx_get %}hx-get="{{ sub_item.hx_get }}"{% endif %}
+                                               {% if sub_item.hx_swap %}hx-swap="{{ sub_item.hx_swap }}"{% endif %}
+                                               {% if sub_item.hx_form_target %}hx-target="{{ sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                                               {% if sub_item.hx_form_swap %}hx-swap="{{ sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                            >
                                                 <i class="{{ sub_item.icon_class }}"></i> {{sub_item.name }}
                                             </a>
                                         </li>
@@ -102,7 +137,12 @@
                         </li>
                     {% else %}
                         <li>
-                            <a class="dropdown-item" href="{{ item.url }}">
+                            <a class="dropdown-item" href="{{ item.url }}"
+                               {% if item.hx_get %}hx-get="{{ item.hx_get }}"{% endif %}
+                               {% if item.hx_swap %}hx-swap="{{ item.hx_swap }}"{% endif %}
+                               {% if item.hx_form_target %}hx-target="{{ item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+                               {% if item.hx_form_swap %}hx-swap="{{ item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                            >
                                 <i class="{{ item.icon_class }}"></i> {{ item.name }}
                             </a>
                         </li>
