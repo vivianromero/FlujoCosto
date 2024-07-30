@@ -227,7 +227,7 @@ MENUS = {
                     "id": 'id_nav_link_cierre_mes',
                     "name": "Cierre de Mes",
                     "icon_class": 'fa fa-university',
-                    "url": reverse_lazy('app_index:flujo:obtener_fecha'),
+                    "url": "#",
                     "hx_get": reverse_lazy('app_index:flujo:obtener_fecha'),
                     "hx_target": '#dialog',
                     "hx_swap": 'outerHTML',

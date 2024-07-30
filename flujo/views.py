@@ -1294,15 +1294,16 @@ class DameFechaModalFormView(BaseModalFormView):
     form_class = ObtenerFechaForm
     # father_view = 'app_index:index'
     father_view = 'app_index:index'
-    hx_target = '#main_content_swap'
+    hx_target = '#body'
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'
-    hx_reswap = 'outerHTML',
+    hx_reswap = 'outerHTML'
     modal_form_title = 'Obtener Fecha de Cierre'
     max_width = '500px'
     funcname = {
         'submitted': cierremes,
     }
+    close_on_error = True
 
     def get_context_data(self, **kwargs):
         fecha = self.request.GET.get('fecha', None)
@@ -1338,8 +1339,8 @@ class DameFechaModalFormView(BaseModalFormView):
         # iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
         # iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
         # json_data = self.request.GET.get('json_data')
-        # kwargs['initial'].update({
-        #     "fecha": fecha,
+        kwargs['initial'].update({
+            "fecha": fecha,
         # "iddocumento_numero": iddocumento_numero,
         # "iddocumento_numctrl": iddocumento_numctrl,
         # "iddocumento_fecha": iddocumento_fecha,
@@ -1348,7 +1349,7 @@ class DameFechaModalFormView(BaseModalFormView):
         # "iddocumento_almacen": iddocumento_almacen,
         # "iddocumento_sumaimporte": iddocumento_sumaimporte,
         # "json_data": json_data,
-        # })
+        })
         return kwargs
 
     def get_fields_kwargs(self, form):

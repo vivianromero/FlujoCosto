@@ -29,7 +29,7 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body
+<body id="body"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         class="hold-transition skin-blue sidebar-collapse layout-footer-fixed layout-navbar-fixed layout-top-nav
         {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}"
@@ -191,6 +191,9 @@
         // Remove dialog content after hiding
         htmx.on("hidden.bs.modal", () => {
             document.getElementById("dialog").innerHTML = ""
+        })
+        htmx.on("hidden.bs.modal", () => {
+            document.getElementById("edit_modal_inner").innerHTML = ""
         })
 
 
