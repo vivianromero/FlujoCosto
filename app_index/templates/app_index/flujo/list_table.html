@@ -127,7 +127,16 @@
                                                 js_swal_text: '{{ js_swal_text|safe }}',
                                                 js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
                                                 js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
+                                                js_process_date: '{{ fecha_procesamiento|date:'d/m/Y'|safe }}'
                                             }
+                                            if (window.data.js_htmx_departamento_trigger){
+                                                console.log(window.data.js_process_date)
+                                                let period = document.getElementById('id_fecha_documento_formfilter')
+                                                $(period)[0].value = window.data.js_process_date + ' - ' + window.data.js_process_date
+                                            }
+                                            document.body.addEventListener("process_date", function(evt){
+                                                evt.target.value = window.data.js_process_date + ' - ' + window.data.js_process_date
+                                            })
                                             document.querySelectorAll("a.delete_href").forEach((ref) => {
                                                 ref.addEventListener("click", function (e) {
                                                     e.preventDefault()
@@ -240,7 +249,6 @@
             Resizable.activeContentWindows[0].changeSize(window.innerWidth, window.innerHeight);
             Resizable.activeContentWindows[0].childrenResize();
         });
-
 
     </script>
     </section>

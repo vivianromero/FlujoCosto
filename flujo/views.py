@@ -12,6 +12,7 @@ from django.db.models import ProtectedError
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation
 
@@ -335,6 +336,8 @@ class DocumentoCRUD(CommonCRUDView):
 
             def get_context_data(self, *, object_list=None, **kwargs):
                 context = super().get_context_data(**kwargs)
+                error_msg = ""
+                no_data_msg = ""
                 dep_queryset = context['form'].fields['departamento'].queryset
                 ueb = self.request.user.ueb
                 dep_queryset = dep_queryset.filter(unidadcontable=ueb)
@@ -344,6 +347,7 @@ class DocumentoCRUD(CommonCRUDView):
                 tipo_doc_salida = tiposdoc.filter(operacion=OperacionDocumento.SALIDA)
                 dpto = dep_queryset.get(pk=self.dep) if self.dep else None
                 fecha_procesamiento = None
+                htmx_departamento_trigger = False
                 if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
                         settings.FECHAS_PROCESAMIENTO[ueb].keys():
                     fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
@@ -351,6 +355,9 @@ class DocumentoCRUD(CommonCRUDView):
                     context['form'].fields['rango_fecha'].widget.picker_options['custom_ranges'] = {
                         'Fecha procesamiento': (fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y')),
                     }
+                    context['form'].initial['rango_fecha'] = (fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y'))
+                if self.request.htmx.trigger_name == 'departamento':
+                    htmx_departamento_trigger = True
                 inicializado = False if not self.dep else dpto.inicializado(ueb)
                 if not inicializado:
                     tipo_doc_entrada = tipo_doc_entrada.filter(pk=ChoiceTiposDoc.CARGA_INICIAL)
@@ -368,11 +375,13 @@ class DocumentoCRUD(CommonCRUDView):
                 if self.dep and inicializado:
                     dpto = self.request.GET.get('departamento', None)
                     datostableversat = dame_documentos_versat(self.request, dpto if dpto else self.dep)
-                    tableversat = DocumentosVersatTable([]) if datostableversat == None else DocumentosVersatTable(
+                    tableversat = DocumentosVersatTable([]) if datostableversat is None else DocumentosVersatTable(
                         datostableversat)
                     if 'actions' in tableversat.col_vis:
                         tableversat.col_vis.remove('actions')
-                    tableversat.empty_text = "Error de concexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
+                        error_msg = "Error de concexión con la API Versat para obtener los datos"
+                        no_data_msg = "No hay datos para mostrar"
+                    tableversat.empty_text = error_msg if datostableversat is None else no_data_msg
                     DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
@@ -386,36 +395,27 @@ class DocumentoCRUD(CommonCRUDView):
                     "col_vis_hx_include": "[name='departamento'], [name='rango_fecha']",
                     'create_link_menu': True,
                     'url_docversat': url_docversat,
-                    'hay_departamento': not self.dep == None,
+                    'hay_departamento': not self.dep is None,
                     'tipo_doc_entrada': tipo_doc_entrada,
                     'tipo_doc_salida': tipo_doc_salida,
                     'inicializado': inicializado,
                     'confirm': True,
                     'texto_confirm': "Al confirmar no podrá modificar el documento.¡Esta acción no podrá revertirse!",
                     'texto_inicializar': "Una vez inicializado el departamento, podrá realizar acciones en él.",
+                    'fecha_procesamiento': fecha_procesamiento,
+                    'htmx_departamento_trigger': htmx_departamento_trigger,
                 })
                 return context
 
             def get_queryset(self):
                 qdict = {}
-                queryset = super(OFilterListView, self).get_queryset()
+                queryset = super().get_queryset()
                 formating = '%d/%m/%Y'
                 ueb = self.request.user.ueb
                 self.dep = self.request.GET.get('departamento', None)
                 dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
                 rango_fecha = self.request.GET.get('rango_fecha', None)
                 queryset = queryset.filter(ueb=ueb)
-                fecha_procesamiento = None
-                # if self.request.htmx.trigger_name == 'departamento':
-                #     if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                #             settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                #         fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
-                if self.fecha_procesamiento is not None and self.fecha_procesamiento != '':
-                    qdict['fecha__gte'] = self.fecha_procesamiento
-                    qdict['fecha__lte'] = self.fecha_procesamiento
-                    queryset = queryset.filter(**qdict)
-                # if self.dep is not None and self.dep != '':
-                #     qdict['departamento'] = self.dep
                 if self.dep == '' or self.dep is None:
                     return self.model.objects.none()
                 # if rango_fecha is not None and rango_fecha != '':
@@ -424,20 +424,42 @@ class DocumentoCRUD(CommonCRUDView):
                 #     qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
                 return queryset
 
-            def get(self, request, *args, **kwargs):
-                if self.request.htmx.trigger_name == 'departamento':
-                    ueb = self.request.user.ueb
-                    self.dep = self.request.GET.get('departamento', None)
-                    dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
-                    if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                            settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                        self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
-                        self.fecha_procesamiento_range = mark_safe(self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
-                            '%d/%m/%Y'))
-                    request.GET = request.GET.copy()
-                    request.GET['rango_fecha'] = self.fecha_procesamiento_range
-                    getparams_hx = self.getparams_hx.split('rango_fecha=')
-                return super().get(request, *args, **kwargs)
+            # def get(self, request, *args, **kwargs):
+            #     if self.request.htmx.trigger_name == 'departamento':
+            #         ueb = self.request.user.ueb
+            #         self.dep = self.request.GET.get('departamento', None)
+            #         dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
+            #         if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+            #                 settings.FECHAS_PROCESAMIENTO[ueb].keys():
+            #             self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+            #             self.fecha_procesamiento_range = self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
+            #                 '%d/%m/%Y')
+            #         # request.GET = request.GET.copy()
+            #         # request.GET['rango_fecha'] = self.fecha_procesamiento_range
+            #         getparams_hx = self.getparams_hx.split('rango_fecha=')
+            #
+            #         # form = self.filterset_class.form(
+            #         #     initial={
+            #         #         'rango_fecha': (self.fecha_procesamiento.strftime('%d/%m/%Y'), self.fecha_procesamiento.strftime('%d/%m/%Y'))
+            #         #     }
+            #         # )
+            #     return super().get(request, *args, **kwargs)
+
+            # def dispatch(self, request, *args, **kwargs):
+            #     return super().dispatch(request, *args, **kwargs)
+
+            # def get_filterset_kwargs(self, filterset_class):
+            #     kw = super().get_filterset_kwargs(filterset_class=self.filterset_class)
+            #     fecha_procesamiento = None
+            #     if self.request.htmx.trigger_name == 'departamento':
+            #         ueb = self.request.user.ueb
+            #         self.dep = self.request.GET.get('departamento', None)
+            #         dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
+            #         if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+            #                 settings.FECHAS_PROCESAMIENTO[ueb].keys():
+            #             fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+            #         kw['data'].update({'fecha_procesamiento': (fecha_procesamiento.strftime('%d/%m%Y'), fecha_procesamiento.strftime('%d/%m%Y'))})
+            #     return kw
 
         return OFilterListView
 
@@ -1212,7 +1234,6 @@ def estadodestino(request):
 
 @transaction.atomic
 def cierremes(kwargs):
-
     func_ret = {
         'success': True,
         'errors': {},
@@ -1234,14 +1255,11 @@ def cierremes(kwargs):
     fecha = kwargs['fecha']
     fechas = FechaPeriodo.objects.filter(fecha__lt=fecha, ueb__codigo=codigo_ueb).all()
     if fechas:
-
         error_title = '111111'
         func_ret.update({
             'success': False,
             'error_title': 'Existen Departamentos que aún no están en el último dia del mes'
         })
-
-
 
     # no_existen = [d for d in detalles if not d['existe_sistema']]
     # if len(no_existen) > 0:
@@ -1341,14 +1359,14 @@ class DameFechaModalFormView(BaseModalFormView):
         # json_data = self.request.GET.get('json_data')
         kwargs['initial'].update({
             "fecha": fecha,
-        # "iddocumento_numero": iddocumento_numero,
-        # "iddocumento_numctrl": iddocumento_numctrl,
-        # "iddocumento_fecha": iddocumento_fecha,
-        # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
-        # "iddocumento_concepto": iddocumento_concepto,
-        # "iddocumento_almacen": iddocumento_almacen,
-        # "iddocumento_sumaimporte": iddocumento_sumaimporte,
-        # "json_data": json_data,
+            # "iddocumento_numero": iddocumento_numero,
+            # "iddocumento_numctrl": iddocumento_numctrl,
+            # "iddocumento_fecha": iddocumento_fecha,
+            # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
+            # "iddocumento_concepto": iddocumento_concepto,
+            # "iddocumento_almacen": iddocumento_almacen,
+            # "iddocumento_sumaimporte": iddocumento_sumaimporte,
+            # "json_data": json_data,
         })
         return kwargs
 
@@ -1363,3 +1381,58 @@ class DameFechaModalFormView(BaseModalFormView):
             kw.update(
                 {'fecha': form.cleaned_data['fecha']})
         return kw
+
+
+def obtener_departamento_y_fecha_procesamiento(request):
+    """
+    Obtener el departamento y su respectiva fech de procesamiento
+    """
+    there_is_htmx_params = request.htmx.current_url_abs_path.split('?').__len__() > 1
+    getparams_hx = '?' + request.htmx.current_url_abs_path.split('?')[1] if there_is_htmx_params else ''
+
+    ueb = request.user.ueb
+    dep = request.GET.get('departamento', None)
+    dpto = Departamento.objects.get(pk=dep) if dep else None
+    fecha_procesamiento = None
+    fecha_procesamiento_range = None
+    rango_fecha = request.GET.get('rango_fecha', '')
+
+    if request.htmx.trigger_name == 'departamento':
+
+        if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                settings.FECHAS_PROCESAMIENTO[ueb].keys():
+            fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+            separator = '%2F'
+
+            fecha_procesamiento_range = fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + fecha_procesamiento.strftime(
+                '%d/%m/%Y')
+            day = str(fecha_procesamiento.day)
+            if day.__len__() < 2:
+                day = '0' + day
+            month = str(fecha_procesamiento.month)
+            if month.__len__() < 2:
+                month = '0' + month
+            year = str(fecha_procesamiento.year)
+            # fecha_procesamiento_range.replace('/', separator)
+            fecha_procesamiento_encoded = day + separator + month + separator + year
+            rango_fecha = fecha_procesamiento_encoded + ' - ' + fecha_procesamiento_encoded
+            if there_is_htmx_params:
+                getparams = getparams_hx.split('rango_fecha=')
+                getparams[0] += 'rango_fecha=' + rango_fecha
+                getparams_hx = getparams[0]
+            else:
+                getparams_hx = '?departamento=' + dep + '&rango_fecha=' + rango_fecha
+
+    return HttpResponseLocation(
+        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + getparams_hx,
+        target='#table_content_documento_swap',
+        headers={
+            'HX-Trigger': request.htmx.trigger,
+            'HX-Trigger-Name': request.htmx.trigger_name,
+            'event_action': 'listed',
+        },
+        # values={
+        #     'departamento': dep,
+        #     'rango_fecha': rango_fecha
+        # }
+    )
