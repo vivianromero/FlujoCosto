@@ -152,6 +152,8 @@
             const swap_targets = ['main_content_swap', 'table_content_documento_swap']
             const swap_inline_targets = ['id', 'myList']
             const dialog_targets = ['dialog', 'edit_modal_inner']
+            const department_id = ['id_departamento_']
+            const period_id = ['id_fecha_documento_formfilter']
             if (e.detail.target.id === dialog_targets[0]) {
                 modal.show()
                 Inputmask().mask(document.querySelectorAll("input"));
@@ -161,13 +163,15 @@
                 Inputmask().mask(document.querySelectorAll("input"));
             }
             if (swap_targets.includes(e.detail.target.id)) {
-                console.log(e.detail.requestConfig.headers["HX-Trigger"])
                 if (trigger_to_hide.includes(e.detail.requestConfig.headers["HX-Trigger"]) && events_to_hide.includes(e.detail.requestConfig.headers["event_action"])) {
                     modal.hide()
                 }
+                if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
+                    let period = document.getElementById(period_id[0])
+                    htmx.trigger(period, 'process_date')
+                }
             }
             if (swap_inline_targets.includes(e.detail.target.id.split('_')[0]) && swap_inline_targets.includes(e.detail.target.id.split('_')[2])) {
-                console.log(e.detail.requestConfig.headers["HX-Trigger"])
                 if (trigger_inline_to_hide.includes(e.detail.requestConfig.headers["HX-Trigger"]) && events_inline_to_hide.includes(e.detail.requestConfig
                     .headers["event_action"])) {
                     console.log(e.detail)

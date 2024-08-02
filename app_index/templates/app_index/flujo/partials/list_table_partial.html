@@ -26,7 +26,17 @@
             js_swal_text: '{{ js_swal_text|safe }}',
             js_swal_confirmButtonText: '{{ js_swal_confirmButtonText|safe }}',
             js_swal_cancelButtonText: '{{ js_swal_cancelButtonText|safe }}',
+            js_process_date: '{{ fecha_procesamiento|date:'d/m/Y'|safe }}',
+            js_htmx_departamento_trigger: '{{ htmx_departamento_trigger }}'
         }
+        if (window.data.js_htmx_departamento_trigger){
+            console.log(window.data.js_process_date)
+            let period = document.getElementById('id_fecha_documento_formfilter')
+            $(period)[0].value = window.data.js_process_date + ' - ' + window.data.js_process_date
+        }
+        document.body.addEventListener("process_date", function(evt){
+            evt.target.value = window.data.js_process_date + ' - ' + window.data.js_process_date
+        })
         document.querySelectorAll("a.delete_href").forEach((ref) => {
             ref.addEventListener("click", function (e) {
                 e.preventDefault()
@@ -76,7 +86,7 @@
             })
         })
 
-       document.querySelectorAll("a.confirm_href").forEach((ref) => {
+        document.querySelectorAll("a.confirm_href").forEach((ref) => {
             ref.addEventListener("click", function (e) {
                 e.preventDefault()
                 let record = "\n" + e.target.parentElement.attributes['is'].nodeValue

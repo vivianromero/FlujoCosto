@@ -655,21 +655,28 @@ class DocumentoFormFilter(forms.Form):
         self.fields['departamento'].label = False
         self.fields['departamento'].widget.attrs.update({
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            # 'hx-get': reverse_lazy('app_index:flujo:obtener_fecha_procesamiento'),
             'hx-target': '#table_content_documento_swap',
-            'hx-trigger': "change, changed from:.btn-shift-column-visivility, changed from:#id_fecha_documento_formfilter",
+            'hx-trigger': "change",
             'hx-push-url': 'true',
             'hx-replace-url': 'true',
+            # 'hx-vals': '{"rango_fecha": "31/01/2024 - 31/01/2024"}',
+            # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
             'hx-include': '[name="rango_fecha"]',
         })
         self.fields['rango_fecha'].label = False
+        # self.fields['rango_fecha'].initial = (date.today().strftime('%d/%m%Y'), date.today().strftime('%d/%m%Y'))
+        # if args and 'fecha_procesamiento' in args[0]:
+        #     self.fields['rango_fecha'].initial = args[0]['fecha_procesamiento']
         self.fields['rango_fecha'].widget.attrs.update({
             'class': 'class="form-control',
             'style': 'height: auto; padding: 0;',
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
             'hx-target': '#table_content_documento_swap',
-            'hx-trigger': 'change, changed from:#div_id_departamento, changed from:.btn-shift-column-visivility',
+            'hx-trigger': 'change, process_date',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
+            # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
         })
         self.helper.form_id = 'id_documento_form_filter'
         self.helper.form_method = 'post'
@@ -1132,6 +1139,7 @@ class ObtenerFechaForm(forms.Form):
         widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         input_formats=["%Y-%m-%d"]
     )
+
     class Meta:
         fields = [
             'fecha',

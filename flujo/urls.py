@@ -16,4 +16,5 @@ urlpatterns = [
     path('productosdestino/', views.productosdestino, name='productosdestino'),
     path('estadodestino/', views.estadodestino, name='estadodestino'),
     path('obtener_fecha/', views.DameFechaModalFormView.as_view(), name='obtener_fecha'),
+    # path('obtener_fecha_procesaminto/', views.obtener_departamento_y_fecha_procesamiento, name='obtener_fecha_procesamiento'),
 ]
