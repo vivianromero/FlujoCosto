@@ -90,6 +90,10 @@
              {% include 'app_index/partials/partialdef_templates.html#create_link' %}
         {% endif %}
     {% endblock list_create_table_main_header %}
+    {% block period_close_link %}
+        {# aquí se debe poner el link de cerrar periodo #}
+        {% include 'app_index/partials/partialdef_templates.html#period_close_link' %}
+    {% endblock period_close_link %}
     {% block list_export_table_main_header %}
         {# aquí se debe poner el link de exportar#}
         {% include 'app_index/partials/partialdef_templates.html#export_link_url_partial' %}
