@@ -17,4 +17,5 @@ urlpatterns = [
     path('estadodestino/', views.estadodestino, name='estadodestino'),
     path('obtener_fecha/', views.DameFechaModalFormView.as_view(), name='obtener_fecha'),
     path('obtener_fecha_procesamiento/', views.obtener_fecha_procesamiento, name='obtener_fecha_procesamiento'),
+path('obtener_fechacambioperiodo/', views.DameFechaCambioPeriodoModalFormView.as_view(), name='obtener_fechacambioperiodo'),
 ]

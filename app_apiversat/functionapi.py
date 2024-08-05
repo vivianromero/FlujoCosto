@@ -9,14 +9,16 @@ USERNAME_API = settings.USERNAME_API
 PASSWORD_API = settings.PASSWORD_API
 
 
-def getAPI(opcion, *param):
+def getAPI(opcion, params=None):
     url = URL_API + 'api/' + opcion
-    if len(param)>0:
-        url = url+'/?'
-        keys = param[0].keys()
+
+    if params:
+        url = url + '/?'
+        keys = params.keys()
         for k in keys:
-            url += k+"="+param[0][k]+"&"
+            url += k+"="+params[k]+"&"
         url = url[:-1]
+
 
     auth = HTTPBasicAuth(USERNAME_API, PASSWORD_API)
 
@@ -28,8 +30,5 @@ def getAPI(opcion, *param):
     }
 
     # Make a GET request Basic Authentication, and Connection Token
-    # response = requests.get(url, auth=auth, headers=headers)
     response = requests.get(url, auth=auth, headers=headers)
-    # Check the response
     return response
-
