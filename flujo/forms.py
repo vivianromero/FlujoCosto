@@ -1138,40 +1138,53 @@ class ObtenerDocumentoVersatForm(forms.Form):
 
 # ------------ ObtenerFecha / Form ------------
 class ObtenerFechaForm(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+        label="Departamento",
+        required=False,
+        widget=SelectWidget(attrs={
+            'style': 'width: 100%; display: none;',
+        }
+        )
+    )
     fecha = forms.DateField(
-        label="Fecha del último período del mes",
-        required=True,
-        widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
-        input_formats=["%Y-%m-%d"]
+        widget=MyCustomDateRangeWidget(
+            format='%d/%m/%Y',
+            picker_options={
+                'showDropdowns': True,
+                'format': 'DD/MM/YYYY',
+                'singleDatePicker': True,
+                'maxDate': date.today().strftime('%d/%m/%Y'),  # TODO Fecha no puede ser mayor que la fecha actual
+                'minDate': date.today().replace(day=1).strftime('%d/%m/%Y'),  # TODO Fecha no puede ser mayor que la fecha actual
+            },
+        ),
+        input_formats=['%d/%m/%Y'],
     )
 
     class Meta:
         fields = [
             'fecha',
+            'departamento',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        self.departamento = kwargs['initial']['departamento'] if 'departamento' in kwargs['initial'] else None
+        self.fecha_fin = kwargs['initial']['fecha']
         super(ObtenerFechaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_method = 'GET'
         self.helper.form_tag = False
 
-        # widgets = {
-        #     'fecha': MyCustomDateRangeWidget(
-        #         picker_options={
-        #             'format': 'DD/MM/YYYY',
-        #             'singleDatePicker': True,
-        #             'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
-        #         }
-        #     ),
-        # }
+        if self.departamento:
+            self.fields['departamento'].initial = self.departamento
 
         self.helper.layout = Layout(
             Row(
                 Column('fecha', css_class='form-group col-md-4 mb-0'),
+                Field('departamento', type="hidden"),
                 css_class='form-row'
             ),
         )

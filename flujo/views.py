@@ -29,6 +29,7 @@ from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
     existencia_anterior
 from codificadores.forms import ObtenerDatosModalForm
+from datetime import timedelta
 
 
 # Create your views here.
@@ -379,9 +380,8 @@ class DocumentoCRUD(CommonCRUDView):
                         datostableversat)
                     if 'actions' in tableversat.col_vis:
                         tableversat.col_vis.remove('actions')
-                        error_msg = "Error de concexión con la API Versat para obtener los datos"
-                        no_data_msg = "No hay datos para mostrar"
-                    tableversat.empty_text = error_msg if datostableversat is None else no_data_msg
+
+                    tableversat.empty_text = "Error de conexión con la API Versat para obtener los datos" if datostableversat == None else "No hay datos para mostrar"
                     DepartamentoDocumentosForm(initial={'departamento': self.dep})
                     url_docversat = reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
@@ -794,12 +794,12 @@ def dame_documentos_versat(request, dpto):
         fecha_periodo = settings.FECHAS_PROCESAMIENTO[unidadcontable][dpto]['fecha_procesamiento']
         fecha_mes_procesamiento = str(fecha_periodo.year) + '-' + str(fecha_periodo.month) + '-01'
 
-        param = {'fecha_desde': fecha_mes_procesamiento,
+        params = {'fecha_desde': fecha_mes_procesamiento,
                  'fecha_hasta': fecha_periodo.strftime('%Y-%m-%d'),
                  'unidad': unidadcontable.codigo,
                  'centro_costo': dpto.centrocosto.clave
                  }
-        response = getAPI('documentogasto', param)
+        response = getAPI('documentogasto', params=params)
 
         if response and response.status_code == 200:
             datos = response.json()['results']
@@ -1238,76 +1238,46 @@ def cierremes(kwargs):
         'error_title': '',
     }
 
-    # el mes viene por parámetro que al enviarlo para tomarlo:
-    # - Se buscó el último cierre de mes y si no existe, se busca la fecha maxima de periodo
-    #   si no hay fecha maxima de periodo no hay mes y no se debe entrar a la opción
-    mes = 1
-
-    # la fecha es la que seleccionó en el form que es el ultimo día de período y todos los dptos
-    # deben tener su fecha de período superior a esa fecha, porque deben haber cambiado de periodo
-
     # la ueb debe venir por parametro
-    codigo_ueb = '05'
+    ueb = kwargs['request'].user.ueb
 
     fecha = kwargs['fecha']
-    fechas = FechaPeriodo.objects.filter(fecha__lt=fecha, ueb__codigo=codigo_ueb).all()
-    if fechas:
-        error_title = '111111'
+
+    cierres = FechaCierreMes.objects.filter(ueb=ueb, fecha__month=fecha.month, fecha__year=fecha.year).all()
+
+    no_cerra = False
+    if cierres.exists():
+        no_cerra = True
+        error_title = 'Ya este mes fue cerrado'
+    else:
+        fechas = FechaPeriodo.objects.filter(ueb=ueb).all()
+        fechas_antes = fechas.filter(fecha__lt = fecha).all()
+
+        if fechas_antes.exists():
+            no_cerra = True
+            cad = '\n'.join([x.departamento.descripcion for x in fechas_antes])
+            error_title = 'Departamentos que no están en el último día del mes.\n'+cad
+        else:
+            fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year, fecha__day__gt=fecha.day).all()
+            if fechas_despues.exists():
+                no_cerra = True
+                cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
+                error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
+
+    if no_cerra:
         func_ret.update({
             'success': False,
-            'error_title': 'Existen Departamentos que aún no están en el último dia del mes'
+            'error_title': error_title
         })
+        return func_ret
 
-    # no_existen = [d for d in detalles if not d['existe_sistema']]
-    # if len(no_existen) > 0:
-    #     func_ret.update({
-    #         'success': False
-    #     })
-    # else:
-    #     iddocumento = kwargs['iddocumento']
-    #     request = kwargs['request']
-    #     json_data = literal_eval(kwargs['json_data'])
-    #     departamento = ''
-    #     if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
-    #         departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
-    #     dicc_detalle = {}
-    #     detalles_generados = []
-    #     for p in detalles:
-    #         dicc_detalle[p['producto_codigo']] = {'cantidad': float(p['cantidad']), 'um': p['medida_clave'].strip(),
-    #                                               'precio': float(p['precio'])}
-    #
-    #     prods = ProductoFlujo.objects.filter(codigo__in=list(dicc_detalle.keys()))
-    #
-    #     new_tipo = ChoiceTiposDoc.ENTRADA_DESDE_VERSAT
-    #     departamento = Departamento.objects.get(pk=departamento)
-    #     new_doc = crea_documento_generado(request.user.ueb, departamento, new_tipo)
-    #
-    #     for p in prods:
-    #         detalles_generados.append(DocumentoDetalle(cantidad=dicc_detalle[p.codigo]['cantidad'],
-    #                                                    precio=dicc_detalle[p.codigo]['precio'],
-    #                                                    importe=round(
-    #                                                        float(dicc_detalle[p.codigo]['cantidad']) * float(
-    #                                                            dicc_detalle[p.codigo]['precio']), 2),
-    #                                                    documento=new_doc,
-    #                                                    estado=EstadoProducto.BUENO,
-    #                                                    producto=p
-    #                                                    ))
-    #     crea_detalles_generado(new_doc, detalles_generados)
-    #     fecha = kwargs['iddocumento_fecha']
-    #     partes = fecha.split('/')
-    #     partes.reverse()
-    #     fecha_doc = '-'.join(partes)
-    #     DocumentoOrigenVersat.objects.create(documentoversat=iddocumento, documento=new_doc,
-    #                                          fecha_documentoversat=fecha_doc, documento_origen=json_data)
-
+    FechaCierreMes.objects.update_or_create(ueb=ueb, defaults={"fecha": fecha})
     return func_ret
 
 
 class DameFechaModalFormView(BaseModalFormView):
-    # FechaPeriodo.objects.filter(fecha__lg=fecha, ueb__codigo == codigo_ueb).all()
     template_name = 'app_index/modals/modal_form.html'
     form_class = ObtenerFechaForm
-    # father_view = 'app_index:index'
     father_view = 'app_index:index'
     hx_target = '#body'
     hx_swap = 'outerHTML'
@@ -1322,48 +1292,21 @@ class DameFechaModalFormView(BaseModalFormView):
 
     def get_context_data(self, **kwargs):
         fecha = self.request.GET.get('fecha', None)
-        # json_data = self.request.GET.get('json_data', None)
-        # if detalle:
-        #     detalle = literal_eval(detalle)
-        #     json_data = literal_eval(json_data)
-        #     codigos_versat = [p['producto_codigo'] for p in detalle]
-        #     productos = ProductoFlujo.objects.values('codigo', 'medida__clave').filter(codigo__in=codigos_versat).all()
-        #     codigos_sistema = [(p['codigo'], p['medida__clave'].strip()) for p in productos]
-        #     for d in detalle:
-        #         d['existe_sistema'] = (d['producto_codigo'], d['medida_clave'].strip()) in codigos_sistema
-        #
-        # self.inline_tables[0].update({
-        #     "table": DocumentosVersatDetalleTable(detalle),
-        # })
         ctx = super().get_context_data(**kwargs)
-        # ctx.update({
-        #     'btn_rechazar': 'Rechazar Documento',
-        #     'btn_aceptar': 'Aceptar Documento',
-        #     'inline_tables': self.inline_tables,
-        # })
+        fecha_max = ctx['form'].initial['fecha']
+        fecha_min = fecha_max.replace(day=1)
+
+        ctx['form'].fields['fecha'].widget.picker_options['minDate'] = fecha_min.strftime('%d/%m/%Y')
+        ctx['form'].fields['fecha'].widget.picker_options['maxDate'] = fecha_max.strftime('%d/%m/%Y')
         return ctx
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         fecha = self.request.GET.get('fecha')
-        # iddocumento_numero = self.request.GET.get('iddocumento_numero')
-        # iddocumento_numctrl = self.request.GET.get('iddocumento_numctrl')
-        # iddocumento_fecha = self.request.GET.get('iddocumento_fecha')
-        # iddocumento_fecha_hidden = self.request.GET.get('iddocumento_fecha')
-        # iddocumento_concepto = self.request.GET.get('iddocumento_concepto')
-        # iddocumento_almacen = self.request.GET.get('iddocumento_almacen')
-        # iddocumento_sumaimporte = self.request.GET.get('iddocumento_sumaimporte')
-        # json_data = self.request.GET.get('json_data')
+        fecha_ini, fecha_fin = dame_fecha_cierre_mes(ueb=self.request.user.ueb)
         kwargs['initial'].update({
-            "fecha": fecha,
-            # "iddocumento_numero": iddocumento_numero,
-            # "iddocumento_numctrl": iddocumento_numctrl,
-            # "iddocumento_fecha": iddocumento_fecha,
-            # "iddocumento_fecha_hidden": iddocumento_fecha_hidden,
-            # "iddocumento_concepto": iddocumento_concepto,
-            # "iddocumento_almacen": iddocumento_almacen,
-            # "iddocumento_sumaimporte": iddocumento_sumaimporte,
-            # "json_data": json_data,
+            "fecha": fecha_fin,
+            "fecha_ini": fecha_ini
         })
         return kwargs
 
@@ -1372,13 +1315,11 @@ class DameFechaModalFormView(BaseModalFormView):
         kw.update({
             'request': self.request,
             'fecha': form.cleaned_data['fecha'],
-            # 'iddocumento_fecha': form.cleaned_data['iddocumento_fecha_hidden'],
         })
         if self.request.POST['event_action'] in ['submitted']:
             kw.update(
                 {'fecha': form.cleaned_data['fecha']})
         return kw
-
 
 def obtener_departamento_y_fecha_procesamiento(request):
     """
@@ -1470,3 +1411,132 @@ def obtener_fecha_procesamiento(request):
             'rango_fecha': rango_fecha,
         }
     )
+
+
+@transaction.atomic
+def cambioperido(kwargs):
+
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'El cambio fue realizado',
+        'error_title': '',
+    }
+
+    # la ueb debe venir por parametro
+    ueb = kwargs['request'].user.ueb
+
+    fecha = kwargs['fecha']
+
+    cierres = FechaCierreMes.objects.filter(ueb=ueb, fecha__month=fecha.month, fecha__year=fecha.year).all()
+
+    no_cerra = False
+    if cierres.exists():
+        no_cerra = True
+        error_title = 'Ya este mes fue cerrado'
+    else:
+        fechas = FechaPeriodo.objects.filter(ueb=ueb).all()
+        fechas_antes = fechas.filter(fecha__lt = fecha).all()
+
+        if fechas_antes.exists():
+            no_cerra = True
+            cad = '\n'.join([x.departamento.descripcion for x in fechas_antes])
+            error_title = 'Departamentos que no están en el último día del mes.\n'+cad
+        else:
+            fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year, fecha__day__gt=fecha.day).all()
+            if fechas_despues.exists():
+                no_cerra = True
+                cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
+                error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
+
+    if no_cerra:
+        func_ret.update({
+            'success': False,
+            'error_title': error_title
+        })
+        return func_ret
+
+    FechaCierreMes.objects.update_or_create(ueb=ueb, defaults={"fecha": fecha})
+    return func_ret
+
+class DameFechaCambioPeriodoModalFormView(BaseModalFormView):
+    template_name = 'app_index/modals/modal_form.html'
+    form_class = ObtenerFechaForm
+    father_view = 'app_index:flujo:flujo_documento_list'
+    hx_target = '#table_content_documento_swap'
+    hx_swap = 'outerHTML'
+    hx_retarget = '#dialog'
+    hx_reswap = 'outerHTML'
+    modal_form_title = 'Obtener Fecha a Cambiar Período'
+    max_width = '500px'
+    funcname = {
+        'submitted': cambioperido,
+    }
+    close_on_error = True
+
+    def get_context_data(self, **kwargs):
+        fecha = self.request.GET.get('fecha', None)
+        ctx = super().get_context_data(**kwargs)
+        fecha_min = ctx['form'].initial['fecha']
+        cant_dias = calendar.monthrange(fecha_min.year, fecha_min.month)[1]
+        fecha_max = fecha_min.replace(day=cant_dias)
+        ctx['form'].fields['fecha'].widget.picker_options['minDate'] = fecha_min.strftime('%d/%m/%Y')
+        ctx['form'].fields['fecha'].widget.picker_options['maxDate'] = fecha_max.strftime('%d/%m/%Y')
+        return ctx
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        fecha = self.request.GET.get('fecha')
+        departamento = self.request.GET.get('departamento') if 'departamento' in self.request.GET else self.request.POST.get('departamento')
+        fecha_ini, fecha_fin = dame_fecha_periodo(ueb=self.request.user.ueb, departamento=departamento)
+
+        kwargs['initial'].update({
+            "fecha": fecha_ini,
+            "departamento": departamento,
+        })
+        return kwargs
+
+    def get_fields_kwargs(self, form):
+        kw = {}
+        kw.update({
+            'request': self.request,
+            'fecha': form.cleaned_data['fecha'],
+        })
+        if self.request.POST['event_action'] in ['submitted']:
+            kw.update(
+                {'fecha': form.cleaned_data['fecha']})
+        return kw
+
+def dame_fecha_periodo(ueb, departamento):
+    dicc = {'ueb': ueb, 'departamento': departamento}
+
+    fecha = FechaPeriodo.objects.filter(**dicc).order_by('-fecha').first()
+
+    fecha_actual = fecha.fecha
+    fecha_ini = fecha_actual + timedelta(days=1)
+    fecha_str = str(fecha_ini.day) + '/' + str(fecha_ini.month) + '/' + str(fecha_ini.year)
+    datetime.strptime(fecha_str, "%d/%m/%Y").date()
+    cant_dias = calendar.monthrange(fecha_ini.year, fecha_ini.month)[1]
+
+    fecha_fin = fecha_ini.replace(day=cant_dias)
+
+    return fecha_ini, fecha_fin
+
+def dame_fecha_cierre_mes(ueb):
+
+    fecha = FechaPeriodo.objects.filter(ueb=ueb).order_by('-fecha').first()
+
+    mes = fecha.fecha.month
+    anno = fecha.fecha.year
+    if mes == 1:
+        mes = 12
+        anno = anno - 1
+    else:
+        mes = mes - 1
+
+    fecha_str = '01/' + str(mes) + '/' + str(anno)
+    fecha_ini = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+    cant_dias = calendar.monthrange(anno, mes)[1]
+    fecha_fin = fecha_ini.replace(day=cant_dias)
+
+    return fecha_ini, fecha_fin

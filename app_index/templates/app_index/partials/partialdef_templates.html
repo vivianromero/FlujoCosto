@@ -70,19 +70,19 @@
 {% endpartialdef %}
 
 {% partialdef period_close_link %}
-    {% if request.user.is_operflujo %}
+    {% if request.user.is_operflujo and inicializado%}
         <div id="period_close_link_url_div" style="display: flex; align-items: center">
             {% crud_url object "close" namespace as url %} <!-- si se va  a usar esto, si no quitarlo -->
 {#            {% if url and 'create' in views_available and crud_perms.create and view.view_type == 'list' %} Si se va a preguntar por algun permiso#}
                 <a id="period_close_link_url"
-                   href="#"
+                   href="{% url 'app_index:flujo:obtener_fechacambioperiodo' %}{{ getparams }}"
                    class="nav-link"
-                   hx-get="#"
+                   hx-get="{% url 'app_index:flujo:obtener_fechacambioperiodo' %}{{ getparams }}"
                    hx-trigger="click"
-{#                   {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %} modificar acorde  lo necesario#}
-{#                   {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}#}
+                   {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %} modificar acorde  lo necesario
+                   {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
                    role="button">
-                    <i class="fa fa-calendar-check" title="Cerrar"></i>
+                    <i class="fa fa-calendar-check" title="Cerrar Período Actual"></i>
                 </a>
 {#            {% endif %}#}
         </div>
