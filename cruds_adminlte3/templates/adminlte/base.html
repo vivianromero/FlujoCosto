@@ -166,10 +166,10 @@
                 if (trigger_to_hide.includes(e.detail.requestConfig.headers["HX-Trigger"]) && events_to_hide.includes(e.detail.requestConfig.headers["event_action"])) {
                     modal.hide()
                 }
-                if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
-                    let period = document.getElementById(period_id[0])
-                    htmx.trigger(period, 'process_date')
-                }
+                //if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
+                //    let period = document.getElementById(period_id[0])
+                //    htmx.trigger(period, 'process_date')
+                //}
             }
             if (swap_inline_targets.includes(e.detail.target.id.split('_')[0]) && swap_inline_targets.includes(e.detail.target.id.split('_')[2])) {
                 if (trigger_inline_to_hide.includes(e.detail.requestConfig.headers["HX-Trigger"]) && events_inline_to_hide.includes(e.detail.requestConfig
@@ -186,10 +186,20 @@
 
         htmx.on("htmx:beforeSwap", (e) => {
             // Empty response targeting #dialog => hide the modal
+            const swap_targets = ['main_content_swap', 'table_content_documento_swap']
+            const department_id = ['id_departamento_']
+            const period_id = ['id_fecha_documento_formfilter']
             if (e.detail.target.id === "dialog" && !e.detail.xhr.response) {
                 modal.hide()
                 e.detail.shouldSwap = false
             }
+            if (swap_targets.includes(e.detail.target.id)) {
+                if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
+                    let period = document.getElementById(period_id[0])
+                    htmx.trigger(period, 'process_date')
+                }
+            }
+
         })
 
         // Remove dialog content after hiding

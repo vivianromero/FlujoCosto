@@ -626,6 +626,11 @@ class DepartamentoDocumentosForm(DocumentoForm):
 
 # ------------ Documento / Form Filter------------
 class DocumentoFormFilter(forms.Form):
+    departamento = forms.ModelChoiceField(
+        queryset=Departamento.objects.all(),
+    )
+    rango_fecha = forms.DateField()
+
     class Meta:
         model = Documento
         fields = [
@@ -662,11 +667,11 @@ class DocumentoFormFilter(forms.Form):
             'hx-replace-url': 'true',
             # 'hx-vals': '{"rango_fecha": "31/01/2024 - 31/01/2024"}',
             # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
-            'hx-include': '[name="rango_fecha"]',
+            # 'hx-include': '[name="rango_fecha"]',
         })
         self.fields['rango_fecha'].label = False
         # self.fields['rango_fecha'].initial = (date.today().strftime('%d/%m%Y'), date.today().strftime('%d/%m%Y'))
-        # if args and 'fecha_procesamiento' in args[0]:
+        # if args and 'rango_fecha' in args[0]:
         #     self.fields['rango_fecha'].initial = args[0]['fecha_procesamiento']
         self.fields['rango_fecha'].widget.attrs.update({
             'class': 'class="form-control',
