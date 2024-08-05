@@ -14,7 +14,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext_lazy as _
-from django_htmx.http import HttpResponseLocation
+from django_htmx.http import HttpResponseLocation, trigger_client_event
 
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
@@ -424,26 +424,23 @@ class DocumentoCRUD(CommonCRUDView):
                 #     qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
                 return queryset
 
-            # def get(self, request, *args, **kwargs):
-            #     if self.request.htmx.trigger_name == 'departamento':
-            #         ueb = self.request.user.ueb
-            #         self.dep = self.request.GET.get('departamento', None)
-            #         dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
-            #         if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-            #                 settings.FECHAS_PROCESAMIENTO[ueb].keys():
-            #             self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
-            #             self.fecha_procesamiento_range = self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
-            #                 '%d/%m/%Y')
-            #         # request.GET = request.GET.copy()
-            #         # request.GET['rango_fecha'] = self.fecha_procesamiento_range
-            #         getparams_hx = self.getparams_hx.split('rango_fecha=')
-            #
-            #         # form = self.filterset_class.form(
-            #         #     initial={
-            #         #         'rango_fecha': (self.fecha_procesamiento.strftime('%d/%m/%Y'), self.fecha_procesamiento.strftime('%d/%m/%Y'))
-            #         #     }
-            #         # )
-            #     return super().get(request, *args, **kwargs)
+            def get(self, request, *args, **kwargs):
+                ueb = self.request.user.ueb
+                self.dep = self.request.GET.get('departamento', None)
+                rango_fecha = self.request.GET.get('rango_fecha', "")
+                dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
+                if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                        settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                    self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                    self.fecha_procesamiento_range = self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
+                        '%d/%m/%Y')
+                if self.request.htmx.trigger_name == 'departamento':
+                    request.GET = request.GET.copy()
+                    request.GET['rango_fecha'] = self.fecha_procesamiento_range
+                if self.request.htmx.trigger_name == 'rango_fecha' and rango_fecha == "":
+                    request.GET = request.GET.copy()
+                    request.GET['rango_fecha'] = self.fecha_procesamiento_range
+                return super().get(request, *args, **kwargs)
 
             # def dispatch(self, request, *args, **kwargs):
             #     return super().dispatch(request, *args, **kwargs)
@@ -1435,4 +1432,41 @@ def obtener_departamento_y_fecha_procesamiento(request):
         #     'departamento': dep,
         #     'rango_fecha': rango_fecha
         # }
+    )
+
+
+def obtener_fecha_procesamiento(request):
+    ueb = request.user.ueb
+    dep = request.GET.get('departamento', None)
+    dpto = Departamento.objects.get(pk=dep) if dep else None
+    rango_fecha = request.GET.get('rango_fecha', "")
+    fecha_procesamiento = None
+    f_proc = settings.FECHAS_PROCESAMIENTO
+
+    if f_proc and ueb in f_proc.keys() and dpto in f_proc[ueb].keys():
+        fecha_procesamiento = f_proc[ueb][dpto]['fecha_procesamiento']
+
+    data = {
+        'departamento': dep,
+    }
+
+    if fecha_procesamiento:
+        data.update({
+            'rango_fecha': fecha_procesamiento.strftime('%d/%m%Y') + ' - ' + fecha_procesamiento.strftime('%d/%m%Y')
+        })
+
+    form = DocumentoFormFilter(data)
+
+    response = HttpResponse(
+        as_crispy_field(form['rango_fecha']).replace('is-invalid', ''),
+        content_type='text/html'
+    )
+    # return response
+    return trigger_client_event(
+        response=response,
+        name='change',
+        params={
+            'departamento': dep,
+            'rango_fecha': rango_fecha,
+        }
     )
