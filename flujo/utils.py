@@ -7,7 +7,6 @@ from codificadores import ChoiceClasesMatPrima, ChoiceTiposProd
 from codificadores.models import TipoProductoDepartamento, ClaseMateriaPrima
 from .models import *
 
-
 def ids_documentos_versat_procesados(fecha_inicio, fecha_fin, departamento, ueb):
     # id de los documentos que se han introducido al sistema durante el mes que se está procesando, ya que en el cierre
     # mensual no se permite dejar doc del versat sin procesar
@@ -141,7 +140,7 @@ def actualiza_numeros(ueb, departamento, consecutivo, control, pk):
     dicc_filter_control = {'tiponumero': TipoNumeroDoc.NUMERO_CONTROL}
 
     config = settings.NUMERACION_DOCUMENTOS_CONFIG
-    config_fechas = settings.FECHAS_PROCESAMIENTO
+    # config_fechas = settings.FECHAS_PROCESAMIENTO
     consecutivo_conf = config[TipoNumeroDoc.NUMERO_CONSECUTIVO]
     control_conf = config[TipoNumeroDoc.NUMERO_CONTROL]
 
@@ -153,8 +152,8 @@ def actualiza_numeros(ueb, departamento, consecutivo, control, pk):
 
     dicc_filter = {'ueb': ueb}
 
-    if config_fechas and ueb in config_fechas.keys() and departamento in config_fechas[ueb].keys():
-        fecha_procesamiento = config_fechas[ueb][departamento]['fecha_procesamiento']
+    fecha_procesamiento = dame_fecha(ueb, departamento)
+    if fecha_procesamiento:
         dicc_filter.update({'fecha': fecha_procesamiento})
 
     if config[TipoNumeroDoc.NUMERO_CONSECUTIVO]['departamento']:
@@ -324,3 +323,10 @@ def existencia_productos_todos(docs, producto, estado, departamento, ueb, consec
     )['total_ant']
 
     return float(existencia_anterior) + float(existencia_inicial)
+
+def dame_fecha(ueb, departamento, key=ChoiceFechas.PROCESAMIENTO):
+    fechas = settings.FECHAS_PROCESAMIENTO
+    fecha = ''
+    if fechas and ueb in fechas.keys() and departamento in fechas[ueb].keys():
+        fecha = fechas[ueb][departamento][key]
+    return fecha
