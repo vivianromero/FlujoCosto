@@ -1,6 +1,6 @@
 class ChoiceFechas:
-    PROCESAMIENTO = "fecha_porcesamiento"
-    MESPROCESAMIENTO = "fecha_mes_porcesamiento"
+    PROCESAMIENTO = "fecha_procesamiento"
+    MESPROCESAMIENTO = "fecha_mes_procesamiento"
     INICIO = "fecha_inicio"
 
     # CHOICE_FECHAS = {

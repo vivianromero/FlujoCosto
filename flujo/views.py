@@ -27,7 +27,7 @@ from utiles.utils import message_error
 from .forms import *
 from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
-    existencia_anterior
+    existencia_anterior, dame_fecha
 from codificadores.forms import ObtenerDatosModalForm
 from datetime import timedelta
 from . import ChoiceFechas
@@ -1537,9 +1537,3 @@ def dame_fecha_cierre_mes(ueb):
 
     return fecha_ini, fecha_fin
 
-def dame_fecha(ueb, departamento, key=ChoiceFechas.PROCESAMIENTO):
-    fechas = settings.FECHAS_PROCESAMIENTO
-    fecha = ''
-    if fechas and ueb in fechas.keys() and departamento in fechas[ueb].keys():
-        fecha = fechas[ueb][departamento][key]
-    return fecha
