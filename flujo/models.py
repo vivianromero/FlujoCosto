@@ -10,7 +10,7 @@ from django_choices_field import IntegerChoicesField
 from codificadores.models import UnidadContable, Departamento, TipoDocumento, MotivoAjuste, EstadoProducto, \
     ProductoFlujo, ConfigNumero, ObjectsManagerAbstract, OperacionDocumento, TipoNumeroDoc
 from cruds_adminlte3.utils import crud_url
-
+from . import ChoiceFechas
 
 class EstadosDocumentos(models.IntegerChoices):
     EDICION = 1, 'Edición'
@@ -360,8 +360,8 @@ class FechaPeriodo(models.Model):
         return {
             "ueb": self.ueb,
             self.departamento: {
-                "fecha_procesamiento": self.fecha,
-                "fecha_mes_procesamiento": self.fecha_mes_procesamiento
+                ChoiceFechas.PROCESAMIENTO: self.fecha,
+                ChoiceFechas.MESPROCESAMIENTO: self.fecha_mes_procesamiento
             }
         }
 

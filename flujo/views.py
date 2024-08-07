@@ -30,8 +30,7 @@ from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actual
     existencia_anterior
 from codificadores.forms import ObtenerDatosModalForm
 from datetime import timedelta
-
-
+from . import ChoiceFechas
 # Create your views here.
 
 
@@ -257,12 +256,10 @@ class DocumentoCRUD(CommonCRUDView):
                     departamento = self.request.POST.get('departamento')
 
                 dpto = Departamento.objects.get(pk=departamento)
-                if settings.FECHAS_PROCESAMIENTO and self.request.user.ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                        settings.FECHAS_PROCESAMIENTO[self.request.user.ueb].keys():
-                    fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[self.request.user.ueb][dpto][
-                        'fecha_procesamiento']
-                else:
+                fecha_procesamiento = dame_fecha(ueb=self.request.user.ueb, departamento=dpto)
+                if not fecha_procesamiento:
                     fecha_procesamiento = date.today().replace(day=1)
+
                 tipo_doc = self.request.GET.get('tipo_doc', None)
                 if not tipo_doc and 'tipodocumento' in self.request.POST.keys():
                     tipo_doc = self.request.POST.get('tipodocumento')
@@ -347,11 +344,12 @@ class DocumentoCRUD(CommonCRUDView):
                 tipo_doc_entrada = tiposdoc.filter(operacion=OperacionDocumento.ENTRADA)
                 tipo_doc_salida = tiposdoc.filter(operacion=OperacionDocumento.SALIDA)
                 dpto = dep_queryset.get(pk=self.dep) if self.dep else None
-                fecha_procesamiento = None
+                # fecha_procesamiento = None
                 htmx_departamento_trigger = False
-                if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                        settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                    fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                fecha_procesamiento = dame_fecha(ueb, dpto)
+                # if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
+                #         settings.FECHAS_PROCESAMIENTO[ueb].keys():
+                #     fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
                 if fecha_procesamiento:
                     context['form'].fields['rango_fecha'].widget.picker_options['custom_ranges'] = {
                         'Fecha procesamiento': (fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y')),
@@ -429,11 +427,12 @@ class DocumentoCRUD(CommonCRUDView):
                 self.dep = self.request.GET.get('departamento', None)
                 rango_fecha = self.request.GET.get('rango_fecha', "")
                 dpto = Departamento.objects.get(pk=self.dep) if self.dep else None
-                if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                        settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                    self.fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+                self.fecha_procesamiento_range = ''
+                self.fecha_procesamiento = dame_fecha(ueb, dpto)
+                if self.fecha_procesamiento:
                     self.fecha_procesamiento_range = self.fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
                         '%d/%m/%Y')
+
                 if self.request.htmx.trigger_name == 'departamento':
                     request.GET = request.GET.copy()
                     request.GET['rango_fecha'] = self.fecha_procesamiento_range
@@ -680,7 +679,7 @@ def crea_documento_generado(ueb, departamento, tipodoc):
     numerocontrol = str(numeros[1][0]) if not numeros[1][2] else str(numeros[1][0]) + '/' + str(numeros[1][2])
     numeroconsecutivo = numeros[0][0]
 
-    fecha = settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento']
+    fecha = dame_fecha(ueb, departamento)
     confconsec = ConfigNumero.DEPARTAMENTO if numeros[0][3]['departamento'] == True else ConfigNumero.UNICO
     confcontrol = ConfigNumero.DEPARTAMENTO if numeros[1][3]['departamento'] == True else ConfigNumero.UNICO
 
@@ -791,7 +790,7 @@ def dame_documentos_versat(request, dpto):
         if not dpto.inicializado(unidadcontable):
             return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
-        fecha_periodo = settings.FECHAS_PROCESAMIENTO[unidadcontable][dpto]['fecha_procesamiento']
+        fecha_periodo = dame_fecha(unidadcontable, dpto)
         fecha_mes_procesamiento = str(fecha_periodo.year) + '-' + str(fecha_periodo.month) + '-01'
 
         params = {'fecha_desde': fecha_mes_procesamiento,
@@ -1336,12 +1335,9 @@ def obtener_departamento_y_fecha_procesamiento(request):
     rango_fecha = request.GET.get('rango_fecha', '')
 
     if request.htmx.trigger_name == 'departamento':
-
-        if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                settings.FECHAS_PROCESAMIENTO[ueb].keys():
-            fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
+        fecha_procesamiento = dame_fecha(ueb, dpto)
+        if fecha_procesamiento:
             separator = '%2F'
-
             fecha_procesamiento_range = fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + fecha_procesamiento.strftime(
                 '%d/%m/%Y')
             day = str(fecha_procesamiento.day)
@@ -1382,10 +1378,10 @@ def obtener_fecha_procesamiento(request):
     dpto = Departamento.objects.get(pk=dep) if dep else None
     rango_fecha = request.GET.get('rango_fecha', "")
     fecha_procesamiento = None
-    f_proc = settings.FECHAS_PROCESAMIENTO
-
-    if f_proc and ueb in f_proc.keys() and dpto in f_proc[ueb].keys():
-        fecha_procesamiento = f_proc[ueb][dpto]['fecha_procesamiento']
+    # f_proc = settings.FECHAS_PROCESAMIENTO
+    fecha_procesamiento = dame_fecha(ueb, dpto)
+    # if f_proc and ueb in f_proc.keys() and dpto in f_proc[ueb].keys():
+    #     fecha_procesamiento = f_proc[ueb][dpto]['fecha_procesamiento']
 
     data = {
         'departamento': dep,
@@ -1540,3 +1536,10 @@ def dame_fecha_cierre_mes(ueb):
     fecha_fin = fecha_ini.replace(day=cant_dias)
 
     return fecha_ini, fecha_fin
+
+def dame_fecha(ueb, departamento, key=ChoiceFechas.PROCESAMIENTO):
+    fechas = settings.FECHAS_PROCESAMIENTO
+    fecha = ''
+    if fechas and ueb in fechas.keys() and departamento in fechas[ueb].keys():
+        fecha = fechas[ueb][departamento][key]
+    return fecha
