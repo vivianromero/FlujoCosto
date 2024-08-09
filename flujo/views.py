@@ -16,6 +16,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext_lazy as _
 from django_htmx.http import HttpResponseLocation, trigger_client_event
 
+import settings
 from app_apiversat.functionapi import getAPI
 from app_index.views import CommonCRUDView, BaseModalFormView
 from codificadores.models import *
@@ -23,7 +24,7 @@ from cruds_adminlte3.inline_htmx_crud import InlineHtmxCRUD
 from flujo.filters import DocumentoFilter
 from flujo.tables import DocumentoTable, DocumentosVersatTable, DocumentosVersatDetalleTable, DocumentoDetalleTable
 from utiles.decorators import *
-from utiles.utils import message_error
+from utiles.utils import message_error, get_fechas_procesamiento_inicio
 from .forms import *
 from .models import *
 from .utils import ids_documentos_versat_procesados, dame_valor_anterior, actualiza_numeros, \
@@ -754,8 +755,10 @@ def inicializar_departamento(request, pk):
                 departamento=departamento,
                 ueb=request.user.ueb,
             )
+
             title = 'El departamento %s se inicializó correctamente para %s!' % (departamento, request.user.ueb)
             text = 'Con fecha de inicio: %s' % date.today().replace(day=1)
+            get_fechas_procesamiento_inicio()
             sweetify.success(request, title, text=text, persistent=True)
         else:
             title = 'El departamento %s para %s ya ha sido inicializado anteriormente' % (
@@ -791,7 +794,8 @@ def dame_documentos_versat(request, dpto):
             return redirect(crud_url_name(Documento, 'list', 'app_index:flujo:'))
 
         fecha_periodo = dame_fecha(unidadcontable, dpto)
-        fecha_mes_procesamiento = str(fecha_periodo.year) + '-' + str(fecha_periodo.month) + '-01'
+        fecha_mes_procesamiento = fecha_periodo.replace(day=1).strftime('%Y-%m-%d')
+
 
         params = {'fecha_desde': fecha_mes_procesamiento,
                  'fecha_hasta': fecha_periodo.strftime('%Y-%m-%d'),
@@ -1227,13 +1231,13 @@ def estadodestino(request):
     )
     return response
 
-
 @transaction.atomic
 def cierremes(kwargs):
+
     func_ret = {
         'success': True,
         'errors': {},
-        'success_title': 'El cierre fue realizado',
+        'success_title': 'El cambio fue realizado',
         'error_title': '',
     }
 
@@ -1244,26 +1248,60 @@ def cierremes(kwargs):
 
     cierres = FechaCierreMes.objects.filter(ueb=ueb, fecha__month=fecha.month, fecha__year=fecha.year).all()
 
-    no_cerra = False
+    no_cerrar = False
     if cierres.exists():
-        no_cerra = True
+        no_cerrar = True
         error_title = 'Ya este mes fue cerrado'
     else:
         fechas = FechaPeriodo.objects.filter(ueb=ueb).all()
         fechas_antes = fechas.filter(fecha__lt = fecha).all()
 
         if fechas_antes.exists():
-            no_cerra = True
+            no_cerrar = True
             cad = '\n'.join([x.departamento.descripcion for x in fechas_antes])
             error_title = 'Departamentos que no están en el último día del mes.\n'+cad
         else:
             fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year, fecha__day__gt=fecha.day).all()
             if fechas_despues.exists():
-                no_cerra = True
+                no_cerrar = True
                 cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
                 error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
 
-    if no_cerra:
+    if not no_cerrar:
+        #buscar documentos versat del periodo
+        departamentos = Departamento.objects.filter(unidadcontable=ueb)
+
+        # Obtener los centros de costo únicos
+        centros_costos = CentroCosto.objects.filter(
+            departamento_centrocosto__in=departamentos
+        ).distinct()
+        fecha_desde = fecha.replace(day=1)
+        cant_dias = calendar.monthrange(fecha.year, fecha.month)[1]
+        fecha_hasta = fecha.replace(day=cant_dias)
+        cc = [x.clave for x in centros_costos]
+        cc = ','.join(cc)
+        params = {'fecha_desde': fecha_desde.strftime('%Y-%m-%d'),
+                  'fecha_hasta': fecha_hasta.strftime('%Y-%m-%d'),
+                  'unidad': ueb.codigo,
+                  'centro_costo': cc
+                  }
+        response = getAPI('documentogasto', params=params)
+
+        if response and response.status_code == 200:
+            datos = response.json()['results']
+            ids = ids_documentos_versat_procesados(fecha_desde, fecha_hasta, None,
+                                                   ueb) if datos else []
+            datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
+
+            if datos:
+                no_cerrar = True
+                error_title = 'Existen documentos en el Versat que no han sido procesados'
+        else:
+            no_cerrar = True
+            error_title = 'Hay problemas de conexión con la API Versat, \n ' \
+                          'no se ha podido verificar si existen documentos en el Versat pendientes de procesar'
+
+    if no_cerrar:
         func_ret.update({
             'success': False,
             'error_title': error_title
@@ -1272,7 +1310,6 @@ def cierremes(kwargs):
 
     FechaCierreMes.objects.update_or_create(ueb=ueb, defaults={"fecha": fecha})
     return func_ret
-
 
 class DameFechaModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
@@ -1410,65 +1447,78 @@ def obtener_fecha_procesamiento(request):
 
 
 @transaction.atomic
-def cambioperido(kwargs):
-
+def cambioperiodo(kwargs):
     func_ret = {
         'success': True,
         'errors': {},
-        'success_title': 'El cambio fue realizado',
+        'success_title': 'Se ha cambiado el período satisfactoriamente',
         'error_title': '',
     }
+
+    hay_error = False
 
     # la ueb debe venir por parametro
     ueb = kwargs['request'].user.ueb
 
     fecha = kwargs['fecha']
 
-    cierres = FechaCierreMes.objects.filter(ueb=ueb, fecha__month=fecha.month, fecha__year=fecha.year).all()
+    departamento = Departamento.objects.get(pk=kwargs['request'].POST.get('departamento'))
+    # se realizan las validaciones para hacer el cambio de periodo.
+    # que no existan documentos en edición o con errores dentro del departamento
+    # que en el versat no existan documentos por traer en ese mes. TODO si esto se hace diario o el último día del mes
+    # está hecho para el último día del mes.
 
-    no_cerra = False
-    if cierres.exists():
-        no_cerra = True
-        error_title = 'Ya este mes fue cerrado'
-    else:
-        fechas = FechaPeriodo.objects.filter(ueb=ueb).all()
-        fechas_antes = fechas.filter(fecha__lt = fecha).all()
+    fecha_actual = dame_fecha(ueb=ueb, departamento=departamento)
+    docs = Documento.objects.filter(ueb=ueb, departamento=departamento, \
+                                    estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES])
 
-        if fechas_antes.exists():
-            no_cerra = True
-            cad = '\n'.join([x.departamento.descripcion for x in fechas_antes])
-            error_title = 'Departamentos que no están en el último día del mes.\n'+cad
-        else:
-            fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year, fecha__day__gt=fecha.day).all()
-            if fechas_despues.exists():
-                no_cerra = True
-                cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
-                error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
-
-    if no_cerra:
+    if docs.exists():
+        hay_error = True
         func_ret.update({
             'success': False,
-            'error_title': error_title
+            'error_title': "Existen documentos sin Confirmar"
         })
-        return func_ret
+    # elif (fecha_actual.month > fecha.month and fecha_actual.year == fecha.year) or (
+    #         fecha_actual.year < fecha.year):  # cambió de mes
+    #     # va a buscar los documentos del mes que están en el versat y no se han traido
+    #     fecha_mes_procesamiento = str(fecha_actual.year) + '-' + str(fecha_actual.month) + '-01'
+    #
+    #     params = {'fecha_desde': fecha_mes_procesamiento,
+    #               'fecha_hasta': fecha_actual.strftime('%Y-%m-%d'),
+    #               'unidad': ueb.codigo,
+    #               'centro_costo': departamento.centrocosto.clave
+    #               }
+    #     response = getAPI('documentogasto', params=params)
+    #     if not response or response.status_code != 200:
+    #         hay_error = True
+    #         func_ret.update({
+    #             'success': False,
+    #             'error_title': "API Versat sin conexión, no se puede verificar los documentos no procesados del versta hacia el departamento"
+    #         })
+    #     elif response and response.status_code == 200:
+    #         datos = response.json()['results']
+    #         ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto,
+    #                                                unidadcontable) if datos else []
+    #         if ids:
+    #             hay_error = True
+    #             func_ret.update({
+    #                 'success': False,
+    #                 'error_title': "Existen documentos en el versat hacia este Centro de costo que no se han procesado"
+    #             })
 
-    FechaCierreMes.objects.update_or_create(ueb=ueb, defaults={"fecha": fecha})
+    if not hay_error:
+        FechaPeriodo.objects.update_or_create(ueb=ueb, departamento=departamento, defaults={"fecha": fecha})
+        # actualizar la variable de las fechas
+        settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento'] = fecha
     return func_ret
 
-class DameFechaCambioPeriodoModalFormView(BaseModalFormView):
-    template_name = 'app_index/modals/modal_form.html'
-    form_class = ObtenerFechaForm
+class DameFechaCambioPeriodoModalFormView(DameFechaModalFormView):
+
     father_view = 'app_index:flujo:flujo_documento_list'
-    hx_target = '#table_content_documento_swap'
-    hx_swap = 'outerHTML'
-    hx_retarget = '#dialog'
-    hx_reswap = 'outerHTML'
-    modal_form_title = 'Obtener Fecha a Cambiar Período'
-    max_width = '500px'
+
     funcname = {
-        'submitted': cambioperido,
+        'submitted': cambioperiodo,
     }
-    close_on_error = True
 
     def get_context_data(self, **kwargs):
         fecha = self.request.GET.get('fecha', None)
@@ -1504,11 +1554,11 @@ class DameFechaCambioPeriodoModalFormView(BaseModalFormView):
         return kw
 
 def dame_fecha_periodo(ueb, departamento):
-    dicc = {'ueb': ueb, 'departamento': departamento}
+    # dicc = {'ueb': ueb, 'departamento': departamento}
 
-    fecha = FechaPeriodo.objects.filter(**dicc).order_by('-fecha').first()
+    fecha = dame_fecha(ueb, Departamento.objects.get(pk=departamento)) #FechaPeriodo.objects.filter(**dicc).order_by('-fecha').first()
 
-    fecha_actual = fecha.fecha
+    fecha_actual = fecha
     fecha_ini = fecha_actual + timedelta(days=1)
     fecha_str = str(fecha_ini.day) + '/' + str(fecha_ini.month) + '/' + str(fecha_ini.year)
     datetime.strptime(fecha_str, "%d/%m/%Y").date()

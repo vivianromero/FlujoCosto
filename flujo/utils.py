@@ -10,11 +10,13 @@ from .models import *
 def ids_documentos_versat_procesados(fecha_inicio, fecha_fin, departamento, ueb):
     # id de los documentos que se han introducido al sistema durante el mes que se está procesando, ya que en el cierre
     # mensual no se permite dejar doc del versat sin procesar
-    query_doc_acept = DocumentoOrigenVersat.objects.filter(fecha_documentoversat__gte=fecha_inicio,
-                                                           fecha_documentoversat__lte=fecha_fin,
-                                                           documento__departamento=departamento,
-                                                           documento__ueb=ueb).values(iddocversat=F('documentoversat')). \
-        all()
+    dicc = {'fecha_documentoversat__gte':fecha_inicio,
+           'fecha_documentoversat__lte':fecha_fin,
+           'documento__ueb':ueb}
+    if departamento:
+        dicc.update({'documento__departamento': departamento})
+
+    query_doc_acept = DocumentoOrigenVersat.objects.filter(**dicc).values(iddocversat=F('documentoversat')).all()
 
     # id de los documentos que se han rechazado en el mes que se está procesando, ya que en el cierre
     # mensual no se permite dejar doc del versat sin procesar
@@ -330,3 +332,21 @@ def dame_fecha(ueb, departamento, key=ChoiceFechas.PROCESAMIENTO):
     if fechas and ueb in fechas.keys() and departamento in fechas[ueb].keys():
         fecha = fechas[ueb][departamento][key]
     return fecha
+
+# def actualiza_fecha_procesamiento(ueb, departamento, fecha_procesamiento):
+#     fechas = settings.FECHAS_PROCESAMIENTO
+#     if not fechas or not ueb in fechas.keys():
+#         fechas = {ueb:{departamento:{ChoiceFechas.PROCESAMIENTO: fecha_procesamiento,
+#                        ChoiceFechas.INICIO: fecha_procesamiento.replace(day=1)}}}
+#         return
+#     # fechas = fechas[ueb]
+#     if departamento in fechas[ueb].keys()
+#         dicc = {departamento:{ChoiceFechas.PROCESAMIENTO: fecha_procesamiento,
+#                        ChoiceFechas.INICIO: fecha_procesamiento.replace(day=1)}}
+#         fechas[ueb]=dicc
+#         return
+#     if not departamento in fechas.keys():
+#         fechas[ueb]={departamento:{ChoiceFechas.PROCESAMIENTO: fecha_procesamiento,
+#                                    ChoiceFechas.INICIO: fecha_procesamiento.replace(day=1)}}
+#     else:
+#         fechas[ueb][departamento]={ChoiceFechas.PROCESAMIENTO:fecha_procesamiento}
