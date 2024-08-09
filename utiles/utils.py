@@ -149,10 +149,10 @@ def dame_numero(numeros, conf, departamento, tipodoc, tiponumero):
     prefijo = '' if not pre else pre
     return (1, conf['sistema'], prefijo)
 
-
+@transaction.atomic
 def get_fechas_procesamiento_inicio():
-    fechas = FechaPeriodo.objects.all()
-    fechasinicio = FechaInicio.objects.all()
+    fechas = FechaPeriodo.objects.select_for_update().all()
+    fechasinicio = FechaInicio.objects.select_for_update().all()
     list_dicc = [objeto.to_dict() for objeto in fechas]
     fechas_dict = {}
     for item in list_dicc:

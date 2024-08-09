@@ -361,13 +361,12 @@ class FechaPeriodo(models.Model):
             "ueb": self.ueb,
             self.departamento: {
                 ChoiceFechas.PROCESAMIENTO: self.fecha,
-                ChoiceFechas.MESPROCESAMIENTO: self.fecha_mes_procesamiento
             }
         }
 
     @property
     def fecha_mes_procesamiento(self):
-        return str(self.fecha.year) + '-' + str(self.fecha.month) + '-01'
+        return self.fecha.replace(day=1).strftime('%Y-%m-%d')
 
 
 class FechaCierreMes(models.Model):
