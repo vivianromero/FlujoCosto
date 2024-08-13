@@ -15,6 +15,7 @@
 {#</style>#}
 
 <div id="dialog" class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: {{ max_width }}" role="document">
+    {{ form.media.js }}
     <form 
             id="id_form_modal"
 {#            hx-post="{{ request.path }}" #}
@@ -161,6 +162,17 @@
     }
 </style>
 <script>
+
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+          theme: 'bootstrap4'
+        })
+    });
+
     window.data = {
         filterTextClear: '{{ filterTextClear|safe }}',
         filterPlaceHolder: '{{ filterPlaceHolder|safe }}',

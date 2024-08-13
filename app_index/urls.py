@@ -20,8 +20,6 @@ urlpatterns = [
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
     # Acceso denegado
     path('noauthorized/', Noauthorized.as_view(), name='noauthorized'),
-    # Django-select2
-    path("select2/", include("django_select2.urls")),
     # JWT auth
     path('api/auth/obtain_token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh_token/', TokenRefreshView.as_view(), name='token_refresh'),
