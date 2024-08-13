@@ -18,8 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
-urlpatterns = []
+urlpatterns = [# Django-select2
+    path("select2/", include("django_select2.urls")), ]
 urlpatterns += [path('i18n/', include('django.conf.urls.i18n')), ]
 urlpatterns += i18n_patterns(
-    path('', include('app_index.urls')),
+    path('', include('app_index.urls'))
 )

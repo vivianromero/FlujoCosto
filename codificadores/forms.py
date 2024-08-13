@@ -19,7 +19,8 @@ from cruds_adminlte3.utils import (
 from cruds_adminlte3.widgets import SelectWidget
 from utiles.utils import obtener_numero_fila, get_otras_configuraciones
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-
+from mptt.forms import MoveNodeForm, TreeNodeChoiceField
+from django_select2.forms import ModelSelect2Widget
 
 class UpperField(forms.CharField):
     def to_python(self, value):
@@ -2667,8 +2668,38 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
 
 
 # ------------ TipoDocumento / Form ------------
+class CuentaWidget(ModelSelect2Widget):
+    search_fields = ['descripcion__icontains']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs.update({
+            'style': 'width: 100%',
+            'data-placeholder': 'Buscar cuenta...',
+            'data-minimum-input-length': 0,
+            'data-close-on-select': False,
+        })
+
+
 class TipoDocumentoForm(forms.ModelForm):
     prefijo = UpperField()
+
+    cuenta_debe_cn = TreeNodeChoiceField(
+        queryset=Cuenta.objects.all(),
+        widget=CuentaWidget(model=Cuenta, queryset=Cuenta.objects.all())
+    )
+
+    # cuenta_debe_cn = TreeNodeChoiceField(queryset=Cuenta.objects.all(),
+    #                                      widget=ModelSelect2Widget(
+    #                                          model=Cuenta,
+    #                                          search_fields=['descripcion__icontains'],
+    #                                          queryset=Cuenta.objects.all(),
+    #                                          attrs={'style': 'width: 100%',
+    #                                                 'data-placeholder': 'Buscar cuenta...',
+    #                                                 "data-minimum-input-length": 0,
+    #                                                 "data-close-on-select": "false",
+    #                                                 }
+    #                                      ))
 
     class Meta:
         model = TipoDocumento
@@ -2677,12 +2708,14 @@ class TipoDocumentoForm(forms.ModelForm):
             'operacion',
             'generado',
             'prefijo',
+            'cuenta_debe_cn',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
+        self.maskcuenta = '999-99999-999-99'
         super(TipoDocumentoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_tipodocumento_Form'
@@ -2697,6 +2730,8 @@ class TipoDocumentoForm(forms.ModelForm):
         self.fields["operacion"].required = False
         self.fields["generado"].required = False
 
+        self.fields["cuenta_debe_cn"].required = False
+
         self.helper.layout = Layout(
             TabHolder(
                 Tab(
@@ -2709,6 +2744,14 @@ class TipoDocumentoForm(forms.ModelForm):
                     ),
                     Row(
                         Column('generado', css_class='form-group col-md-2 mb-0'),
+                        css_class='form-row'
+                    ),
+
+                ),
+                Tab(
+                    _('Contabilización'),
+                    Row(
+                        Column('cuenta_debe_cn', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),

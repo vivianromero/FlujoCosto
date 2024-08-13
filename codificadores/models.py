@@ -108,7 +108,7 @@ class MedidaConversion(ObjectsManagerAbstract):
         verbose_name = _('Convert unit of measurement')
 
     def __str__(self):
-        return "%s | %s" % (self.medidao, self.medidad)
+        return "%s | %s" % (self.medidao, self.medidad) if self.factor_conversion else ''
 
 
 class Cuenta(MPTTModel, ObjectsManagerAbstract):
@@ -137,7 +137,7 @@ class Cuenta(MPTTModel, ObjectsManagerAbstract):
         verbose_name = _('Account')
 
     def __str__(self):
-        return self.descripcion
+        return "%s | %s" % (self.clave, self.descripcion) if self.clave else ''
 
 
 class CentroCosto(ObjectsManagerAbstract):
