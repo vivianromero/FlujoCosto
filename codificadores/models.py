@@ -123,6 +123,9 @@ class Cuenta(MPTTModel, ObjectsManagerAbstract):
     objects = models.Manager()
     tree = TreeManager()
 
+    class MPTTMeta:
+        order_insertion_by = ['clave']
+
     class Meta:
         db_table = 'cla_cuenta'
         indexes = [
