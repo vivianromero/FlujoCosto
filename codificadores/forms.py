@@ -11,16 +11,16 @@ from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from mptt.forms import TreeNodeChoiceField
 
 from app_index.widgets import MyCustomDateRangeWidget
 from codificadores.models import *
 from cruds_adminlte3.utils import (
     common_filter_form_actions, )
-from cruds_adminlte3.widgets import SelectWidget
+from cruds_adminlte3.widgets import SelectWidget, Select2Widget
 from utiles.utils import obtener_numero_fila, get_otras_configuraciones
 from . import ChoiceTiposProd, ChoiceClasesMatPrima
-from mptt.forms import MoveNodeForm, TreeNodeChoiceField
-from django_select2.forms import ModelSelect2Widget
+
 
 class UpperField(forms.CharField):
     def to_python(self, value):
@@ -2668,38 +2668,40 @@ class ConfCentrosElementosOtrosDetalleForm(forms.ModelForm):
 
 
 # ------------ TipoDocumento / Form ------------
-class CuentaWidget(ModelSelect2Widget):
-    search_fields = ['descripcion__icontains']
+class CuentaWidget(Select2Widget):
+    search_fields = ['clave__icontains', 'descripcion__icontains']
+    model = Cuenta
+    queryset = Cuenta.objects.all()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.attrs.update({
-            'style': 'width: 100%',
-            'data-placeholder': 'Buscar cuenta...',
-            'data-minimum-input-length': 0,
-            'data-close-on-select': False,
-        })
-
 
 class TipoDocumentoForm(forms.ModelForm):
     prefijo = UpperField()
 
     cuenta_debe_cn = TreeNodeChoiceField(
         queryset=Cuenta.objects.all(),
-        widget=CuentaWidget(model=Cuenta, queryset=Cuenta.objects.all())
+        label='Cuenta al Debe Consumo Nacional',
+        widget=CuentaWidget()
     )
 
-    # cuenta_debe_cn = TreeNodeChoiceField(queryset=Cuenta.objects.all(),
-    #                                      widget=ModelSelect2Widget(
-    #                                          model=Cuenta,
-    #                                          search_fields=['descripcion__icontains'],
-    #                                          queryset=Cuenta.objects.all(),
-    #                                          attrs={'style': 'width: 100%',
-    #                                                 'data-placeholder': 'Buscar cuenta...',
-    #                                                 "data-minimum-input-length": 0,
-    #                                                 "data-close-on-select": "false",
-    #                                                 }
-    #                                      ))
+    cuenta_haber_cn = TreeNodeChoiceField(
+        queryset=Cuenta.objects.all(),
+        label='Cuenta al Haber Consumo Nacional',
+        widget=CuentaWidget()
+    )
+
+    cuenta_debe_exp = TreeNodeChoiceField(
+        queryset=Cuenta.objects.all(),
+        label='Cuenta al Debe Exportación',
+        widget=CuentaWidget()
+    )
+
+    cuenta_haber_exp = TreeNodeChoiceField(
+        queryset=Cuenta.objects.all(),
+        label='Cuenta al Haber Exportación',
+        widget=CuentaWidget()
+    )
 
     class Meta:
         model = TipoDocumento
@@ -2709,17 +2711,27 @@ class TipoDocumentoForm(forms.ModelForm):
             'generado',
             'prefijo',
             'cuenta_debe_cn',
+            'cuenta_haber_cn',
+            'cuenta_debe_exp',
+            'cuenta_haber_exp',
         ]
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.post = kwargs.pop('post', None)
-        self.maskcuenta = '999-99999-999-99'
+        if instance and instance.tipodocumentocuenta_set.all().exists():
+            valores = instance.tipodocumentocuenta_set.all()[0]
+            kwargs['initial'] = {'cuenta_debe_cn': valores.cuenta_debe_cn,
+                                 'cuenta_haber_cn': valores.cuenta_haber_cn,
+                                 'cuenta_debe_exp': valores.cuenta_debe_exp,
+                                 'cuenta_haber_exp': valores.cuenta_haber_exp}
+
         super(TipoDocumentoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_id = 'id_tipodocumento_Form'
         self.helper.form_method = 'post'
+        self.cuentas_seleccionadas = {}
         self.helper.form_tag = False
 
         self.fields["descripcion"].disabled = True
@@ -2731,6 +2743,9 @@ class TipoDocumentoForm(forms.ModelForm):
         self.fields["generado"].required = False
 
         self.fields["cuenta_debe_cn"].required = False
+        self.fields["cuenta_haber_cn"].required = False
+        self.fields["cuenta_debe_exp"].required = False
+        self.fields["cuenta_haber_exp"].required = False
 
         self.helper.layout = Layout(
             TabHolder(
@@ -2751,7 +2766,13 @@ class TipoDocumentoForm(forms.ModelForm):
                 Tab(
                     _('Contabilización'),
                     Row(
+                        Column('cuenta_debe_exp', css_class='form-group col-md-4 mb-0'),
+                        Column('cuenta_haber_exp', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
                         Column('cuenta_debe_cn', css_class='form-group col-md-4 mb-0'),
+                        Column('cuenta_haber_cn', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                 ),
@@ -2766,6 +2787,45 @@ class TipoDocumentoForm(forms.ModelForm):
             )
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        cuentas = {
+            'cuenta_debe_cn': cleaned_data.get('cuenta_debe_cn'),
+            'cuenta_haber_cn': cleaned_data.get('cuenta_haber_cn'),
+            'cuenta_debe_exp': cleaned_data.get('cuenta_debe_exp'),
+            'cuenta_haber_exp': cleaned_data.get('cuenta_haber_exp'),
+        }
+
+        # Filtrar cuentas no vacías
+        self.cuentas_seleccionadas = {campo: valor for campo, valor in cuentas.items() if valor}
+
+        # Si hay al menos una cuenta seleccionada, todas deben estar seleccionadas
+        if self.cuentas_seleccionadas and len(self.cuentas_seleccionadas) < len(cuentas):
+            msg = _('Debe seleccionar cuenta.')
+            for campo in cuentas:
+                if not cuentas[campo]:
+                    self.add_error(campo, msg)
+            return cleaned_data
+
+        # Validar que todas las cuentas seleccionadas sean diferentes
+        if len(self.cuentas_seleccionadas) == len(cuentas):
+            valores_cuentas = list(self.cuentas_seleccionadas.values())
+            if len(valores_cuentas) != len(set(valores_cuentas)):
+                msg = _('Las cuentas deben ser diferentes.')
+                for campo, valor in self.cuentas_seleccionadas.items():
+                    if valores_cuentas.count(valor) > 1:
+                        self.add_error(campo, msg)
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        if self.cuentas_seleccionadas:
+            TipoDocumentoCuenta.objects.update_or_create(documento=instance,
+                                                       defaults=self.cuentas_seleccionadas)
+        else:
+            TipoDocumentoCuenta.objects.filter(documento=instance).delete()
+        return instance
 
 # ------------- ClasificadorCargos / Form --------------
 class ClasificadorCargosForm(forms.ModelForm):

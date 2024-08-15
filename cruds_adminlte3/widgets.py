@@ -1,19 +1,20 @@
-from datetime import datetime
 import json
+from datetime import datetime
 
 from django import forms
-from django.forms.utils import flatatt
-from django.forms.widgets import Widget, Textarea, CheckboxSelectMultiple
-from django.forms import Select
-from django.utils.encoding import force_str
-from django.utils.formats import get_format
-from django.utils.translation import get_language
-from django.template.loader import render_to_string
-from django.template import loader
-from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+from django.forms import Select
+from django.forms.utils import flatatt
+from django.forms.widgets import Widget, Textarea, CheckboxSelectMultiple
+from django.template import loader
+from django.template.loader import render_to_string
+from django.utils.encoding import force_str
+from django.utils.formats import get_format
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
+from django_select2.forms import ModelSelect2Widget
 
 
 def cdn_media():
@@ -439,3 +440,21 @@ class MyCheckboxSelectMultiple(CheckboxSelectMultiple):
 
 class MyDateInput(forms.DateInput):
     input_type = 'date'
+
+
+class Select2Widget(ModelSelect2Widget):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # esto se valoriza en el formulario
+        # model =
+        # search_fields = []
+        # queryset =
+        self.attrs.update({
+            'style': 'width: 100%',
+            'data-placeholder': 'Buscar ...',
+            'data-minimum-input-length': 0,
+            'data-close-on-select': False,
+            'data-allow-clear': 'true',
+        })
+        allow_clear = True

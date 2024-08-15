@@ -69,7 +69,7 @@ MENUS = {
                         },
                         {
                             "id": 'id_nav_link_tipodocumento_de_ajuste',
-                            "name": _("Tipo de Documento"),
+                            "name": _("Tipos de Documento"),
                             "icon_class": 'fa fa-university',
                             "url": crud_url_name(TipoDocumento, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
