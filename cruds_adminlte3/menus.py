@@ -144,14 +144,6 @@ MENUS = {
                             "url": crud_url_name(NumeracionDocumentos, 'list', 'app_index:codificadores:'),
                             "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                         },
-                        {
-                            "id": 'id_nav_link_movimientos',
-                            "name": "Movimientos",
-                            "icon_class": 'fa fa-university',
-                            # "url": reverse_lazy('app_index:flujo:movimientos'),
-                            "url": crud_url_name(Documento, 'list', 'app_index:flujo:'),
-                            "validators": ["app_auth.usuarios.validators.is_operflujo"],
-                        },
                     ]
                 },
 
@@ -223,17 +215,52 @@ MENUS = {
                     "url": reverse_lazy('app_index:importar:all_conf_importar'),
                     "validators": ["app_auth.usuarios.validators.is_adminoroperador"],
                 },
+            ]
+        },
+        {
+            "id": 'id_nav_link_opcflujo',
+            "name": _("Flow"),
+            "icon_class": 'fa fa-project-diagram',
+            "url": '#',
+            "validators": ["app_auth.usuarios.validators.is_operflujo"],
+            "submenu": [
+                {
+                    "id": 'id_nav_link_movimientos',
+                    "name": "Movimientos",
+                    "icon_class": 'fa fa-book',
+                    "url": crud_url_name(Documento, 'list', 'app_index:flujo:'),
+                    "validators": ["app_auth.usuarios.validators.is_operflujo"],
+                },
                 {
                     "id": 'id_nav_link_cierre_mes',
                     "name": "Cierre de Mes",
-                    "icon_class": 'fa fa-university',
+                    "icon_class": 'fa fa-calculator',
                     "url": "#",
                     "hx_get": reverse_lazy('app_index:flujo:obtener_fecha'),
                     "hx_target": '#dialog',
                     "hx_swap": 'outerHTML',
                     "validators": ["app_auth.usuarios.validators.is_operflujo"],
                 },
-
+                {
+                    "id": 'id_nav_link_reportes',
+                    "name": "Reportes",
+                    "icon_class": 'fa fa-print',
+                    "url": '#',
+                    "validators": ["app_auth.usuarios.validators.is_operflujo"],
+                    "submenu": [
+                        {
+                            "id": 'id_nav_link_reporte_flujo_existencia',
+                            "name": "Existencia de productos",
+                            "icon_class": 'fa fa-file',
+                            "target": '_blank',
+                            "url": reverse_lazy('app_index:flujo:report_test'),
+                            # "hx_get": reverse_lazy('app_index:flujo:report_flujo_existencia'),
+                            # "hx_target": '#dialog',
+                            # "hx_swap": 'outerHTML',
+                            "validators": ["app_auth.usuarios.validators.is_operflujo"],
+                        }
+                    ]
+                },
             ]
         },
         {

@@ -1028,61 +1028,6 @@ class DocumentoDetalleDetailForm(forms.ModelForm):
         )
 
 
-# ------------ TraerProductoVersat / Form ------------
-class TraerProductoVersatForm(forms.Form):
-    producto_codigo = forms.CharField(label='Código', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    producto_descripcion = forms.CharField(label='Descripción', required=False,
-                                           widget=forms.TextInput(attrs={'readonly': True}))
-    medida_clave = forms.CharField(label='U.M', required=False, widget=forms.TextInput(attrs={'readonly': True}))
-    cantidad = forms.DecimalField(label='Cantidad', required=False)
-    precio = forms.DecimalField(label='Precio', required=False)
-    tipoproducto = forms.ModelChoiceField(
-        queryset=TipoProducto.objects.filter(pk__in=[ChoiceTiposProd.MATERIAPRIMA, ChoiceTiposProd.HABILITACIONES]),
-        label='Tipo de Producto', required=True)
-    clase_mat_prima = forms.ModelChoiceField(
-        queryset=ClaseMateriaPrima.objects.exclude(pk=ChoiceClasesMatPrima.CAPACLASIFICADA),
-        label='Clase Materia Prima', required=False)
-
-    class Meta:
-        fields = [
-            'tipoproducto',
-            'clase_mat_prima',
-            'producto_codigo',
-            'producto_descripcion',
-            'medida_clave',
-            'cantidad',
-            'precio',
-        ]
-
-    def __init__(self, *args, **kwargs) -> None:
-        instance = kwargs.get('instance', None)
-        self.user = kwargs.pop('user', None)
-        self.post = kwargs.pop('post', None)
-        super(TraerProductoVersatForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
-        self.helper.form_method = 'GET'
-        self.helper.form_tag = False
-
-        self.fields["tipoproducto"].required = True
-        self.fields["clase_mat_prima"].required = False
-
-        self.helper.layout = Layout(
-            Row(
-                Column('producto_codigo', css_class='form-group col-md-4 mb-0'),
-                Column('producto_descripcion', css_class='form-group col-md-6 mb-0'),
-                Column('medida_clave', css_class='form-group col-md-2 mb-0'),
-                Field('cantidad', type="hidden"),
-                Field('precio', type="hidden"),
-                css_class='form-row'
-            ),
-            Row(
-                Column('tipoproducto', css_class='form-group col-md-6 mb-0'),
-                Column('clase_mat_prima', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
-        )
-
-
 # ------------ ObtenerDocumentoVersat / Form ------------
 class ObtenerDocumentoVersatForm(forms.Form):
     iddocumento = forms.CharField(label='No Doc', required=False, widget=forms.TextInput(attrs={'readonly': True}))

@@ -614,11 +614,11 @@ class BaseModalFormView(FormView):
                 )
             if self.funcname:
                 func_ret = self.execute(func=self.funcname[event_action], kwargs=kw)
-                if func_ret['success']:
+                if 'success' in func_ret and func_ret['success']:
                     if func_ret['success_title']:
                         sweetify.success(self.request, title=func_ret['success_title'], icon='success')
                 else:
-                    if func_ret['error_title']:
+                    if 'error_title' in func_ret and func_ret['error_title']:
                         sweetify.error(self.request, title=func_ret['error_title'], icon='error')
                         if not self.close_on_error:
                             event_action = 'not_submitted'

@@ -93,21 +93,21 @@
     </li>
     {% endblock right_navbar_links_fullscreen %}
 
-    {% block languages %}
-        <div class="my-auto">
-            <form id="set_language" action="{% url 'set_language' %}" method="POST">
-                {% csrf_token %}
-                <input name="next" type="hidden" value="{{ redirect_to }}">
-                <select name="language" onchange="this.form.submit()" id="select_language">
-                    {% for language in languages %}
-                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                            {{ language.name_translated }} ({{ language.code }})
-                        </option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-    {% endblock languages %}
+<!--    {% block languages %}-->
+<!--        <div class="my-auto">-->
+<!--            <form id="set_language" action="{% url 'set_language' %}" method="POST">-->
+<!--                {% csrf_token %}-->
+<!--                <input name="next" type="hidden" value="{{ redirect_to }}">-->
+<!--                <select name="language" onchange="this.form.submit()" id="select_language">-->
+<!--                    {% for language in languages %}-->
+<!--                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>-->
+<!--                            {{ language.name_translated }} ({{ language.code }})-->
+<!--                        </option>-->
+<!--                    {% endfor %}-->
+<!--                </select>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    {% endblock languages %}-->
 </ul>
 {% endblock right_navbar_links %}
 </nav>

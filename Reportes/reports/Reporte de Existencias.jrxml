@@ -1,0 +1,1005 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Existencias" language="groovy" pageWidth="612" pageHeight="792" columnWidth="582" leftMargin="15" rightMargin="15" topMargin="15" bottomMargin="15" uuid="f6e9ec7f-7fad-4617-a717-f3b3ec417aee">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sample DB"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="638"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="348"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="param_estado" class="java.lang.String"/>
+	<parameter name="param_ueb_id" class="java.lang.String"/>
+	<parameter name="param_departamento_id" class="java.lang.String"/>
+	<parameter name="param_periodo" class="java.lang.String">
+		<parameterDescription><![CDATA[cadena de estados separados por ,]]></parameterDescription>
+	</parameter>
+	<queryString language="plsql">
+		<![CDATA[SELECT  
+        CASE 
+         WHEN CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion) = '' THEN 'NO CATEGORÍA'  
+		 ELSE CONCAT('CATEGORÍA-', CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion))
+		END AS categoria,
+		COALESCE(
+			CASE    
+			 WHEN NOT pv.codigo ISNULL THEN CONCAT(pv.codigo, '-', pv.descripcion)
+			 WHEN NOT pvp.codigo ISNULL THEN CONCAT(pvp.codigo, '-',pvp.descripcion)
+			 WHEN NOT pvc.codigo ISNULL THEN CONCAT(pvc.codigo, '-', pvc.descripcion)
+			END, '') AS vitola,
+		COALESCE(c.orden, 0) + COALESCE(cvp.orden, 0) + COALESCE(cvc.orden,0) AS orden,
+        e.estado, 
+        CASE 
+            WHEN e.estado=1 THEN 'Bueno'
+            WHEN e.estado=2 THEN 'Deficiente'
+         ELSE 'Rechazo' END AS descestado,
+		p.descripcion AS producto, 
+		m.clave AS um,  
+        e.cantidad_inicial, e.cantidad_final,
+		e.ueb_id, e.departamento_id,
+		CONCAT(u.codigo, '-', u.nombre) AS ueb,
+		d.descripcion AS departamento,
+        p.tipoproducto_id,
+        CASE 
+		 	 WHEN p.tipoproducto_id=1 THEN 'Pesadas'
+		 	 WHEN p.tipoproducto_id=2 THEN 'Materias Primas'
+			 WHEN p.tipoproducto_id=3 THEN 'Habilitaciones'
+			 WHEN p.tipoproducto_id=4 THEN 'Líneas de Salida'
+			 WHEN p.tipoproducto_id=5 THEN 'Tabacos'
+			 WHEN p.tipoproducto_id=6 THEN 'Subproductos'
+			 WHEN p.tipoproducto_id=7 THEN 'Líneas sin Terminar'
+		END AS tipoproducto
+FROM fp_existenciadpto e
+INNER JOIN cla_unidadcontable u ON u.id=e.ueb_id
+INNER JOIN  cla_departamento d ON d.id=e.departamento_id
+INNER JOIN  cla_productoflujo p ON p.id=e.producto_id
+INNER JOIN  cla_medida m ON m.id=p.medida_id
+LEFT JOIN  cla_vitola v ON v.producto_id=p.id
+LEFT JOIN cla_vitola vp ON vp.pesada_id=p.id
+LEFT JOIN cla_vitola vc ON vc.capa_id=p.id
+LEFT JOIN cla_categoriavitola c ON c.id=v.categoriavitola_id
+LEFT JOIN cla_categoriavitola cvp ON cvp.id=vp.categoriavitola_id
+LEFT JOIN cla_categoriavitola cvc ON cvc.id=vc.categoriavitola_id
+LEFT JOIN cla_productoflujo pv ON pv.id=v.producto_id
+LEFT JOIN cla_productoflujo pvp ON pvp.id=vp.producto_id
+LEFT JOIN cla_productoflujo pvc ON pvc.id=vc.producto_id]]>
+	</queryString>
+	<field name="categoria" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="categoria"/>
+		<property name="com.jaspersoft.studio.field.label" value="categoria"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="cla_categoriavitola"/>
+	</field>
+	<field name="vitola" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="vitola"/>
+		<property name="com.jaspersoft.studio.field.label" value="vitola"/>
+	</field>
+	<field name="orden" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="orden"/>
+		<property name="com.jaspersoft.studio.field.label" value="orden"/>
+	</field>
+	<field name="estado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="estado"/>
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="fp_existenciadpto"/>
+	</field>
+	<field name="descestado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="descestado"/>
+		<property name="com.jaspersoft.studio.field.label" value="descestado"/>
+	</field>
+	<field name="producto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="producto"/>
+		<property name="com.jaspersoft.studio.field.label" value="producto"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="cla_productoflujo"/>
+	</field>
+	<field name="um" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="um"/>
+		<property name="com.jaspersoft.studio.field.label" value="um"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="cla_medida"/>
+	</field>
+	<field name="cantidad_inicial" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="cantidad_inicial"/>
+		<property name="com.jaspersoft.studio.field.label" value="cantidad_inicial"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="fp_existenciadpto"/>
+	</field>
+	<field name="cantidad_final" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="cantidad_final"/>
+		<property name="com.jaspersoft.studio.field.label" value="cantidad_final"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="fp_existenciadpto"/>
+	</field>
+	<field name="ueb_id" class="java.util.UUID">
+		<property name="com.jaspersoft.studio.field.name" value="ueb_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="ueb_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="fp_existenciadpto"/>
+	</field>
+	<field name="departamento_id" class="java.util.UUID">
+		<property name="com.jaspersoft.studio.field.name" value="departamento_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="departamento_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="fp_existenciadpto"/>
+	</field>
+	<field name="ueb" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ueb"/>
+		<property name="com.jaspersoft.studio.field.label" value="ueb"/>
+	</field>
+	<field name="departamento" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="departamento"/>
+		<property name="com.jaspersoft.studio.field.label" value="departamento"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="cla_departamento"/>
+	</field>
+	<field name="tipoproducto_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="tipoproducto_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="tipoproducto_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="cla_productoflujo"/>
+	</field>
+	<field name="tipoproducto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tipoproducto"/>
+		<property name="com.jaspersoft.studio.field.label" value="tipoproducto"/>
+	</field>
+	<sortField name="orden"/>
+	<sortField name="estado"/>
+	<sortField name="producto"/>
+	<variable name="fecha_actual" class="java.util.Date"/>
+	<variable name="sumExistenciaEstado" class="java.math.BigDecimal" resetType="Group" resetGroup="estadoGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_final}]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaCategoria" class="java.math.BigDecimal" resetType="Group" resetGroup="categoriaGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_final}]]></variableExpression>
+	</variable>
+	<variable name="sumInicioEstado" class="java.math.BigDecimal" resetType="Group" resetGroup="estadoGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_inicial}]]></variableExpression>
+	</variable>
+	<variable name="sumInicioCategoria" class="java.math.BigDecimal" resetType="Group" resetGroup="categoriaGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_inicial}]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_final}]]></variableExpression>
+	</variable>
+	<variable name="sumInicioTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_inicial}]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaPesadas" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 1 ? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioPesadas" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 1 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaMP" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 2? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioMP" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 2 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaHab" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 3? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioHab" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 3 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaLS" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 4 ? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioLS" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 4 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaTab" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 5 ? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioTab" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 5 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaSubProd" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 6? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioSubProd" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 6 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumExistenciaLineasSinTerm" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 7 ? $F{cantidad_final} : 0]]></variableExpression>
+	</variable>
+	<variable name="sumInicioLineasSinTerm" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{tipoproducto_id}.intValue() == 7 ? $F{cantidad_inicial} : 0]]></variableExpression>
+	</variable>
+	<filterExpression><![CDATA[($P{param_ueb_id} == null || $F{ueb_id}.equals(java.util.UUID.fromString($P{param_ueb_id}))) &&
+($P{param_departamento_id} == null || $F{departamento_id}.equals(java.util.UUID.fromString($P{param_departamento_id}))) && 
+($P{param_estado} == null || java.util.Arrays.asList($P{param_estado}.split(",")).contains(String.valueOf($F{estado})))]]></filterExpression>
+	<group name="categoriaGroup">
+		<groupExpression><![CDATA[$F{categoria}]]></groupExpression>
+		<groupHeader>
+			<band height="25">
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<textField>
+					<reportElement x="0" y="2" width="280" height="18" uuid="b6e94b75-7155-4762-a889-d12673566606"/>
+					<textElement verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{categoria}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="20" width="580" height="1" uuid="3b1566a3-248b-432f-86ce-a88b9a4670e9">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement x="1" y="1" width="580" height="1" uuid="8a39652f-20f8-4a93-b440-bb511b34becd">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="480" y="3" width="100" height="17" uuid="e6006977-55d8-4e7b-aa12-2cc14923db2a">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaCategoria}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto">
+					<reportElement x="379" y="3" width="100" height="17" uuid="7d2fd0de-b6e2-4cff-a5d6-b313ced1f8dc">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioCategoria}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="1"/>
+		</groupFooter>
+	</group>
+	<group name="estadoGroup">
+		<groupExpression><![CDATA[$F{descestado}]]></groupExpression>
+		<groupHeader>
+			<band height="21">
+				<printWhenExpression><![CDATA[$P{param_estado}==null || LEN($P{param_estado} )>1]]></printWhenExpression>
+				<textField>
+					<reportElement x="3" y="3" width="277" height="17" uuid="498cb8fc-f4d8-4811-8e84-5f5ce6cb5969"/>
+					<textElement verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{descestado}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="20" width="580" height="1" uuid="081b1233-1b64-4e08-b1eb-e34f94581c29">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<line>
+					<reportElement x="0" y="2" width="580" height="1" uuid="48cf8138-f093-4e03-9773-f8cdc46ad470">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="480" y="3" width="100" height="17" uuid="5a4760a5-8b96-4373-b2d2-650dbaca4f81">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaEstado}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto">
+					<reportElement x="379" y="3" width="100" height="17" uuid="3f6762ff-eda3-4aa5-952c-35599d5e80dc">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioEstado}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<printWhenExpression><![CDATA[!$P{param_estado}]]></printWhenExpression>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="91" splitType="Stretch">
+			<staticText>
+				<reportElement x="24" y="1" width="80" height="17" uuid="be9d5aea-7ef4-4a9f-8777-d589f17dc591">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Serif" size="12" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[UEB:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="18" width="104" height="17" uuid="c7d71036-3fcd-4dc0-ab81-edf351a42fc6">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Serif" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Departamento:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="57" width="569" height="21" uuid="e256be6f-8b9d-4c5a-aab8-32c8cf4ec800">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[EXISTENCIA DE PRODUCTOS]]></text>
+			</staticText>
+			<textField evaluationTime="Report">
+				<reportElement x="429" y="18" width="38" height="17" uuid="3f6c41a3-a8a1-4ebb-a416-220fce82462b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="404" y="18" width="25" height="17" uuid="dd60b6c6-73f4-412c-9363-f97fd897567d">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="339" y="18" width="64" height="17" uuid="9c8d0dfa-2208-48d3-a53b-935e82c1818f">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Página:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="339" y="0" width="64" height="17" uuid="ba4df414-e360-4f25-b743-ee2f3d38980d">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Serif" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Período:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="105" y="0" width="226" height="17" uuid="8d27842d-ecd9-47dd-a434-f2fc69c3cc96">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ueb}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="105" y="18" width="226" height="17" uuid="1099245f-bbfd-4c46-bcaf-bb17e1177f6b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{departamento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="404" y="0" width="166" height="17" uuid="44c12115-acdd-4b2f-a6c2-ec10a05640d7">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{param_periodo}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement x="0" y="36" width="230" height="20" uuid="c8fe934d-5286-4107-8fb9-073dc6469d46">
+					<printWhenExpression><![CDATA[$P{param_estado}!=null && LEN($P{param_estado} )==1]]></printWhenExpression>
+				</reportElement>
+				<staticText>
+					<reportElement x="0" y="0" width="58" height="20" uuid="2b7f44a5-26c2-4efd-96b8-9203125f7d79">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Estado:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="59" y="0" width="151" height="20" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font size="12" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{descestado}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="28" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout"/>
+			<staticText>
+				<reportElement x="480" y="3" width="100" height="20" uuid="49b9c177-9dd5-4dde-b2ce-0fcac821dd5b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Existencia]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="379" y="3" width="100" height="20" uuid="047eb390-799d-4836-b85e-25d66c2a4e96">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Saldo Inicial]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="3" width="118" height="20" uuid="ccf15b81-a087-4b70-a06c-5b5c003f4521">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="1" width="580" height="1" uuid="234abf88-0e51-4fcd-b37e-762fc7673731">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+			</line>
+			<staticText>
+				<reportElement x="276" y="3" width="100" height="20" uuid="810260e8-1dcf-4046-9f75-995d2d06b46a">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vitola]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="2" y="1" width="269" height="18" uuid="469b62d1-5a6e-4808-b6b5-a2be4f8e8665"/>
+				<textElement verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="480" y="1" width="100" height="18" uuid="4907a9b4-e0dd-4555-b7a6-460f4d8c3d3a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a4080cc8-dc1a-4fdf-a9be-958510a92381"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{cantidad_final}]]></textFieldExpression>
+				<patternExpression><![CDATA[($F{tipoproducto_id}.intValue() == 2 || $F{tipoproducto_id}.intValue() == 3 || $F{tipoproducto_id}.intValue() == 6 ? "#,##0.0000;(#,##0.0000)" : "#,##0.###;(#,##0.###)")]]></patternExpression>
+			</textField>
+			<textField>
+				<reportElement x="379" y="1" width="100" height="18" uuid="7a4128a6-7af3-4118-b582-78595ba5e729">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{cantidad_inicial}]]></textFieldExpression>
+				<patternExpression><![CDATA[($F{tipoproducto_id}.intValue() == 2 || $F{tipoproducto_id}.intValue() == 3 || $F{tipoproducto_id}.intValue() == 6 ? "#,##0.0000;(#,##0.0000)" : "#,##0.###;(#,##0.###)")]]></patternExpression>
+			</textField>
+			<textField>
+				<reportElement x="271" y="1" width="109" height="18" uuid="9fb254ae-7d4e-429f-bcdf-1043e54e9f18">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{vitola}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="1" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="24" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy, h:mm:ss a">
+				<reportElement x="476" y="2" width="102" height="17" uuid="f46b1dd2-ffe1-4096-932e-00c50ac679bf">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[NOW( )]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="377" y="2" width="98" height="17" uuid="09a7b7d0-afcb-4e36-a1ed-44782240646d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha de impresión:]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="217" splitType="Stretch">
+			<frame>
+				<reportElement x="0" y="10" width="580" height="23" isRemoveLineWhenBlank="true" uuid="e32c5437-122e-452f-a156-5784087d3c2d">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaPesadas}+$V{sumInicioPesadas}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="189" height="20" uuid="b1d69bd9-5338-4c2f-8509-e10649ce79b8">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Pesadas]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="742572b9-6620-4ec0-99b5-a4cbefcf5a5b">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaPesadas}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="8b683008-0c9b-4756-9f74-c32804f057c5">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaPesadas}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="34" width="580" height="24" isRemoveLineWhenBlank="true" uuid="a077aeaa-4980-4731-ae7e-41ee3ecd8026">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaMP}+$V{sumInicioMP}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="186" height="20" uuid="3d17008b-2440-4511-8bc1-0574dab2d73d">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Materias Primas]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="fd301d0d-b8af-4483-a6d7-9b334b288a8c">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaMP}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="942a6db7-69e9-434a-b3e7-968e863986b6">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioMP}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="191" width="580" height="24" uuid="e3a15f6a-b99c-4497-9c13-f3bfef5c5b0c">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="186" height="20" uuid="8cfe1b95-a9e6-4841-95c3-afeb62d23c4a">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="d6193738-b91c-4d9b-847a-fc0b25c2e66f">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaTotal}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="f1776ba5-7374-414b-86a0-387e6cf915a1">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioTotal}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="59" width="580" height="24" isRemoveLineWhenBlank="true" uuid="ed75ffd5-bb19-4ae9-8e23-8fbe283c9e21">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaHab}+$V{sumInicioHab}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="186" height="20" uuid="dc82a7b4-0767-4ad4-92fa-e4902e4b1659">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Habilitaciones]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="dcf84d20-922b-4bea-86cc-38e0115202d3">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaHab}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="272e634c-c765-4fdd-92be-3fe97e7c8f1a">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioHab}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="84" width="580" height="24" isRemoveLineWhenBlank="true" uuid="08037fa0-538a-47fc-808b-9b283176b7f6">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaLS}+$V{sumInicioLS}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="189" height="20" uuid="43d7d13c-4689-426c-b05d-51f32a54fd34">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Líneas de Salida]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="eeb29dcc-ae53-4171-8781-a9d8b70e4173">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaLS}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="69577679-abd7-465e-b5b4-9efec0e44adb">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaLS}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="109" width="580" height="24" isRemoveLineWhenBlank="true" uuid="b6748f16-90ff-4980-b5af-1c8a4f9f0556">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaTab}+$V{sumInicioTab}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="189" height="20" uuid="bd3a0741-ad41-424f-a0dd-c8d2d8a3d5ef">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Tabacos]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="72197a67-2639-499c-bb70-8d8dbee4c42b">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaTab}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="0554ae90-4c10-4e29-a30b-ec0c790ef3f3">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaTab}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="134" width="580" height="24" isRemoveLineWhenBlank="true" uuid="f3ceea53-91fa-4643-86a4-54b07e83061b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaSubProd}+$V{sumInicioSubProd}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="186" height="20" uuid="0ca4b4d9-b767-458a-9059-2148bbf057b0">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Sub Productos]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="911c9a93-8747-4992-8460-3dd362507d3c">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaSubProd}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.0000;(#,##0.0000)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="19ea0d7d-3289-4892-8554-87128729227a">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumInicioSubProd}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="159" width="580" height="24" isRemoveLineWhenBlank="true" uuid="d301344d-605e-49cb-9259-bb6ecd749522">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<printWhenExpression><![CDATA[$V{sumExistenciaLS}+$V{sumInicioLS}>0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<staticText>
+					<reportElement x="4" y="2" width="189" height="20" uuid="c2f3fe96-b1cf-4712-9123-bd89fcffc940">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="12" isBold="true" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[Total Líneas sin Terminar]]></text>
+				</staticText>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="475" y="2" width="104" height="20" uuid="163c7aa0-ada7-4794-9ac7-0f88e0a26bd4">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaLineasSinTerm}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)">
+					<reportElement x="371" y="2" width="104" height="20" uuid="d739e537-66c6-4c24-9a81-1a147ead9a00">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sumExistenciaLineasSinTerm}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</summary>
+</jasperReport>
