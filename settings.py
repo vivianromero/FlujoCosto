@@ -31,8 +31,11 @@ BASE_DIR = Path(__file__).resolve()
 ######
 
 MEDIA_ROOT_UPLOAD_FILES = (os.path.join(BASE_DIR.parent, 'staticfiles/upload'))
+REPORTS_DIR = (os.path.join(BASE_DIR.parent, 'Reportes/reports'))
+REPORTS_OUTPUT = (os.path.join(BASE_DIR.parent, 'Reportes/output'))
 
 APP_VERSION = (os.path.join(BASE_DIR.parent, 'config/version'))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -269,7 +272,7 @@ LANGUAGE_CODE = 'es'
 
 LANGUAGES = [
     ("es", _("Spanish")),
-    ("en", _("English")),
+    # ("en", _("English")),
 ]
 
 TIME_ZONE = 'America/Havana'

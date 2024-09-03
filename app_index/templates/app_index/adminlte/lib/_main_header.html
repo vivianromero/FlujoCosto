@@ -47,6 +47,7 @@
                                {% if item.hx_swap %}hx-swap="{{ item.hx_swap }}"{% endif %}
                                {% if item.hx_form_target %}hx-target="{{ item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                {% if item.hx_form_swap %}hx-swap="{{ item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                               {% if item.target %}target="{{ item.target }}"{% endif %}
                             >
                                 <i class="{{ item.icon_class }}"></i> {{ item.name }}
                             </a>
@@ -59,6 +60,7 @@
                                                {% if sub_item.hx_swap %}hx-swap="{{ sub_item.hx_swap }}"{% endif %}
                                                {% if sub_item.hx_form_target %}hx-target="{{ sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                {% if sub_item.hx_form_swap %}hx-swap="{{ sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                               {% if sub_item.target %}target="{{ sub_item.target }}"{% endif %}
                                             >
                                                 <i class="{{ sub_item.icon_class }}"></i> {{ sub_item.name }}
                                             </a>
@@ -71,6 +73,7 @@
                                                                {% if sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_item.hx_swap }}"{% endif %}
                                                                {% if sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                                {% if sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                               {% if sub_sub_item.target %}target="{{ sub_sub_item.target }}"{% endif %}
                                                             >
                                                                 <i class="{{ sub_sub_item.icon_class }}"></i> {{ sub_sub_item.name }}
                                                             </a>
@@ -83,6 +86,7 @@
                                                                                {% if sub_sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_sub_item.hx_swap }}"{% endif %}
                                                                                {% if sub_sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                                                {% if sub_sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                                               {% if sub_sub_sub_item.target %}target="{{ sub_sub_sub_item.target }}"{% endif %}
                                                                             >
                                                                                 <i class="{{ sub_sub_sub_item.icon_class }}"></i> {{ sub_sub_sub_item.name }}
                                                                             </a>
@@ -94,6 +98,7 @@
                                                                                {% if sub_sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_sub_item.hx_swap }}"{% endif %}
                                                                                {% if sub_sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                                                {% if sub_sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                                               {% if sub_sub_sub_item.target %}target="{{ sub_sub_sub_item.target }}"{% endif %}
                                                                             >
                                                                                 <i class="{{ sub_sub_sub_item.icon_class }}"></i> {{ sub_sub_sub_item.name }}
                                                                             </a>
@@ -109,6 +114,7 @@
                                                                {% if sub_sub_item.hx_swap %}hx-swap="{{ sub_sub_item.hx_swap }}"{% endif %}
                                                                {% if sub_sub_item.hx_form_target %}hx-target="{{ sub_sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                                {% if sub_sub_item.hx_form_swap %}hx-swap="{{ sub_sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                                               {% if sub_sub_item.target %}target="{{ sub_sub_item.target }}"{% endif %}
                                                             >
                                                                 <i class="{{ sub_sub_item.icon_class }}"></i> {{ sub_sub_item.name }}
                                                             </a>
@@ -127,6 +133,7 @@
                                                {% if sub_item.hx_swap %}hx-swap="{{ sub_item.hx_swap }}"{% endif %}
                                                {% if sub_item.hx_form_target %}hx-target="{{ sub_item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                                {% if sub_item.hx_form_swap %}hx-swap="{{ sub_item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                                               {% if sub_item.target %}target="{{ sub_item.target }}"{% endif %}
                                             >
                                                 <i class="{{ sub_item.icon_class }}"></i> {{sub_item.name }}
                                             </a>
@@ -142,6 +149,8 @@
                                {% if item.hx_swap %}hx-swap="{{ item.hx_swap }}"{% endif %}
                                {% if item.hx_form_target %}hx-target="{{ item.hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
                                {% if item.hx_form_swap %}hx-swap="{{ item.hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+                               {% if item.target %}target="{{ item.target }}"{% endif %}
+
                             >
                                 <i class="{{ item.icon_class }}"></i> {{ item.name }}
                             </a>

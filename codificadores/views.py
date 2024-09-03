@@ -1238,6 +1238,25 @@ class VitolaCRUD(CommonCRUDView):
 
         return OFilterListView
 
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def form_valid(self, form):
+                try:
+                    self.object = form.save(commit=False)
+                    # setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "Ya existe un producto con este Código"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponseRedirect(self.get_success_url())
+                # return super().form_valid(form)
+
+        return OCreateView
 
 # ------ MarcaSalida / CRUD ------
 class MarcaSalidaCRUD(CommonCRUDView):
@@ -1265,9 +1284,6 @@ class MarcaSalidaCRUD(CommonCRUDView):
     list_fields = fields
 
     filter_fields = fields
-
-    views_available = ['list', 'update', 'create']
-    view_type = ['list', 'update', 'create']
 
     filterset_class = MarcaSalidaFilter
 
@@ -1465,6 +1481,25 @@ class LineaSalidaCRUD(CommonCRUDView):
 
         return OFilterListView
 
+    def get_create_view(self):
+        view = super().get_create_view()
+
+        class OCreateView(view):
+
+            def form_valid(self, form):
+                try:
+                    self.object = form.save(commit=False)
+                    # setattr(self.object, self.inline_field, self.model_id)
+                    self.object.save()
+                except IntegrityError as e:
+                    # Maneja el error de integridad (duplicación de campos únicos)
+                    mess_error = "Ya existe un producto con este Código"
+                    form.add_error(None, mess_error)
+                    return self.form_invalid(form)
+                return HttpResponse(""" """)
+                # return super().form_valid(form)
+
+        return OCreateView
 
 # ------ ProductsCapasClaPesadas / CRUD ------
 class ProductsCapasClaPesadasCRUD(CommonCRUDView):

@@ -305,7 +305,7 @@ class Vitola(ObjectsManagerAbstract):
         ordering = ['destino', 'categoriavitola', 'producto__descripcion']
 
     def __str__(self):
-        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion) if self.diametro else ''
 
     def delete(self, *args, **kwargs):
         with transaction.atomic():
@@ -368,7 +368,7 @@ class LineaSalida(ObjectsManagerAbstract):
         ordering = ['producto__descripcion']
 
     def __str__(self):
-        return "%s | %s" % (self.producto.codigo, self.producto.descripcion)
+        return "%s | %s" % (self.producto.codigo, self.producto.descripcion) if self.envase else ''
 
     @property
     def get_productoactivo(self):
