@@ -42,10 +42,13 @@ djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 easy-thumbnails==2.8.5
 et-xmlfile==1.1.0
+httplib2==0.22.0
 humanize==4.9.0
 idna==3.6
+JPype1==1.5.0
 mssql-django==1.4
 openpyxl==3.1.2
+packaging==24.1
 pillow==10.2.0
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
@@ -53,6 +56,8 @@ pydantic==2.5.3
 pydantic_core==2.14.6
 PyJWT==2.8.0
 pyodbc==5.1.0
+pyparsing==3.1.2
+pyreportjasper==2.1.4
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytz==2023.3.post1
