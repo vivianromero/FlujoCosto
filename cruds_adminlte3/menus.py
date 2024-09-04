@@ -253,10 +253,11 @@ MENUS = {
                             "name": "Existencia de productos",
                             "icon_class": 'fa fa-file',
                             "target": '_blank',
-                            "url": reverse_lazy('app_index:flujo:report_test'),
-                            # "hx_get": reverse_lazy('app_index:flujo:report_flujo_existencia'),
-                            # "hx_target": '#dialog',
-                            # "hx_swap": 'outerHTML',
+                            # "url": reverse_lazy('app_index:flujo:report_test'),
+                            "url": reverse_lazy('app_index:flujo:report_flujo_existencia'),
+                            "hx_get": reverse_lazy('app_index:flujo:report_flujo_existencia'),
+                            "hx_target": '#dialog',
+                            "hx_swap": 'outerHTML',
                             "validators": ["app_auth.usuarios.validators.is_operflujo"],
                         }
                     ]

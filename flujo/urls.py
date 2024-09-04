@@ -18,6 +18,6 @@ urlpatterns = [
     path('obtener_fecha/', views.DameFechaModalFormView.as_view(), name='obtener_fecha'),
     path('obtener_fecha_procesamiento/', views.obtener_fecha_procesamiento, name='obtener_fecha_procesamiento'),
     path('obtener_fechacambioperiodo/', views.DameFechaCambioPeriodoModalFormView.as_view(), name='obtener_fechacambioperiodo'),
-    # path('report_flujo_existencia/', reportsview.ReportExistenciaModalFormView.as_view(), name='report_flujo_existencia'),
+    path('report_flujo_existencia/', reportsview.ReportExistenciaModalFormView.as_view(), name='report_flujo_existencia'),
     path('report_test/', views.report_test, name='report_test'),
 ]
