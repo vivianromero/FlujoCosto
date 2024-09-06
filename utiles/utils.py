@@ -150,8 +150,10 @@ def dame_numero(numeros, conf, departamento, tipodoc, tiponumero):
     return (1, conf['sistema'], prefijo)
 
 @transaction.atomic
-def get_fechas_procesamiento_inicio():
+def get_fechas_procesamiento_inicio(ueb=None):
     fechas = FechaPeriodo.objects.select_for_update().all()
+    if ueb:
+        fechas = fechas.filter(ueb=ueb)
     fechasinicio = FechaInicio.objects.select_for_update().all()
     list_dicc = [objeto.to_dict() for objeto in fechas]
     fechas_dict = {}

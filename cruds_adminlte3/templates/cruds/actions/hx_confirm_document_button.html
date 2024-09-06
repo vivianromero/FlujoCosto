@@ -27,7 +27,7 @@
 </button>
 {% endif %}
 <script>
-    document.querySelectorAll("a.confirm_href").forEach((ref) => {
+    document.querySelectorAll("button.confirm_href").forEach((ref) => {
         ref.addEventListener("click", function (e) {
             e.preventDefault()
             let record = '\n' + '{{ object }}'
