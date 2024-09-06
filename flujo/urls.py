@@ -20,4 +20,5 @@ urlpatterns = [
     path('obtener_fechacambioperiodo/', views.DameFechaCambioPeriodoModalFormView.as_view(), name='obtener_fechacambioperiodo'),
     path('report_flujo_existencia/', reportsview.ReportExistenciaModalFormView.as_view(), name='report_flujo_existencia'),
     path('report_test/', views.report_test, name='report_test'),
+    path('repexistencia/', reportsview.repexistencia, name='repexistencia'),
 ]

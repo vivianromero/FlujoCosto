@@ -5,13 +5,13 @@ from .utils import dame_fecha
 
 
 def repexistencia(kwargs):
-    # func_ret = {
-    #     'success': True,
-    #     'errors': {},
-    #     'success_title': 'Report ok',
-    #     'error_title': '',
-    # }
-    report_generator = ReportGenerator('Reporte de Existencias')
+    func_ret = {
+        'success': True,
+        'errors': {},
+        'success_title': 'Report ok',
+        'error_title': '',
+    }
+    report_generator = ReportGenerator('Reporte de Existencias', output_formats=['xlsx'])
     departamento = kwargs['departamento']
     estados = kwargs['estados']
     ueb = kwargs['request'].user.ueb
@@ -29,13 +29,13 @@ def repexistencia(kwargs):
         'param_estado':param_estado if param_estado else None,
         'param_periodo': param_periodo
     }
-    return report_generator.generate_report(parameters)
-    # return  {
-    #     'success': True,
-    #     'errors': {},
-    #     'success_title': 'Report ok',
-    #     'error_title': '',
-    # }
+    report_generator.generate_report(parameters)
+    return  {
+        'success': True,
+        'errors': {},
+        'success_title': 'Report ok',
+        'error_title': '',
+    }
 
 
 class ReportExistenciaModalFormView(BaseModalFormView):
@@ -48,13 +48,13 @@ class ReportExistenciaModalFormView(BaseModalFormView):
     hx_reswap = 'outerHTML'
     modal_form_title = 'Reporte de Existencia'
     max_width = '850px'
-    # funcname = {
-    #     'submitted': repexistencia,
-    # }
-    funcname = {}
-    viewname = {
-        'submitted': 'app_index:flujo:report_test',
+    funcname = {
+        'submitted': repexistencia,
     }
+    # funcname = {}
+    # viewname = {
+    #     'submitted': 'app_index:flujo:repexistencia',
+    # }
     close_on_error = True
 
     def get_context_data(self, **kwargs):
@@ -64,18 +64,18 @@ class ReportExistenciaModalFormView(BaseModalFormView):
         ueb = self.request.user.ueb
         dep_queryset = dep_queryset.filter(unidadcontable=ueb)
         context['form'].fields['departamento'].queryset = dep_queryset
-        context.update({
-            'btn_generar_doc': 'Generar Documento',
-        })
+        # context.update({
+        #     'btn_generar_doc': 'Generar Documento',
+        # })
         return context
 
     def get_fields_kwargs(self, form):
         kw = {}
-        # kw.update({
-        #     'request': self.request,
-        #     'departamento': form.cleaned_data['departamento'],
-        #     'estados': form.cleaned_data['estados'],
-        # })
+        kw.update({
+            'request': self.request,
+            'departamento': form.cleaned_data['departamento'],
+            'estados': form.cleaned_data['estados'],
+        })
         # if self.request.POST['event_action'] in ['submitted']:
         #     kw.update(
         #         {'departamento': form.cleaned_data['departamento']})

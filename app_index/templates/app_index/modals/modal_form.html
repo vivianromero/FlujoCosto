@@ -274,7 +274,7 @@
     })
     document.getElementById('id_form_btn_gen_doc').addEventListener('click', function() {
         // Genera la URL del PDF usando la URL configurada en Django
-        const url = "{% url 'app_index:flujo:report_test' %}";
+        const url = "{% url 'app_index:flujo:repexistencia' %}";
         // Abre el PDF en una nueva pestaña
         window.open(url, '_blank');
     });

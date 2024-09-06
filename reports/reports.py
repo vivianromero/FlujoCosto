@@ -7,6 +7,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseServerError
 from pyreportjasper import PyReportJasper
+from django.http import FileResponse
 
 
 class ReportGenerator:
@@ -58,7 +59,8 @@ class ReportGenerator:
 
             # Leer el archivo generado
             with open(output_file, 'rb') as file:
-                response = HttpResponse(file.read(), content_type=f'application/{file_extension}')
+                # response = HttpResponse(file.read(), content_type=f'application/{file_extension}')
+                response = FileResponse(open(output_file, 'rb'), content_type='application/pdf')
                 # El encabezado 'inline' permite que el navegador intente abrir el archivo en la misma pestaña
                 response['Content-Disposition'] = f'inline; filename="{self.report_name}.{file_extension}"'
                 return response
