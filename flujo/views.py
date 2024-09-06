@@ -348,16 +348,13 @@ class DocumentoCRUD(CommonCRUDView):
                 # fecha_procesamiento = None
                 htmx_departamento_trigger = False
                 fecha_procesamiento = dame_fecha(ueb, dpto)
-                # if settings.FECHAS_PROCESAMIENTO and ueb in settings.FECHAS_PROCESAMIENTO.keys() and dpto in \
-                #         settings.FECHAS_PROCESAMIENTO[ueb].keys():
-                #     fecha_procesamiento = settings.FECHAS_PROCESAMIENTO[ueb][dpto]['fecha_procesamiento']
                 if fecha_procesamiento:
                     context['form'].fields['rango_fecha'].widget.picker_options['custom_ranges'] = {
                         'Fecha procesamiento': (
-                        fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y')),
+                            fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y')),
                     }
                     context['form'].initial['rango_fecha'] = (
-                    fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y'))
+                        fecha_procesamiento.strftime('%d/%m/%Y'), fecha_procesamiento.strftime('%d/%m/%Y'))
                 if self.request.htmx.trigger_name == 'departamento':
                     htmx_departamento_trigger = True
                 inicializado = False if not self.dep else dpto.inicializado(ueb)
@@ -419,10 +416,6 @@ class DocumentoCRUD(CommonCRUDView):
                 queryset = queryset.filter(ueb=ueb)
                 if self.dep == '' or self.dep is None:
                     return self.model.objects.none()
-                # if rango_fecha is not None and rango_fecha != '':
-                #     fechas = rango_fecha.strip().split('-')
-                #     qdict['fecha__gte'] = datetime.strptime(fechas[0].strip(), formating).date()
-                #     qdict['fecha__lte'] = datetime.strptime(fechas[1].strip(), formating).date()
                 return queryset
 
             def get(self, request, *args, **kwargs):
@@ -722,7 +715,8 @@ def existen_documentos_sin_confirmar(obj):
     tipodoc = obj.tipodocumento
     numeroconsecutivo = obj.numeroconsecutivo
 
-    docs = Documento.objects.filter(ueb=ueb, numeroconsecutivo__lt=numeroconsecutivo)
+    docs = Documento.objects.filter(ueb=ueb, numeroconsecutivo__lt=numeroconsecutivo,
+                                    estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES])
 
     if conf['departamento']:
         doc = docs.filter(departamento=departamento)
@@ -730,12 +724,9 @@ def existen_documentos_sin_confirmar(obj):
         doc = docs
 
     numero = doc.aggregate(numconsec=Max('numeroconsecutivo'))['numconsec']
-    if numero and docs.filter(numeroconsecutivo=numero).first().estado == EstadosDocumentos.EDICION:
-        return True
-
     numero = numero if numero else 0
 
-    return numeroconsecutivo - numero > 1
+    return numero > 0
 
 
 @transaction.atomic
@@ -761,7 +752,7 @@ def inicializar_departamento(request, pk):
 
             title = 'El departamento %s se inicializó correctamente para %s!' % (departamento, request.user.ueb)
             text = 'Con fecha de inicio: %s' % date.today().replace(day=1)
-            get_fechas_procesamiento_inicio()
+            settings.FECHAS_PROCESAMIENTO = get_fechas_procesamiento_inicio(ueb=request.user.ueb)
             sweetify.success(request, title, text=text, persistent=True)
         else:
             title = 'El departamento %s para %s ya ha sido inicializado anteriormente' % (
@@ -893,7 +884,8 @@ def aceptar_documento_versat(kwargs):
         json_data = literal_eval(kwargs['json_data'])
         departamento = ''
         if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
-            departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
+            # departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
+            departamento = request.htmx.current_url_abs_path.split('&')[1].split('=')[1] #este es el id del dpto
         dicc_detalle = {}
         detalles_generados = []
         for p in detalles:
@@ -1256,53 +1248,72 @@ def cierremes(kwargs):
         error_title = 'Ya este mes fue cerrado'
     else:
         fechas = FechaPeriodo.objects.filter(ueb=ueb).all()
-        fechas_antes = fechas.filter(fecha__lt=fecha).all()
-
-        if fechas_antes.exists():
+        fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year,
+                                       fecha__day__gt=fecha.day).all()
+        if fechas_despues.exists():
             no_cerrar = True
-            cad = '\n'.join([x.departamento.descripcion for x in fechas_antes])
-            error_title = 'Departamentos que no están en el último día del mes.\n' + cad
-        else:
-            fechas_despues = fechas.filter(fecha__month=fecha.month, fecha__year=fecha.year,
-                                           fecha__day__gt=fecha.day).all()
-            if fechas_despues.exists():
-                no_cerrar = True
-                cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
-                error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
+            cad = '\n'.join([x.departamento.descripcion for x in fechas_despues])
+            error_title = 'Departamentos que tienen período posterior al cierre.\n' + cad
 
     if not no_cerrar:
-        # buscar documentos versat del periodo
-        departamentos = Departamento.objects.filter(unidadcontable=ueb)
+        docs_no_confirm = Documento.objects.filter(
+            estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES],
+            ueb=ueb
+        ).order_by('departamento__id').distinct('departamento')
 
-        # Obtener los centros de costo únicos
-        centros_costos = CentroCosto.objects.filter(
-            departamento_centrocosto__in=departamentos
-        ).distinct()
-        fecha_desde = fecha.replace(day=1)
-        cant_dias = calendar.monthrange(fecha.year, fecha.month)[1]
-        fecha_hasta = fecha.replace(day=cant_dias)
-        cc = [x.clave for x in centros_costos]
-        cc = ','.join(cc)
-        params = {'fecha_desde': fecha_desde.strftime('%Y-%m-%d'),
-                  'fecha_hasta': fecha_hasta.strftime('%Y-%m-%d'),
-                  'unidad': ueb.codigo,
-                  'centro_costo': cc
-                  }
-        response = getAPI('documentogasto', params=params)
-
-        if response and response.status_code == 200:
-            datos = response.json()['results']
-            ids = ids_documentos_versat_procesados(fecha_desde, fecha_hasta, None,
-                                                   ueb) if datos else []
-            datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
-
-            if datos:
-                no_cerrar = True
-                error_title = 'Existen documentos en el Versat que no han sido procesados'
-        else:
+        if docs_no_confirm.exists():
+            cad = '\n'.join([x.departamento.descripcion for x in docs_no_confirm])
+            error_title = 'No se puede cerrar el mes, existen documentos sin confirmar en los Departamentos \n' + cad
             no_cerrar = True
-            error_title = 'Hay problemas de conexión con la API Versat, \n ' \
-                          'no se ha podido verificar si existen documentos en el Versat pendientes de procesar'
+        else:
+            # buscar documentos versat del periodo
+            departamentos = Departamento.objects.filter(unidadcontable=ueb)
+
+            noinicializado = [x for x in departamentos if not x.inicializado(ueb)]
+
+            if noinicializado:
+                cad = '\n'.join([x.descripcion for x in noinicializado])
+                error_title = 'No se puede cerrar el mes, existen departamentos no inicializados \n' + cad
+                no_cerrar = True
+            else:
+                # Obtener los centros de costo únicos
+                centros_costos = CentroCosto.objects.filter(
+                    departamento_centrocosto__in=departamentos
+                ).distinct()
+                fecha_desde = fecha.replace(day=1)
+                cant_dias = calendar.monthrange(fecha.year, fecha.month)[1]
+                fecha_hasta = fecha.replace(day=cant_dias)
+                cc = [x.clave for x in centros_costos]
+                cc = ','.join(cc)
+                params = {'fecha_desde': fecha_desde.strftime('%Y-%m-%d'),
+                          'fecha_hasta': fecha_hasta.strftime('%Y-%m-%d'),
+                          'unidad': ueb.codigo,
+                          'centro_costo': cc
+                          }
+                try:
+                    error_title = 'Hay problemas de conexión con la API Versat, \n ' \
+                                  'no se ha podido verificar si existen documentos en el Versat pendientes de procesar'
+
+                    response = getAPI('documentogasto', params=params)
+
+                    if response and response.status_code == 200:
+                        datos = response.json()['results']
+                        ids = ids_documentos_versat_procesados(fecha_desde, fecha_hasta, None,
+                                                               ueb) if datos else []
+                        datos = list(filter(lambda x: x['iddocumento'] not in ids, datos))
+
+                        if datos:
+                            # Obtener valores únicos de la llave 'centrocosto_descripcion'
+                            valores_unicos = set(item["centrocosto_descripcion"] for item in datos)
+                            cad = '\n'.join([x for x in valores_unicos])
+                            # Convertir a lista si se necesita
+                            valores_unicos = list(valores_unicos)
+                            error_title = 'Existen documentos en el Versat \n que constituyen salida hacia el flujo productivo \n y no han sido procesados en los Centros de Costo \n' + cad
+                            no_cerrar = True
+                    else:
+                        no_cerrar = True
+                except Exception as e:
+                    no_cerrar = True
 
     if no_cerrar:
         func_ret.update({
@@ -1312,6 +1323,17 @@ def cierremes(kwargs):
         return func_ret
 
     FechaCierreMes.objects.update_or_create(ueb=ueb, defaults={"fecha": fecha})
+
+    fechaperiodo = fecha_hasta + timedelta(days=1)
+    FechaPeriodo.objects.filter(ueb=ueb).update(fecha=fechaperiodo)
+
+
+    # actualizar la varget_fechas_procesamiento_inicioiable de las fechas
+    # fecha_ant = settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento']
+    settings.FECHAS_PROCESAMIENTO = get_fechas_procesamiento_inicio(ueb=ueb)
+
+    NumeroDocumentos.objects.filter(ueb=ueb, tiponumero=TipoNumeroDoc.NUMERO_CONSECUTIVO).update(numero=0)
+    ExistenciaDpto.objects.filter(ueb=ueb).update(cantidad_inicial=F('cantidad_final'))
     return func_ret
 
 
@@ -1323,7 +1345,7 @@ class DameFechaModalFormView(BaseModalFormView):
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'
     hx_reswap = 'outerHTML'
-    modal_form_title = 'Obtener Fecha de Cierre'
+    modal_form_title = 'Obtener Fecha'
     max_width = '500px'
     funcname = {
         'submitted': cierremes,
@@ -1334,10 +1356,10 @@ class DameFechaModalFormView(BaseModalFormView):
         fecha = self.request.GET.get('fecha', None)
         ctx = super().get_context_data(**kwargs)
         fecha_max = ctx['form'].initial['fecha']
-        fecha_min = fecha_max.replace(day=1)
+        fecha_min = fecha_max.replace(day=1) if fecha_max else None
 
-        ctx['form'].fields['fecha'].widget.picker_options['minDate'] = fecha_min.strftime('%d/%m/%Y')
-        ctx['form'].fields['fecha'].widget.picker_options['maxDate'] = fecha_max.strftime('%d/%m/%Y')
+        ctx['form'].fields['fecha'].widget.picker_options['minDate'] = fecha_min.strftime('%d/%m/%Y') if fecha_min else ''
+        ctx['form'].fields['fecha'].widget.picker_options['maxDate'] = fecha_max.strftime('%d/%m/%Y') if fecha_max else ''
         return ctx
 
     def get_form_kwargs(self):
@@ -1362,68 +1384,13 @@ class DameFechaModalFormView(BaseModalFormView):
         return kw
 
 
-def obtener_departamento_y_fecha_procesamiento(request):
-    """
-    Obtener el departamento y su respectiva fech de procesamiento
-    """
-    there_is_htmx_params = request.htmx.current_url_abs_path.split('?').__len__() > 1
-    getparams_hx = '?' + request.htmx.current_url_abs_path.split('?')[1] if there_is_htmx_params else ''
-
-    ueb = request.user.ueb
-    dep = request.GET.get('departamento', None)
-    dpto = Departamento.objects.get(pk=dep) if dep else None
-    fecha_procesamiento = None
-    fecha_procesamiento_range = None
-    rango_fecha = request.GET.get('rango_fecha', '')
-
-    if request.htmx.trigger_name == 'departamento':
-        fecha_procesamiento = dame_fecha(ueb, dpto)
-        if fecha_procesamiento:
-            separator = '%2F'
-            fecha_procesamiento_range = fecha_procesamiento.strftime('%d/%m/%Y') + ' - ' + fecha_procesamiento.strftime(
-                '%d/%m/%Y')
-            day = str(fecha_procesamiento.day)
-            if day.__len__() < 2:
-                day = '0' + day
-            month = str(fecha_procesamiento.month)
-            if month.__len__() < 2:
-                month = '0' + month
-            year = str(fecha_procesamiento.year)
-            # fecha_procesamiento_range.replace('/', separator)
-            fecha_procesamiento_encoded = day + separator + month + separator + year
-            rango_fecha = fecha_procesamiento_encoded + ' - ' + fecha_procesamiento_encoded
-            if there_is_htmx_params:
-                getparams = getparams_hx.split('rango_fecha=')
-                getparams[0] += 'rango_fecha=' + rango_fecha
-                getparams_hx = getparams[0]
-            else:
-                getparams_hx = '?departamento=' + dep + '&rango_fecha=' + rango_fecha
-
-    return HttpResponseLocation(
-        reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')) + getparams_hx,
-        target='#table_content_documento_swap',
-        headers={
-            'HX-Trigger': request.htmx.trigger,
-            'HX-Trigger-Name': request.htmx.trigger_name,
-            'event_action': 'listed',
-        },
-        # values={
-        #     'departamento': dep,
-        #     'rango_fecha': rango_fecha
-        # }
-    )
-
-
 def obtener_fecha_procesamiento(request):
     ueb = request.user.ueb
     dep = request.GET.get('departamento', None)
     dpto = Departamento.objects.get(pk=dep) if dep else None
     rango_fecha = request.GET.get('rango_fecha', "")
     fecha_procesamiento = None
-    # f_proc = settings.FECHAS_PROCESAMIENTO
     fecha_procesamiento = dame_fecha(ueb, dpto)
-    # if f_proc and ueb in f_proc.keys() and dpto in f_proc[ueb].keys():
-    #     fecha_procesamiento = f_proc[ueb][dpto]['fecha_procesamiento']
 
     data = {
         'departamento': dep,
@@ -1476,50 +1443,19 @@ def cambioperiodo(kwargs):
     fecha_actual = dame_fecha(ueb=ueb, departamento=departamento)
     docs = Documento.objects.filter(ueb=ueb, departamento=departamento, \
                                     estado__in=[EstadosDocumentos.EDICION, EstadosDocumentos.ERRORES])
-    cambiomes = False
+    # cambiomes = False
     if docs.exists():
         hay_error = True
         func_ret.update({
             'success': False,
             'error_title': "Existen documentos sin Confirmar"
         })
-    elif (fecha_actual.month > fecha.month and fecha_actual.year == fecha.year) or (
-            fecha_actual.year < fecha.year):  # cambió de mes
-        # va a buscar los documentos del mes que están en el versat y no se han traido
-        cambiomes = True
-        fecha_mes_procesamiento = str(fecha_actual.year) + '-' + str(fecha_actual.month) + '-01'
-
-        params = {'fecha_desde': fecha_mes_procesamiento,
-                  'fecha_hasta': fecha_actual.strftime('%Y-%m-%d'),
-                  'unidad': ueb.codigo,
-                  'centro_costo': departamento.centrocosto.clave
-                  }
-        response = getAPI('documentogasto', params=params)
-        if not response or response.status_code != 200:
-            hay_error = True
-            func_ret.update({
-                'success': False,
-                'error_title': "API Versat sin conexión, no se puede verificar los documentos no procesados del versta hacia el departamento"
-            })
-        elif response and response.status_code == 200:
-            datos = response.json()['results']
-            ids = ids_documentos_versat_procesados(fecha_mes_procesamiento, fecha_periodo, dpto,
-                                                   unidadcontable) if datos else []
-            if ids:
-                hay_error = True
-                func_ret.update({
-                    'success': False,
-                    'error_title': "Existen documentos en el versat hacia este Centro de costo que no se han procesado"
-                })
 
     if not hay_error:
         FechaPeriodo.objects.update_or_create(ueb=ueb, departamento=departamento, defaults={"fecha": fecha})
         # actualizar la variable de las fechas
         fecha_ant = settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento']
         settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento'] = fecha
-        if cambiomes:
-            ExistenciaDpto.objects.update_or_create(ueb=ueb, departamento=departamento).update(
-                cantidad_inicial=cantidad_final)
     return func_ret
 
 
@@ -1541,12 +1477,11 @@ class DameFechaCambioPeriodoModalFormView(DameFechaModalFormView):
         return ctx
 
     def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
         fecha = self.request.GET.get('fecha')
         departamento = self.request.GET.get(
             'departamento') if 'departamento' in self.request.GET else self.request.POST.get('departamento')
         fecha_ini, fecha_fin = dame_fecha_periodo(ueb=self.request.user.ueb, departamento=departamento)
-
+        kwargs = super().get_form_kwargs()
         kwargs['initial'].update({
             "fecha": fecha_ini,
             "departamento": departamento,
@@ -1566,16 +1501,18 @@ class DameFechaCambioPeriodoModalFormView(DameFechaModalFormView):
 
 
 def dame_fecha_periodo(ueb, departamento):
-    # dicc = {'ueb': ueb, 'departamento': departamento}
-
     fecha = dame_fecha(ueb, Departamento.objects.get(
         pk=departamento))  # FechaPeriodo.objects.filter(**dicc).order_by('-fecha').first()
 
     fecha_actual = fecha
-    fecha_ini = fecha_actual + timedelta(days=1)
+    fecha_ini = fecha_actual
+    day = fecha.day
+    cant_dias = calendar.monthrange(fecha.year, fecha.month)[1]
+    if day < cant_dias:
+        fecha_ini = fecha_actual + timedelta(days=1)
+
     fecha_str = str(fecha_ini.day) + '/' + str(fecha_ini.month) + '/' + str(fecha_ini.year)
     datetime.strptime(fecha_str, "%d/%m/%Y").date()
-    cant_dias = calendar.monthrange(fecha_ini.year, fecha_ini.month)[1]
 
     fecha_fin = fecha_ini.replace(day=cant_dias)
 
@@ -1584,14 +1521,13 @@ def dame_fecha_periodo(ueb, departamento):
 
 def dame_fecha_cierre_mes(ueb):
     fecha = FechaPeriodo.objects.filter(ueb=ueb).order_by('-fecha').first()
-
+    if not fecha:
+        return None, None
     mes = fecha.fecha.month
     anno = fecha.fecha.year
-    if mes == 1:
-        mes = 12
-        anno = anno - 1
-    else:
-        mes = mes - 1
+    if mes == 12:
+        mes = 1
+        anno += 1
 
     fecha_str = '01/' + str(mes) + '/' + str(anno)
     fecha_ini = datetime.strptime(fecha_str, "%d/%m/%Y").date()
@@ -1600,12 +1536,13 @@ def dame_fecha_cierre_mes(ueb):
 
     return fecha_ini, fecha_fin
 
+
 def report_test(request):
     report_generator = ReportGenerator('Reporte de Existencias')
     parameters = {
         'param_ueb_id': str('009c9e8f-4064-4214-a051-a1f78ea26b65'),
         'param_departamento_id': str('c726aaf1-2729-42dd-90f8-739d0466bf93'),
-        'param_estado':','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
-        'param_periodo':'01/08/2024 al 25/08/2024'
+        'param_estado': ','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
+        'param_periodo': '01/08/2024 al 25/08/2024'
     }
     return report_generator.generate_report(parameters)
