@@ -585,6 +585,8 @@ class BaseModalFormView(FormView):
     # tras un error, no se cerrará el formuario
     close_on_error = False
 
+    report_response = False
+
     def get_fields_kwargs(self, form):
         """
         Retorna el valor de cada 'field' en el diccionario 'kw'.
@@ -623,6 +625,8 @@ class BaseModalFormView(FormView):
                         if not self.close_on_error:
                             event_action = 'not_submitted'
                 self.success_url = reverse_lazy(self.father_view) + params
+
+            values = {'event_action': event_action, 'reported': self.report_response}
             return HttpResponseLocation(
                 self.get_success_url(),
                 target=self.hx_target,
@@ -631,10 +635,9 @@ class BaseModalFormView(FormView):
                     'HX-Trigger-Name': self.request.htmx.trigger_name,
                     'HX-Replace-Url': 'false',
                     'event_action': event_action,
+                    'reported': self.report_response,
                 },
-                values={
-                    'event_action': event_action,
-                }
+                values=values,
             )
         else:
             return render(self.request, self.template_name, {
@@ -664,6 +667,7 @@ class BaseModalFormView(FormView):
             'inline_table': self.inline_tables,
             'btn_rechazar': None,
             'btn_aceptar': 'Aceptar',
+            'btn_generar_doc': None,
         })
         return ctx
 

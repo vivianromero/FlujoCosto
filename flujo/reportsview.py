@@ -48,8 +48,12 @@ class ReportExistenciaModalFormView(BaseModalFormView):
     hx_reswap = 'outerHTML'
     modal_form_title = 'Reporte de Existencia'
     max_width = '850px'
-    funcname = {
-        'submitted': repexistencia,
+    # funcname = {
+    #     'submitted': repexistencia,
+    # }
+    funcname = {}
+    viewname = {
+        'submitted': 'app_index:flujo:report_test',
     }
     close_on_error = True
 
@@ -60,15 +64,18 @@ class ReportExistenciaModalFormView(BaseModalFormView):
         ueb = self.request.user.ueb
         dep_queryset = dep_queryset.filter(unidadcontable=ueb)
         context['form'].fields['departamento'].queryset = dep_queryset
+        context.update({
+            'btn_generar_doc': 'Generar Documento',
+        })
         return context
 
     def get_fields_kwargs(self, form):
         kw = {}
-        kw.update({
-            'request': self.request,
-            'departamento': form.cleaned_data['departamento'],
-            'estados': form.cleaned_data['estados'],
-        })
+        # kw.update({
+        #     'request': self.request,
+        #     'departamento': form.cleaned_data['departamento'],
+        #     'estados': form.cleaned_data['estados'],
+        # })
         # if self.request.POST['event_action'] in ['submitted']:
         #     kw.update(
         #         {'departamento': form.cleaned_data['departamento']})

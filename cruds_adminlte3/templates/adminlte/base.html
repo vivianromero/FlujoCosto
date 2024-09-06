@@ -27,13 +27,46 @@
     {% endblock javascript %}
 
   {% block extra_head %}{% endblock %}
+    <style>
+        .loading-bar {
+            opacity: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent,
+                #000, transparent,
+                #000, transparent
+            );
+        }
+
+        .htmx-request.loading-bar {
+            opacity: 1;
+            animation: fadeIn 2s linear forwards, slide 0.8s ease-in-out infinite;
+        }
+        @keyframes slide {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX( 100%); }
+        }
+
+        @keyframes fadeIn {
+            0%   { opacity: 0; }
+            50%  { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+    </style>
 </head>
 
 <body id="body"
+      hx-indicator=".loading-bar"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         class="hold-transition skin-blue sidebar-collapse layout-footer-fixed layout-navbar-fixed layout-top-nav
         {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}"
         hx-ext="head-support">
+
+    <div class="loading-bar"></div>
 {% block body %}
 <section>
 <div class="wrapper" hx-history-elt>
@@ -142,7 +175,7 @@
 
         htmx.on("htmx:afterSwap", (e) => {
             // Response targeting #dialog => show the modal
-            const events_to_hide = ['submitted', 'inline_submitted', 'confirmed', 'refused'];
+            const events_to_hide = ['submitted', 'inline_submitted', 'confirmed', 'refused', 'reported'];
             const events_to_reset = ['submited_and_add_another'];
             const events_to_save_and_add_inlines = ['inline_submitted'];
             const events_inline_to_hide = ['inline_submitted', 'inline_confirmed', 'inline_refused'];

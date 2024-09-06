@@ -1540,7 +1540,7 @@ def dame_fecha_cierre_mes(ueb):
 def report_test(request):
     report_generator = ReportGenerator('Reporte de Existencias')
     parameters = {
-        'param_ueb_id': str('009c9e8f-4064-4214-a051-a1f78ea26b65'),
+        'param_ueb_id': str('009bfd05-0357-4614-ba5b-c9876272a460'),
         'param_departamento_id': str('c726aaf1-2729-42dd-90f8-739d0466bf93'),
         'param_estado': ','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
         'param_periodo': '01/08/2024 al 25/08/2024'

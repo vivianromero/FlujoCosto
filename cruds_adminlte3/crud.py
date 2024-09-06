@@ -804,8 +804,12 @@ class CRUDView(object):
 
             def get_success_url(self):
                 url = super(OEditView, self).get_success_url()
-                if (self.getparams):  # fixed filter edit action
-                    url += '?' + self.getparams
+                # if self.request.htmx:
+                #     if self.getparams_hx:  # fixed filter edit action
+                #         url += self.getparams_hx if '?' in self.getparams_hx else '?' + self.getparams_hx
+                # else:
+                #     if self.getparams:  # fixed filter edit action
+                #         url += self.getparams if '?' in self.getparams else '?' + self.getparams
                 return url
 
             def get_context_data(self, **kwargs):
