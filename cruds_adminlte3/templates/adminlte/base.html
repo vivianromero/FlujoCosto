@@ -175,7 +175,7 @@
 
         htmx.on("htmx:afterSwap", (e) => {
             // Response targeting #dialog => show the modal
-            const events_to_hide = ['submitted', 'inline_submitted', 'confirmed', 'refused'];
+            const events_to_hide = ['submitted', 'inline_submitted', 'confirmed', 'refused', 'reported'];
             const events_to_reset = ['submited_and_add_another'];
             const events_to_save_and_add_inlines = ['inline_submitted'];
             const events_inline_to_hide = ['inline_submitted', 'inline_confirmed', 'inline_refused'];

@@ -1,6 +1,6 @@
 import os
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 from pyreportjasper import PyReportJasper
 
 import os

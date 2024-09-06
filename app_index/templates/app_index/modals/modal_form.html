@@ -16,7 +16,7 @@
 
 <div id="dialog" class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: {{ max_width }}" role="document">
     {{ form.media.js }}
-    <form 
+    <form
             id="id_form_modal"
 {#            hx-post="{{ request.path }}" #}
 {#            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'#}
@@ -121,7 +121,14 @@
                         <i class="fa fa-close"></i>
                         Cancelar
                     </button>
-                    <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
+                    {% if btn_generar_doc %}
+                    	<button 
+                                id="id_form_btn_gen_doc" name="form_btn_gen_doc" class="btn btn-primary" data-dismiss="modal">
+                                <i class="fa fa-check"></i>
+                                {{  btn_generar_doc }}
+                        </button>
+                    {% else %}
+                        <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'
                             hx-vals='{"event_action": "submitted"}'
                             hx-post="{{ request.path }}{{ getparams }}"
                             hx-trigger="click"
@@ -131,9 +138,23 @@
                             type="submit" 
                             name="form_btn_acept"
                             class="btn btn-primary">
-                        <i class="fa fa-check"></i> 
-                        {{  btn_aceptar }}
-                    </button>
+                            <i class="fa fa-check"></i> 
+                            {{  btn_aceptar }}
+                        </button>
+                    {% endif %} 
+{#                    <button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "submitted"}'#}
+{#                            hx-vals='{"event_action": "submitted"}'#}
+{#                            hx-post="{{ request.path }}{{ getparams }}"#}
+{#                            hx-trigger="click"#}
+{#                            {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}#}
+{#                            {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}#}
+{#                            id="id_form_btn_acept" #}
+{#                            type="submit" #}
+{#                            name="form_btn_acept"#}
+{#                            class="btn btn-primary">#}
+{#                        <i class="fa fa-check"></i> #}
+{#                        {{  btn_aceptar }}#}
+{#                    </button>#}
                     {% if btn_rechazar %}
                     	<button hx-headers='{"X-CSRFToken":"{{ csrf_token }}", "event_action": "refused"}'
                             hx-post="{{ request.path }}"
@@ -251,4 +272,10 @@
           theme: 'bootstrap4'
         })
     })
+    document.getElementById('id_form_btn_gen_doc').addEventListener('click', function() {
+        // Genera la URL del PDF usando la URL configurada en Django
+        const url = "{% url 'app_index:flujo:report_test' %}";
+        // Abre el PDF en una nueva pestaña
+        window.open(url, '_blank');
+    });
 </script>
