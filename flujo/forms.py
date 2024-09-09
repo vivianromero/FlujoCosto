@@ -394,6 +394,9 @@ class DocumentoForm(forms.ModelForm):
                           consecutivo=consecutivo, control=control, pk=self.instance.pk
                           )
 
+        self.instance.mes = self.instance.fecha.month
+        self.instance.anno = self.instance.fecha.year
+
         instance = super().save(commit=True)
 
         match self.cleaned_data['tipodocumento'].pk:
