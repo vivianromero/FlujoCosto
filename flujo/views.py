@@ -1544,5 +1544,7 @@ def report_test(request):
         'param_departamento_id': str('c726aaf1-2729-42dd-90f8-739d0466bf93'),
         'param_estado': ','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
         'param_periodo': '01/08/2024 al 25/08/2024'
+        'param_fechai': '2024-01-01'
+        'param_fechaf': '2024-01-31'
     }
     return report_generator.generate_report(parameters)
