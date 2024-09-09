@@ -72,6 +72,21 @@ class Documento(models.Model):
             ),
         ]
         ordering = ['ueb', 'departamento', '-numeroconsecutivo', 'tipodocumento']
+        indexes = [
+            models.Index(
+                fields=[
+                    'ueb',
+                    'departamento',
+                    'fecha',
+                    'estado']
+            ),
+            models.Index(
+                fields=[
+                    'fecha',
+                    'numeroconsecutivo'
+                ]
+            )
+        ]
 
     def __str__(self):
         return self.tipodocumento.descripcion if self.numeroconsecutivo else ''
@@ -120,6 +135,16 @@ class DocumentoDetalle(models.Model):
             models.UniqueConstraint(
                 fields=['documento', 'estado', 'producto'],
                 name='unique_documentodetalle_documento_estado_producto'
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=[
+                    'documento']
+            ),
+            models.Index(
+                fields=[
+                    'producto']
             )
         ]
 
@@ -267,6 +292,13 @@ class DocumentoDetalleEstado(models.Model):
     class Meta:
         db_table = 'fp_documentodetalleestado'
 
+    indexes = [
+        models.Index(
+            fields=[
+                'documentodetalle']
+        ),
+    ]
+
 
 # Cambio de producto, producto destino
 class DocumentoDetalleProducto(models.Model):
@@ -288,6 +320,17 @@ class DocumentoDetalleProducto(models.Model):
 
     class Meta:
         db_table = 'fp_documentodetalleproducto'
+
+    indexes = [
+        models.Index(
+            fields=[
+                'documentodetalle']
+        ),
+        models.Index(
+            fields=[
+                'producto']
+        )
+    ]
 
 
 class DocumentoDevolucion(models.Model):

@@ -12,6 +12,7 @@
 	<parameter name="param_fechai" class="java.lang.String"/>
 	<parameter name="param_fechaf" class="java.lang.String"/>
 	<parameter name="param_estado" class="java.lang.String"/>
+	<parameter name="param_producto_id" class="java.lang.String"/>
 	<queryString language="plsql">
 		<![CDATA[select 
    CASE 
@@ -76,6 +77,7 @@ WHERE (d.fecha BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{pa
      AND d.departamento_id=$P{param_departamento_id}::uuid
      AND d.estado=2
      AND dd.estado IN (SELECT unnest(string_to_array($P{param_estado}, ',')::int[]))
+    AND ($P{param_producto_id} IS NULL OR dd.producto_id = $P{param_producto_id}::uuid)
 union all
 SELECT d.ueb_id, d.departamento_id, dde.producto_id, p.descripcion, 
        CASE WHEN dde.estado=1 THEN 'Bueno'
@@ -100,6 +102,7 @@ WHERE (d.fecha  BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{p
      AND d.departamento_id=$P{param_departamento_id}::uuid
      AND d.estado=2
      AND dde.estado IN (1,2)
+    AND ($P{param_producto_id} IS NULL OR dde.producto_id = $P{param_producto_id}::uuid)
 union all
 SELECT d.ueb_id, d.departamento_id, ddp.producto_id, p.descripcion, 
        CASE WHEN ddp.estado=1 THEN 'Bueno'
@@ -123,7 +126,8 @@ WHERE (d.fecha  BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{p
      AND d.ueb_id=$P{param_ueb_id}::uuid
      AND d.departamento_id=$P{param_departamento_id}::uuid
      AND d.estado=2
-     AND ddp.estado IN (1,2)) todos
+     AND ddp.estado IN (1,2)
+     AND ($P{param_producto_id} IS NULL OR ddp.producto_id = $P{param_producto_id}::uuid)) todos
 ORDER BY todos.descripcion, todos.estadoprod, todos.fecha, todos.operacion, todos.numeroconsecutivo) fin
 INNER JOIN cla_unidadcontable u ON u.id=fin.ueb_id
 INNER JOIN  cla_departamento d ON d.id=fin.departamento_id
