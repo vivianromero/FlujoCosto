@@ -1548,3 +1548,4 @@ def report_test(request):
         'param_fechaf': '2024-01-31'
     }
     return report_generator.generate_report(parameters)
+

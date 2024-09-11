@@ -2,8 +2,8 @@
 <!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Existencias" language="groovy" pageWidth="612" pageHeight="792" columnWidth="582" leftMargin="15" rightMargin="15" topMargin="10" bottomMargin="5" isIgnorePagination="true" uuid="f6e9ec7f-7fad-4617-a717-f3b3ec417aee">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sample DB"/>
-	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="903"/>
-	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="83"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="653"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="333"/>
 	<parameter name="param_ueb_id" class="java.lang.String"/>
 	<parameter name="param_departamento_id" class="java.lang.String"/>
 	<parameter name="param_periodo" class="java.lang.String">
@@ -12,156 +12,159 @@
 	<parameter name="param_fechai" class="java.lang.String"/>
 	<parameter name="param_fechaf" class="java.lang.String"/>
 	<parameter name="param_estado" class="java.lang.String"/>
+	<parameter name="param_producto_id" class="java.lang.String"/>
 	<queryString language="plsql">
-		<![CDATA[select 
-   CASE 
-	 WHEN CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion) = '' THEN 'NO CATEGORÍA'  
-	 ELSE CONCAT('CATEGORÍA-', CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion))
-	END AS categoria,
-   COALESCE(
-	CASE    
-	 WHEN NOT pv.codigo ISNULL THEN CONCAT(pv.codigo, '-', pv.descripcion)
-	 WHEN NOT pvp.codigo ISNULL THEN CONCAT(pvp.codigo, '-',pvp.descripcion)
-	 WHEN NOT pvc.codigo ISNULL THEN CONCAT(pvc.codigo, '-', pvc.descripcion)
-	END, '') AS vitola,
-   COALESCE(c.orden, 0) + COALESCE(cvp.orden, 0) + COALESCE(cvc.orden,0) AS orden,
-   fin.estado,
-   fin.estadoprod as descestado,
-   fin.descripcion as producto,
-   m.clave AS um,  
-   fin.saldoinicial as cantidad_inicial, 
-   fin.saldofinal as cantidad_final,
-   fin.ueb_id, fin.departamento_id,
-   CONCAT(u.codigo, '-', u.nombre) AS ueb,
-   d.descripcion AS departamento,
-   p.tipoproducto_id,
-   CASE 
-	 WHEN p.tipoproducto_id=1 THEN 'Pesadas'
-	 WHEN p.tipoproducto_id=2 THEN 'Materias Primas'
-	 WHEN p.tipoproducto_id=3 THEN 'Habilitaciones'
-	 WHEN p.tipoproducto_id=4 THEN 'Líneas de Salida'
-	 WHEN p.tipoproducto_id=5 THEN 'Tabacos'
-	 WHEN p.tipoproducto_id=6 THEN 'Subproductos'
-	 WHEN p.tipoproducto_id=7 THEN 'Líneas sin Terminar'
-   END AS tipoproducto		
-from 
-(select todos.ueb_id, todos.departamento_id, todos.producto_id, todos.descripcion, todos.estadoprod, todos.estado, 
-     todos.fecha, todos.numeroconsecutivo, todos.numerocontrol, 
-      todos.operacion, todos.inicio, todos.entrada, todos.salida, todos.existencia,
-     FIRST_VALUE(todos.saldoinicial)
-      OVER (PARTITION BY todos.producto_id, todos.estado ORDER BY todos.fecha, todos.numeroconsecutivo) AS saldoinicial,
-	 LAST_VALUE(todos.saldofinal)
-     OVER (PARTITION BY todos.producto_id, todos.estado ORDER BY todos.fecha, todos.numeroconsecutivo
-           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS saldofinal
-from 
-(SELECT d.ueb_id, d.departamento_id, dd.producto_id, p.descripcion, 
-       CASE WHEN dd.estado=1 THEN 'Bueno'
-            WHEN dd.estado=2 THEN 'Deficiente'
-            WHEN dd.estado=3 THEN 'Rechazo'
-       END AS estadoprod,
-       dd.estado,
-       d.fecha, d.numeroconsecutivo, d.numerocontrol, t.operacion,
-       (dd.existencia + ((CASE WHEN t.operacion='E' THEN -1 ELSE 1 END)*dd.cantidad)) as inicio,
-       CASE WHEN t.operacion='E' THEN dd.cantidad ELSE 0 END AS entrada,
-       CASE WHEN t.operacion='S' THEN dd.cantidad ELSE 0 END AS salida,
-       dd.existencia,
- 	   (dd.existencia + ((CASE WHEN t.operacion='E' THEN -1 ELSE 1 END)*dd.cantidad)) as saldoinicial,
- 		(dd.existencia) as saldofinal
-FROM fp_documentodetalle dd 
-  INNER JOIN fp_documento d ON d.id=dd.documento_id
-  INNER JOIN cla_productoflujo p ON p.id=dd.producto_id
-  INNER JOIN cla_tipodocumento t ON t.id=d.tipodocumento_id 
-WHERE (d.fecha BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')) 
-     AND d.ueb_id=$P{param_ueb_id}::uuid
-     AND d.departamento_id=$P{param_departamento_id}::uuid
-     AND d.estado=2
-     AND dd.estado IN (SELECT unnest(string_to_array($P{param_estado}, ',')::int[]))
-union all
-SELECT d.ueb_id, d.departamento_id, dde.producto_id, p.descripcion, 
-       CASE WHEN dde.estado=1 THEN 'Bueno'
-            WHEN dde.estado=2 THEN 'Deficiente'
-            WHEN dde.estado=3 THEN 'Rechazo'
-       END AS estadoprod,
-       dde.estado,
-       d.fecha, d.numeroconsecutivo, d.numerocontrol, 'E' as operacion,
-       (dde.existencia - dde.cantidad) as inicio,
-       dde.cantidad AS entrada,
-       0 AS salida,
-       dde.existencia,
- 	   (dde.existencia - dde.cantidad) AS saldoinicial,
- 		(dde.existencia) as saldofinal
-FROM fp_documentodetalleestado dde
-  INNER JOIN fp_documentodetalle dd on dd.id=dde.documentodetalle_id
-  INNER JOIN fp_documento d ON d.id=dd.documento_id
-  INNER JOIN cla_productoflujo p ON p.id=dde.producto_id
-  INNER JOIN cla_tipodocumento t ON t.id=d.tipodocumento_id 
-WHERE (d.fecha  BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')) 
-     AND d.ueb_id=$P{param_ueb_id}::uuid
-     AND d.departamento_id=$P{param_departamento_id}::uuid
-     AND d.estado=2
-     AND dde.estado IN (1,2)
-union all
-SELECT d.ueb_id, d.departamento_id, ddp.producto_id, p.descripcion, 
-       CASE WHEN ddp.estado=1 THEN 'Bueno'
-            WHEN ddp.estado=2 THEN 'Deficiente'
-            WHEN ddp.estado=3 THEN 'Rechazo'
-       END AS estadoprod,
-       ddp.estado,
-       d.fecha, d.numeroconsecutivo, d.numerocontrol, 'E' as operacion,
-       (ddp.existencia - ddp.cantidad) as inicio,
-       ddp.cantidad AS entrada,
-       0 AS salida,
-       ddp.existencia,
- 		(ddp.existencia - ddp.cantidad) as saldoinicial,
- 		ddp.existencia as saldofinal
-FROM fp_documentodetalleproducto ddp
-  INNER JOIN fp_documentodetalle dd on dd.id=ddp.documentodetalle_id
-  INNER JOIN fp_documento d ON d.id=dd.documento_id
-  INNER JOIN cla_productoflujo p ON p.id=ddp.producto_id
-  INNER JOIN cla_tipodocumento t ON t.id=d.tipodocumento_id 
-WHERE (d.fecha  BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')) 
-     AND d.ueb_id=$P{param_ueb_id}::uuid
-     AND d.departamento_id=$P{param_departamento_id}::uuid
-     AND d.estado=2
-     AND ddp.estado IN (1,2)) todos
-ORDER BY todos.descripcion, todos.estadoprod, todos.fecha, todos.operacion, todos.numeroconsecutivo) fin
-INNER JOIN cla_unidadcontable u ON u.id=fin.ueb_id
-INNER JOIN  cla_departamento d ON d.id=fin.departamento_id
-INNER JOIN  cla_productoflujo p ON p.id=fin.producto_id
-INNER JOIN  cla_medida m ON m.id=p.medida_id
-LEFT JOIN  cla_vitola v ON v.producto_id=p.id
-LEFT JOIN cla_vitola vp ON vp.pesada_id=p.id
-LEFT JOIN cla_vitola vc ON vc.capa_id=p.id
-LEFT JOIN cla_categoriavitola c ON c.id=v.categoriavitola_id
-LEFT JOIN cla_categoriavitola cvp ON cvp.id=vp.categoriavitola_id
-LEFT JOIN cla_categoriavitola cvc ON cvc.id=vc.categoriavitola_id
-LEFT JOIN cla_productoflujo pv ON pv.id=v.producto_id
-LEFT JOIN cla_productoflujo pvp ON pvp.id=vp.producto_id
-LEFT JOIN cla_productoflujo pvc ON pvc.id=vc.producto_id
-group by fin.producto_id, fin.descripcion, fin.estadoprod, fin.estado, fin.saldoinicial, fin.saldofinal,
-CASE 
-         WHEN CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion) = '' THEN 'NO CATEGORÍA'  
-		 ELSE CONCAT('CATEGORÍA-', CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion))
-		END,
-COALESCE(
-			CASE    
-			 WHEN NOT pv.codigo ISNULL THEN CONCAT(pv.codigo, '-', pv.descripcion)
-			 WHEN NOT pvp.codigo ISNULL THEN CONCAT(pvp.codigo, '-',pvp.descripcion)
-			 WHEN NOT pvc.codigo ISNULL THEN CONCAT(pvc.codigo, '-', pvc.descripcion)
-			END, ''),
-		COALESCE(c.orden, 0) + COALESCE(cvp.orden, 0) + COALESCE(cvc.orden,0),
-m.clave,
-p.tipoproducto_id,
-   CASE 
-	 WHEN p.tipoproducto_id=1 THEN 'Pesadas'
-	 WHEN p.tipoproducto_id=2 THEN 'Materias Primas'
-	 WHEN p.tipoproducto_id=3 THEN 'Habilitaciones'
-	 WHEN p.tipoproducto_id=4 THEN 'Líneas de Salida'
-	 WHEN p.tipoproducto_id=5 THEN 'Tabacos'
-	 WHEN p.tipoproducto_id=6 THEN 'Subproductos'
-	 WHEN p.tipoproducto_id=7 THEN 'Líneas sin Terminar'
-   END,
-   fin.ueb_id, fin.departamento_id, CONCAT(u.codigo, '-', u.nombre), d.descripcion]]>
+		<![CDATA[-- Common Table Expressions (CTEs) for reusable subqueries
+WITH estado_producto AS (
+    SELECT 1 AS estado, 'Bueno' AS estado_desc
+    UNION ALL SELECT 2, 'Deficiente'
+    UNION ALL SELECT 3, 'Rechazo'
+   ),
+    document_data AS (
+         SELECT d.ueb_id, d.departamento_id, dd.producto_id, p.descripcion, 
+          ep.estado_desc AS estadoprod,
+           dd.estado,
+           d.fecha, d.numeroconsecutivo, d.numerocontrol, t.operacion,
+           (dd.existencia + CASE WHEN t.operacion='E' THEN -dd.cantidad ELSE dd.cantidad END) as inicio,
+           CASE WHEN t.operacion='E' THEN dd.cantidad ELSE 0 END AS entrada,
+           CASE WHEN t.operacion='S' THEN dd.cantidad ELSE 0 END AS salida,
+           dd.existencia,
+           (dd.existencia + CASE WHEN t.operacion='E' THEN -dd.cantidad ELSE dd.cantidad END) as saldoinicial,
+           (dd.existencia) as saldofinal
+    FROM fp_documentodetalle dd 
+    INNER JOIN fp_documento d ON d.id = dd.documento_id
+    INNER JOIN cla_productoflujo p ON p.id = dd.producto_id
+    INNER JOIN cla_tipodocumento t ON t.id = d.tipodocumento_id 
+    INNER JOIN estado_producto ep ON ep.estado = dd.estado
+    WHERE d.fecha BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')
+        AND d.ueb_id=$P{param_ueb_id}::uuid
+        AND d.departamento_id=$P{param_departamento_id}::uuid
+        AND d.estado = 2
+        AND dd.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND ($P{param_producto_id} IS NULL OR dd.producto_id = $P{param_producto_id}::uuid)
+),
+document_estado AS (
+    SELECT d.ueb_id, d.departamento_id, dde.producto_id, p.descripcion, 
+           ep.estado_desc AS estadoprod,
+           dde.estado,
+           d.fecha, d.numeroconsecutivo, d.numerocontrol, 'E' as operacion,
+           (dde.existencia - dde.cantidad) as inicio,
+           dde.cantidad AS entrada,
+           0 AS salida,
+           dde.existencia,
+           (dde.existencia - dde.cantidad) AS saldoinicial,
+           (dde.existencia) as saldofinal
+    FROM fp_documentodetalleestado dde
+    INNER JOIN fp_documentodetalle dd on dd.id = dde.documentodetalle_id
+    INNER JOIN fp_documento d ON d.id = dd.documento_id
+    INNER JOIN cla_productoflujo p ON p.id = dde.producto_id
+    INNER JOIN estado_producto ep ON ep.estado = dde.estado
+   WHERE d.fecha BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')
+        AND d.ueb_id=$P{param_ueb_id}::uuid
+        AND d.departamento_id=$P{param_departamento_id}::uuid
+        AND d.estado = 2
+       AND dde.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND ($P{param_producto_id} IS NULL OR dde.producto_id = $P{param_producto_id}::uuid)
+),
+document_producto AS (
+    SELECT d.ueb_id, d.departamento_id, ddp.producto_id, p.descripcion, 
+           ep.estado_desc AS estadoprod,
+           ddp.estado,
+           d.fecha, d.numeroconsecutivo, d.numerocontrol, 'E' as operacion,
+           (ddp.existencia - ddp.cantidad) as inicio,
+           ddp.cantidad AS entrada,
+           0 AS salida,
+           ddp.existencia,
+           (ddp.existencia - ddp.cantidad) as saldoinicial,
+           ddp.existencia as saldofinal
+    FROM fp_documentodetalleproducto ddp
+    INNER JOIN fp_documentodetalle dd on dd.id = ddp.documentodetalle_id
+    INNER JOIN fp_documento d ON d.id = dd.documento_id
+    INNER JOIN cla_productoflujo p ON p.id = ddp.producto_id
+    INNER JOIN estado_producto ep ON ep.estado = ddp.estado
+    WHERE d.fecha BETWEEN TO_DATE($P{param_fechai}, 'YYYY-MM-DD') AND TO_DATE($P{param_fechaf}, 'YYYY-MM-DD')
+        AND d.ueb_id=$P{param_ueb_id}::uuid
+        AND d.departamento_id=$P{param_departamento_id}::uuid
+        AND d.estado = 2
+        AND ddp.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND ($P{param_producto_id} IS NULL OR ddp.producto_id = $P{param_producto_id}::uuid)
+),
+combined_data AS (
+    SELECT * FROM document_data
+    UNION ALL
+    SELECT * FROM document_estado
+    UNION ALL
+    SELECT * FROM document_producto
+),
+aggregated_data AS (
+    SELECT 
+        producto_id,
+        descripcion,
+        estadoprod,
+        estado,
+        ueb_id,
+        departamento_id,
+        FIRST_VALUE(saldoinicial) OVER (PARTITION BY producto_id, estado ORDER BY fecha, numeroconsecutivo) AS saldoinicial,
+        LAST_VALUE(saldofinal) OVER (
+            PARTITION BY producto_id, estado 
+            ORDER BY fecha, numeroconsecutivo
+            ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+        ) AS saldofinal
+    FROM combined_data
+)
+
+-- Main query
+SELECT 
+    COALESCE(NULLIF(CONCAT(c.descripcion, cvp.descripcion, cvc.descripcion), ''), 'NO CATEGORÍA') AS categoria,
+    COALESCE(
+        CASE    
+            WHEN pv.codigo IS NOT NULL THEN CONCAT(pv.codigo, '-', pv.descripcion)
+            WHEN pvp.codigo IS NOT NULL THEN CONCAT(pvp.codigo, '-', pvp.descripcion)
+            WHEN pvc.codigo IS NOT NULL THEN CONCAT(pvc.codigo, '-', pvc.descripcion)
+        END, ''
+    ) AS vitola,
+    COALESCE(c.orden, 0) + COALESCE(cvp.orden, 0) + COALESCE(cvc.orden, 0) AS orden,
+    ad.estado,
+    ad.estadoprod as descestado,
+    ad.descripcion as producto,
+    m.clave AS um,  
+    ad.saldoinicial as cantidad_inicial, 
+    ad.saldofinal as cantidad_final,
+    ad.ueb_id, 
+    ad.departamento_id,
+    CONCAT(u.codigo, '-', u.nombre) AS ueb,
+    d.descripcion AS departamento,
+    p.tipoproducto_id,
+    CASE 
+        WHEN p.tipoproducto_id = 1 THEN 'Pesadas'
+        WHEN p.tipoproducto_id = 2 THEN 'Materias Primas'
+        WHEN p.tipoproducto_id = 3 THEN 'Habilitaciones'
+        WHEN p.tipoproducto_id = 4 THEN 'Líneas de Salida'
+        WHEN p.tipoproducto_id = 5 THEN 'Tabacos'
+        WHEN p.tipoproducto_id = 6 THEN 'Subproductos'
+        WHEN p.tipoproducto_id = 7 THEN 'Líneas sin Terminar'
+    END AS tipoproducto		
+FROM 
+    aggregated_data ad
+    INNER JOIN cla_unidadcontable u ON u.id = ad.ueb_id
+    INNER JOIN cla_departamento d ON d.id = ad.departamento_id
+    INNER JOIN cla_productoflujo p ON p.id = ad.producto_id
+    INNER JOIN cla_medida m ON m.id = p.medida_id
+    LEFT JOIN cla_vitola v ON v.producto_id = p.id
+    LEFT JOIN cla_vitola vp ON vp.pesada_id = p.id
+    LEFT JOIN cla_vitola vc ON vc.capa_id = p.id
+    LEFT JOIN cla_categoriavitola c ON c.id = v.categoriavitola_id
+    LEFT JOIN cla_categoriavitola cvp ON cvp.id = vp.categoriavitola_id
+    LEFT JOIN cla_categoriavitola cvc ON cvc.id = vc.categoriavitola_id
+    LEFT JOIN cla_productoflujo pv ON pv.id = v.producto_id
+    LEFT JOIN cla_productoflujo pvp ON pvp.id = vp.producto_id
+    LEFT JOIN cla_productoflujo pvc ON pvc.id = vc.producto_id
+GROUP BY 
+    ad.producto_id, ad.descripcion, ad.estadoprod, ad.estado, ad.saldoinicial, ad.saldofinal,
+    c.descripcion, cvp.descripcion, cvc.descripcion,
+    pv.codigo, pv.descripcion, pvp.codigo, pvp.descripcion, pvc.codigo, pvc.descripcion,
+    c.orden, cvp.orden, cvc.orden,
+    m.clave, p.tipoproducto_id, ad.ueb_id, ad.departamento_id, u.codigo, u.nombre, d.descripcion]]>
 	</queryString>
 	<field name="categoria" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="categoria"/>
