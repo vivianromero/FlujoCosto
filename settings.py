@@ -379,3 +379,10 @@ PASSWORD_API = 'Zxc123*-'
 NUMERACION_DOCUMENTOS_CONFIG = None
 FECHAS_PROCESAMIENTO = None
 OTRAS_CONFIGURACIONES = None
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}

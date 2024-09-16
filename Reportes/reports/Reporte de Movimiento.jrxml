@@ -49,7 +49,7 @@
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-        AND dd.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND  ($P{param_estado} IS NULL OR dd.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR dd.producto_id = $P{param_producto_id}::uuid)
         
     UNION ALL
@@ -84,7 +84,7 @@
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-        AND dde.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND  ($P{param_estado} IS NULL OR dde.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR dde.producto_id = $P{param_producto_id}::uuid)
     
     UNION ALL
@@ -119,7 +119,7 @@
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-        AND ddp.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND  ($P{param_estado} IS NULL OR ddp.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR ddp.producto_id = $P{param_producto_id}::uuid)
   )
 SELECT 
@@ -279,7 +279,7 @@ INNER JOIN cla_departamento t ON t.id = todos.departamento_id]]>
 				</textField>
 				<frame>
 					<reportElement x="411" y="0" width="170" height="20" uuid="dadf46fe-12f7-4691-8414-8f1983f02362">
-						<printWhenExpression><![CDATA[$P{param_estado}!=null && LEN($P{param_estado} )>1]]></printWhenExpression>
+						<printWhenExpression><![CDATA[$P{param_estado}==null || LEN($P{param_estado} )>1]]></printWhenExpression>
 					</reportElement>
 					<staticText>
 						<reportElement x="0" y="0" width="58" height="20" uuid="8092f775-afaa-41ad-9f25-0de354fc119d">
@@ -564,23 +564,11 @@ INNER JOIN cla_departamento t ON t.id = todos.departamento_id]]>
 				<textFieldExpression><![CDATA[$P{param_periodo}]]></textFieldExpression>
 			</textField>
 			<frame>
-				<reportElement x="0" y="36" width="230" height="20" uuid="c8fe934d-5286-4107-8fb9-073dc6469d46">
+				<reportElement x="0" y="36" width="230" height="20" uuid="0528322c-aa0e-42ae-9bbd-dd4434be8b07">
 					<printWhenExpression><![CDATA[$P{param_estado}!=null && LEN($P{param_estado} )==1]]></printWhenExpression>
 				</reportElement>
-				<staticText>
-					<reportElement x="0" y="0" width="58" height="20" uuid="2b7f44a5-26c2-4efd-96b8-9203125f7d79">
-						<property name="com.jaspersoft.studio.unit.y" value="px"/>
-						<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						<property name="com.jaspersoft.studio.unit.width" value="px"/>
-						<property name="com.jaspersoft.studio.unit.x" value="px"/>
-					</reportElement>
-					<textElement textAlignment="Right" verticalAlignment="Bottom">
-						<font size="12" isBold="true" isItalic="true"/>
-					</textElement>
-					<text><![CDATA[Estado:]]></text>
-				</staticText>
 				<textField>
-					<reportElement x="59" y="0" width="151" height="20" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
+					<reportElement x="105" y="2" width="125" height="17" uuid="e1fb8cdd-8bca-4242-a6e7-631d74790338">
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
@@ -590,6 +578,15 @@ INNER JOIN cla_departamento t ON t.id = todos.departamento_id]]>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{descestado}]]></textFieldExpression>
 				</textField>
+				<staticText>
+					<reportElement x="0" y="2" width="104" height="17" uuid="8f87d00c-51c1-48a0-91df-870d260e3518">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font fontName="Serif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Estado:]]></text>
+				</staticText>
 			</frame>
 		</band>
 	</pageHeader>

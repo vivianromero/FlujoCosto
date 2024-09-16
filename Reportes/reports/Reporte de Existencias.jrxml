@@ -40,7 +40,7 @@ WITH estado_producto AS (
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-        AND dd.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND  ($P{param_estado} IS NULL OR dd.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR dd.producto_id = $P{param_producto_id}::uuid)
 ),
 document_estado AS (
@@ -63,7 +63,7 @@ document_estado AS (
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-       AND dde.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+       AND  ($P{param_estado} IS NULL OR dde.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR dde.producto_id = $P{param_producto_id}::uuid)
 ),
 document_producto AS (
@@ -86,7 +86,7 @@ document_producto AS (
         AND d.ueb_id=$P{param_ueb_id}::uuid
         AND d.departamento_id=$P{param_departamento_id}::uuid
         AND d.estado = 2
-        AND ddp.estado = ANY(string_to_array($P{param_estado}, ',')::int[])
+        AND ($P{param_estado} IS NULL OR ddp.estado = ANY(string_to_array($P{param_estado}, ',')::int[]))
         AND ($P{param_producto_id} IS NULL OR ddp.producto_id = $P{param_producto_id}::uuid)
 ),
 combined_data AS (
@@ -527,20 +527,8 @@ GROUP BY
 				<reportElement x="0" y="36" width="230" height="20" uuid="c8fe934d-5286-4107-8fb9-073dc6469d46">
 					<printWhenExpression><![CDATA[$P{param_estado}!=null && LEN($P{param_estado} )==1]]></printWhenExpression>
 				</reportElement>
-				<staticText>
-					<reportElement x="0" y="0" width="58" height="20" uuid="2b7f44a5-26c2-4efd-96b8-9203125f7d79">
-						<property name="com.jaspersoft.studio.unit.y" value="px"/>
-						<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						<property name="com.jaspersoft.studio.unit.width" value="px"/>
-						<property name="com.jaspersoft.studio.unit.x" value="px"/>
-					</reportElement>
-					<textElement textAlignment="Right" verticalAlignment="Bottom">
-						<font size="12" isBold="true" isItalic="true"/>
-					</textElement>
-					<text><![CDATA[Estado:]]></text>
-				</staticText>
 				<textField>
-					<reportElement x="59" y="0" width="151" height="20" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
+					<reportElement x="105" y="2" width="125" height="17" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
@@ -550,6 +538,15 @@ GROUP BY
 					</textElement>
 					<textFieldExpression><![CDATA[$F{descestado}]]></textFieldExpression>
 				</textField>
+				<staticText>
+					<reportElement x="0" y="2" width="104" height="17" uuid="bbfa1db5-949e-4ccc-9216-4b53ed727bd2">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font fontName="Serif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Estado:]]></text>
+				</staticText>
 			</frame>
 		</band>
 	</pageHeader>
@@ -614,7 +611,7 @@ GROUP BY
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="23" splitType="Stretch">
+		<band height="19" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<textField>
 				<reportElement x="2" y="1" width="269" height="18" uuid="469b62d1-5a6e-4808-b6b5-a2be4f8e8665"/>
@@ -652,7 +649,7 @@ GROUP BY
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="1" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
 		<band height="24" splitType="Stretch">

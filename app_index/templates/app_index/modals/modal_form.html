@@ -132,13 +132,14 @@
                             hx-vals='{"event_action": "submitted"}'
                             hx-post="{{ request.path }}{{ getparams }}"
                             hx-trigger="click"
+                            hx-on="htmx:afterRequest: mostrarPDF(event)"
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-                            id="id_form_btn_acept" 
-                            type="submit" 
+                            id="id_form_btn_acept"
+                            type="submit"
                             name="form_btn_acept"
                             class="btn btn-primary">
-                            <i class="fa fa-check"></i> 
+                            <i class="fa fa-check"></i>
                             {{  btn_aceptar }}
                         </button>
                     {% endif %} 
@@ -272,10 +273,21 @@
           theme: 'bootstrap4'
         })
     })
-    document.getElementById('id_form_btn_gen_doc').addEventListener('click', function() {
-        // Genera la URL del PDF usando la URL configurada en Django
-        const url = "{% url 'app_index:flujo:repexistencia' %}";
-        // Abre el PDF en una nueva pestaña
-        window.open(url, '_blank');
-    });
+function mostrarPDF(event) {
+    alert('1');
+    window.open('/es/reporte/pdf/', '_blank');
+    alert('2');
+    //alert(event);
+    //alert(event.detail);
+    //alert(event.detail.xhr);
+    //alert(event.detail.xhr.response);
+    //alert('2');
+    //var response = event.detail.xhr.response;
+    //alert(response);
+    //alert('3');
+    //var data = JSON.parse(response);
+    //alert('4');
+    //window.open(data.url, '_blank');  // Abre el PDF en una nueva pestaña
+    //alert('5');
+}
 </script>

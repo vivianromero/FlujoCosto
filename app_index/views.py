@@ -120,6 +120,8 @@ class Index(TemplateView):
 class Underconstruction(TemplateView):
     template_name = 'app_index/adminlte/underconstruction.html'
 
+class ErrorGenerateReport(TemplateView):
+    template_name = 'app_index/adminlte/errorgeneratereport.html'
 
 class Dashboard(TemplateView):
     template_name = 'app_index/adminlte/dashboard.html'
@@ -586,6 +588,7 @@ class BaseModalFormView(FormView):
     close_on_error = False
 
     report_response = False
+    report_name = ''
 
     def get_fields_kwargs(self, form):
         """
@@ -659,6 +662,7 @@ class BaseModalFormView(FormView):
         ctx = super().get_context_data(**kwargs)
         ctx.update({
             'modal_form_title': self.modal_form_title,
+            'report_name': self.report_name,
             'max_width': self.max_width,
             'hx_target': self.hx_target,
             'hx_swap': self.hx_swap,
