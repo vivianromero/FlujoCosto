@@ -1,0 +1,165 @@
+{% load django_tables2 %}
+{% load crud_tags %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% load adminlte_helpers %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+
+<div id="modal" class="modal fade" role="dialog">
+    <div id="report_dialog" class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: {{ max_width }}" role="document">
+        {{ form.media.js }}
+        <form
+                id="id_form_report_modal"
+    {#            hx-post="{{ request.path }}" #}
+    {#            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'#}
+    {#            {% if hx_target %}hx-target="{{ hx_target }}"{% endif %} #}
+    {#            {% if hx_swap %}hx-swap="{{ hx_swap }}"{% endif %}#}
+                class="modal-content" 
+                style="max-width: {{ max_width }}"
+                action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}"
+                method="POST" 
+                enctype="multipart/form-data"
+                tabindex="-1"
+        >
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">{{  modal_form_title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding-bottom: 0">
+                    {% if form.helper %}
+                        {% crispy form %}
+                    {% else %}
+                        {{ form|crispy }}
+                    {% endif %}
+                </div>
+                
+                <div class="modal-footer">
+                    {% if form_view %}
+                        <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fa fa-close"></i>
+                            Cancelar
+                        </button>
+                        <button
+                            id="id_report_form_btn_acept" 
+                            type="submit" 
+                            name="report_form_btn_acept"
+                            class="btn btn-primary">
+                            <i class="fa fa-check"></i> 
+                            {{  btn_aceptar }}
+                        </button>
+                    {% endif %}
+                </div>
+                </div>
+            
+        </form>
+    </div>
+</div>
+
+    
+<style>
+    .custom-control-input {
+        z-index: 1;
+    }
+</style>
+<script>
+
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+          theme: 'bootstrap4'
+        })
+    });
+
+    window.data = {
+        filterTextClear: '{{ filterTextClear|safe }}',
+        filterPlaceHolder: '{{ filterPlaceHolder|safe }}',
+        moveSelectedLabel: '{{ moveSelectedLabel|safe }}',
+        moveAllLabel: '{{ moveAllLabel|safe }}',
+        removeSelectedLabel: '{{ removeSelectedLabel|safe }}',
+        removeAllLabel: '{{ removeAllLabel|safe }}',
+        infoText1: '{{ infoText1|safe }}',
+        infoText2: '{{ infoText2|safe }}',
+        infoTextFiltered: '{{ infoTextFiltered|safe }}',
+        infoTextEmpty: '{{ infoTextEmpty|safe }}',
+        today: '{{ today|safe }}',
+        clear: '{{ clear|safe }}',
+        close: '{{ close|safe }}',
+        selectMonth: '{{ selectMonth|safe }}',
+        prevMonth: '{{ prevMonth|safe }}',
+        nextMonth: '{{ nextMonth|safe }}',
+        selectYear: '{{ selectYear|safe }}',
+        prevYear: '{{ prevYear|safe }}',
+        nextYear: '{{ nextYear|safe }}',
+        selectDecade: '{{ selectDecade|safe }}',
+        prevDecade: '{{ prevDecade|safe }}',
+        nextDecade: '{{ nextDecade|safe }}',
+        prevCentury: '{{ prevCentury|safe }}',
+        nextCentury: '{{ nextCentury|safe }}',
+        pickHour: '{{ pickHour|safe }}',
+        incrementHour: '{{ incrementHour|safe }}',
+        decrementHour: '{{ decrementHour|safe }}',
+        pickMinute: '{{ pickMinute|safe }}',
+        incrementMinute: '{{ incrementMinute|safe }}',
+        decrementMinute: '{{ decrementMinute|safe }}',
+        pickSecond: '{{ pickSecond|safe }}',
+        incrementSecond: '{{ incrementSecond|safe }}',
+        decrementSecond: '{{ decrementSecond|safe }}',
+        togglePeriod: '{{ togglePeriod|safe }}',
+        selectTime: '{{ selectTime|safe }}'
+    }
+    function getContainer(){
+        return document.querySelector('#id_form_modal');
+    }     
+
+    //let container = document.querySelector('#id_form_modal'); // <----- Fill in your div container here and its done
+
+    function getFocusable(context = 'document') {
+      return Array.from(context.querySelectorAll('button, [href], input:not([type="hidden"]), textarea, select, [tabindex]:not([tabindex="-1"])')).filter(function (el) { return !el.closest('[hidden]'); });
+    }
+    function getFocusableItems() {
+        return getFocusable(getContainer());
+    }
+    document.getElementById('id_form_modal').addEventListener("keydown", function (e) {
+      if ( window.getComputedStyle(getContainer()).display === "none") {
+        return;
+      }
+      if (e.key === 'Tab') { // Tab & Shift+Tab
+        const focusedItem = e.target;
+        const focusedItemIndex = getFocusableItems().indexOf(focusedItem);
+        if (e.shiftKey) {
+          if (!getContainer().contains(e.target) || focusedItemIndex === 0) {
+            getFocusableItems()[getFocusableItems().length - 1].focus();
+            e.preventDefault();
+          }
+        } else {
+          if (!getContainer().contains(e.target) || focusedItemIndex === getFocusableItems().length - 1) {
+            getFocusableItems()[0].focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+          theme: 'bootstrap4'
+        })
+    })
+    document.getElementById('id_report_form_btn_acept').addEventListener('click', function() {
+        // Genera la URL del PDF usando la URL configurada en Django
+        const url = "{% url 'app_index:flujo:repexistencia' %}";
+        // Abre el PDF en una nueva pestaña
+        window.open(url, '_blank');
+    });
+</script>

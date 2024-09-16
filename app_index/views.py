@@ -626,19 +626,22 @@ class BaseModalFormView(FormView):
                             event_action = 'not_submitted'
                 self.success_url = reverse_lazy(self.father_view) + params
 
-            values = {'event_action': event_action, 'reported': self.report_response}
-            return HttpResponseLocation(
-                self.get_success_url(),
-                target=self.hx_target,
-                headers={
-                    'HX-Trigger': self.request.htmx.trigger,
-                    'HX-Trigger-Name': self.request.htmx.trigger_name,
-                    'HX-Replace-Url': 'false',
-                    'event_action': event_action,
-                    'reported': self.report_response,
-                },
-                values=values,
-            )
+            if not self.report_response:
+                values = {'event_action': event_action, 'reported': self.report_response}
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=self.hx_target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'HX-Replace-Url': 'false',
+                        'event_action': event_action,
+                        'reported': self.report_response,
+                    },
+                    values=values,
+                )
+            else:
+                return func_ret['report_response']
         else:
             return render(self.request, self.template_name, {
                 'form': form,

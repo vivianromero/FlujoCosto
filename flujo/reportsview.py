@@ -61,6 +61,8 @@ class ReportExistenciaModalFormView(BaseModalFormView):
     # }
     close_on_error = True
 
+    # report_response = True
+
     def get_context_data(self, **kwargs):
         # fecha = self.request.GET.get('fecha', None)
         context = super().get_context_data(**kwargs)
