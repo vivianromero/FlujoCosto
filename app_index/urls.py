@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     Index,
     Underconstruction,
+    ErrorGenerateReport,
     Dashboard,
     Noauthorized,
 )
@@ -17,6 +18,7 @@ urlpatterns = [
     # Index
     path('', login_required(Index.as_view(), login_url='login/'), name='index'),
     path('under_construction/', Underconstruction.as_view(), name='under_construction'),
+    path('error_generatereport/', ErrorGenerateReport.as_view(), name='error_generatereport'),
     path('dashboard/', Dashboard.as_view(), name='dashboard'),
     # Acceso denegado
     path('noauthorized/', Noauthorized.as_view(), name='noauthorized'),
@@ -32,6 +34,7 @@ urlpatterns = [
     path('', include('exportar.urls')),
     path('', include('importar.urls')),
     path('', include('flujo.urls')),
+    path('', include('reports.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

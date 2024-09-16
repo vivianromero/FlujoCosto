@@ -2,16 +2,10 @@ from app_index.views import BaseModalFormView
 from reports.reports import ReportGenerator
 from .reportsforms import *
 from .utils import dame_fecha
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
+import json
 
-
-def repexistencia(kwargs):
-    func_ret = {
-        'success': True,
-        'errors': {},
-        'success_title': 'Report ok',
-        'error_title': '',
-    }
-    report_generator = ReportGenerator('Reporte de Existencias', output_formats=['pdf'])
+def genera_report(kwargs):
     departamento = kwargs['departamento']
     estados = kwargs['estados']
     ueb = kwargs['request'].user.ueb
@@ -26,23 +20,35 @@ def repexistencia(kwargs):
     parameters = {
         'param_ueb_id': str(ueb.pk),
         'param_departamento_id': str(departamento.pk),
-        'param_estado':param_estado if param_estado else None,
+        'param_estado': param_estado if param_estado else None,
         'param_periodo': param_periodo,
         'param_fechai': '2024-01-01',
-        'param_fechaf': '2024-01-31',
-        'param_estado': '1,2,3',
-
+        'param_fechaf': '2024-01-31'
     }
-    report_generator.generate_report(parameters)
-    return  {
+    report_name = kwargs.get('report_name', '')
+    report_generator = ReportGenerator(report_name, output_formats=['pdf'])
+    generado = report_generator.generate_report(parameters)
+    return json.loads(generado.content)
+
+
+def loadreport(kwargs):
+    func_ret = {
         'success': True,
         'errors': {},
-        'success_title': 'Report ok',
+        'success_title': 'Report Generado con Éxito',
         'error_title': '',
     }
 
+    generado = genera_report(kwargs)
+    if generado.get('error', False):
+        func_ret.update({
+            'success': False,
+            'error_title': "Se ha producido un error al generar el reporte"
+        })
+    return func_ret
 
-class ReportExistenciaModalFormView(BaseModalFormView):
+
+class ReportModalFormView(BaseModalFormView):
     template_name = 'app_index/modals/modal_form.html'
     form_class = ReportExistenciaForm
     father_view = 'app_index:index'
@@ -50,18 +56,14 @@ class ReportExistenciaModalFormView(BaseModalFormView):
     hx_swap = 'outerHTML'
     hx_retarget = '#dialog'
     hx_reswap = 'outerHTML'
-    modal_form_title = 'Reporte de Existencia'
+    modal_form_title = ''
     max_width = '850px'
-    funcname = {
-        'submitted': repexistencia,
-    }
-    # funcname = {}
-    # viewname = {
-    #     'submitted': 'app_index:flujo:repexistencia',
-    # }
-    close_on_error = True
 
-    # report_response = True
+    funcname = {
+        'submitted': loadreport,
+    }
+
+    close_on_error = True
 
     def get_context_data(self, **kwargs):
         # fecha = self.request.GET.get('fecha', None)
@@ -70,9 +72,6 @@ class ReportExistenciaModalFormView(BaseModalFormView):
         ueb = self.request.user.ueb
         dep_queryset = dep_queryset.filter(unidadcontable=ueb)
         context['form'].fields['departamento'].queryset = dep_queryset
-        # context.update({
-        #     'btn_generar_doc': 'Generar Documento',
-        # })
         return context
 
     def get_fields_kwargs(self, form):
@@ -81,8 +80,17 @@ class ReportExistenciaModalFormView(BaseModalFormView):
             'request': self.request,
             'departamento': form.cleaned_data['departamento'],
             'estados': form.cleaned_data['estados'],
+            'report_name': self.report_name,
         })
-        # if self.request.POST['event_action'] in ['submitted']:
-        #     kw.update(
-        #         {'departamento': form.cleaned_data['departamento']})
+
         return kw
+
+class ReportExistenciaModalFormView(ReportModalFormView):
+    modal_form_title = 'Reporte de Existencia'
+    report_name = 'Reporte de Existencias'
+
+class ReportMovimientoModalFormView(ReportModalFormView):
+    modal_form_title = 'Reporte de Movimiento'
+    report_name = 'Reporte de Movimiento'
+
+

@@ -156,10 +156,5 @@
           theme: 'bootstrap4'
         })
     })
-    document.getElementById('id_report_form_btn_acept').addEventListener('click', function() {
-        // Genera la URL del PDF usando la URL configurada en Django
-        const url = "{% url 'app_index:flujo:repexistencia' %}";
-        // Abre el PDF en una nueva pestaña
-        window.open(url, '_blank');
-    });
+
 </script>
