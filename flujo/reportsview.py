@@ -11,7 +11,7 @@ def repexistencia(kwargs):
         'success_title': 'Report ok',
         'error_title': '',
     }
-    report_generator = ReportGenerator('Reporte de Existencias', output_formats=['xlsx'])
+    report_generator = ReportGenerator('Reporte de Existencias', output_formats=['pdf'])
     departamento = kwargs['departamento']
     estados = kwargs['estados']
     ueb = kwargs['request'].user.ueb
@@ -27,7 +27,11 @@ def repexistencia(kwargs):
         'param_ueb_id': str(ueb.pk),
         'param_departamento_id': str(departamento.pk),
         'param_estado':param_estado if param_estado else None,
-        'param_periodo': param_periodo
+        'param_periodo': param_periodo,
+        'param_fechai': '2024-01-01',
+        'param_fechaf': '2024-01-31',
+        'param_estado': '1,2,3',
+
     }
     report_generator.generate_report(parameters)
     return  {

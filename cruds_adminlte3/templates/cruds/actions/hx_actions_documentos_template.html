@@ -1,7 +1,7 @@
 {% load i18n l10n crud_tags %}
 {% load departamento_tags %}
 {% load documento_tags %}
-{% not_in record.tipodocumento.pk "[4, 13, 16]" as is_not_in %}
+{% not_in record.tipodocumento.pk "[4, 13]" as is_not_in %}
 {% is_in record "[1, 5]" as is_in_edition %}
 {% crud_nurl object "detail" namespace as nurl %}
 {% if nurl and 'detail' in views_available and crud_perms.detail %}
@@ -49,7 +49,7 @@
 {% endif %}
 
 {% crud_nurl object "delete" namespace as nurl %}
-{% if nurl and 'delete' in views_available and crud_perms.delete and is_in_edition and is_not_in %}
+{% if nurl and 'delete' in views_available and crud_perms.delete and is_in_edition and is_not_in and not record.tipodocumento.generado %}
     <a hx-post="{% url nurl record.pk %}{{ getparams }}"
        hx-trigger="confirmed"
        {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}

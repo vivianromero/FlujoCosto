@@ -255,28 +255,29 @@ class DocumentoForm(forms.ModelForm):
                     self.fields['ueb_destino'].label = "U.E.B Destino"
                     self.fields['ueb_destino'].disabled = False
                     self.fields['ueb_destino'].required = True
-                    if self.es_centralizado:
-                        self.destino_dpto = True
-                        destino_queryset_dpto = self.fields['departamento_destino'].queryset.filter(unidadcontable=destino)
-
-                        dptos_no_inicializados = [
-                            x.pk for x in destino_queryset_dpto if
-                            not x.fechainicio_departamento.filter(ueb=destino).all().exists()
-                        ]
-                        destino_queryset_dpto = destino_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
-                        self.fields['departamento_destino'].queryset = destino_queryset_dpto
-
-                        dpto_destino = DocumentoTransfExternaDptoDestino.objects.get(documentotransfext=instance).departamento_destino if instance else None
-                        self.fields['departamento_destino'].initial = dpto_destino
-                        self.fields["departamento_destino"].widget.attrs = {
-                            'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
-                            'hx-target': '#div_id_departamento_destino',
-                            'hx-trigger': 'change from:#div_id_ueb_destino',
-                            'hx-include': '[name="ueb_destino"]',
-                            'readonly': True}
-                        self.fields['departamento_destino'].disabled = False
-                        self.fields['departamento_destino'].required = True
-                        self.fields["departamento_destino"].label = "Departamento Destino"
+                    # TODO ESTO SE DESHABILITA PORQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+                    # if self.es_centralizado:
+                    #     self.destino_dpto = True
+                    #     destino_queryset_dpto = self.fields['departamento_destino'].queryset.filter(unidadcontable=destino)
+                    #
+                    #     dptos_no_inicializados = [
+                    #         x.pk for x in destino_queryset_dpto if
+                    #         not x.fechainicio_departamento.filter(ueb=destino).all().exists()
+                    #     ]
+                    #     destino_queryset_dpto = destino_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
+                    #     self.fields['departamento_destino'].queryset = destino_queryset_dpto
+                    #
+                    #     dpto_destino = DocumentoTransfExternaDptoDestino.objects.get(documentotransfext=instance).departamento_destino if instance else None
+                    #     self.fields['departamento_destino'].initial = dpto_destino
+                    #     self.fields["departamento_destino"].widget.attrs = {
+                    #         'hx-get': reverse_lazy('app_index:flujo:departamentosueb'),
+                    #         'hx-target': '#div_id_departamento_destino',
+                    #         'hx-trigger': 'change from:#div_id_ueb_destino',
+                    #         'hx-include': '[name="ueb_destino"]',
+                    #         'readonly': True}
+                    #     self.fields['departamento_destino'].disabled = False
+                    #     self.fields['departamento_destino'].required = True
+                    #     self.fields["departamento_destino"].label = "Departamento Destino"
 
                 case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
                     self.origen_ueb = True
@@ -284,27 +285,31 @@ class DocumentoForm(forms.ModelForm):
                     origen_queryset = origen_queryset.exclude(pk=self.user.ueb.pk)
                     self.fields['ueb_origen'].queryset = origen_queryset
 
-                    origen = DocumentoTransfExternaRecibida.objects.get(documento=instance).unidadcontable
+                    if self.edicion:
+                        origen = DocumentoTransfExternaRecibida.objects.get(documento=instance).unidadcontable
 
-                    self.fields['ueb_origen'].initial = origen
-                    if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                            settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] is True:
-                        self.fields['ueb_origen'].widget.enabled_choices = [origen]
-                        self.origen_dpto = True
-                        origen_queryset_dpto = self.fields['departamento_origen'].queryset
-                        dptos_no_inicializados = [
-                            x.pk for x in origen_queryset_dpto if
-                            not x.fechainicio_departamento.filter(ueb=origen).all().exists()
-                        ]
-                        origen_queryset_dpto = origen_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
-                        dpto_origen = DocumentoTransfExternaRecibidaDocOrigen.objects.get(documento=instance).documentoorigen.departamento
-                        self.fields['departamento_origen'].queryset = origen_queryset_dpto
-                        self.fields['departamento_origen'].initial = dpto_origen
-                        self.fields['departamento_origen'].widget.enabled_choices = [dpto_origen]
-                        self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
-                        self.fields['departamento_origen'].label = "Departamento Origen"
-                        self.fields['departamento_origen'].disabled = False
-                        self.fields['departamento_origen'].required = True
+                        self.fields['ueb_origen'].initial = origen
+
+                    # TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+                    # if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+                    #         settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] is True:
+                    #
+                    #     self.fields['ueb_origen'].widget.enabled_choices = [origen]
+                    #     self.origen_dpto = True
+                    #     origen_queryset_dpto = self.fields['departamento_origen'].queryset
+                    #     dptos_no_inicializados = [
+                    #         x.pk for x in origen_queryset_dpto if
+                    #         not x.fechainicio_departamento.filter(ueb=origen).all().exists()
+                    #     ]
+                    #     origen_queryset_dpto = origen_queryset_dpto.exclude(pk__in=dptos_no_inicializados)
+                    #     dpto_origen = DocumentoTransfExternaRecibidaDocOrigen.objects.get(documento=instance).documentoorigen.departamento
+                    #     self.fields['departamento_origen'].queryset = origen_queryset_dpto
+                    #     self.fields['departamento_origen'].initial = dpto_origen
+                    #     self.fields['departamento_origen'].widget.enabled_choices = [dpto_origen]
+                    #     self.fields['departamento_origen'].widget.attrs = {'style': 'width: 100%;', }
+                    #     self.fields['departamento_origen'].label = "Departamento Origen"
+                    #     self.fields['departamento_origen'].disabled = False
+                    #     self.fields['departamento_origen'].required = True
 
                     self.fields['ueb_origen'].widget.attrs = {'style': 'width: 100%;', }
                     self.fields['ueb_origen'].label = "U.E.B Origen"
@@ -422,14 +427,15 @@ class DocumentoForm(forms.ModelForm):
                     es_centralizado = True if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
                                               settings.OTRAS_CONFIGURACIONES[
                                                   'Sistema Centralizado']['activo'] == True else False
-                    if es_centralizado:
-                        departamento_destino = self.cleaned_data.get('departamento_destino')
-                        documento_transf_ext_dpto = DocumentoTransfExternaDptoDestino.objects.update_or_create(
-                            documentotransfext=instance,
-                            defaults={
-                                'departamento_destino': departamento_destino,
-                            }
-                        )
+                    # TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+                    # if es_centralizado:
+                    #     departamento_destino = self.cleaned_data.get('departamento_destino')
+                    #     documento_transf_ext_dpto = DocumentoTransfExternaDptoDestino.objects.update_or_create(
+                    #         documentotransfext=instance,
+                    #         defaults={
+                    #             'departamento_destino': departamento_destino,
+                    #         }
+                    #     )
             case ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA:
                 ueb_origen = self.cleaned_data.get('ueb_origen')
                 documento_recibir_transf_ext = DocumentoTransfExternaRecibida.objects.update_or_create(
