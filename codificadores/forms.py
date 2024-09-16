@@ -3278,9 +3278,10 @@ class ConfiguracionesGenForm(forms.ModelForm):
             instance = super().save(commit=True)
             clave = self.cleaned_data.get('clave')
             valor = self.cleaned_data.get('activo')
-            if clave == 'Sistema Centralizado':
-                tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
-                tipo.generado = valor
-                tipo.save()
-                settings.OTRAS_CONFIGURACIONES = get_otras_configuraciones()
+            # TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+            # if clave == 'Sistema Centralizado':
+            #     tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
+            #     tipo.generado = valor
+            #     tipo.save()
+            settings.OTRAS_CONFIGURACIONES = get_otras_configuraciones()
         return instance

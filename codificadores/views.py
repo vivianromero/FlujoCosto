@@ -2359,10 +2359,11 @@ class ConfiguracionesGenCRUD(CommonCRUDView):
 
             def post(self, request, *args, **kwargs):
                 obj = get_object_or_404(ConfiguracionesGen, pk=kwargs['pk'])
-                if obj.clave == 'Sistema Centralizado':
-                    tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
-                    tipo.generado = False
-                    tipo.save()
+                # TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+                # if obj.clave == 'Sistema Centralizado':
+                #     tipo = TipoDocumento.objects.get(pk=ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA)
+                #     tipo.generado = False
+                #     tipo.save()
                 response = delete_view.post(self, request, *args, **kwargs)
                 return HttpResponseRedirect(self.get_success_url())
 

@@ -1,6 +1,6 @@
 {% load departamento_tags %}
 {% if action != 'detail' %}
-    {% if object.fila %} {% not_in object.fila "['1', '1.1', '1.2']" as is_not_in %}  {% else %} {% not_in object.tipodocumento.pk "[4, 13, 16]" as is_not_in %} {% endif %}
+    {% if object.fila %} {% not_in object.fila "['1', '1.1', '1.2']" as is_not_in %}  {% else %} {% not_in object.tipodocumento.pk "[4, 13]" as is_not_in %} {% endif %}
     {% include 'cruds/actions/acept_button.html' %}
     {% if inlines %}
         {% include 'cruds/actions/acept_and_add_inline_button.html' %}
@@ -11,8 +11,12 @@
     {% if object.tipodocumento.generado %}
         {% include 'cruds/actions/hx_refused_document_button.html' %}
     {% endif %}
-    {% if is_not_in %}
+    {% if object.fila and is_not_in %}
         {% include 'cruds/actions/hx_delete_button.html' %}
+    {% else %}
+        {% if not object.fila and not object.tipodocumento.generado %}
+            {% include 'cruds/actions/hx_delete_button.html' %}
+        {% endif %}
     {% endif %}
 {% endif %}
 {% include 'cruds/actions/hx_cancel_button.html' %}
