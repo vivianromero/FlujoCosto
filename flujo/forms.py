@@ -689,7 +689,7 @@ class DocumentoFormFilter(forms.Form):
             'hx-target': '#table_content_documento_swap',
             'hx-trigger': 'change, process_date',
             'hx-replace-url': 'true',
-            # 'hx-preserve': 'true',
+            'hx-preserve': 'true',
             'hx-indicator': '.loading-bar',
             # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
         })
