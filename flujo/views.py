@@ -430,10 +430,14 @@ class DocumentoCRUD(CommonCRUDView):
                         '%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
                         '%d/%m/%Y')
 
-                if self.request.htmx.trigger_name == 'departamento':
+                trigger_name = self.request.htmx.trigger_name
+                if self.request.htmx.triggering_event:
+                    triggering_event = self.request.htmx.triggering_event['type'] if 'type' in self.request.htmx.triggering_event else None
+
+                if trigger_name == 'departamento':
                     request.GET = request.GET.copy()
                     request.GET['rango_fecha'] = self.fecha_procesamiento_range
-                if self.request.htmx.trigger_name == 'rango_fecha' and rango_fecha == "":
+                if (trigger_name == 'rango_fecha' and rango_fecha == "") or (trigger_name == 'rango_fecha' and triggering_event == "process_date"):
                     request.GET = request.GET.copy()
                     request.GET['rango_fecha'] = self.fecha_procesamiento_range
                 return super().get(request, *args, **kwargs)

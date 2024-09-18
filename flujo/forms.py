@@ -685,6 +685,7 @@ class DocumentoFormFilter(forms.Form):
         self.fields['rango_fecha'].widget.attrs.update({
             'class': 'class="form-control',
             'style': 'height: auto; padding: 0;',
+            'hx-ext': 'event-header',
             'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
             'hx-target': '#table_content_documento_swap',
             'hx-trigger': 'change, process_date',
