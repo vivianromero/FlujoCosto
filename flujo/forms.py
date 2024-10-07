@@ -686,12 +686,14 @@ class DocumentoFormFilter(forms.Form):
             'class': 'class="form-control',
             'style': 'height: auto; padding: 0;',
             'hx-ext': 'event-header',
-            'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            # 'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            'hx-get': reverse_lazy('app_index:flujo:obtener_fecha_procesamiento'),
             'hx-target': '#table_content_documento_swap',
-            'hx-trigger': 'change, process_date',
+            'hx-trigger': 'change, change from:#div_id_departamento, process_date',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
             'hx-indicator': '.loading-bar',
+            'hx-include': '[name="departamento"]',
             # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
         })
         self.helper.form_id = 'id_documento_form_filter'
