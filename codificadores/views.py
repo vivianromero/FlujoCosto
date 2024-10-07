@@ -1383,7 +1383,7 @@ class CambioProductoCRUD(CommonCRUDView):
 
     list_fields = [
         'productoo',
-        'productoo',
+        'productod',
     ]
 
     filter_fields = list_fields

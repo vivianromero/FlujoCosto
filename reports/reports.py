@@ -15,26 +15,32 @@ from django.shortcuts import redirect
 
 def ver_pdf(request):
     data_report = cache.get_many(['report_name', 'path_report', 'format_report', 'report_error'])
-    if data_report['report_error']:
-        return redirect(reverse('app_index:error_generatereport'))
-    file_extension = data_report['format_report'][0]
-    report_name = data_report['report_name']
-    pdf_path = data_report['path_report'] + '.' + file_extension
+    if data_report:
+        if data_report['report_error']:
+            return redirect(reverse('app_index:error_generatereport'))
+        file_extension = data_report['format_report'][0]
+        report_name = data_report['report_name']
+        pdf_path = data_report['path_report'] + '.' + file_extension
 
-    with open(pdf_path, 'rb') as pdf_file:
-        pdf_data = pdf_file.read()
+        with open(pdf_path, 'rb') as pdf_file:
+            pdf_data = pdf_file.read()
 
-    response = HttpResponse(pdf_data, content_type=f'application/{file_extension}')
-    response['Content-Disposition'] = f'inline; filename={report_name}'
-    return response
+        response = HttpResponse(pdf_data, content_type=f'application/{file_extension}')
+        response['Content-Disposition'] = f'inline; filename={report_name}'
+        return response
+    return HttpResponse("""No existen datos para mpstrar""")
 
 
 class ReportGenerator:
-    def __init__(self, report_name, output_formats=None):
+    def __init__(self, report_name, output_formats=None, ueb=None, user=None):
         self.report_name = report_name
         self.output_formats = output_formats if output_formats else ["pdf"]
         self.input_file = os.path.join(settings.REPORTS_DIR, f'{report_name}.jrxml')
-        self.output_file = os.path.join(settings.REPORTS_OUTPUT, report_name)
+        report_name_output = report_name
+        report_name_output = report_name_output + "_" + ueb.codigo+'-'+ueb.nombre+'_' if ueb else report_name_output
+        report_name_output = report_name_output + "_" + user.username if user else report_name_output
+
+        self.output_file = os.path.join(settings.REPORTS_OUTPUT, report_name_output)
         self.pyreportjasper = PyReportJasper()
 
         db_settings = settings.DATABASES['default']

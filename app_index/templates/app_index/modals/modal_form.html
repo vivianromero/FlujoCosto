@@ -117,10 +117,6 @@
             
             <div class="modal-footer">
                 {% if form_view %}
-                    <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fa fa-close"></i>
-                        Cancelar
-                    </button>
                     {% if btn_generar_doc %}
                     	<button
                                 id="id_form_btn_gen_doc" name="form_btn_gen_doc" class="btn btn-primary" data-dismiss="modal">
@@ -170,7 +166,11 @@
                         <i class="fa fa-ban"></i> 
                         {{  btn_rechazar }}
                     </button>
-                    {% endif %} 
+                    {% endif %}
+                    <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fa fa-close"></i>
+                        Cancelar
+                    </button>
                 {% endif %}
             </div>
             </div>
@@ -274,20 +274,6 @@
         })
     })
 function mostrarPDF(event) {
-    alert('1');
     window.open('/es/reporte/pdf/', '_blank');
-    alert('2');
-    //alert(event);
-    //alert(event.detail);
-    //alert(event.detail.xhr);
-    //alert(event.detail.xhr.response);
-    //alert('2');
-    //var response = event.detail.xhr.response;
-    //alert(response);
-    //alert('3');
-    //var data = JSON.parse(response);
-    //alert('4');
-    //window.open(data.url, '_blank');  // Abre el PDF en una nueva pestaña
-    //alert('5');
 }
 </script>

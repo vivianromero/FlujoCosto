@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.19.1.final using JasperReports Library version 6.19.1-867c00bf88cd4d784d404379d6c05e1b419e8a4c  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Existencias" language="groovy" pageWidth="612" pageHeight="792" columnWidth="582" leftMargin="15" rightMargin="15" topMargin="10" bottomMargin="5" isIgnorePagination="true" uuid="f6e9ec7f-7fad-4617-a717-f3b3ec417aee">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte de Existencias" language="groovy" pageWidth="612" pageHeight="792" whenNoDataType="AllSectionsNoDetail" columnWidth="582" leftMargin="15" rightMargin="15" topMargin="10" bottomMargin="5" isSummaryWithPageHeaderAndFooter="true" whenResourceMissingType="Empty" uuid="f6e9ec7f-7fad-4617-a717-f3b3ec417aee">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sample DB"/>
-	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="653"/>
-	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="333"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="941"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="45"/>
 	<parameter name="param_ueb_id" class="java.lang.String"/>
 	<parameter name="param_departamento_id" class="java.lang.String"/>
 	<parameter name="param_periodo" class="java.lang.String">
@@ -13,6 +13,8 @@
 	<parameter name="param_fechaf" class="java.lang.String"/>
 	<parameter name="param_estado" class="java.lang.String"/>
 	<parameter name="param_producto_id" class="java.lang.String"/>
+	<parameter name="param_filtro_estado" class="java.lang.String"/>
+	<parameter name="param_filtro_producto" class="java.lang.String"/>
 	<queryString language="plsql">
 		<![CDATA[-- Common Table Expressions (CTEs) for reusable subqueries
 WITH estado_producto AS (
@@ -419,7 +421,7 @@ GROUP BY
 		<band splitType="Stretch"/>
 	</background>
 	<pageHeader>
-		<band height="91" splitType="Stretch">
+		<band height="97" splitType="Stretch">
 			<staticText>
 				<reportElement x="24" y="1" width="80" height="17" uuid="be9d5aea-7ef4-4a9f-8777-d589f17dc591">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -440,11 +442,11 @@ GROUP BY
 				<text><![CDATA[Departamento:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="57" width="569" height="21" uuid="e256be6f-8b9d-4c5a-aab8-32c8cf4ec800">
+				<reportElement x="0" y="75" width="581" height="21" uuid="e256be6f-8b9d-4c5a-aab8-32c8cf4ec800">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<textElement textAlignment="Center">
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="16" isBold="true"/>
 				</textElement>
 				<text><![CDATA[EXISTENCIA DE PRODUCTOS]]></text>
@@ -524,19 +526,17 @@ GROUP BY
 				<textFieldExpression><![CDATA[$P{param_periodo}]]></textFieldExpression>
 			</textField>
 			<frame>
-				<reportElement x="0" y="36" width="230" height="20" uuid="c8fe934d-5286-4107-8fb9-073dc6469d46">
-					<printWhenExpression><![CDATA[$P{param_estado}!=null && LEN($P{param_estado} )==1]]></printWhenExpression>
-				</reportElement>
+				<reportElement x="0" y="36" width="581" height="20" uuid="c8fe934d-5286-4107-8fb9-073dc6469d46"/>
 				<textField>
-					<reportElement x="105" y="2" width="125" height="17" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
+					<reportElement x="105" y="2" width="474" height="17" uuid="9fdcd98d-6bfc-446b-8a93-a70bef72ed03">
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="12" isItalic="true"/>
+						<font size="11" isItalic="true"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{descestado}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$P{param_filtro_estado}]]></textFieldExpression>
 				</textField>
 				<staticText>
 					<reportElement x="0" y="2" width="104" height="17" uuid="bbfa1db5-949e-4ccc-9216-4b53ed727bd2">
@@ -546,6 +546,32 @@ GROUP BY
 						<font fontName="Serif" size="12" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Estado:]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement x="0" y="56" width="581" height="20" uuid="9815af02-836c-4e24-8640-ed89079028cf">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textField>
+					<reportElement x="105" y="2" width="476" height="18" uuid="cf509d40-32c3-4d95-aed3-44239b7326c7">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font size="11" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{param_filtro_producto}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="2" width="104" height="17" uuid="46d0d427-eb15-438b-876a-f107d6ef7b64">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font fontName="Serif" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Producto:]]></text>
 				</staticText>
 			</frame>
 		</band>
@@ -652,7 +678,7 @@ GROUP BY
 		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="24" splitType="Stretch">
+		<band height="24" splitType="Prevent">
 			<textField pattern="dd/MM/yyyy, h:mm:ss a">
 				<reportElement x="476" y="2" width="102" height="17" uuid="f46b1dd2-ffe1-4096-932e-00c50ac679bf">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
