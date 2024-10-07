@@ -1024,8 +1024,8 @@ class CRUDView(object):
 
             def get_success_url(self):
                 url = super(OFilterListView, self).get_success_url()
-                if (self.getparams):  # fixed filter detail action
-                    url += '?' + self.getparams
+                # if (self.getparams):  # fixed filter detail action
+                #     url += '?' + self.getparams
                 return url
 
             def get_queryset(self):

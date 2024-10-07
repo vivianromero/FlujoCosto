@@ -120,8 +120,10 @@ class Index(TemplateView):
 class Underconstruction(TemplateView):
     template_name = 'app_index/adminlte/underconstruction.html'
 
+
 class ErrorGenerateReport(TemplateView):
     template_name = 'app_index/adminlte/errorgeneratereport.html'
+
 
 class Dashboard(TemplateView):
     template_name = 'app_index/adminlte/dashboard.html'
@@ -310,6 +312,34 @@ class CommonCRUDView(CRUDView):
                     'hx_reswap': self.hx_reswap,
                 })
                 return ctx
+
+            def form_valid(self, form, params=None):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                if form.is_valid():
+                    rtn = super(OEditView, self).form_valid(form)
+                    values = {'event_action': event_action, }
+                    if params:
+                        values.update(params)
+                    return HttpResponseLocation(
+                        # rtn,
+                        self.get_success_url(),
+                        target=self.hx_target,
+                        swap=self.hx_swap,
+                        headers={
+                            'HX-Trigger': self.request.htmx.trigger,
+                            'HX-Trigger-Name': self.request.htmx.trigger_name,
+                            'event_action': event_action,
+                        },
+                        values=values,
+                    )
+                else:
+                    return render(self.request, self.get_template_names(), {
+                        'form': form,
+                    })
 
             def form_invalid(self, form, **kwargs):
                 """If the form is invalid, render the invalid form."""
