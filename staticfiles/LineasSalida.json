@@ -1,0 +1,2314 @@
+{
+"LINEAS DE SALIDA":[
+ {
+  "Codigo": 2011111217,
+  "Nombre": "Hoyo de Monterrey Le Hoyo Du Prince SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "130",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111283,
+  "Nombre": "Hoyo de Monterrey Le hoyo de Rio Seco SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "190",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111284,
+  "Nombre": "Hoyo de Monterrey Le Hoyo de Rio Seco SLB 2\/C 1\/100",
+  "Marca": 15,
+  "Vitola": "190",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111285,
+  "Nombre": "Hoyo de Monterrey Le Hoyo de Rio Seco T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "190",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110708,
+  "Nombre": "Partagas Habaneros 2\/C 1\/40 NI",
+  "Marca": 7,
+  "Vitola": "138",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110806,
+  "Nombre": "Romeo y Julieta Belvederes 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "138",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111877,
+  "Nombre": "Partagas Origen SPB 2\/C 1\/50 NP-2023",
+  "Marca": 7,
+  "Vitola": "224",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121807,
+  "Nombre": "Jose L. Piedra Brevas P\/C 5\/T D 1\/40",
+  "Marca": 32,
+  "Vitola": "165",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121815,
+  "Nombre": "Jose L. Piedra Brevas 1\/M Cello 1\/40",
+  "Marca": 32,
+  "Vitola": "165",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2012010001,
+  "Nombre": "Reloba Brevas 1\/M 1\/40",
+  "Marca": 20,
+  "Vitola": "85C",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014010037,
+  "Nombre": "Bolivar Lusiadas SBN 1\/C 1\/100 R-2017",
+  "Marca": 1,
+  "Vitola": "1821",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014160015,
+  "Nombre": "La Gloria Cubana Britanicas Extra SLB 2\/C 1\/100 R-2017",
+  "Marca": 5,
+  "Vitola": "1822",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141524,
+  "Nombre": "Cuaba Britanicas Extra T\/A 1\/C 1\/100",
+  "Marca": 53,
+  "Vitola": "1822",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014230004,
+  "Nombre": "Rafel Gonzalez 88 1\/C 1\/100",
+  "Marca": 19,
+  "Vitola": "182",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110281,
+  "Nombre": "Cohiba Siglo VI SLB 2\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "44",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110270,
+  "Nombre": "Cohiba Siglo VI SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "44",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110274,
+  "Nombre": "Cohiba Siglo VI T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "44",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111184,
+  "Nombre": "H. Upmann Coronas Junior TA 3\/C 1\/40 NI",
+  "Marca": 3,
+  "Vitola": "141",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014130003,
+  "Nombre": "Edmundo Dantes Conde Belicoso SBN 1\/C 1\/100",
+  "Marca": 31,
+  "Vitola": "741",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140001,
+  "Nombre": "Bolivar Belicosos Finos 2\/C 1\/40",
+  "Marca": 1,
+  "Vitola": "74",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140002,
+  "Nombre": "Bolivar Belicosos Finos SLB 1\/M 1\/40",
+  "Marca": 1,
+  "Vitola": "74",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140802,
+  "Nombre": "Romeo y Julieta Belicosos 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "74",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112642,
+  "Nombre": "Romeo y Julieta Petit Royales 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "186",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112643,
+  "Nombre": "Romeo y Julieta Petit Royales T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "186",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121808,
+  "Nombre": "Jose L. Piedra Cazadores P\/C 5\/T D 1\/40",
+  "Marca": 32,
+  "Vitola": "159",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121816,
+  "Nombre": "Jose L. Piedra Cazadores 1\/M Cello 1\/40",
+  "Marca": 32,
+  "Vitola": "159",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011113712,
+  "Nombre": "Trinidad Coloniales SBN 4\/C 1\/40",
+  "Marca": 51,
+  "Vitola": "114",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014190025,
+  "Nombre": "Por Larrañaga Leones SBN 1\/C 1\/100 R-2021",
+  "Marca": 21,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110030,
+  "Nombre": "Bolivar Coronas 2\/C 1\/40",
+  "Marca": 1,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111208,
+  "Nombre": "Hoyo de Monterrey Le Hoyo Du Roi SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111704,
+  "Nombre": "Montecristo Montecristo No.3 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111722,
+  "Nombre": "Montecristo Montecristo No.3 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111736,
+  "Nombre": "Montecristo Montecristo No.3 P\/C 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111766,
+  "Nombre": "Montecristo Montecristo No.3 P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "87",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112006,
+  "Nombre": "Punch Punch Punch 2\/C 1\/40",
+  "Marca": 8,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112048,
+  "Nombre": "Punch Punch Punch SLB 1\/M 1\/20",
+  "Marca": 8,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112086,
+  "Nombre": "Punch Punch Punch T\/A 1\/C 1\/100",
+  "Marca": 8,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111132,
+  "Nombre": "H.Upmann Magnum 46 SLB 1\/M 1\/40",
+  "Marca": 3,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111192,
+  "Nombre": "H.Upmann Magnum 46 SLB 1\/M 1\/20",
+  "Marca": 3,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111194,
+  "Nombre": "H.Upmann Magnum 46 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 3,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111203,
+  "Nombre": "Hoyo de Monterrey Epicure No.1 SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111204,
+  "Nombre": "Hoyo de Monterrey Epicure No.1 SLB 1\/M 1\/20",
+  "Marca": 15,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111263,
+  "Nombre": "Hoyo de Monterrey Epicure No.1 P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110250,
+  "Nombre": "Cohiba Siglo IV SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110255,
+  "Nombre": "Cohiba Siglo IV P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110297,
+  "Nombre": "Cohiba Siglo IV T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111191,
+  "Nombre": "H.Upmann Magnum 46 P\/C 3\/T D 1\/66",
+  "Marca": 3,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111205,
+  "Nombre": "Hoyo de Monterrey Epicure No.1 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112409,
+  "Nombre": "Ramon Allones Superiores 1\/C 1\/100 CDH-2010",
+  "Marca": 12,
+  "Vitola": "66",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111780,
+  "Nombre": "Montecristo Montecristo Tubos T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110254,
+  "Nombre": "Cohiba Siglo III P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110296,
+  "Nombre": "Cohiba Siglo III T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110249,
+  "Nombre": "Cohiba Siglo III SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111207,
+  "Nombre": "Hoyo de Monterrey Le Hoyo Des Dieux SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111707,
+  "Nombre": "Montecristo Montecristo Tubos T\/A 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111700,
+  "Nombre": "Montecristo Montecristo Tubos T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111720,
+  "Nombre": "Montecristo Montecristo Tubos  T\/A 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "86",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112069,
+  "Nombre": "Punch Petit Coronations T\/A 3\/C 1\/40",
+  "Marca": 8,
+  "Vitola": "135",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112658,
+  "Nombre": "Romeo y Julieta Romeo No.3 T\/A 1\/C 1\/100",
+  "Marca": 13,
+  "Vitola": "135",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112661,
+  "Nombre": "Romeo y Julieta Romeo No.3 T\/A 3\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "135",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112672,
+  "Nombre": "Romeo y Julieta Regalias de Londres 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "135",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112662,
+  "Nombre": "Romeo y Julieta Romeo No.1 T\/A 3\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112663,
+  "Nombre": "Romeo y Julieta Romeo No.1 T\/A 1\/C 1\/100",
+  "Marca": 13,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111851,
+  "Nombre": "Partagas Super Partagas 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111873,
+  "Nombre": "Partagas Partagas de Luxe T\/A 3\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111874,
+  "Nombre": "Partagas Partagas de Luxe T\/A 1\/C 1\/100",
+  "Marca": 7,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111881,
+  "Nombre": "Partagas Super Partagas P\/C 5\/T D 1\/40",
+  "Marca": 7,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111164,
+  "Nombre": "H.Upmann Majestic 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112682,
+  "Nombre": "Romeo y Julieta Romeo No.1 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "129",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121810,
+  "Nombre": "Jose L. Piedra Cremas P\/C 5\/T D 1\/40",
+  "Marca": 32,
+  "Vitola": "163",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121818,
+  "Nombre": "Jose L. Piedra Cremas 1\/M Cello 1\/40",
+  "Marca": 32,
+  "Vitola": "163",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2012010201,
+  "Nombre": "Reloba Cremas 1\/M 1\/40",
+  "Marca": 20,
+  "Vitola": "83C",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014200029,
+  "Nombre": "Punch 8-9-8 SPB 1\/100 R-2018",
+  "Marca": 8,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110256,
+  "Nombre": "Cohiba Siglo V P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110251,
+  "Nombre": "Cohiba Siglo V SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110298,
+  "Nombre": "Cohiba Siglo V T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111876,
+  "Nombre": "Partagas 8-9-8 BN 1\/M 1\/100",
+  "Marca": 7,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111804,
+  "Nombre": "Partagas BN 8-9-8 1\/M 1\/40",
+  "Marca": 7,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014270010,
+  "Nombre": "Saint Luis Rey Cuna SPB 1\/C 1\/100 R-2021",
+  "Marca": 18,
+  "Vitola": "58",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112652,
+  "Nombre": "Romeo y Julieta Dianas SPB 2\/C 1\/50 NP-2020",
+  "Marca": 13,
+  "Vitola": "202",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111879,
+  "Nombre": "Partagas Maestro SPB 2\/C 1\/50 NP-2023",
+  "Marca": 7,
+  "Vitola": "221",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111864,
+  "Nombre": "Partagas Aliados (CDH+HS) SPB 2\/C 1\/50 CH-2021",
+  "Marca": 7,
+  "Vitola": "216",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110104,
+  "Nombre": "Bolivar Regentes SPB 2\/C 1\/40 EL-2021",
+  "Marca": 1,
+  "Vitola": "176",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111833,
+  "Nombre": "Partagas Maduro No.1 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "176",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240040,
+  "Nombre": "Ramon Allones Terra Magica SLB 2\/C 1\/100",
+  "Marca": 12,
+  "Vitola": "682",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112505,
+  "Nombre": "Rey del Mundo Royal Series SPB 2\/C 1\/50 CDH-2022",
+  "Marca": 11,
+  "Vitola": "681",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110602,
+  "Nombre": "Montecristo Double Edmundo TH 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "681",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111729,
+  "Nombre": "Montecristo Double Edmundo P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "681",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111727,
+  "Nombre": "Montecristo Double Edmundo SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "681",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111728,
+  "Nombre": "Montecristo Double Edmundo SBN 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "681",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110103,
+  "Nombre": "Bolivar Soberano SLB 2\/C 1\/100 EL-2018",
+  "Marca": 1,
+  "Vitola": "413",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111742,
+  "Nombre": "Montecristo Wide Edmundo SBN 2\/C 1\/40 NP-2021",
+  "Marca": 6,
+  "Vitola": "214",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111743,
+  "Nombre": "Montecristo Wide Edmundo SBN 1\/C 1\/100 NP-2021",
+  "Marca": 6,
+  "Vitola": "214",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111744,
+  "Nombre": "Montecristo Wide Edmundo T\/A P\/C 3\/T D 1\/66 NP-2021",
+  "Marca": 6,
+  "Vitola": "214",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014190022,
+  "Nombre": "Por Larrañaga Prometidos SBN 1\/C 1\/100 R-2021",
+  "Marca": 21,
+  "Vitola": "41",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240039,
+  "Nombre": "Ramon Allones Hexagone 1\/C 1\/100",
+  "Marca": 12,
+  "Vitola": "411",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014160012,
+  "Nombre": "La Gloria Cubana Platinum Edition BN 1\/C 1\/100",
+  "Marca": 5,
+  "Vitola": "41",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110710,
+  "Nombre": "Partagas Serie E No.2 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 7,
+  "Vitola": "41",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111822,
+  "Nombre": "Partagas Serie E No.2 SBN 1\/C 1\/200",
+  "Marca": 7,
+  "Vitola": "41",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111816,
+  "Nombre": "Partagas Serie E No.2 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "41",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111790,
+  "Nombre": "Montecristo Edmundo SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "67",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111791,
+  "Nombre": "Montecristo Edmundo P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "67",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111794,
+  "Nombre": "Montecristo Edmundo T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "67",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014040015,
+  "Nombre": "Diplomaticos Coleccion Privada II SBN 1\/C 1\/100 R-2020",
+  "Marca": 29,
+  "Vitola": "67",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112106,
+  "Nombre": "Q. D'Orsay No.54 SBN 2\/C 1\/40",
+  "Marca": 27,
+  "Vitola": "189",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112107,
+  "Nombre": "Q. D'Orsay No.54 SBN 1\/C 1\/100",
+  "Marca": 27,
+  "Vitola": "189",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111105,
+  "Nombre": "H.Upmann Royal Robusto 1\/C 1\/100 (CH)",
+  "Marca": 3,
+  "Vitola": "672",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111866,
+  "Nombre": "Partagas Coronas Senior T\/A 3\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "126",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111156,
+  "Nombre": "H.Upmann Coronas Major T\/A 3\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "126",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111224,
+  "Nombre": "Hoyo de Monterrey Le Hoyo Du Maire SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "151",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112629,
+  "Nombre": "Romeo y Julieta Petit Julieta 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "151",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112695,
+  "Nombre": "Romeo y Julieta  Petit Julieta P\/C 5\/T D 1\/40",
+  "Marca": 13,
+  "Vitola": "151",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111161,
+  "Nombre": "H.Upmann Epicure 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "144",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110235,
+  "Nombre": "Cohiba Siglo de Oro SPB 2\/C 1\/56 NP-2022",
+  "Marca": 2,
+  "Vitola": "218",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111621,
+  "Nombre": "La Gloria Cubana Glorias (CH) SPB 2\/C 1\/50 CH-2021",
+  "Marca": 5,
+  "Vitola": "212",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140612,
+  "Nombre": "Montecristo Regata 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "83",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140613,
+  "Nombre": "Montecristo Regata T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "83",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110001,
+  "Nombre": "Bolivar Coronas Extra 2\/C 1\/40",
+  "Marca": 1,
+  "Vitola": "91",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240062,
+  "Nombre": "Ramon Allones Sr. Henry 1\/C 1\/100 R-2020",
+  "Marca": 12,
+  "Vitola": "301",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111116,
+  "Nombre": "H.Upmann Connossieur B SLB 1\/M 1\/40 CH-2017",
+  "Marca": 3,
+  "Vitola": "301",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111709,
+  "Nombre": "Montecristo Eagle 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "301",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111710,
+  "Nombre": "Montecristo Eagle T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "301",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240048,
+  "Nombre": "Ramon Allones Nuevo Mundo SBN 1\/C 1\/100 R-2017",
+  "Marca": 12,
+  "Vitola": "302",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111279,
+  "Nombre": "Hoyo de Monterrey Le Hoyo San Juan T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "303",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111271,
+  "Nombre": "Hoyo de Monterrey Le Hoyo San Juan SLB 2\/C  1\/100",
+  "Marca": 15,
+  "Vitola": "303",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111270,
+  "Nombre": "Hoyo de Monterrey Le Hoyo San Juan SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "303",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110291,
+  "Nombre": "Cohiba Genios 5 BN 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "55",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110292,
+  "Nombre": "Cohiba Genios 5 BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "55",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111199,
+  "Nombre": "H.Upmann Connossieur A SLB 1\/M 1\/40",
+  "Marca": 3,
+  "Vitola": "170",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240050,
+  "Nombre": "Ramon Allones Hermitage 1\/C 1\/100 R-2017",
+  "Marca": 12,
+  "Vitola": "1701",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111275,
+  "Nombre": "Hoyo de Monterrey Epicure Especial SLB 1\/M 1\/100",
+  "Marca": 15,
+  "Vitola": "69",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111276,
+  "Nombre": "Hoyo de Monterrey Epicure Especial SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "69",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111278,
+  "Nombre": "Hoyo de Monterrey Epicure Especial T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "69",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111878,
+  "Nombre": "Partagas Rito SPB 2\/C 1\/50 NP-2023",
+  "Marca": 7,
+  "Vitola": "222",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111103,
+  "Nombre": "H.Upmann Half Coronas 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "123",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011116117,
+  "Nombre": "H.Upmann Half Corona P\/A 5\/T D 1\/40",
+  "Marca": 3,
+  "Vitola": "123",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111730,
+  "Nombre": "Montecristo Medias Coronas 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "1231",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111731,
+  "Nombre": "Montecristo Medias Coronas  P\/A 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "1231",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121822,
+  "Nombre": "Jose L. Piedra Petit Caballeros P\/C 3\/T D 1\/66",
+  "Marca": 32,
+  "Vitola": "195",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121823,
+  "Nombre": "Jose L. Piedra Petit Caballeros 1\/M Cello 1\/83",
+  "Marca": 32,
+  "Vitola": "195",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112003,
+  "Nombre": "Punch Regios de Punch SLB 1\/M 1\/40 EL-2017",
+  "Marca": 8,
+  "Vitola": "188",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111223,
+  "Nombre": "Hoyo de Monterrey Primaveras SPB 2\/C 1\/56 SE-2020",
+  "Marca": 15,
+  "Vitola": "272",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110601,
+  "Nombre": "Montecristo Dantes SPB 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "27",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111118,
+  "Nombre": "H.Upmann Connossieur No.1 SLB 1\/M 1\/40",
+  "Marca": 3,
+  "Vitola": "85",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112618,
+  "Nombre": "Romeo y Julieta Exhibicion No.4 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "85",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112313,
+  "Nombre": "Rafael Gonzalez Coronas de Lonsdales SBN 1\/C 1\/100 NP-2021",
+  "Marca": 19,
+  "Vitola": "85",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112655,
+  "Nombre": "Romeo y Julieta Hidalgos SPB 2\/C 1\/50 NP-2020",
+  "Marca": 13,
+  "Vitola": "203",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112645,
+  "Nombre": "Romeo y Julieta Churchills T\/A 3\/C 1\/40 Añejado",
+  "Marca": 13,
+  "Vitola": "23",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112696,
+  "Nombre": "Romeo y Julieta Churchill T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "23",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112607,
+  "Nombre": "Romeo y Julieta Churchill 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "23",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111201,
+  "Nombre": "Hoyo de Monterrey Churchill 2\/C 1\/40",
+  "Marca": 15,
+  "Vitola": "23",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110300,
+  "Nombre": "Cohiba Esplendidos BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "23",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011116022,
+  "Nombre": "Romeo y Julieta Julieta P\/A 5\/T D 1\/40",
+  "Marca": 13,
+  "Vitola": "140",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014140034,
+  "Nombre": "Juan Lopez Lancero Adriatico BN 1\/C 1\/100 R-2023",
+  "Marca": 33,
+  "Vitola": "228",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110201,
+  "Nombre": "Cohiba Lanceros 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "39",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111705,
+  "Nombre": "Montecristo Especial No.1 SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "39",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110236,
+  "Nombre": "Cohiba Lanceros BN 2C 1\/40",
+  "Marca": 2,
+  "Vitola": "39",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110237,
+  "Nombre": "Cohiba Coronas Especiales BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110241,
+  "Nombre": "Cohiba Coronas Especiales P\/C 5\/T 1\/40",
+  "Marca": 2,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111706,
+  "Nombre": "Montecristo Especial No.2 SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014140032,
+  "Nombre": "Juan Lopez Finos SBN 2\/C 1\/40 R-2023",
+  "Marca": 33,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014190033,
+  "Nombre": "Por Larrañaga Intemporales 2\/C 1\/40",
+  "Marca": 21,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014200025,
+  "Nombre": "Punch Mantua SLB 1\/M 1\/20 R-2018",
+  "Marca": 8,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014160028,
+  "Nombre": "La Gloria Cubana Medaille D'Or Especial BN 2\/C 1\/40 R-2020",
+  "Marca": 5,
+  "Vitola": "77",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111715,
+  "Nombre": "Montecristo Joyitas SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "147",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111792,
+  "Nombre": "Montecristo Joyitas P\/C 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "147",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110242,
+  "Nombre": "Cohiba Panetelas P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "147",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110238,
+  "Nombre": "Cohiba Panetelas BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "147",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011116102,
+  "Nombre": "Cohiba BHK 52 SPB 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "61",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011116101,
+  "Nombre": "Cohiba BHK 54 SPB 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "37",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011116100,
+  "Nombre": "Cohiba BHK 56 SPB 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "8",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110308,
+  "Nombre": "Cohiba Seleccion Cohiba Humidor 1C 1\/125 (Travel Retail-2016)",
+  "Marca": 2,
+  "Vitola": "8",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112112,
+  "Nombre": "Q. D'Orsay No.52 SBN 2\/C 1\/40 NP-2021",
+  "Marca": 27,
+  "Vitola": "231",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112113,
+  "Nombre": "Q. D'Orsay No.52 SBN 1\/C 1\/100 NP-2021",
+  "Marca": 27,
+  "Vitola": "231",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011120208,
+  "Nombre": "La Flor de Cano Elegidos SLB 1\/C 1\/100 NP-2020",
+  "Marca": 28,
+  "Vitola": "200",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011120212,
+  "Nombre": "La Flor de Cano Elegidos P\/C 3\/T D 1\/66 NP-2020",
+  "Marca": 28,
+  "Vitola": "200",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111846,
+  "Nombre": "Partagas Maduro No.3 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "194",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110294,
+  "Nombre": "Cohiba Magicos 5 BN 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "71",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110295,
+  "Nombre": "Cohiba Magicos 5 BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "71",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111195,
+  "Nombre": "H.Upmann Magnum 50 SLB 1\/M 1\/100",
+  "Marca": 3,
+  "Vitola": "26",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111196,
+  "Nombre": "H.Upmann Magnum 50 SLB 1\/M 1\/40",
+  "Marca": 3,
+  "Vitola": "26",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111197,
+  "Nombre": "H.Upmann Magnum 50 SLB 1\/M 1\/20",
+  "Marca": 3,
+  "Vitola": "26",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111198,
+  "Nombre": "H.Upmann Magnum 50 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 3,
+  "Vitola": "26",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014190019,
+  "Nombre": "Por Larrañaga Gran Robusto 1\/C 1\/100 R-2017",
+  "Marca": 21,
+  "Vitola": "26",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111000,
+  "Nombre": "H.Upmann Magnum 54 SLB 1\/M 1\/40",
+  "Marca": 3,
+  "Vitola": "180",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111001,
+  "Nombre": "H.Upmann Magnum 54 SLB 2\/C 1\/100",
+  "Marca": 3,
+  "Vitola": "180",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111002,
+  "Nombre": "H.Upmann Magnum 54 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 3,
+  "Vitola": "180",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014270009,
+  "Nombre": "Saint Luis Rey Pura Vida R-2020",
+  "Marca": 18,
+  "Vitola": "180",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111123,
+  "Nombre": "H.Upmann Jarras Magnum 56 1\/M 1\/50",
+  "Marca": 3,
+  "Vitola": "173",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111738,
+  "Nombre": "Montecristo Leyenda SPB 2\/C 1\/50 NP-2017",
+  "Marca": 6,
+  "Vitola": "1771",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111222,
+  "Nombre": "Hoyo de Monterrey Monterreyes No.4 SLB 1\/C 1\/100 EL-2021",
+  "Marca": 15,
+  "Vitola": "213",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110711,
+  "Nombre": "Partagas Capitols P\/A 5\/T 1\/20",
+  "Marca": 7,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111122,
+  "Nombre": "H.Upmann Petit Coronas 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112683,
+  "Nombre": "Romeo y Julieta Romeo No.2 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110405,
+  "Nombre": "Diplomaticos Diplomaticos No.4 2\/C 1\/40",
+  "Marca": 29,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110286,
+  "Nombre": "Cohiba Siglo II T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110013,
+  "Nombre": "Bolivar Petit Coronas 2\/C 1\/40",
+  "Marca": 1,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110248,
+  "Nombre": "Cohiba Siglo II SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110253,
+  "Nombre": "Cohiba Siglo II P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111167,
+  "Nombre": "H.Upmann Regalias 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111243,
+  "Nombre": "Hoyo de Monterrey Coronations TA 3\/C 1\/40",
+  "Marca": 15,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111258,
+  "Nombre": "Hoyo de Monterrey Coronations T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111220,
+  "Nombre": "Hoyo de Monterrey Short Hoyo Corona 2\/C 1\/40",
+  "Marca": 15,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111773,
+  "Nombre": "Montecristo Petit Tubos T\/A P\/C 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111776,
+  "Nombre": "Montecristo Petit Tubos T\/A 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111779,
+  "Nombre": "Montecristo Petit Tubos T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111714,
+  "Nombre": "Montecristo Montecristo No.4 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111723,
+  "Nombre": "Montecristo Montecristo No.4 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111769,
+  "Nombre": "Montecristo Petit Tubos T\/A 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111737,
+  "Nombre": "Montecristo Montecristo No.4 P\/C 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111765,
+  "Nombre": "Montecristo Montecristo No.4 P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112622,
+  "Nombre": "Romeo y Julieta Petit Coronas 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112653,
+  "Nombre": "Romeo y Julieta Romeo No.2 T\/A 3\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112656,
+  "Nombre": "Romeo y Julieta Romeo No.2 T\/A P\/C 5\/T C\/C 1\/20",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112678,
+  "Nombre": "Romeo y Julieta Petit Coronas P\/C 5\/T D 1\/40",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112666,
+  "Nombre": "Romeo y Julieta Mille Fleurs 1\/C 1\/100",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112670,
+  "Nombre": "Romeo y Julieta Mille Fleurs 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111847,
+  "Nombre": "Partagas Mille Fleurs 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112303,
+  "Nombre": "Rafael Gonzalez Petit Coronas 2\/C 1\/40",
+  "Marca": 19,
+  "Vitola": "119",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110304,
+  "Nombre": "Cohiba Medio Siglo SLB 1\/M 1\/40  ",
+  "Marca": 2,
+  "Vitola": "179",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110305,
+  "Nombre": "Cohiba Medio Siglo T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "179",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111836,
+  "Nombre": "Partagas Short SLB 1\/M 1\/20",
+  "Marca": 7,
+  "Vitola": "133",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112406,
+  "Nombre": "Ramon Allones Small Club Coronas 2\/C 1\/40",
+  "Marca": 12,
+  "Vitola": "133",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111819,
+  "Nombre": "Partagas Shorts 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "133",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112619,
+  "Nombre": "Romeo y Julieta Wide Churchill 1\/C 1\/100",
+  "Marca": 13,
+  "Vitola": "59",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112637,
+  "Nombre": "Romeo y Julieta Wide Churchill 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "59",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112620,
+  "Nombre": "Romeo y Julieta Wide Churchills T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "59",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240049,
+  "Nombre": "Ramon Allones Silver Jubilee SBN 2\/C 1\/40 R-2017",
+  "Marca": 12,
+  "Vitola": "591",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111823,
+  "Nombre": "Partagas Serie D No.5 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "112",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111824,
+  "Nombre": "Partagas Serie D No.5 SBN 1\/C 1\/100",
+  "Marca": 7,
+  "Vitola": "112",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111827,
+  "Nombre": "Partagas Serie D No.5 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 7,
+  "Vitola": "112",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112108,
+  "Nombre": "Q. D'Orsay No.50 SBN 2\/C 1\/40",
+  "Marca": 27,
+  "Vitola": "1121",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112109,
+  "Nombre": "Q. D'Orsay No.50 SBN 1\/C 1\/100",
+  "Marca": 27,
+  "Vitola": "1121",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110702,
+  "Nombre": "Partagas Serie D No.6 P\/C 5\/T D 1\/40",
+  "Marca": 7,
+  "Vitola": "118",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110701,
+  "Nombre": "Partagas Serie D No.6 SBN 1\/C 1\/50",
+  "Marca": 7,
+  "Vitola": "118",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112425,
+  "Nombre": "Ramon Allones Allones No.3 1\/C 1\/100 NP-2021",
+  "Marca": 12,
+  "Vitola": "211",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111832,
+  "Nombre": "Partagas Series No.1 SBN 2\/C 1\/40 EL-2017",
+  "Marca": 7,
+  "Vitola": "187",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141245,
+  "Nombre": "Hoyo de Monterrey Epicure No.3 SLB 1\/M 1\/40 NP-2022",
+  "Marca": 15,
+  "Vitola": "220",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141246,
+  "Nombre": "Hoyo de Monterrey Epicure No.3 SLB 2\/C 1\/100 NP-2022",
+  "Marca": 15,
+  "Vitola": "220",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141247,
+  "Nombre": "Hoyo de Monterrey Epicure No.3 T\/A P\/C 3\/T D 1\/66 NP-2022",
+  "Marca": 15,
+  "Vitola": "220",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111746,
+  "Nombre": "Montecristo Slam T\/A P\/C 3\/T D 1\/66 NP-2022",
+  "Marca": 6,
+  "Vitola": "22",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011113722,
+  "Nombre": "Trinidad Cabildos SPB 2\/C 1\/83 EL-2023",
+  "Marca": 51,
+  "Vitola": "22",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111609,
+  "Nombre": "La Gloria Cubana Medaille D'Or No.4 BN 8-9-8 1\/M 1\/40",
+  "Marca": 5,
+  "Vitola": "122",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112088,
+  "Nombre": "Punch Short de Punch SBN 1\/C 1\/100",
+  "Marca": 8,
+  "Vitola": "197",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110058,
+  "Nombre": "Bolivar New Gold Medal 1\/C 1\/100 CDH-2022",
+  "Marca": 1,
+  "Vitola": "1041",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111774,
+  "Nombre": "Montecristo Montecristo No.5 P\/C 5\/T D 1\/40",
+  "Marca": 6,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111724,
+  "Nombre": "Montecristo Montecristo No.5 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111718,
+  "Nombre": "Montecristo Montecristo No.5 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112311,
+  "Nombre": "Rafael Gonzalez Perlas 2\/C 1\/40",
+  "Marca": 19,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112312,
+  "Nombre": "Rafael Gonzalez Perlas P\/C 5\/T D 1\/40",
+  "Marca": 19,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110247,
+  "Nombre": "Cohiba Siglo I SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110252,
+  "Nombre": "Cohiba Siglo I P\/C 5\/T D 1\/40",
+  "Marca": 2,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110299,
+  "Nombre": "Cohiba Siglo I T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "137",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014210020,
+  "Nombre": "Q. D'Orsay 10 Acuerdo SBN 1\/C 1\/100 R-2020",
+  "Marca": 27,
+  "Vitola": "201",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121827,
+  "Nombre": "Jose L. Piedra Petit Cazadores 1\/M Cello 1\/83",
+  "Marca": 32,
+  "Vitola": "166",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121814,
+  "Nombre": "Jose L. Piedra Petit Cazadores P\/C 5\/T D 1\/40",
+  "Marca": 32,
+  "Vitola": "166",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111844,
+  "Nombre": "Partagas Aristocrats 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "131",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112664,
+  "Nombre": "Romeo y Julieta Coronitas en Cedro 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "131",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121812,
+  "Nombre": "Jose L. Piedra Petit Cetros P\/C 5\/T D 1\/40",
+  "Marca": 32,
+  "Vitola": "164",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121821,
+  "Nombre": "Jose L. Piedra Petit Cetros 1\/M Cello 1\/40",
+  "Marca": 32,
+  "Vitola": "164",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2012010501,
+  "Nombre": "Reloba Petit Cetros 1\/M 1\/40",
+  "Marca": 20,
+  "Vitola": "84C",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112679,
+  "Nombre": "Romeo y Julieta Romeo No.2 TA 1C 1\/100",
+  "Marca": 13,
+  "Vitola": "127",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111910,
+  "Nombre": "Por Larrañaga Petit Corona SLB 1\/M 1\/20",
+  "Marca": 21,
+  "Vitola": "127",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111885,
+  "Nombre": "Partagas Mille Fleur P\/C 5\/T D 1\/40",
+  "Marca": 7,
+  "Vitola": "127",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111852,
+  "Nombre": "Partagas Mille Fleurs 1\/C 1\/100",
+  "Marca": 7,
+  "Vitola": "127",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112068,
+  "Nombre": "Punch Coronations T\/A 3\/C 1\/40",
+  "Marca": 8,
+  "Vitola": "127",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111100,
+  "Nombre": "H.Upmann Regalias P\/A 5\/T 1\/20",
+  "Marca": 3,
+  "Vitola": "126",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111796,
+  "Nombre": "Montecristo Petit Edmundo SBN 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "99",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111797,
+  "Nombre": "Montecristo Petit Edmundo SBN 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "99",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111798,
+  "Nombre": "Montecristo Petit Edmundo T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "99",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141731,
+  "Nombre": "Montecristo Montecristo Petit No.2 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "95",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141733,
+  "Nombre": "Montecristo Montecristo Petit No.2 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "95",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141730,
+  "Nombre": "Montecristo Montecristo Petit No.2 2C 1\/40",
+  "Marca": 6,
+  "Vitola": "95",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111272,
+  "Nombre": "Hoyo de Monterrey Petit Robusto SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "802",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111273,
+  "Nombre": "Hoyo de Monterrey Petit Robusto P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "802",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112631,
+  "Nombre": "Romeo y Julieta Petit Churchill 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "802",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140101,
+  "Nombre": "Diplomaticos Diplomaticos No.2  2\/C 1\/40",
+  "Marca": 29,
+  "Vitola": "47",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140501,
+  "Nombre": "H.Upmann Upmann No.2 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "47",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140602,
+  "Nombre": "Montecristo Montecristo No.2 2\/C 1\/40",
+  "Marca": 6,
+  "Vitola": "47",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140606,
+  "Nombre": "Montecristo Montecristo No.2 1\/C 1\/100",
+  "Marca": 6,
+  "Vitola": "47",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140711,
+  "Nombre": "Partagas Serie P No.2 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "48",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140712,
+  "Nombre": "Partagas Serie P No.2 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 7,
+  "Vitola": "48",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110245,
+  "Nombre": "Cohiba Ambar BN 1\/C 1\/100 NP-2021",
+  "Marca": 2,
+  "Vitola": "232",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110246,
+  "Nombre": "Cohiba Ambar T\/A P\/C 3\/T D 1\/66 NP-2021",
+  "Marca": 2,
+  "Vitola": "232",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111735,
+  "Nombre": "Montecristo Dumas SPB 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "184",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111202,
+  "Nombre": "Hoyo de Monterrey Double Corona 2\/C 1\/40",
+  "Marca": 15,
+  "Vitola": "10",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111210,
+  "Nombre": "Hoyo de Monterrey Epicure No.2 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111211,
+  "Nombre": "Hoyo de Monterrey Epicure No.2 SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111212,
+  "Nombre": "Hoyo de Monterrey Epicure No.2 SLB 1\/M 1\/20",
+  "Marca": 15,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111264,
+  "Nombre": "Hoyo de Monterrey Epicure No.2 P\/C 3\/T D 1\/66",
+  "Marca": 15,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110014,
+  "Nombre": "Bolivar Royal Coronas 2\/C 1\/40",
+  "Marca": 1,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110244,
+  "Nombre": "Cohiba Robusto SLB 1\/M 1\/40",
+  "Marca": 2,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111800,
+  "Nombre": "Partagas Serie D No.4 T\/A P\/C 3\/T D 1\/66",
+  "Marca": 7,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111811,
+  "Nombre": "Partagas Serie D No.4 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111771,
+  "Nombre": "Montecristo Robustos 2\/C 1\/40 C-30",
+  "Marca": 6,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111896,
+  "Nombre": "Partagas Serie D No.4 SBN 1\/C 1\/100",
+  "Marca": 7,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112407,
+  "Nombre": "Ramon Allones Allones Specially Selected 2\/C 1\/40",
+  "Marca": 12,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111003,
+  "Nombre": "H.Upmann Robustos Añejado 2\/C 1\/40",
+  "Marca": 3,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110258,
+  "Nombre": "Cohiba Robustos P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112420,
+  "Nombre": "Ramon Allones Allones Specially Selected  SLB 1\/M 1\/20",
+  "Marca": 12,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110210,
+  "Nombre": "Cohiba Robustos T\/A P\/C 3\/T D 1\/66",
+  "Marca": 2,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112697,
+  "Nombre": "Romeo y Julieta Short Churchill 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112698,
+  "Nombre": "Romeo y Julieta Short Churchill 1\/C 1\/100",
+  "Marca": 13,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112699,
+  "Nombre": "Romeo y Julieta Short Churchill T\/A P\/C 3\/T D 1\/66",
+  "Marca": 13,
+  "Vitola": "82",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111711,
+  "Nombre": "Montecristo Master 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "821",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111712,
+  "Nombre": "Montecristo Master T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "821",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110287,
+  "Nombre": "Cohiba Secretos 5 BN 2\/C 1\/40",
+  "Marca": 2,
+  "Vitola": "111",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110288,
+  "Nombre": "Cohiba Secretos 5 BN 1\/C 1\/100",
+  "Marca": 2,
+  "Vitola": "111",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141837,
+  "Nombre": "Partagas Maduro No.2 SBN 2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "196",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111732,
+  "Nombre": "Montecristo Maltes SPB 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "344",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110807,
+  "Nombre": "Romeo y Julieta Capuleto 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "343",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112671,
+  "Nombre": "Romeo y Julieta Sport Largos 2\/C 1\/40",
+  "Marca": 13,
+  "Vitola": "143",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110206,
+  "Nombre": "Cohiba Talisman SLB 2\/C 1\/100 EL-2017",
+  "Marca": 2,
+  "Vitola": "185",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240068,
+  "Nombre": "Ramon Allones Phoenicio 40 SBN 1\/C 1\/100 R-2020",
+  "Marca": 12,
+  "Vitola": "24",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240069,
+  "Nombre": "Ramon Allones Phoenicio 40 SBN 2\/C 1\/50 R-2020",
+  "Marca": 12,
+  "Vitola": "24",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011112667,
+  "Nombre": "Romeo y Julieta Tacos 2\/C 1\/40 EL-2018",
+  "Marca": 13,
+  "Vitola": "191",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140701,
+  "Nombre": "Partagas Presidentes  2\/C 1\/40",
+  "Marca": 7,
+  "Vitola": "63",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011141220,
+  "Nombre": "Hoyo de Monterrey Elegantes SLB 1\/C 1\/100 CH",
+  "Marca": 15,
+  "Vitola": "631",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014460010,
+  "Nombre": "Cuaba 10 Apac SLB 1\/C 1\/100 R-2020",
+  "Marca": 53,
+  "Vitola": "63",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2014240066,
+  "Nombre": "Ramon Allones 10 Perfecto SBN 1\/C 1\/100 R-2020",
+  "Marca": 12,
+  "Vitola": "63",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011113730,
+  "Nombre": "Trinidad Topes SBN 2\/C 1\/83",
+  "Marca": 51,
+  "Vitola": "178",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111215,
+  "Nombre": "Hoyo de Monterrey Le Hoyo Du Depute SLB 1\/M 1\/40",
+  "Marca": 15,
+  "Vitola": "139",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111713,
+  "Nombre": "Montecristo Junior 2\/C 1\/50",
+  "Marca": 6,
+  "Vitola": "1391",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111716,
+  "Nombre": "Montecristo Junior T\/A P\/C 3\/T D 1\/66",
+  "Marca": 6,
+  "Vitola": "1391",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011142657,
+  "Nombre": "Romeo y Julieta Nobles SPB 2\/C 1\/50 NP-2020",
+  "Marca": 13,
+  "Vitola": "205",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011120501,
+  "Nombre": "Por Larrañaga Panetelas 2\/C 1\/40",
+  "Marca": 21,
+  "Vitola": "160",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011121701,
+  "Nombre": "Rafael Gonzalez Panetelas Extra 2\/C 1\/40",
+  "Marca": 19,
+  "Vitola": "160",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011111748,
+  "Nombre": "Montecristo Brillantes SPB 2\/C 1\/56 SE-2023",
+  "Marca": 6,
+  "Vitola": "226",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011140804,
+  "Nombre": "Romeo y Julieta Cupidos SPB 2\/C 1\/50 CDH+HS 2022",
+  "Marca": 13,
+  "Vitola": "217",
+  "UM": "mu"
+ },
+ {
+  "Codigo": 2011110234,
+  "Nombre": "Cohiba 55 Aniversario BN 1\/C 1\/100 EL-2021",
+  "Marca": 2,
+  "Vitola": "210",
+  "UM": "mu"
+ }
+]
+}

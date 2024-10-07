@@ -2,7 +2,13 @@ from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from configuracion.models import UserUeb, UnidadContable
-from codificadores.models import ProductoDepartamento, TipoProductoDepartamento
+from codificadores.models import ProductoDepartamento, TipoProductoDepartamento, ProductoFlujo, \
+    LineaSalida, Medida, MarcaSalida, TipoProducto
+import os
+from django.conf import settings
+import json
+from django.db import transaction
+from codificadores import ChoiceTiposProd
 
 DICC_GROUP_PERMISSION = {
     (1, 2, 3, 4, 5):
@@ -73,8 +79,8 @@ DICC_GROUP_PERMISSION = {
 
 
 class Command(BaseCommand):
+    @transaction.atomic
     def add_datos_group_permission(self):
-
         departamento_poducto = [
             ProductoDepartamento(pk=TipoProductoDepartamento.MATERIAPRIMA),
             ProductoDepartamento(pk=TipoProductoDepartamento.MANOJOS),
@@ -289,5 +295,60 @@ class Command(BaseCommand):
         except Exception as e:
             print("PERMISOS A LOS GRUPOS YA EXISTEN")
 
+    @transaction.atomic
+    def add_lineas_salida(self, *arges):
+        print("ACTUALIZANDO LINEAS DE SALIDAS")
+        json_file = os.path.join(settings.STATIC_ROOT, 'LineasSalida.json')
+        try:
+            with open(json_file, 'r') as file:
+                datos = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            print(f"Error al procesar fichero que contiene los datos de las Líneas de salida {json_file}")
+            return
+
+        data_array = datos['LINEAS DE SALIDA']
+        datos_prod = []
+        datos_linea = []
+        cant_lineas_actualizadas = 0
+        for d in data_array:
+            nombre = d['Nombre']
+            codigo = d['Codigo']
+            codigo_marca = d['Marca']
+            codigo_vitola = d['Vitola']
+            umedida = d['UM']
+
+            medida = Medida.objects.filter(clave=umedida)
+            if not medida.exists():
+                mensaj = f"UM {umedida} no existe"
+
+            marcasalida = MarcaSalida.objects.filter(codigo=codigo_marca)
+            if not marcasalida.exists():
+                mensaj = f"Marca de Salida {codigo_marca} no existe"
+
+            vitola = ProductoFlujo.objects.filter(codigo=codigo_vitola)
+            if not vitola.exists():
+                mensaj = f"Vitola {codigo_vitola} no existe"
+
+            tipoprodHab = TipoProducto.objects.get(pk=ChoiceTiposProd.HABILITACIONES)
+            if medida.exists() and marcasalida.exists() and vitola.exists():
+                cant_lineas_actualizadas += 1
+                print(f"Linea de Salida => {codigo} - {nombre}")
+                prod = ProductoFlujo(codigo=codigo, descripcion=nombre, medida=medida.first(),
+                                     tipoproducto=tipoprodHab)
+                datos_prod.append(prod)
+                objlinea = LineaSalida(marcasalida=marcasalida.first(),
+                                       producto = prod,
+                                       vitola = vitola.first()
+                                       )
+                datos_linea.append(objlinea)
+
+        print(f"Cantidad de Líneas de salida procesadas ==> {cant_lineas_actualizadas}")
+        try:
+            ProductoFlujo.objects.bulk_create(datos_prod)
+            LineaSalida.objects.bulk_create(datos_linea)
+        except Exception as e:
+            pass
+
     def handle(self, *args, **options):
         self.add_datos_group_permission()
+        self.add_lineas_salida()

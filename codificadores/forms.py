@@ -2312,20 +2312,14 @@ class LineaSalidaForm(forms.ModelForm):
             descripcion = self.cleaned_data.get("descripcion").strip()
             activo = self.cleaned_data.get("activo")
 
-            if self.instance.producto_id:
-                producto = ProductoFlujo.objects.get(id=self.instance.producto.id)
-                producto.descripcion = descripcion
-                producto.medida = self.cleaned_data.get("um")
-                producto.activo = activo
-                producto.save()
-            else:
-                producto = ProductoFlujo.objects.create(codigo=codigo,
-                                                        descripcion=descripcion,
-                                                        medida=self.cleaned_data.get("um"),
-                                                        activo=activo,
-                                                        tipoproducto=TipoProducto.objects.get(
-                                                            id=ChoiceTiposProd.LINEASALIDA))
-                self.instance.producto_id = producto.id
+            producto, created = ProductoFlujo.objects.update_or_create(codigo=codigo,
+                                                        defaults={
+                                                            'descripcion':descripcion,
+                                                            'medida':self.cleaned_data.get("um"),
+                                                            'activo': activo,
+                                                            'tipoproducto':TipoProducto.objects.get(id=ChoiceTiposProd.LINEASALIDA)
+                                                        })
+            self.instance.producto_id = producto.id
             instance = super().save(*args, **kwargs)
         return instance
 

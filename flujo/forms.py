@@ -116,15 +116,6 @@ class DocumentoForm(forms.ModelForm):
             'tipodocumento',
             'ueb',
         ]
-        widgets = {
-            'fecha': MyCustomDateRangeWidget(
-                picker_options={
-                    'format': 'DD/MM/YYYY',
-                    'singleDatePicker': True,
-                    'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
-                }
-            ),
-        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -182,9 +173,6 @@ class DocumentoForm(forms.ModelForm):
             self.fields['numerocontrol'].initial = instance.numerocontrol
 
         if self.fecha_procesamiento or self.edicion:
-            self.fields['fecha'].initial = self.fecha_procesamiento
-            self.fields['fecha'].widget.attrs['readonly'] = True
-
             self.fields['fecha'].initial = self.fecha_procesamiento
             self.fields['fecha'].widget.attrs['readonly'] = True
 

@@ -618,6 +618,7 @@ class BaseModalFormView(FormView):
     close_on_error = False
 
     report_response = False
+    isreport = False
     report_name = ''
 
     def get_fields_kwargs(self, form):
@@ -705,6 +706,7 @@ class BaseModalFormView(FormView):
             'btn_rechazar': None,
             'btn_aceptar': 'Aceptar',
             'btn_generar_doc': None,
+            'isreport': self.isreport,
         })
         return ctx
 
