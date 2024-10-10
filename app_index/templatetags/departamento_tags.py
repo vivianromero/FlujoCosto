@@ -29,6 +29,8 @@ def get_departamento_object(departamento):
 @register.simple_tag
 def not_in(value, arg_list):
     arg_list = literal_eval(arg_list)
+    if '.' in value:
+        return value not in arg_list
     if ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA in arg_list and value == ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA and settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys():
         return not settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo']
     if value and int(value) == ChoiceTiposDoc.ENTRADA_DESDE_VERSAT:

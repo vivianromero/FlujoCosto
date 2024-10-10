@@ -589,19 +589,20 @@ def confirmar_documento(request, pk):
                 departamento_origen = departamento
                 DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
                 crea_detalles_generado(new_doc, detalles)
-            case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
-                if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                        settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
-                    new_tipo = ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA
-                    ueb = obj.documentotransfext_documento.get().unidadcontable
-                    destino = obj.documentotransfextdptodest_documento.get()
-                    destino = destino.departamento_destino if destino else destino
-                    new_doc = crea_documento_generado(ueb, destino, new_tipo)
+            # case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
+                #TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+                # if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+                #         settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
+                #     new_tipo = ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA
+                #     ueb = obj.documentotransfext_documento.get().unidadcontable
+                #     destino = obj.documentotransfextdptodest_documento.get()
+                #     destino = destino.departamento_destino if destino else destino
+                #     new_doc = crea_documento_generado(ueb, destino, new_tipo)
+                #
+                #     DocumentoTransfExternaRecibidaDocOrigen.objects.create(documento=new_doc, documentoorigen=obj)
 
-                    DocumentoTransfExternaRecibidaDocOrigen.objects.create(documento=new_doc, documentoorigen=obj)
-
-                DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
-                crea_detalles_generado(new_doc, detalles)
+                    # DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
+                    # crea_detalles_generado(new_doc, detalles)
 
         actualizar_existencias(ueb, departamento, detalles, operacion)
 
