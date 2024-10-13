@@ -226,12 +226,12 @@
                 modal.hide()
                 e.detail.shouldSwap = false
             }
-            if (swap_targets.includes(e.detail.target.id)) {
-                if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
-                    let period = document.getElementById(period_id[0])
-                    htmx.trigger(period, 'process_date')
-                }
-            }
+            //if (swap_targets.includes(e.detail.target.id)) {
+                //if (department_id.includes(e.detail.requestConfig.headers["HX-Trigger"].substring(0,16))) {
+                    {#let period = document.getElementById(period_id[0])#}
+                    {#htmx.trigger(period, 'process_date')#}
+                //}
+            //}
 
         })
 

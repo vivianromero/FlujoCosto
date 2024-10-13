@@ -121,6 +121,10 @@ class Underconstruction(TemplateView):
     template_name = 'app_index/adminlte/underconstruction.html'
 
 
+class ErrorGenerateReport(TemplateView):
+    template_name = 'app_index/adminlte/errorgeneratereport.html'
+
+
 class Dashboard(TemplateView):
     template_name = 'app_index/adminlte/dashboard.html'
 
@@ -308,6 +312,34 @@ class CommonCRUDView(CRUDView):
                     'hx_reswap': self.hx_reswap,
                 })
                 return ctx
+
+            def form_valid(self, form, params=None):
+                event_action = None
+                if self.request.method == 'POST':
+                    event_action = self.request.POST.get('event_action', None)
+                elif self.request.method == 'GET':
+                    event_action = self.request.GET.get('event_action', None)
+                if form.is_valid():
+                    rtn = super(OEditView, self).form_valid(form)
+                    values = {'event_action': event_action, }
+                    if params:
+                        values.update(params)
+                    return HttpResponseLocation(
+                        # rtn,
+                        self.get_success_url(),
+                        target=self.hx_target,
+                        swap=self.hx_swap,
+                        headers={
+                            'HX-Trigger': self.request.htmx.trigger,
+                            'HX-Trigger-Name': self.request.htmx.trigger_name,
+                            'event_action': event_action,
+                        },
+                        values=values,
+                    )
+                else:
+                    return render(self.request, self.get_template_names(), {
+                        'form': form,
+                    })
 
             def form_invalid(self, form, **kwargs):
                 """If the form is invalid, render the invalid form."""
@@ -586,6 +618,8 @@ class BaseModalFormView(FormView):
     close_on_error = False
 
     report_response = False
+    isreport = False
+    report_name = ''
 
     def get_fields_kwargs(self, form):
         """
@@ -626,19 +660,22 @@ class BaseModalFormView(FormView):
                             event_action = 'not_submitted'
                 self.success_url = reverse_lazy(self.father_view) + params
 
-            values = {'event_action': event_action, 'reported': self.report_response}
-            return HttpResponseLocation(
-                self.get_success_url(),
-                target=self.hx_target,
-                headers={
-                    'HX-Trigger': self.request.htmx.trigger,
-                    'HX-Trigger-Name': self.request.htmx.trigger_name,
-                    'HX-Replace-Url': 'false',
-                    'event_action': event_action,
-                    'reported': self.report_response,
-                },
-                values=values,
-            )
+            if not self.report_response:
+                values = {'event_action': event_action, 'reported': self.report_response}
+                return HttpResponseLocation(
+                    self.get_success_url(),
+                    target=self.hx_target,
+                    headers={
+                        'HX-Trigger': self.request.htmx.trigger,
+                        'HX-Trigger-Name': self.request.htmx.trigger_name,
+                        'HX-Replace-Url': 'false',
+                        'event_action': event_action,
+                        'reported': self.report_response,
+                    },
+                    values=values,
+                )
+            else:
+                return func_ret['report_response']
         else:
             return render(self.request, self.template_name, {
                 'form': form,
@@ -656,6 +693,7 @@ class BaseModalFormView(FormView):
         ctx = super().get_context_data(**kwargs)
         ctx.update({
             'modal_form_title': self.modal_form_title,
+            'report_name': self.report_name,
             'max_width': self.max_width,
             'hx_target': self.hx_target,
             'hx_swap': self.hx_swap,
@@ -668,6 +706,7 @@ class BaseModalFormView(FormView):
             'btn_rechazar': None,
             'btn_aceptar': 'Aceptar',
             'btn_generar_doc': None,
+            'isreport': self.isreport,
         })
         return ctx
 

@@ -29,11 +29,11 @@
             js_process_date: '{{ fecha_procesamiento|date:'d/m/Y'|safe }}',
             js_htmx_departamento_trigger: '{{ htmx_departamento_trigger }}'
         }
-        if (window.data.js_htmx_departamento_trigger && window.data.js_process_date){
+        if (window.data.js_htmx_departamento_trigger === 'True' && window.data.js_process_date){
             let period = document.getElementById('id_fecha_documento_formfilter')
             $(period)[0].value = window.data.js_process_date + ' - ' + window.data.js_process_date
         }
-        if (window.data.js_htmx_departamento_trigger && !window.data.js_process_date){
+        if (window.data.js_htmx_departamento_trigger === 'True' && !window.data.js_process_date){
             let period = document.getElementById('id_fecha_documento_formfilter')
             $(period)[0].value = ""
         }

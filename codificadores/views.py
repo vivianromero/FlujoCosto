@@ -1383,7 +1383,7 @@ class CambioProductoCRUD(CommonCRUDView):
 
     list_fields = [
         'productoo',
-        'productoo',
+        'productod',
     ]
 
     filter_fields = list_fields
@@ -1496,8 +1496,7 @@ class LineaSalidaCRUD(CommonCRUDView):
                     mess_error = "Ya existe un producto con este Código"
                     form.add_error(None, mess_error)
                     return self.form_invalid(form)
-                return HttpResponse(""" """)
-                # return super().form_valid(form)
+                return super().form_valid(form)
 
         return OCreateView
 

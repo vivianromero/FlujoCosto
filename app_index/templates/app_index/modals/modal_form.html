@@ -117,12 +117,8 @@
             
             <div class="modal-footer">
                 {% if form_view %}
-                    <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fa fa-close"></i>
-                        Cancelar
-                    </button>
                     {% if btn_generar_doc %}
-                    	<button 
+                    	<button
                                 id="id_form_btn_gen_doc" name="form_btn_gen_doc" class="btn btn-primary" data-dismiss="modal">
                                 <i class="fa fa-check"></i>
                                 {{  btn_generar_doc }}
@@ -132,13 +128,14 @@
                             hx-vals='{"event_action": "submitted"}'
                             hx-post="{{ request.path }}{{ getparams }}"
                             hx-trigger="click"
+                            hx-on="htmx:afterRequest: mostrarPDF(event)"
                             {% if hx_target %}hx-target="{{ hx_target }}" {% else %}hx-target="#main_content_swap"{% endif %}
                             {% if hx_swap %}hx-swap="{{ hx_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-                            id="id_form_btn_acept" 
-                            type="submit" 
+                            id="id_form_btn_acept"
+                            type="submit"
                             name="form_btn_acept"
                             class="btn btn-primary">
-                            <i class="fa fa-check"></i> 
+                            <i class="fa fa-check"></i>
                             {{  btn_aceptar }}
                         </button>
                     {% endif %} 
@@ -169,7 +166,11 @@
                         <i class="fa fa-ban"></i> 
                         {{  btn_rechazar }}
                     </button>
-                    {% endif %} 
+                    {% endif %}
+                    <button id="id_form_btn_cancel" name="form_btn_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fa fa-close"></i>
+                        Cancelar
+                    </button>
                 {% endif %}
             </div>
             </div>
@@ -272,10 +273,7 @@
           theme: 'bootstrap4'
         })
     })
-    document.getElementById('id_form_btn_gen_doc').addEventListener('click', function() {
-        // Genera la URL del PDF usando la URL configurada en Django
-        const url = "{% url 'app_index:flujo:repexistencia' %}";
-        // Abre el PDF en una nueva pestaña
-        window.open(url, '_blank');
-    });
+function mostrarPDF(event) {
+    window.open('/es/reporte/pdf/', '_blank');
+}
 </script>

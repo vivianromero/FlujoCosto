@@ -26,19 +26,19 @@
     </a>
 {% endif %}
 {% crud_url object "create" namespace as url %}
-    {% if not record.fila in row_nodelete and record.encabezado %}
-    <a id="id_createhijo_url_{{record.pk}}"
-       href="{{ url }}?padre={{ record.pk|safe }}"
-       hx-get="{{ url }}?padre={{ record.pk|safe }}"
-       hx-trigger="click"
-       {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
-       {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
-    >
-        <i class="fa fa-file-circle-plus" title="{% trans 'Crear Hijo' %}"
-            style="margin-right: 5px;">
-        </i>
-    </a>
-{% endif %}
+    {% if nurl and 'create' in views_available and crud_perms.update and not record.fila in row_nodelete and record.encabezado %}
+        <a id="id_createhijo_url_{{record.pk}}"
+           href="{{ url }}?padre={{ record.pk|safe }}"
+           hx-get="{{ url }}?padre={{ record.pk|safe }}"
+           hx-trigger="click"
+           {% if hx_form_target %}hx-target="{{ hx_form_target }}" {% else %}hx-target="#dialog"{% endif %}
+           {% if hx_form_swap %}hx-swap="{{ hx_form_swap }}" {% else %}hx-swap="outerHTML"{% endif %}
+        >
+            <i class="fa fa-file-circle-plus" title="{% trans 'Crear Hijo' %}"
+                style="margin-right: 5px;">
+            </i>
+        </a>
+    {% endif %}
 {% crud_nurl object "delete" namespace as nurl %}
 {% if nurl and 'delete' in views_available and crud_perms.delete and not record.fila in row_nodelete %}
     <a hx-post="{% url nurl record.pk %}{{ getparams }}"

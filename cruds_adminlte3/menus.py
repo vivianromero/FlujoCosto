@@ -259,6 +259,18 @@ MENUS = {
                             "hx_target": '#dialog',
                             "hx_swap": 'outerHTML',
                             "validators": ["app_auth.usuarios.validators.is_operflujo"],
+                        },
+                        {
+                            "id": 'id_nav_link_reporte_flujo_mov',
+                            "name": "Movimiento de productos",
+                            "icon_class": 'fa fa-file',
+                            "target": '_blank',
+                            # "url": reverse_lazy('app_index:flujo:report_test'),
+                            "url": reverse_lazy('app_index:flujo:report_flujo_movimiento'),
+                            "hx_get": reverse_lazy('app_index:flujo:report_flujo_movimiento'),
+                            "hx_target": '#dialog',
+                            "hx_swap": 'outerHTML',
+                            "validators": ["app_auth.usuarios.validators.is_operflujo"],
                         }
                     ]
                 },

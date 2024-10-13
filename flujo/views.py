@@ -430,12 +430,16 @@ class DocumentoCRUD(CommonCRUDView):
                         '%d/%m/%Y') + ' - ' + self.fecha_procesamiento.strftime(
                         '%d/%m/%Y')
 
-                if self.request.htmx.trigger_name == 'departamento':
+                trigger_name = self.request.htmx.trigger_name
+                if self.request.htmx.triggering_event:
+                    triggering_event = self.request.htmx.triggering_event['type'] if 'type' in self.request.htmx.triggering_event else None
+
+                if trigger_name == 'departamento':
                     request.GET = request.GET.copy()
                     request.GET['rango_fecha'] = self.fecha_procesamiento_range
-                if self.request.htmx.trigger_name == 'rango_fecha' and rango_fecha == "":
-                    request.GET = request.GET.copy()
-                    request.GET['rango_fecha'] = self.fecha_procesamiento_range
+                # if (trigger_name == 'rango_fecha' and rango_fecha == "") or (trigger_name == 'rango_fecha' and triggering_event == "process_date"):
+                #     request.GET = request.GET.copy()
+                #     request.GET['rango_fecha'] = self.fecha_procesamiento_range
                 return super().get(request, *args, **kwargs)
 
             # def dispatch(self, request, *args, **kwargs):
@@ -479,8 +483,16 @@ class DocumentoCRUD(CommonCRUDView):
                 return ctx
 
             def form_valid(self, form):
+                params = {}
+                dep = None
+                if self.request.method == 'POST':
+                    dep = self.request.POST.get('departamento', None)
+                elif self.request.method == 'GET':
+                    dep = self.request.GET.get('departamento', None)
+                if dep:
+                    params['departamento'] = dep
                 try:
-                    return super().form_valid(form)
+                    return super().form_valid(form, params=params)
                 except IntegrityError as e:
                     # Maneja el error de integridad (duplicación de campos únicos)
                     mess_error = settings.NUMERACION_DOCUMENTOS_CONFIG[
@@ -590,19 +602,19 @@ def confirmar_documento(request, pk):
                 DocumentoTransfDepartamentoRecibida.objects.create(documento=new_doc, documentoorigen=obj)
                 crea_detalles_generado(new_doc, detalles)
             # case ChoiceTiposDoc.TRANSFERENCIA_EXTERNA:
-                #TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
-                # if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
-                #         settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
-                #     new_tipo = ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA
-                #     ueb = obj.documentotransfext_documento.get().unidadcontable
-                #     destino = obj.documentotransfextdptodest_documento.get()
-                #     destino = destino.departamento_destino if destino else destino
-                #     new_doc = crea_documento_generado(ueb, destino, new_tipo)
-                #
-                #     DocumentoTransfExternaRecibidaDocOrigen.objects.create(documento=new_doc, documentoorigen=obj)
+            #TODO ESTO SE DESHABILITA PROQUE EN LA TRANSF EXT LA UEB QUE ENVÍA NOSABE HACIA QUÉ DEPARTAMENTO ENVÍA
+            # if settings.OTRAS_CONFIGURACIONES and 'Sistema Centralizado' in settings.OTRAS_CONFIGURACIONES.keys() and \
+            #         settings.OTRAS_CONFIGURACIONES['Sistema Centralizado']['activo'] == True:
+            #     new_tipo = ChoiceTiposDoc.RECIBIR_TRANS_EXTERNA
+            #     ueb = obj.documentotransfext_documento.get().unidadcontable
+            #     destino = obj.documentotransfextdptodest_documento.get()
+            #     destino = destino.departamento_destino if destino else destino
+            #     new_doc = crea_documento_generado(ueb, destino, new_tipo)
+            #
+            #     DocumentoTransfExternaRecibidaDocOrigen.objects.create(documento=new_doc, documentoorigen=obj)
 
-                    # DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
-                    # crea_detalles_generado(new_doc, detalles)
+            # DocumentoTransfExternaRecibida.objects.create(documento=new_doc, unidadcontable=obj.ueb)
+            # crea_detalles_generado(new_doc, detalles)
 
         actualizar_existencias(ueb, departamento, detalles, operacion)
 
@@ -886,7 +898,7 @@ def aceptar_documento_versat(kwargs):
         departamento = ''
         if request.htmx.current_url_abs_path and 'departamento' in request.htmx.current_url_abs_path:
             # departamento = request.htmx.current_url_abs_path.split('&')[0].split('=')[1]
-            departamento = request.htmx.current_url_abs_path.split('&')[1].split('=')[1] #este es el id del dpto
+            departamento = request.htmx.current_url_abs_path.split('&')[1].split('=')[1]  #este es el id del dpto
         dicc_detalle = {}
         detalles_generados = []
         for p in detalles:
@@ -1328,7 +1340,6 @@ def cierremes(kwargs):
     fechaperiodo = fecha_hasta + timedelta(days=1)
     FechaPeriodo.objects.filter(ueb=ueb).update(fecha=fechaperiodo)
 
-
     # actualizar la varget_fechas_procesamiento_inicioiable de las fechas
     # fecha_ant = settings.FECHAS_PROCESAMIENTO[ueb][departamento]['fecha_procesamiento']
     settings.FECHAS_PROCESAMIENTO = get_fechas_procesamiento_inicio(ueb=ueb)
@@ -1386,21 +1397,43 @@ class DameFechaModalFormView(BaseModalFormView):
 
 
 def obtener_fecha_procesamiento(request):
+    trigger_name = request.htmx.trigger_name
+    # if request.htmx.triggering_event:
+    triggering_event_type = request.htmx.triggering_event['type'] if 'type' in request.htmx.triggering_event else None
+    triggering_event_target = request.htmx.triggering_event['target'] if 'type' in request.htmx.triggering_event else None
+
     ueb = request.user.ueb
     dep = request.GET.get('departamento', None)
     dpto = Departamento.objects.get(pk=dep) if dep else None
     rango_fecha = request.GET.get('rango_fecha', "")
     fecha_procesamiento = None
-    fecha_procesamiento = dame_fecha(ueb, dpto)
-
     data = {
         'departamento': dep,
     }
+    if 'id_departamento' in triggering_event_target.split('#')[1].split('.')[0]:
+        fecha_procesamiento = dame_fecha(ueb, dpto)
 
-    if fecha_procesamiento:
+        if fecha_procesamiento:
+            data.update({
+                'rango_fecha': fecha_procesamiento.strftime('%d/%m%Y') + ' - ' + fecha_procesamiento.strftime('%d/%m%Y')
+            })
+
+    if 'id_rango_fecha' or 'id_fecha_documento' in triggering_event_target.split('#')[1].split('.')[0]:
         data.update({
-            'rango_fecha': fecha_procesamiento.strftime('%d/%m%Y') + ' - ' + fecha_procesamiento.strftime('%d/%m%Y')
+            'rango_fecha': rango_fecha
         })
+        return HttpResponseLocation(
+            reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            target='#table_content_documento_swap',
+            headers={
+                'HX-Trigger': request.htmx.trigger,
+                'HX-Trigger-Name': request.htmx.trigger_name,
+            },
+            values={
+                'departamento': dep,
+                'rango_fecha': rango_fecha,
+            }
+        )
 
     form = DocumentoFormFilter(data)
 
@@ -1537,16 +1570,14 @@ def dame_fecha_cierre_mes(ueb):
 
     return fecha_ini, fecha_fin
 
-
-def report_test(request):
-    report_generator = ReportGenerator('Reporte de Existencias')
-    parameters = {
-        'param_ueb_id': str('009bfd05-0357-4614-ba5b-c9876272a460'),
-        'param_departamento_id': str('c726aaf1-2729-42dd-90f8-739d0466bf93'),
-        'param_estado': ','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
-        'param_periodo': '01/08/2024 al 25/08/2024',
-        'param_fechai': '2024-01-01',
-        'param_fechaf': '2024-01-31'
-    }
-    return report_generator.generate_report(parameters)
-
+# def report_test(request):
+#     report_generator = ReportGenerator('Reporte de Existencias')
+#     parameters = {
+#         'param_ueb_id': str('009bfd05-0357-4614-ba5b-c9876272a460'),
+#         'param_departamento_id': str('c726aaf1-2729-42dd-90f8-739d0466bf93'),
+#         'param_estado': ','.join([str(EstadoProducto.BUENO.value), str(EstadoProducto.DEFICIENTE.value)]),
+#         'param_periodo': '01/08/2024 al 25/08/2024',
+#         'param_fechai': '2024-01-01',
+#         'param_fechaf': '2024-01-31'
+#     }
+#     return report_generator.generate_report(parameters)

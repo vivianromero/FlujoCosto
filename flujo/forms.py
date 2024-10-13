@@ -116,15 +116,6 @@ class DocumentoForm(forms.ModelForm):
             'tipodocumento',
             'ueb',
         ]
-        widgets = {
-            'fecha': MyCustomDateRangeWidget(
-                picker_options={
-                    'format': 'DD/MM/YYYY',
-                    'singleDatePicker': True,
-                    'maxDate': str(date.today()),  # TODO Fecha no puede ser mayor que la fecha actual
-                }
-            ),
-        }
 
     def __init__(self, *args, **kwargs) -> None:
         instance = kwargs.get('instance', None)
@@ -182,9 +173,6 @@ class DocumentoForm(forms.ModelForm):
             self.fields['numerocontrol'].initial = instance.numerocontrol
 
         if self.fecha_procesamiento or self.edicion:
-            self.fields['fecha'].initial = self.fecha_procesamiento
-            self.fields['fecha'].widget.attrs['readonly'] = True
-
             self.fields['fecha'].initial = self.fecha_procesamiento
             self.fields['fecha'].widget.attrs['readonly'] = True
 
@@ -685,12 +673,15 @@ class DocumentoFormFilter(forms.Form):
         self.fields['rango_fecha'].widget.attrs.update({
             'class': 'class="form-control',
             'style': 'height: auto; padding: 0;',
-            'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            'hx-ext': 'event-header',
+            # 'hx-get': reverse_lazy(crud_url_name(Documento, 'list', 'app_index:flujo:')),
+            'hx-get': reverse_lazy('app_index:flujo:obtener_fecha_procesamiento'),
             'hx-target': '#table_content_documento_swap',
-            'hx-trigger': 'change, process_date',
+            'hx-trigger': 'change, change from:#div_id_departamento, process_date',
             'hx-replace-url': 'true',
             'hx-preserve': 'true',
             'hx-indicator': '.loading-bar',
+            'hx-include': '[name="departamento"]',
             # 'hx-on:htmx:config-request': "console.log($(this)[0].value)",
         })
         self.helper.form_id = 'id_documento_form_filter'
