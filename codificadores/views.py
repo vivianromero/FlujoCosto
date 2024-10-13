@@ -2250,7 +2250,7 @@ def fila_encabezado(request):
 
     calculado = False if not request.GET.get('calculado') else True
     show_desglosado = not encabezado
-    show_calculado = encabezado
+    show_calculado = encabezado and not obj.get_children()
     value_desglosado = obj.desglosado if obj and show_desglosado else False
     value_calculado = False
     desglose_disabled = fila in ['1.1', '1.2']
