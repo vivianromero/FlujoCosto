@@ -8,12 +8,10 @@
     {% endfor %}
     {% if record.get_children %}
         <strong><em>{{ record.descripcion }}</em></strong>
-    {% else %}
+    {% elif not record.encabezado %}
         {{ record.descripcion }}
     {% endif %}
 {% endif %}
 {% if record.encabezado %}
         <strong><em>{{ record.descripcion }}</em></strong>
-{% else %}
-    {{ record.descripcion }}
 {% endif %}
